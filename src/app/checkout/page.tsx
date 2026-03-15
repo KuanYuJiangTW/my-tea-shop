@@ -140,11 +140,11 @@ export default function CheckoutPage() {
                 <h2 className="font-serif text-xl font-bold text-tea-text mb-5">付款方式</h2>
                 <div className="space-y-3">
                   {([
-                    { value: "online", label: "線上付款", desc: "信用卡、ATM 轉帳、超商代碼（由綠界金流處理）",
+                    { value: "online" as PaymentMethod, label: "線上付款", desc: "信用卡、ATM 轉帳、超商代碼（由綠界金流處理）",
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> },
-                    { value: "cod",    label: "貨到付款", desc: "商品送達時以現金付款，適用宅配及超商店到店",
+                    { value: "cod" as PaymentMethod, label: "貨到付款", desc: "商品送達時以現金付款，適用宅配及超商店到店",
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><path d="M3 8h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><path d="M6 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> },
-                  ] as const).map(opt => (
+                  ]).map(opt => (
                     <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}>
                       <input type="radio" name="payment" value={opt.value} checked={payment === opt.value}
                         onChange={() => setPayment(opt.value)} className="accent-tea-green mt-0.5" />
@@ -163,11 +163,11 @@ export default function CheckoutPage() {
                 <h2 className="font-serif text-xl font-bold text-tea-text mb-5">配送方式</h2>
                 <div className="space-y-3 mb-6">
                   {([
-                    { value: "home", label: "宅配到府", desc: "黑貓宅急便，送達您指定的地址",
+                    { value: "home" as DeliveryType, label: "宅配到府", desc: "黑貓宅急便，送達您指定的地址",
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
-                    { value: "cvs",  label: "超商店到店", desc: "7-ELEVEN、全家、萊爾富、OK 超商取貨付款",
+                    { value: "cvs" as DeliveryType, label: "超商店到店", desc: "7-ELEVEN、全家、萊爾富、OK 超商取貨付款",
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 3h18v4H3z"/><path d="M3 7v13h18V7"/><path d="M9 7v13M15 7v13"/></svg> },
-                  ] as const).map(opt => (
+                  ]).map(opt => (
                     <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${delivery === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}>
                       <input type="radio" name="delivery" value={opt.value} checked={delivery === opt.value}
                         onChange={() => setDelivery(opt.value)} className="accent-tea-green mt-0.5" />
