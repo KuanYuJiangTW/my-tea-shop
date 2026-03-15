@@ -10,5 +10,5 @@ export async function POST(req: NextRequest) {
     process.env.NEXT_PUBLIC_BASE_URL ??
     `${req.headers.get("x-forwarded-proto") ?? "https"}://${req.headers.get("x-forwarded-host") ?? req.nextUrl.host}`;
 
-  return NextResponse.redirect(`${base}/order/result?${params.toString()}`);
+  return NextResponse.redirect(`${base}/order/result?${params.toString()}`, { status: 302 });
 }
