@@ -1,6 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import { products } from "@/data/products";
+
+export const metadata: Metadata = {
+  title: "霧抉茶 | 台灣嘉義梅山高山茶",
+  description: "嘉義梅山一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。從茶園到您手上，每一泡都由我們親手把關。",
+  alternates: {
+    canonical: "/",
+  },
+};
 
 const featuredProducts = products.filter((p) => p.featured);
 

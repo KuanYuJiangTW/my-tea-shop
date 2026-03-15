@@ -1,4 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "關於我們",
+  description: "霧抉茶源自嘉義阿里山梅山山區，一家三口在高山茶園耕耘超過40年。自產自銷、手工製作，每一泡茶都是我們用時間和心意累積的風味。",
+  keywords: ["霧抉茶品牌故事", "嘉義梅山茶農", "台灣自產自銷茶", "40年製茶經驗"],
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    title: "關於霧抉茶 | 嘉義梅山一家三口的茶園故事",
+    description: "霧抉茶源自嘉義阿里山梅山山區，一家三口在高山茶園耕耘超過40年。自產自銷、手工製作。",
+    url: "/about",
+  },
+};
 
 export default function AboutPage() {
   return (

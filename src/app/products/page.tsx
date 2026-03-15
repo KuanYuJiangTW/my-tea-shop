@@ -1,17 +1,21 @@
-"use client";
+import type { Metadata } from "next";
+import ProductsClient from "./ProductsClient";
 
-import { useState } from "react";
-import ProductCard from "@/components/ProductCard";
-import { products, categories } from "@/data/products";
+export const metadata: Metadata = {
+  title: "茶葉系列",
+  description: "嚴選嘉義梅山高山烏龍茶、金萱茶、紅茶、紅烏龍、四季春等台灣頂級茶葉。每一款都來自自家茶園，品質親手把關。",
+  keywords: ["台灣高山茶", "烏龍茶購買", "金萱茶", "四季春", "嘉義梅山茶葉", "高山茶網購"],
+  alternates: {
+    canonical: "/products",
+  },
+  openGraph: {
+    title: "茶葉系列 | 霧抉茶",
+    description: "嚴選嘉義梅山高山烏龍茶、金萱茶、紅茶等台灣頂級茶葉，品質親手把關。",
+    url: "/products",
+  },
+};
 
 export default function ProductsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("全部");
-
-  const filtered =
-    selectedCategory === "全部"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
-
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -30,42 +34,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-3 mb-12 justify-center">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
-                selectedCategory === cat
-                  ? "bg-tea-green text-white shadow-sm"
-                  : "bg-white text-tea-text-light hover:bg-tea-green-mist border border-tea-green-pale"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Count */}
-        <p className="text-tea-text-light text-sm mb-8 text-center">
-          共 {filtered.length} 款茶品
-        </p>
-
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-        {filtered.length === 0 && (
-          <div className="text-center py-24">
-            <p className="text-tea-text-light text-lg">此分類暫無茶品</p>
-          </div>
-        )}
-      </div>
+      <ProductsClient />
     </div>
   );
 }
