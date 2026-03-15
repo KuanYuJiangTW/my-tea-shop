@@ -10,6 +10,8 @@ export interface Product {
   description: string;
   color: string;
   featured: boolean;
+  image?: string;
+  image2?: string;
 }
 
 export const products: Product[] = [
@@ -26,6 +28,7 @@ export const products: Product[] = [
       "生長於阿里山雲霧繚繞的高山茶園，日夜溫差大，茶湯清澈金黃，蘭花香氣清雅，入口圓潤甘醇，回甘悠長。",
     color: "from-green-100 to-emerald-200",
     featured: true,
+    image: "/images/products/01.jpg",
   },
   {
     id: 2,
@@ -40,6 +43,8 @@ export const products: Product[] = [
       "因小綠葉蟬自然叮咬而帶出天然蜜香，茶湯呈琥珀紅色，蜜甜香氣濃郁芬芳，滋味醇厚圓潤，回甘持久。",
     color: "from-amber-200 to-orange-300",
     featured: true,
+    image: "/images/products/02.jpg",
+    image2: "/images/products/02-2.jpg",
   },
   {
     id: 3,
@@ -54,6 +59,8 @@ export const products: Product[] = [
       "以金萱品種製成，帶有天然奶香與花香，茶湯淡黃清澈，口感滑順柔和，香氣迷人，是初接觸台灣茶的最佳選擇。",
     color: "from-yellow-100 to-amber-200",
     featured: true,
+    image: "/images/products/03.jpg",
+    image2: "/images/products/03-2.jpg",
   },
   {
     id: 4,

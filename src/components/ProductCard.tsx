@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
@@ -23,28 +24,46 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* 圖片區 */}
       <div className={`h-56 bg-gradient-to-br ${product.color} relative overflow-hidden flex-shrink-0`}>
-        {/* 茶葉裝飾圖案 */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <svg
-            width="100"
-            height="100"
-            viewBox="0 0 100 100"
-            fill="none"
-            className="opacity-25 group-hover:opacity-35 transition-opacity duration-300 group-hover:scale-110 transform"
-          >
-            <path
-              d="M50 10C50 10 22 30 22 55C22 70.46 34.54 83 50 83C65.46 83 78 70.46 78 55C78 30 50 10 50 10Z"
-              fill="#3D4A42"
+        {product.image ? (
+          <>
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className={`object-cover transition-opacity duration-500 ${product.image2 ? "group-hover:opacity-0" : ""}`}
             />
-            <path
-              d="M50 24C50 24 34 40 34 55C34 61.63 41.37 69 50 69C58.63 69 66 61.63 66 55C66 40 50 24 50 24Z"
-              fill="#7D9B84"
-            />
-            <line x1="50" y1="83" x2="50" y2="94" stroke="#3D4A42" strokeWidth="4" strokeLinecap="round" />
-            <path d="M50 55 Q38 45 30 35" stroke="#3D4A42" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5" />
-            <path d="M50 55 Q62 45 70 35" stroke="#3D4A42" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5" />
-          </svg>
-        </div>
+            {product.image2 && (
+              <Image
+                src={product.image2}
+                alt={`${product.name} 第二張`}
+                fill
+                className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              />
+            )}
+          </>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <svg
+              width="100"
+              height="100"
+              viewBox="0 0 100 100"
+              fill="none"
+              className="opacity-25 group-hover:opacity-35 transition-opacity duration-300 group-hover:scale-110 transform"
+            >
+              <path
+                d="M50 10C50 10 22 30 22 55C22 70.46 34.54 83 50 83C65.46 83 78 70.46 78 55C78 30 50 10 50 10Z"
+                fill="#3D4A42"
+              />
+              <path
+                d="M50 24C50 24 34 40 34 55C34 61.63 41.37 69 50 69C58.63 69 66 61.63 66 55C66 40 50 24 50 24Z"
+                fill="#7D9B84"
+              />
+              <line x1="50" y1="83" x2="50" y2="94" stroke="#3D4A42" strokeWidth="4" strokeLinecap="round" />
+              <path d="M50 55 Q38 45 30 35" stroke="#3D4A42" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5" />
+              <path d="M50 55 Q62 45 70 35" stroke="#3D4A42" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5" />
+            </svg>
+          </div>
+        )}
 
         {/* 類別標籤 */}
         <div className="absolute top-3 left-3">
