@@ -122,8 +122,8 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* 右側兩格 */}
-            <div className="grid grid-rows-2 gap-4">
+            {/* 右側三格 */}
+            <div className="grid grid-rows-3 gap-4">
               <div className="relative rounded-3xl overflow-hidden group">
                 <Image src="/images/gallery/picking2.jpg" alt="清晨手工採摘茶葉" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
@@ -136,6 +136,13 @@ export default function AboutPage() {
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
                   <p className="text-white text-sm font-bold">日光萎凋</p>
                   <p className="text-tea-green-pale text-xs mt-0.5">讓茶葉在陽光中舒展</p>
+                </div>
+              </div>
+              <div className="relative rounded-3xl overflow-hidden group">
+                <Image src="/images/gallery/wilting2.jpg" alt="室內萎凋製程" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
+                  <p className="text-white text-sm font-bold">室內萎凋</p>
+                  <p className="text-tea-green-pale text-xs mt-0.5">室內靜置，讓茶葉緩慢發酵</p>
                 </div>
               </div>
             </div>
@@ -171,8 +178,8 @@ export default function AboutPage() {
             {[
               { src: "/images/gallery/farm2.jpg",     alt: "茶園景色" },
               { src: "/images/gallery/picking.jpeg",  alt: "採摘過程" },
-              { src: "/images/gallery/wilting2.jpg",  alt: "萎凋過程" },
-              { src: "/images/gallery/wilting3.jpg",  alt: "萎凋細節" },
+              { src: "/images/gallery/wilting2.jpg",  alt: "室內萎凋" },
+              { src: "/images/gallery/wilting3.jpg",  alt: "室內萎凋" },
               { src: "/images/gallery/rolling2.jpg",  alt: "揉捻細節" },
               { src: "/images/gallery/tea-cup2.jpg",  alt: "茶湯特寫" },
             ].map((photo) => (
