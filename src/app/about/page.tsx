@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -113,55 +114,26 @@ export default function AboutPage() {
           {/* 主圖 + 兩格側欄 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {/* 大圖：茶園全景 */}
-            <div className="md:col-span-2 relative rounded-3xl overflow-hidden aspect-[4/3] md:aspect-auto md:min-h-[400px] bg-gradient-to-br from-emerald-100 via-green-200 to-teal-300 group">
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <svg width="80" height="80" viewBox="0 0 100 100" fill="none" className="mb-3 opacity-40">
-                  <path d="M10 80 Q30 40 50 50 Q70 60 90 20" stroke="#3D4A42" strokeWidth="3" fill="none" strokeLinecap="round"/>
-                  <path d="M0 90 Q25 55 50 65 Q75 75 100 35" stroke="#5C7A67" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                  <ellipse cx="20" cy="30" rx="15" ry="25" fill="#7D9B84" opacity="0.5" transform="rotate(-20 20 30)"/>
-                  <ellipse cx="60" cy="20" rx="12" ry="20" fill="#A3BFA8" opacity="0.5" transform="rotate(10 60 20)"/>
-                  <ellipse cx="85" cy="45" rx="10" ry="18" fill="#7D9B84" opacity="0.4" transform="rotate(-10 85 45)"/>
-                </svg>
-                <span className="text-tea-text/40 text-sm font-medium">茶園全景</span>
-              </div>
-              {/* Overlay caption */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+            <div className="md:col-span-2 relative rounded-3xl overflow-hidden aspect-[4/3] md:aspect-auto md:min-h-[400px] group">
+              <Image src="/images/gallery/farm.jpeg" alt="嘉義梅山高山茶園全景" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-6">
                 <p className="text-white font-serif text-lg font-bold">嘉義梅山高山茶園</p>
-                <p className="text-tea-green-pale text-sm mt-1">海拔 800 公尺，終年雲霧環繞的茶園</p>
+                <p className="text-tea-green-pale text-sm mt-1">終年雲霧環繞的高山茶園</p>
               </div>
             </div>
 
             {/* 右側兩格 */}
             <div className="grid grid-rows-2 gap-4">
-              {/* 採摘 */}
-              <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-lime-100 to-green-200 group">
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                  <svg width="48" height="48" viewBox="0 0 60 60" fill="none" className="mb-2 opacity-40">
-                    <path d="M30 10C30 10 18 22 18 34C18 41.18 23.82 47 31 47C38.18 47 44 41.18 44 34C44 22 30 10 30 10Z" fill="#3D4A42"/>
-                    <path d="M30 55 L26 48 M30 55 L34 48" stroke="#3D4A42" strokeWidth="2.5" strokeLinecap="round"/>
-                    <path d="M15 40 Q10 35 8 28" stroke="#5C7A67" strokeWidth="2" strokeLinecap="round" fill="none"/>
-                  </svg>
-                  <span className="text-tea-text/40 text-xs font-medium">清晨手工採摘</span>
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+              <div className="relative rounded-3xl overflow-hidden group">
+                <Image src="/images/gallery/picking.jpeg" alt="清晨手工採摘茶葉" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
                   <p className="text-white text-sm font-bold">清晨採摘嫩芽</p>
                   <p className="text-tea-green-pale text-xs mt-0.5">一心二葉，品質的起點</p>
                 </div>
               </div>
-              {/* 萎凋 */}
-              <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-yellow-50 to-amber-100 group">
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                  <svg width="48" height="48" viewBox="0 0 60 60" fill="none" className="mb-2 opacity-40">
-                    <rect x="8" y="28" width="44" height="6" rx="3" fill="#A0845C"/>
-                    <rect x="14" y="22" width="4" height="8" rx="2" fill="#7D6A4A"/>
-                    <rect x="42" y="22" width="4" height="8" rx="2" fill="#7D6A4A"/>
-                    <ellipse cx="20" cy="20" rx="5" ry="8" fill="#7D9B84" opacity="0.6" transform="rotate(15 20 20)"/>
-                    <ellipse cx="30" cy="18" rx="5" ry="8" fill="#7D9B84" opacity="0.6"/>
-                    <ellipse cx="40" cy="20" rx="5" ry="8" fill="#7D9B84" opacity="0.6" transform="rotate(-15 40 20)"/>
-                  </svg>
-                  <span className="text-tea-text/40 text-xs font-medium">日光萎凋</span>
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+              <div className="relative rounded-3xl overflow-hidden group">
+                <Image src="/images/gallery/wilting.jpg" alt="日光萎凋製程" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
                   <p className="text-white text-sm font-bold">日光萎凋</p>
                   <p className="text-tea-green-pale text-xs mt-0.5">讓茶葉在陽光中舒展</p>
                 </div>
@@ -170,66 +142,46 @@ export default function AboutPage() {
           </div>
 
           {/* 下排三格 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* 揉捻 */}
-            <div className="relative rounded-3xl overflow-hidden aspect-square bg-gradient-to-br from-green-50 to-emerald-100 group">
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                <svg width="56" height="56" viewBox="0 0 60 60" fill="none" className="mb-2 opacity-40">
-                  <circle cx="30" cy="30" r="18" stroke="#3D4A42" strokeWidth="3" fill="none"/>
-                  <circle cx="30" cy="30" r="10" stroke="#7D9B84" strokeWidth="2" fill="none"/>
-                  <path d="M30 12 Q42 20 42 30 Q42 42 30 48" stroke="#A3BFA8" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                  <path d="M30 12 Q18 20 18 30 Q18 42 30 48" stroke="#A3BFA8" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                </svg>
-                <span className="text-tea-text/40 text-xs font-medium">揉捻成形</span>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="relative rounded-3xl overflow-hidden aspect-square group">
+              <Image src="/images/gallery/rolling.jpg" alt="手工揉捻茶葉" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
                 <p className="text-white text-sm font-bold">揉捻成形</p>
                 <p className="text-tea-green-pale text-xs mt-0.5">手工揉出茶葉的形與韻</p>
               </div>
             </div>
-
-            {/* 焙火 */}
-            <div className="relative rounded-3xl overflow-hidden aspect-square bg-gradient-to-br from-orange-50 to-amber-200 group">
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                <svg width="56" height="56" viewBox="0 0 60 60" fill="none" className="mb-2 opacity-40">
-                  <path d="M30 50C30 50 14 40 14 26C14 18 22 12 30 8C38 12 46 18 46 26C46 40 30 50 30 50Z" fill="#D97706" opacity="0.5"/>
-                  <path d="M30 46C30 46 20 38 20 28C20 22 25 18 30 14C35 18 40 22 40 28C40 38 30 46 30 46Z" fill="#F59E0B" opacity="0.6"/>
-                  <path d="M30 42C30 42 24 35 24 29C24 25 27 22 30 20C33 22 36 25 36 29C36 35 30 42 30 42Z" fill="#FCD34D" opacity="0.7"/>
-                </svg>
-                <span className="text-tea-text/40 text-xs font-medium">精控焙火</span>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+            <div className="relative rounded-3xl overflow-hidden aspect-square group">
+              <Image src="/images/gallery/roasting.jpg" alt="精控焙火烘焙" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
                 <p className="text-white text-sm font-bold">精控焙火烘焙</p>
                 <p className="text-tea-green-pale text-xs mt-0.5">40年累積的火候手感</p>
               </div>
             </div>
-
-            {/* 大圖：茶湯 */}
-            <div className="relative rounded-3xl overflow-hidden aspect-square md:aspect-auto bg-gradient-to-br from-teal-50 via-emerald-100 to-green-200 group">
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                <svg width="64" height="64" viewBox="0 0 80 80" fill="none" className="mb-2 opacity-40">
-                  {/* Tea cup */}
-                  <path d="M18 30 Q20 55 40 58 Q60 55 62 30Z" fill="#A3BFA8"/>
-                  <rect x="16" y="26" width="48" height="6" rx="3" fill="#7D9B84"/>
-                  <path d="M62 35 Q72 35 72 44 Q72 53 62 53" stroke="#7D9B84" strokeWidth="4" fill="none" strokeLinecap="round"/>
-                  {/* Steam */}
-                  <path d="M32 22 Q28 14 32 8" stroke="#C8DDD0" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                  <path d="M40 20 Q36 12 40 6" stroke="#C8DDD0" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                  <path d="M48 22 Q44 14 48 8" stroke="#C8DDD0" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                </svg>
-                <span className="text-tea-text/40 text-xs font-medium">沖泡茶湯</span>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+            <div className="relative rounded-3xl overflow-hidden aspect-square group">
+              <Image src="/images/gallery/tea-cup.jpg" alt="沖泡完成的茶湯" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
                 <p className="text-white text-sm font-bold">一杯好茶</p>
                 <p className="text-tea-green-pale text-xs mt-0.5">從茶園到您手中的完整旅程</p>
               </div>
             </div>
           </div>
 
-          {/* 提示文字 */}
-          <p className="text-center text-xs text-tea-text-light/60 mt-6 italic">
-            ＊ 實際茶園與製茶照片陸續更新中
-          </p>
+          {/* 更多照片：六宮格 */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {[
+              { src: "/images/gallery/farm2.jpg",     alt: "茶園景色" },
+              { src: "/images/gallery/picking2.jpg",  alt: "採摘過程" },
+              { src: "/images/gallery/wilting2.jpg",  alt: "萎凋過程" },
+              { src: "/images/gallery/wilting3.jpg",  alt: "萎凋細節" },
+              { src: "/images/gallery/rolling2.jpg",  alt: "揉捻細節" },
+              { src: "/images/gallery/tea-cup2.jpg",  alt: "茶湯特寫" },
+            ].map((photo) => (
+              <div key={photo.src} className="relative rounded-2xl overflow-hidden aspect-square group">
+                <Image src={photo.src} alt={photo.alt} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-tea-text/0 group-hover:bg-tea-text/20 transition-colors duration-300" />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
