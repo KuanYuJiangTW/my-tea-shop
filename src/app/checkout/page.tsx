@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
@@ -8,6 +8,15 @@ export default function CheckoutPage() {
   const { items, totalPrice } = useCart();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState("");
+  const [ecpayData, setEcpayData]   = useState<{ ecpayUrl: string; params: Record<string, string> } | null>(null);
+  const ecpayFormRef = useRef<HTMLFormElement>(null);
+
+  // ecpayData 設定後，React 重渲染完成即自動提交隱藏表單
+  useEffect(() => {
+    if (ecpayData && ecpayFormRef.current) {
+      ecpayFormRef.current.submit();
+    }
+  }, [ecpayData]);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -42,11 +51,8 @@ export default function CheckoutPage() {
 
       if (!res.ok) throw new Error("伺服器錯誤");
 
-      // API 回傳含自動提交表單的 HTML，寫入頁面讓瀏覽器跳轉綠界
-      const html = await res.text();
-      document.open();
-      document.write(html);
-      document.close();
+      const data = await res.json();
+      setEcpayData(data); // 觸發 useEffect → 自動提交隱藏表單
     } catch {
       setError("連線失敗，請稍後再試。");
       setSubmitting(false);
@@ -275,6 +281,20 @@ export default function CheckoutPage() {
           </div>
         </form>
       </div>
+
+      {/* 綠界自動提交隱藏表單 */}
+      {ecpayData && (
+        <form
+          ref={ecpayFormRef}
+          method="POST"
+          action={ecpayData.ecpayUrl}
+          style={{ display: "none" }}
+        >
+          {Object.entries(ecpayData.params).map(([k, v]) => (
+            <input key={k} type="hidden" name={k} value={v} />
+          ))}
+        </form>
+      )}
     </div>
   );
 }

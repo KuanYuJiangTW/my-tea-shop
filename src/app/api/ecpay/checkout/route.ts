@@ -1,5 +1,6 @@
 import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+// NextResponse is used for the JSON return below
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID  ?? "2000132";
 const HASH_KEY  = process.env.ECPAY_HASH_KEY      ?? "5294y06JbISpM5x9";
@@ -73,32 +74,5 @@ export async function POST(req: NextRequest) {
 
   params.CheckMacValue = buildCheckMacValue(params);
 
-  // 回傳 HTML 自動送出表單，讓瀏覽器直接跳轉綠界
-  const inputs = Object.entries(params)
-    .map(([k, v]) => `<input type="hidden" name="${k}" value="${v}">`)
-    .join("\n    ");
-
-  const html = `<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="utf-8">
-  <title>跳轉至綠界付款...</title>
-  <style>
-    body { font-family: sans-serif; display: flex; align-items: center;
-           justify-content: center; height: 100vh; margin: 0; background: #f5f0e8; }
-    p { color: #6B8872; font-size: 1rem; }
-  </style>
-</head>
-<body>
-  <p>正在跳轉至綠界付款頁面，請稍候...</p>
-  <form id="pay" action="${ECPAY_URL}" method="POST">
-    ${inputs}
-  </form>
-  <script>document.getElementById("pay").submit();</script>
-</body>
-</html>`;
-
-  return new NextResponse(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" },
-  });
+  return NextResponse.json({ ecpayUrl: ECPAY_URL, params });
 }
