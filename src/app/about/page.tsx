@@ -125,7 +125,7 @@ export default function AboutPage() {
             {/* 右側兩格 */}
             <div className="grid grid-rows-2 gap-4">
               <div className="relative rounded-3xl overflow-hidden group">
-                <Image src="/images/gallery/picking.jpeg" alt="清晨手工採摘茶葉" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image src="/images/gallery/picking2.jpg" alt="清晨手工採摘茶葉" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
                   <p className="text-white text-sm font-bold">清晨採摘嫩芽</p>
                   <p className="text-tea-green-pale text-xs mt-0.5">一心二葉，品質的起點</p>
@@ -170,7 +170,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
               { src: "/images/gallery/farm2.jpg",     alt: "茶園景色" },
-              { src: "/images/gallery/picking2.jpg",  alt: "採摘過程" },
+              { src: "/images/gallery/picking.jpeg",  alt: "採摘過程" },
               { src: "/images/gallery/wilting2.jpg",  alt: "萎凋過程" },
               { src: "/images/gallery/wilting3.jpg",  alt: "萎凋細節" },
               { src: "/images/gallery/rolling2.jpg",  alt: "揉捻細節" },
