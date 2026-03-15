@@ -5,15 +5,15 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
 export default function CheckoutPage() {
-  const { items, totalPrice, clearCart } = useCart();
-  const [submitted, setSubmitted] = useState(false);
+  const { items, totalPrice } = useCart();
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError]           = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
     city: "",
     address: "",
-    payment: "credit",
     note: "",
   });
 
@@ -25,48 +25,33 @@ export default function CheckoutPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    clearCart();
-  };
+    setSubmitting(true);
+    setError("");
 
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <div className="w-20 h-20 bg-tea-green-mist rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg
-              width="36"
-              height="36"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#7D9B84"
-              strokeWidth="2"
-              strokeLinecap="round"
-            >
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </div>
-          <h2 className="font-serif text-3xl font-bold text-tea-text mb-4">
-            訂單已確認
-          </h2>
-          <p className="text-tea-text-light mb-2">
-            感謝您的訂購，我們將盡快為您備貨。
-          </p>
-          <p className="text-tea-text-light mb-10 text-sm">
-            確認信將寄至您的電子郵件，請耐心等候。
-          </p>
-          <Link
-            href="/"
-            className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors"
-          >
-            回到首頁
-          </Link>
-        </div>
-      </div>
-    );
-  }
+    try {
+      const res = await fetch("/api/ecpay/checkout", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({
+          items: items.map(i => ({ name: i.product.name, quantity: i.quantity })),
+          totalPrice,
+        }),
+      });
+
+      if (!res.ok) throw new Error("伺服器錯誤");
+
+      // API 回傳含自動提交表單的 HTML，寫入頁面讓瀏覽器跳轉綠界
+      const html = await res.text();
+      document.open();
+      document.write(html);
+      document.close();
+    } catch {
+      setError("連線失敗，請稍後再試。");
+      setSubmitting(false);
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -201,41 +186,20 @@ export default function CheckoutPage() {
 
               {/* Payment */}
               <div className="bg-white rounded-2xl p-7 shadow-sm">
-                <h2 className="font-serif text-xl font-bold text-tea-text mb-6">
+                <h2 className="font-serif text-xl font-bold text-tea-text mb-4">
                   付款方式
                 </h2>
-                <div className="space-y-3">
-                  {[
-                    { value: "credit", label: "信用卡付款", desc: "Visa / Mastercard / JCB" },
-                    { value: "cod", label: "貨到付款", desc: "收貨時現金支付" },
-                    { value: "transfer", label: "銀行轉帳", desc: "匯款後請上傳收據" },
-                  ].map((opt) => (
-                    <label
-                      key={opt.value}
-                      className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${
-                        form.payment === opt.value
-                          ? "border-tea-green bg-tea-green-mist"
-                          : "border-tea-green-pale hover:bg-tea-cream-light"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value={opt.value}
-                        checked={form.payment === opt.value}
-                        onChange={handleChange}
-                        className="accent-tea-green"
-                      />
-                      <div>
-                        <div className="text-sm font-medium text-tea-text">
-                          {opt.label}
-                        </div>
-                        <div className="text-xs text-tea-text-light mt-0.5">
-                          {opt.desc}
-                        </div>
-                      </div>
-                    </label>
-                  ))}
+                <div className="flex items-start gap-3 bg-tea-green-mist rounded-xl p-4">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="#7D9B84" strokeWidth="1.8" className="flex-shrink-0 mt-0.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <p className="text-sm text-tea-text-light leading-relaxed">
+                    點擊「前往綠界付款」後，將跳轉至綠界金流頁面，
+                    支援<span className="text-tea-text font-medium">信用卡、ATM 轉帳、超商代碼</span>等多種付款方式。
+                  </p>
                 </div>
               </div>
             </div>
@@ -273,11 +237,32 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                 </div>
+                {error && (
+                  <p className="text-red-400 text-sm text-center mb-3">{error}</p>
+                )}
                 <button
                   type="submit"
-                  className="w-full bg-tea-green hover:bg-tea-green-dark text-white py-3.5 rounded-full font-medium transition-colors"
+                  disabled={submitting}
+                  className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-full font-medium transition-colors flex items-center justify-center gap-2"
                 >
-                  確認訂購
+                  {submitting ? (
+                    <>
+                      <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" strokeOpacity="0.25"/>
+                        <path d="M12 2a10 10 0 0110 10"/>
+                      </svg>
+                      跳轉中...
+                    </>
+                  ) : (
+                    <>
+                      前往綠界付款
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                      </svg>
+                    </>
+                  )}
                 </button>
                 <Link
                   href="/cart"
