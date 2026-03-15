@@ -149,8 +149,17 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-sm text-tea-text-light">
                   <span>運費</span>
-                  <span className="text-tea-green">免費</span>
+                  {totalPrice >= 1000 ? (
+                    <span className="text-tea-green">免費</span>
+                  ) : (
+                    <span>宅配 NT$250 / 超商 NT$60</span>
+                  )}
                 </div>
+                {totalPrice < 1000 && (
+                  <div className="text-xs text-amber-600">
+                    再買 NT${(1000 - totalPrice).toLocaleString()} 即享免運費
+                  </div>
+                )}
                 <div className="border-t border-tea-green-pale pt-3 flex justify-between font-bold text-tea-text">
                   <span>總金額</span>
                   <span className="text-tea-green text-lg">
