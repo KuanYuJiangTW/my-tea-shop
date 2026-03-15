@@ -115,7 +115,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {/* 大圖：茶園全景 */}
             <div className="md:col-span-2 relative rounded-3xl overflow-hidden aspect-[4/3] md:aspect-auto md:min-h-[400px] group">
-              <Image src="/images/gallery/farm.jpeg" alt="嘉義梅山高山茶園全景" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+              <Image src="/images/gallery/farm2.jpg" alt="嘉義梅山高山茶園全景" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-6">
                 <p className="text-white font-serif text-lg font-bold">嘉義梅山高山茶園</p>
                 <p className="text-tea-green-pale text-sm mt-1">終年雲霧環繞的高山茶園</p>
@@ -176,7 +176,7 @@ export default function AboutPage() {
           {/* 更多照片：六宮格 */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
-              { src: "/images/gallery/farm2.jpg",     alt: "茶園景色" },
+              { src: "/images/gallery/farm.jpeg",     alt: "茶園景色" },
               { src: "/images/gallery/picking.jpeg",  alt: "採摘過程" },
               { src: "/images/gallery/wilting2.jpg",  alt: "室內萎凋" },
               { src: "/images/gallery/wilting3.jpg",  alt: "室內萎凋" },
