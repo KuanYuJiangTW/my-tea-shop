@@ -21,7 +21,7 @@ export const products: Product[] = [
     nameEn: "Ali Shan High Mountain Oolong",
     category: "烏龍茶",
     origin: "嘉義阿里山",
-    altitude: "1,400m",
+    altitude: "1,200m",
     price: 400,
     weight: "150g",
     description:
@@ -36,7 +36,7 @@ export const products: Product[] = [
     nameEn: "Honey Fragrance Black Tea",
     category: "紅茶",
     origin: "嘉義阿里山",
-    altitude: "300m",
+    altitude: "1,200m",
     price: 400,
     weight: "150g",
     description:
@@ -52,7 +52,7 @@ export const products: Product[] = [
     nameEn: "Ali Shan Jin Xuan",
     category: "烏龍茶",
     origin: "嘉義阿里山",
-    altitude: "1,200m",
+    altitude: "800m",
     price: 350,
     weight: "150g",
     description:
