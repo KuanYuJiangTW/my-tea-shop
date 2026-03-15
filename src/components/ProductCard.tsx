@@ -19,7 +19,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col border border-tea-green-pale/40">
+    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col border border-tea-green-pale/40 hover:scale-[1.03] hover:-translate-y-1">
 
       {/* 圖片區 */}
       <div className={`h-56 bg-gradient-to-br ${product.color} relative overflow-hidden flex-shrink-0`}>
