@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
 export default function CheckoutPage() {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice } = useCart();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -37,29 +37,16 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items: items.map((i) => ({ name: i.product.name, quantity: i.quantity })),
           totalPrice,
-          customer: { name: form.name, email: form.email },
         }),
       });
 
       if (!res.ok) throw new Error("API 錯誤");
-      const { ecpayUrl, params } = await res.json();
 
-      // 清空購物車
-      clearCart();
-
-      // 動態建立表單 POST 到綠界
-      const formEl = document.createElement("form");
-      formEl.method = "POST";
-      formEl.action = ecpayUrl;
-      Object.entries(params).forEach(([key, val]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = String(val);
-        formEl.appendChild(input);
-      });
-      document.body.appendChild(formEl);
-      formEl.submit();
+      // API 回傳 HTML 自動提交表單，直接寫入頁面讓瀏覽器跳轉
+      const html = await res.text();
+      document.open();
+      document.write(html);
+      document.close();
     } catch {
       setError("連線綠界失敗，請稍後再試。");
       setSubmitting(false);
