@@ -15,12 +15,12 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <div className="bg-tea-green-mist py-20 border-b border-tea-green-pale">
+      <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-4">
             Our Collection
           </p>
-          <h1 className="font-serif text-5xl font-bold text-tea-text mb-4">
+          <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">
             茶葉系列
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
@@ -30,7 +30,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
         {/* Category Filter */}
         <div className="flex flex-wrap gap-3 mb-12 justify-center">
           {categories.map((cat) => (

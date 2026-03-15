@@ -43,8 +43,8 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-tea-cream-light">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <h1 className="font-serif text-4xl font-bold text-tea-text mb-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
+        <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-8 md:mb-10">
           購物車
         </h1>
 
@@ -54,11 +54,11 @@ export default function CartPage() {
             {items.map((item) => (
               <div
                 key={item.product.id}
-                className="bg-white rounded-2xl p-5 flex gap-5 shadow-sm"
+                className="bg-white rounded-2xl p-4 sm:p-5 flex gap-3 sm:gap-5 shadow-sm"
               >
                 {/* Product color swatch */}
                 <div
-                  className={`w-20 h-20 rounded-xl bg-gradient-to-br ${item.product.color} flex-shrink-0 flex items-center justify-center`}
+                  className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br ${item.product.color} flex-shrink-0 flex items-center justify-center`}
                 >
                   <svg
                     width="32"

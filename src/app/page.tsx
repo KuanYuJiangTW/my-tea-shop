@@ -8,7 +8,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative min-h-[92vh] bg-tea-green-mist flex items-center overflow-hidden">
+      <section className="relative min-h-screen bg-tea-green-mist flex items-center overflow-hidden">
         {/* Decorative shapes */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-tea-green-pale/40 rounded-full" />
@@ -16,19 +16,19 @@ export default function HomePage() {
           <div className="absolute top-1/2 right-1/3 w-24 h-24 bg-tea-green/10 rounded-full" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative z-10 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10 w-full">
           <div className="max-w-2xl">
             <p className="text-tea-green font-medium tracking-[0.3em] text-xs mb-6 uppercase">
               Taiwan Premium Tea
             </p>
-            <h1 className="font-serif text-7xl md:text-9xl font-bold text-tea-text mb-6 leading-none">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-text mb-6 leading-none">
               霧抉茶
             </h1>
             <div className="w-16 h-0.5 bg-tea-green mb-7" />
-            <p className="text-tea-text font-serif text-2xl md:text-3xl mb-3">
+            <p className="text-tea-text font-serif text-xl md:text-3xl mb-3">
               源自台灣高山
             </p>
-            <p className="text-tea-text-light text-base md:text-lg leading-relaxed mb-10 max-w-lg">
+            <p className="text-tea-text-light text-sm md:text-lg leading-relaxed mb-10 max-w-lg">
               嘉義梅山山區，一家三口40年的堅持與心意。從茶園到您手上，每一泡都是我們親手把關的好茶。
             </p>
             <div className="flex flex-wrap gap-4">
@@ -66,10 +66,10 @@ export default function HomePage() {
       </section>
 
       {/* 品茶哲學 */}
-      <section className="py-24 bg-white">
+      <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
               品茶哲學
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto mb-4" />
@@ -131,11 +131,11 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-24 bg-tea-cream-light">
+      <section className="py-16 md:py-24 bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <h2 className="font-serif text-4xl font-bold text-tea-text mb-2">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">
                 本季精選
               </h2>
               <p className="text-tea-text-light">嚴選當季最佳的台灣高山茶</p>
@@ -159,14 +159,14 @@ export default function HomePage() {
       </section>
 
       {/* Brand Story */}
-      <section className="py-24 bg-tea-text">
+      <section className="py-16 md:py-24 bg-tea-text">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div>
               <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
                 Brand Story
               </p>
-              <h2 className="font-serif text-4xl md:text-5xl font-bold text-tea-cream-light mb-7 leading-snug">
+              <h2 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-7 leading-snug">
                 從一片葉子<br />到一杯好茶
               </h2>
               <p className="text-tea-green-pale leading-relaxed mb-4 text-sm">
@@ -191,9 +191,9 @@ export default function HomePage() {
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center hover:bg-white/10 transition-colors"
+                  className="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-8 text-center hover:bg-white/10 transition-colors"
                 >
-                  <div className="font-serif text-5xl font-bold text-tea-green-light mb-2">
+                  <div className="font-serif text-4xl md:text-5xl font-bold text-tea-green-light mb-2">
                     {stat.number}
                   </div>
                   <div className="text-tea-green-pale text-sm">{stat.label}</div>
@@ -205,16 +205,16 @@ export default function HomePage() {
       </section>
 
       {/* Process Teaser */}
-      <section className="py-24 bg-tea-cream">
+      <section className="py-16 md:py-24 bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
             製茶工藝
           </h2>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
           <p className="text-tea-text-light mb-14 max-w-lg mx-auto">
             從採摘到成茶，每一個步驟都需要職人的專注與耐心
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-14">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-14">
             {[
               { step: "01", name: "採摘", desc: "清晨手工採摘嫩芽" },
               { step: "02", name: "萎凋", desc: "日光與室內萎凋" },
@@ -223,7 +223,7 @@ export default function HomePage() {
             ].map((item) => (
               <div
                 key={item.step}
-                className="bg-white rounded-2xl p-7 text-center shadow-sm hover:shadow-md transition-shadow"
+                className="bg-white rounded-2xl p-5 md:p-7 text-center shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="text-xs text-tea-green font-medium tracking-widest mb-3">
                   {item.step}

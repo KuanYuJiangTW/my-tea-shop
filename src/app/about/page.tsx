@@ -4,7 +4,7 @@ export default function AboutPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-tea-text py-28 relative overflow-hidden">
+      <section className="bg-tea-text py-16 md:py-28 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-32 -right-32 w-96 h-96 bg-tea-green/10 rounded-full" />
           <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-tea-green/8 rounded-full" />
@@ -13,7 +13,7 @@ export default function AboutPage() {
           <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
             Our Story
           </p>
-          <h1 className="font-serif text-5xl md:text-6xl font-bold text-tea-cream-light mb-6">
+          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-tea-cream-light mb-6">
             關於霧抉茶
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
@@ -25,9 +25,9 @@ export default function AboutPage() {
       </section>
 
       {/* Brand Story */}
-      <section className="py-24 bg-white">
+      <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             {/* Decorative visual */}
             <div className="relative">
               <div className="bg-tea-green-mist rounded-3xl aspect-square flex items-center justify-center">
@@ -55,7 +55,7 @@ export default function AboutPage() {
 
             {/* Text */}
             <div>
-              <h2 className="font-serif text-4xl font-bold text-tea-text mb-6">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-6">
                 嘉義梅山，<br />一家三口的茶園故事
               </h2>
               <div className="w-10 h-0.5 bg-tea-green mb-7" />
@@ -80,7 +80,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="py-24 bg-tea-cream-light">
+      <section className="py-16 md:py-24 bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">
@@ -131,7 +131,7 @@ export default function AboutPage() {
       </section>
 
       {/* Tea Varieties */}
-      <section className="py-24 bg-white">
+      <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">
@@ -142,7 +142,7 @@ export default function AboutPage() {
               無論你偏好哪一種風味，我們都用最熟悉的味道陪你過每一個日常
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
             {[
               {
                 name: "高山烏龍茶",
@@ -195,7 +195,7 @@ export default function AboutPage() {
       </section>
 
       {/* Contact */}
-      <section className="py-24 bg-tea-text">
+      <section className="py-16 md:py-24 bg-tea-text">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-serif text-4xl font-bold text-tea-cream-light mb-6">
             門市資訊與聯絡方式
