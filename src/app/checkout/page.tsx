@@ -17,6 +17,10 @@ export default function CheckoutPage() {
   const [ecpayData, setEcpayData]   = useState<{ ecpayUrl: string; params: Record<string, string> } | null>(null);
   const ecpayFormRef = useRef<HTMLFormElement>(null);
 
+  // 運費：未滿 1000 元 — 宅配 +250、超商 +60，滿 1000 元免運
+  const shippingFee = totalPrice >= 1000 ? 0 : delivery === "home" ? 250 : 60;
+  const grandTotal  = totalPrice + shippingFee;
+
   const [form, setForm] = useState({
     name: "", email: "", phone: "",
     city: "", address: "",
@@ -55,7 +59,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({
           items: items.map(i => ({ name: i.product.name, quantity: i.quantity })),
-          totalPrice,
+          totalPrice: grandTotal,
         }),
       });
       if (!res.ok) throw new Error();
@@ -251,15 +255,22 @@ export default function CheckoutPage() {
                 <div className="border-t border-tea-green-pale pt-4 mb-6 space-y-2">
                   <div className="flex justify-between text-sm text-tea-text-light">
                     <span>運費</span>
-                    <span className="text-tea-green">免費</span>
+                    {shippingFee === 0 ? (
+                      <span className="text-tea-green">免費</span>
+                    ) : (
+                      <span className="text-tea-text">NT${shippingFee.toLocaleString()}</span>
+                    )}
                   </div>
+                  {shippingFee > 0 && (
+                    <p className="text-xs text-amber-600">滿 NT$1,000 即享免運費</p>
+                  )}
                   <div className="flex justify-between text-sm text-tea-text-light">
                     <span>付款</span>
                     <span>{payment === "online" ? "線上付款" : "貨到付款"}</span>
                   </div>
                   <div className="flex justify-between font-bold text-tea-text pt-1">
                     <span>總金額</span>
-                    <span className="text-tea-green text-lg">NT${totalPrice.toLocaleString()}</span>
+                    <span className="text-tea-green text-lg">NT${grandTotal.toLocaleString()}</span>
                   </div>
                 </div>
                 {error && <p className="text-red-400 text-sm text-center mb-3">{error}</p>}
