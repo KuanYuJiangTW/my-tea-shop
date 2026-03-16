@@ -1,15 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-type FormState = {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-};
-
-type Status = "idle" | "submitting" | "success" | "error";
+import type { ContactForm as FormState, ContactStatus as Status } from "@/types";
 
 export default function ContactClient() {
   const [form, setForm] = useState<FormState>({

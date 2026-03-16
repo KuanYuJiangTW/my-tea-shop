@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-// NextResponse is used for the JSON return below
+import type { EcpayCheckoutRequest, EcpayCheckoutResponse } from "@/types";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID  ?? "2000132";
 const HASH_KEY  = process.env.ECPAY_HASH_KEY      ?? "5294y06JbISpM5x9";
@@ -40,10 +40,7 @@ function buildCheckMacValue(params: Record<string, string>): string {
 }
 
 export async function POST(req: NextRequest) {
-  const { items, totalPrice } = await req.json() as {
-    items: { name: string; quantity: number }[];
-    totalPrice: number;
-  };
+  const { items, totalPrice } = await req.json() as EcpayCheckoutRequest;
 
   // 取得正確的對外網址
   const base =
@@ -74,5 +71,5 @@ export async function POST(req: NextRequest) {
 
   params.CheckMacValue = buildCheckMacValue(params);
 
-  return NextResponse.json({ ecpayUrl: ECPAY_URL, params });
+  return NextResponse.json({ ecpayUrl: ECPAY_URL, params } satisfies EcpayCheckoutResponse);
 }

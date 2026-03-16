@@ -1,18 +1,6 @@
-export interface Product {
-  id: number;
-  name: string;
-  nameEn: string;
-  category: "烏龍茶" | "紅茶";
-  origin: string;
-  altitude: string;
-  price: number;
-  weight: string;
-  description: string;
-  color: string;
-  featured: boolean;
-  image?: string;
-  image2?: string;
-}
+import type { Product } from "@/types";
+
+export type { Product };
 
 export const products: Product[] = [
   {
@@ -93,3 +81,4 @@ export const products: Product[] = [
 ];
 
 export const categories = ["全部", "烏龍茶", "紅茶"] as const;
+export type Category = (typeof categories)[number];

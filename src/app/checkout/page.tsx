@@ -3,9 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-
-type PaymentMethod = "online" | "cod";
-type DeliveryType  = "home" | "cvs";
+import type {
+  PaymentMethod,
+  DeliveryType,
+  CheckoutForm,
+  EcpayCheckoutResponse,
+} from "@/types";
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
@@ -14,14 +17,14 @@ export default function CheckoutPage() {
   const [codSuccess, setCodSuccess] = useState(false);
   const [payment, setPayment]       = useState<PaymentMethod>("online");
   const [delivery, setDelivery]     = useState<DeliveryType>("home");
-  const [ecpayData, setEcpayData]   = useState<{ ecpayUrl: string; params: Record<string, string> } | null>(null);
+  const [ecpayData, setEcpayData]   = useState<EcpayCheckoutResponse | null>(null);
   const ecpayFormRef = useRef<HTMLFormElement>(null);
 
   // 運費：未滿 1000 元 — 宅配 +250、超商 +60，滿 1000 元免運
   const shippingFee = totalPrice >= 1000 ? 0 : delivery === "home" ? 250 : 60;
   const grandTotal  = totalPrice + shippingFee;
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<CheckoutForm>({
     name: "", email: "", phone: "",
     city: "", address: "",
     cvsCompany: "seven", cvsStoreName: "",
