@@ -87,12 +87,38 @@ export interface Order {
   ecpayTradeNo?:   string;        // 綠界交易編號（線上付款才有）
 }
 
+// ─── API Request / Response ───────────────────────────────────────────────────
+
+export interface CreateOrderRequest {
+  customer: {
+    name:  string;
+    email: string;
+    phone: string;
+  };
+  paymentMethod:   PaymentMethod;
+  deliveryType:    DeliveryType;
+  shippingAddress?: {
+    city:    string;
+    address: string;
+  };
+  cvsInfo?: {
+    company:   CvsCompany;
+    storeName: string;
+  };
+  items: {
+    productId:  number;
+    name:       string;
+    quantity:   number;
+    unitPrice:  number;
+  }[];
+  shippingFee:  number;
+  totalAmount:  number;
+  note?:        string;
+}
+
 // ─── ECPay ────────────────────────────────────────────────────────────────────
 
-export interface EcpayCheckoutRequest {
-  items:      { name: string; quantity: number }[];
-  totalPrice: number;
-}
+export type EcpayCheckoutRequest = CreateOrderRequest;
 
 export interface EcpayCheckoutResponse {
   ecpayUrl: string;

@@ -8,6 +8,7 @@ import type {
   DeliveryType,
   CheckoutForm,
   EcpayCheckoutResponse,
+  CreateOrderRequest,
 } from "@/types";
 
 export default function CheckoutPage() {
@@ -41,29 +42,53 @@ export default function CheckoutPage() {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const buildOrderPayload = (): CreateOrderRequest => ({
+    customer: { name: form.name, email: form.email, phone: form.phone },
+    paymentMethod: payment,
+    deliveryType:  delivery,
+    ...(delivery === "home"
+      ? { shippingAddress: { city: form.city, address: form.address } }
+      : { cvsInfo: { company: form.cvsCompany, storeName: form.cvsStoreName } }),
+    items: items.map(i => ({
+      productId: i.product.id,
+      name:      i.product.name,
+      quantity:  i.quantity,
+      unitPrice: i.product.price,
+    })),
+    shippingFee,
+    totalAmount: grandTotal,
+    note: form.note || undefined,
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError("");
 
-    // 貨到付款：直接顯示訂單成立
+    // 貨到付款：寫入訂單後顯示成立畫面
     if (payment === "cod") {
-      await new Promise(r => setTimeout(r, 800)); // 模擬送出
-      clearCart();
-      setCodSuccess(true);
+      try {
+        const res = await fetch("/api/orders", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify(buildOrderPayload()),
+        });
+        if (!res.ok) throw new Error();
+        clearCart();
+        setCodSuccess(true);
+      } catch {
+        setError("訂單建立失敗，請稍後再試。");
+      }
       setSubmitting(false);
       return;
     }
 
-    // 線上付款：轉至綠界
+    // 線上付款：建立訂單並轉至綠界
     try {
       const res = await fetch("/api/ecpay/checkout", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({
-          items: items.map(i => ({ name: i.product.name, quantity: i.quantity })),
-          totalPrice: grandTotal,
-        }),
+        body:    JSON.stringify(buildOrderPayload()),
       });
       if (!res.ok) throw new Error();
       setEcpayData(await res.json());
