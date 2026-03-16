@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import type { EcpayCheckoutRequest, EcpayCheckoutResponse } from "@/types";
 
-const MERCHANT  = process.env.ECPAY_MERCHANT_ID  ?? "2000132";
-const HASH_KEY  = process.env.ECPAY_HASH_KEY      ?? "5294y06JbISpM5x9";
-const HASH_IV   = process.env.ECPAY_HASH_IV       ?? "v77hoKGq4kWxNNIS";
-const ECPAY_URL = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckout/index";
+const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
+const HASH_KEY  = process.env.ECPAY_HASH_KEY!;
+const HASH_IV   = process.env.ECPAY_HASH_IV!;
+const ECPAY_URL = "https://payment.ecpay.com.tw/Cashier/AioCheckout/index";
 
 function phpUrlencode(input: string): string {
   const SAFE = /^[A-Za-z0-9\-_.]$/;
