@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { sendOrderEmails } from "@/lib/email";
 import type { CreateOrderRequest } from "@/types";
 
 export async function POST(req: NextRequest) {
@@ -39,6 +40,19 @@ export async function POST(req: NextRequest) {
     console.error("建立訂單失敗:", error);
     return NextResponse.json({ error: "建立訂單失敗" }, { status: 500 });
   }
+
+  // 寄送訂單確認信
+  await sendOrderEmails({
+    orderId:         data.id,
+    customerName:    body.customer.name,
+    customerEmail:   body.customer.email,
+    paymentMethod:   body.paymentMethod,
+    shippingAddress: shippingAddress as Parameters<typeof sendOrderEmails>[0]["shippingAddress"],
+    items,
+    shippingFee:     body.shippingFee,
+    totalAmount:     body.totalAmount,
+    note:            body.note,
+  });
 
   return NextResponse.json({ orderId: data.id });
 }
