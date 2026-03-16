@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getProducts } from "@/lib/products";
 import ProductsClient from "./ProductsClient";
 
 export const metadata: Metadata = {
@@ -10,12 +11,14 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "茶葉系列 | 霧抉茶",
-    description: "嚴選嘉義梅山高山烏龍茶、金萱茶、紅茶等台灣頂級茶葉，品質親手把關。",
+    description: "嚴選嘉義梅山高山烏龍茶、金萱茶等台灣頂級茶葉，品質親手把關。",
     url: "/products",
   },
 };
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await getProducts();
+
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -34,7 +37,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <ProductsClient />
+      <ProductsClient products={products} />
     </div>
   );
 }

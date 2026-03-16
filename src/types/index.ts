@@ -14,6 +14,7 @@ export interface Product {
   featured: boolean;
   image?: string;
   image2?: string;
+  stockQuantity?: number;
 }
 
 export type ProductCategory = "烏龍茶" | "紅茶";

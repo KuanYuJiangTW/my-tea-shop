@@ -20,6 +20,14 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error("更新訂單付款狀態失敗:", error);
     } else if (order) {
+      // 扣除庫存（線上付款，付款成功後才扣）
+      const orderItems = order.items as { productId: number; quantity: number }[];
+      await Promise.all(
+        orderItems.map((item) =>
+          supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity })
+        )
+      );
+
       // 寄送訂單確認信
       const emailData: EmailOrderData = {
         orderId:         order.id,

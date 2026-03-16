@@ -41,6 +41,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "建立訂單失敗" }, { status: 500 });
   }
 
+  // 扣除庫存（貨到付款，下單即確認）
+  await Promise.all(
+    items.map((item) =>
+      supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity })
+    )
+  );
+
   // 寄送訂單確認信
   await sendOrderEmails({
     orderId:         data.id,

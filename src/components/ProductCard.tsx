@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Product } from "@/data/products";
+import type { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
 
@@ -13,7 +13,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
 
+  const soldOut = product.stockQuantity !== undefined && product.stockQuantity === 0;
+
   const handleAdd = () => {
+    if (soldOut) return;
     addToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
@@ -72,12 +75,23 @@ export default function ProductCard({ product }: ProductCardProps) {
           </span>
         </div>
 
-        {/* 海拔標籤 */}
+        {/* 海拔標籤 或 售完標籤 */}
         <div className="absolute top-3 right-3">
-          <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-xs px-3 py-1 rounded-full shadow-sm">
-            {product.altitude}
-          </span>
+          {soldOut ? (
+            <span className="bg-gray-800/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm">
+              售完
+            </span>
+          ) : (
+            <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-xs px-3 py-1 rounded-full shadow-sm">
+              {product.altitude}
+            </span>
+          )}
         </div>
+
+        {/* 售完遮罩 */}
+        {soldOut && (
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />
+        )}
       </div>
 
       {/* 卡片內容 */}
@@ -95,7 +109,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* 茶名 */}
-        <h3 className="font-serif text-xl font-bold text-tea-text mb-1 group-hover:text-tea-green transition-colors leading-snug">
+        <h3 className={`font-serif text-xl font-bold mb-1 group-hover:text-tea-green transition-colors leading-snug ${soldOut ? "text-tea-text/50" : "text-tea-text"}`}>
           {product.name}
         </h3>
         <p className="text-xs text-tea-text-light italic mb-3">
@@ -111,7 +125,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex items-center justify-between pt-4 border-t border-tea-green-pale/60">
           {/* 價格 */}
           <div className="flex flex-col">
-            <span className="text-tea-green font-bold text-xl leading-none">
+            <span className={`font-bold text-xl leading-none ${soldOut ? "text-tea-text/40" : "text-tea-green"}`}>
               NT${product.price.toLocaleString()}
             </span>
             <span className="text-tea-text-light text-xs mt-0.5">
@@ -120,32 +134,46 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* 加入購物車按鈕 */}
-          <button
-            onClick={handleAdd}
-            className={`flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-full font-medium transition-all duration-200 shadow-sm ${
-              added
-                ? "bg-tea-green-pale text-tea-green-dark scale-95"
-                : "bg-tea-green hover:bg-tea-green-dark text-white hover:shadow-md active:scale-95"
-            }`}
-          >
-            {added ? (
-              <>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                已加入
-              </>
-            ) : (
-              <>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                加入購物車
-              </>
-            )}
-          </button>
+          {soldOut ? (
+            <button
+              disabled
+              className="flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-full font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                <line x1="8" y1="8" x2="16" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="16" y1="8" x2="8" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              暫時售完
+            </button>
+          ) : (
+            <button
+              onClick={handleAdd}
+              className={`flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-full font-medium transition-all duration-200 shadow-sm ${
+                added
+                  ? "bg-tea-green-pale text-tea-green-dark scale-95"
+                  : "bg-tea-green hover:bg-tea-green-dark text-white hover:shadow-md active:scale-95"
+              }`}
+            >
+              {added ? (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  已加入
+                </>
+              ) : (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  加入購物車
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

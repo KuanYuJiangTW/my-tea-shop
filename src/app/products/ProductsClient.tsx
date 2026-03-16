@@ -2,9 +2,14 @@
 
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { products, categories } from "@/data/products";
+import { categories } from "@/data/products";
+import type { Product } from "@/types";
 
-export default function ProductsClient() {
+interface Props {
+  products: Product[];
+}
+
+export default function ProductsClient({ products }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
 
   const filtered =

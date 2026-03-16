@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/data/products";
+import { getFeaturedProducts } from "@/lib/products";
 
 export const metadata: Metadata = {
   title: "霧抉茶 | 台灣嘉義梅山高山茶",
@@ -11,9 +11,8 @@ export const metadata: Metadata = {
   },
 };
 
-const featuredProducts = products.filter((p) => p.featured);
-
-export default function HomePage() {
+export default async function HomePage() {
+  const featuredProducts = await getFeaturedProducts();
   return (
     <div>
       {/* Hero */}
