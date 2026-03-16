@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
+import SiteChrome from "@/components/SiteChrome";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://my-tea-shop.vercel.app";
 
@@ -23,11 +23,20 @@ export const metadata: Metadata = {
     siteName: "霧抉茶",
     title: "霧抉茶 | 台灣嘉義梅山高山茶",
     description: "嘉義梅山一家三口40年堅持，自產自銷台灣高山茶。從茶園到您手上，每一泡都由我們親手把關。",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "霧抉茶 | 台灣嘉義梅山高山茶",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "霧抉茶 | 台灣嘉義梅山高山茶",
     description: "嘉義梅山一家三口40年堅持，自產自銷台灣高山茶。從茶園到您手上，每一泡都由我們親手把關。",
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
@@ -50,10 +59,9 @@ export default function RootLayout({
   return (
     <html lang="zh-TW">
       <body>
+        <GoogleAnalytics />
         <CartProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          <SiteChrome>{children}</SiteChrome>
         </CartProvider>
       </body>
     </html>

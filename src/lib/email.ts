@@ -7,6 +7,16 @@ const ADMIN   = process.env.ADMIN_EMAIL       ?? "qdbzdt2846@gmail.com";
 
 // ─── 共用型別 ─────────────────────────────────────────────────────────────────
 
+export interface ShippingEmailData {
+  orderId:       string;
+  customerName:  string;
+  customerEmail: string;
+  shippingAddress: EmailOrderData["shippingAddress"];
+  items:         EmailOrderData["items"];
+  totalAmount:   number;
+  trackingNote?: string;
+}
+
 export interface EmailOrderData {
   orderId:       string;
   customerName:  string;
@@ -63,6 +73,98 @@ function itemRows(items: EmailOrderData["items"]): string {
       <td style="padding:10px 0;border-bottom:1px solid #e8e2d8;color:#3D4A42;text-align:right;">NT$${i.unitPrice.toLocaleString()}</td>
       <td style="padding:10px 0;border-bottom:1px solid #e8e2d8;color:#3D4A42;text-align:right;font-weight:600;">NT$${i.subtotal.toLocaleString()}</td>
     </tr>`).join("");
+}
+
+// ─── 出貨通知信 ───────────────────────────────────────────────────────────────
+
+export async function sendShippingEmail(data: ShippingEmailData) {
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F5F0E8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+
+        <!-- Header -->
+        <tr><td style="background:#3D4A42;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#C8DDD0;letter-spacing:4px;margin-bottom:4px;">霧抉茶</div>
+          <div style="font-size:11px;color:#7D9B84;letter-spacing:3px;text-transform:uppercase;">Wu Jue Tea</div>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="background:#ffffff;padding:40px;">
+
+          <div style="display:inline-block;background:#EBF3EE;color:#5C7A67;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">已出貨</div>
+
+          <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">您的茶葉已出發囉！</h2>
+          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${data.customerName}，您的訂單已完成出貨，請注意簽收。</p>
+
+          <!-- 訂單資訊 -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">訂單編號</td>
+              <td style="color:#3D4A42;font-size:13px;font-weight:700;text-align:right;font-family:monospace;">#${shortId(data.orderId)}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">配送方式</td>
+              <td style="color:#3D4A42;font-size:13px;text-align:right;">${formatShipping(data.shippingAddress)}</td>
+            </tr>
+            ${data.trackingNote ? `<tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">備註</td>
+              <td style="color:#7D9B84;font-size:13px;font-weight:600;text-align:right;">${data.trackingNote}</td>
+            </tr>` : ""}
+          </table>
+
+          <!-- 品項明細 -->
+          <h3 style="margin:0 0 12px;font-size:14px;color:#3D4A42;font-weight:700;">購買品項</h3>
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr style="border-bottom:2px solid #e8e2d8;">
+              <th style="padding:8px 0;text-align:left;color:#6B7B6E;font-size:12px;font-weight:600;">品項</th>
+              <th style="padding:8px 0;text-align:center;color:#6B7B6E;font-size:12px;font-weight:600;">數量</th>
+              <th style="padding:8px 0;text-align:right;color:#6B7B6E;font-size:12px;font-weight:600;">小計</th>
+            </tr>
+            ${data.items.map(i => `
+            <tr>
+              <td style="padding:10px 0;border-bottom:1px solid #e8e2d8;color:#3D4A42;">${i.name}</td>
+              <td style="padding:10px 0;border-bottom:1px solid #e8e2d8;color:#3D4A42;text-align:center;">${i.quantity}</td>
+              <td style="padding:10px 0;border-bottom:1px solid #e8e2d8;color:#3D4A42;text-align:right;font-weight:600;">NT$${i.subtotal.toLocaleString()}</td>
+            </tr>`).join("")}
+          </table>
+
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
+            <tr style="border-top:2px solid #3D4A42;">
+              <td style="color:#3D4A42;font-size:16px;font-weight:700;padding:12px 0 0;">總金額</td>
+              <td style="color:#7D9B84;font-size:18px;font-weight:700;text-align:right;padding-top:12px;">NT$${data.totalAmount.toLocaleString()}</td>
+            </tr>
+          </table>
+
+          <div style="margin-top:32px;padding:20px;background:#F0F6F1;border-radius:10px;border-left:3px solid #7D9B84;">
+            <p style="margin:0 0 6px;font-size:13px;color:#3D4A42;font-weight:600;">收貨注意事項</p>
+            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">宅配預計 1–3 個工作天送達；超商到店後請於 3 天內取件。如有任何問題，歡迎來電或傳訊息給我們。</p>
+          </div>
+
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+          <p style="margin:0 0 4px;font-size:13px;color:#7D9B84;font-weight:600;">霧抉茶</p>
+          <p style="margin:0 0 4px;font-size:12px;color:#9CA89E;">嘉義縣梅山鄉太興村8鄰溪頭19號之2</p>
+          <p style="margin:0;font-size:12px;color:#9CA89E;">電話：0972-619-391</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from:    FROM,
+    to:      data.customerEmail,
+    subject: `【霧抉茶】您的訂單已出貨 #${shortId(data.orderId)}`,
+    html,
+  });
 }
 
 // ─── 顧客確認信 ───────────────────────────────────────────────────────────────

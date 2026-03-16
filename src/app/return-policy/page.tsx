@@ -4,6 +4,11 @@ export const metadata: Metadata = {
   title: "退換貨政策",
   description: "霧抉茶退換貨政策，包含七天鑑賞期、退貨流程、退款方式及不接受退貨之例外情況說明。",
   alternates: { canonical: "/return-policy" },
+  openGraph: {
+    title: "退換貨政策 | 霧抉茶",
+    description: "霧抉茶退換貨政策，包含七天鑑賞期、退貨流程、退款方式及不接受退貨之例外情況說明。",
+    url: "/return-policy",
+  },
 };
 
 export default function ReturnPolicyPage() {
