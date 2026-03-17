@@ -1,10 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabase";
 import { sendOrderEmails } from "@/lib/email";
 import type { CreateOrderRequest } from "@/types";
 
 export async function POST(req: NextRequest) {
   const body = await req.json() as CreateOrderRequest;
+
+  // 取得當前登入的 user_id（若有登入）
+  const cookieStore = await cookies();
+  const authClient = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+          } catch {}
+        },
+      },
+    }
+  );
+  const { data: { user } } = await authClient.auth.getUser();
+  const userId = user?.id ?? null;
 
   const shippingAddress =
     body.deliveryType === "home"
@@ -32,6 +53,7 @@ export async function POST(req: NextRequest) {
       total_amount:     body.totalAmount,
       payment_status:   "pending",
       note:             body.note ?? null,
+      user_id:          userId,
     })
     .select("id")
     .single();

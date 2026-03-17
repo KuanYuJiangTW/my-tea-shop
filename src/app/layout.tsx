@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
+import { AuthProvider } from "@/context/AuthContext";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SiteChrome from "@/components/SiteChrome";
 
@@ -60,9 +61,11 @@ export default function RootLayout({
     <html lang="zh-TW">
       <body>
         <GoogleAnalytics />
-        <CartProvider>
-          <SiteChrome>{children}</SiteChrome>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <SiteChrome>{children}</SiteChrome>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

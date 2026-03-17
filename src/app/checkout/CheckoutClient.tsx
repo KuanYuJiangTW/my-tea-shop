@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import type {
   PaymentMethod,
   DeliveryType,
@@ -13,6 +15,7 @@ import type {
 
 export default function CheckoutClient() {
   const { items, totalPrice, clearCart } = useCart();
+  const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState("");
   const [codSuccess, setCodSuccess] = useState(false);
@@ -31,6 +34,32 @@ export default function CheckoutClient() {
     cvsCompany: "seven", cvsStoreName: "",
     note: "",
   });
+
+  // 已登入時自動帶入會員資料
+  useEffect(() => {
+    if (!user) return;
+    const supabase = getSupabaseBrowserClient();
+    supabase
+      .from("profiles")
+      .select("name, phone, city, address")
+      .eq("id", user.id)
+      .single()
+      .then((res: { data: { name?: string | null; phone?: string | null; city?: string | null; address?: string | null } | null }) => {
+        const p = res.data;
+        if (p) {
+          setForm(prev => ({
+            ...prev,
+            name:    p.name    ?? prev.name,
+            phone:   p.phone   ?? prev.phone,
+            email:   user.email   ?? prev.email,
+            city:    p.city    ?? prev.city,
+            address: p.address ?? prev.address,
+          }));
+        } else {
+          setForm(prev => ({ ...prev, email: user.email ?? prev.email }));
+        }
+      });
+  }, [user]);
 
   useEffect(() => {
     if (ecpayData && ecpayFormRef.current) {
