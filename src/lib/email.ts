@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM    = process.env.RESEND_FROM_EMAIL ?? "霧抉茶 <onboarding@resend.dev>";
+const FROM    = process.env.RESEND_FROM_EMAIL ?? "霧抉茶 <noreply@taiwantea.store>";
 const ADMIN   = process.env.ADMIN_EMAIL       ?? "qdbzdt2846@gmail.com";
 
 // ─── 共用型別 ─────────────────────────────────────────────────────────────────

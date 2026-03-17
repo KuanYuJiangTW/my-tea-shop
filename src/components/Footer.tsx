@@ -99,7 +99,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-10 pt-8 text-center text-xs text-tea-green-pale">
-          © 2024 霧抉茶 Wu Jue Tea. All rights reserved.
+          © 2025 霧抉茶 Wu Jue Tea. All rights reserved.
         </div>
       </div>
     </footer>
