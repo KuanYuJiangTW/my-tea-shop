@@ -69,6 +69,7 @@ export default function OrderActions({
   const [trackingNote, setTrackingNote] = useState("");
   const [showShipModal, setShowShipModal] = useState(false);
   const [pendingShip, setPendingShip] = useState<{ next: string } | null>(null);
+  const [actionError, setActionError] = useState("");
   const router = useRouter();
 
   const actions = STATUS_TRANSITIONS[currentStatus] ?? [];
@@ -85,29 +86,34 @@ export default function OrderActions({
   async function doUpdate(next: string, sendEmail: boolean) {
     setLoading(next);
     setShowShipModal(false);
+    setActionError("");
 
-    const res = await fetch(`/api/admin/orders/${orderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        status: next,
-        sendShippingEmail: sendEmail,
-        customerEmail,
-        customerName,
-        shippingAddress,
-        items,
-        totalAmount,
-        trackingNote: trackingNote || undefined,
-      }),
-    });
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: next,
+          sendShippingEmail: sendEmail,
+          customerEmail,
+          customerName,
+          shippingAddress,
+          items,
+          totalAmount,
+          trackingNote: trackingNote || undefined,
+        }),
+      });
 
-    setLoading(null);
-
-    if (res.ok) {
-      router.refresh();
-    } else {
-      const data = await res.json().catch(() => ({}));
-      alert(data.error ?? "操作失敗，請稍後再試。");
+      if (res.ok) {
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setActionError(data.error ?? "操作失敗，請稍後再試。");
+      }
+    } catch {
+      setActionError("網路錯誤，請稍後再試。");
+    } finally {
+      setLoading(null);
     }
   }
 
@@ -121,7 +127,10 @@ export default function OrderActions({
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 items-center">
+        {actionError && (
+          <span className="w-full text-xs text-rose-500 mb-1">{actionError}</span>
+        )}
         {actions.map((action) => (
           <button
             key={action.next}
