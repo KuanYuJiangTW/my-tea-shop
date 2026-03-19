@@ -257,11 +257,9 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="flex items-center justify-between pt-4 border-t border-tea-green-pale/60">
             <div className="flex flex-col">
               <span className={`font-bold text-xl leading-none ${selectedSoldOut ? "text-tea-text/40" : "text-tea-green"}`}>
-                NT${(selected.price * quantity).toLocaleString()}
+                NT${selected.price.toLocaleString()}
               </span>
-              <span className="text-tea-text-light text-xs mt-0.5">
-                {quantity > 1 ? `NT${selected.price.toLocaleString()} × ${quantity}` : `/ ${selected.weight}`}
-              </span>
+              <span className="text-tea-text-light text-xs mt-0.5">/ {selected.weight}</span>
             </div>
 
             {selectedSoldOut ? (
