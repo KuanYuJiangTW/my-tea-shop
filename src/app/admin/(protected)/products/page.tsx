@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export default async function ProductsPage() {
   const { data: products, error } = await supabase
     .from("products")
-    .select("id, name, name_en, category, price, stock_quantity, is_active, weight")
+    .select("id, name, name_en, category, price, stock_quantity, price_75g, stock_75g, price_tea_bag, stock_tea_bag, is_active, weight")
     .order("id", { ascending: true });
 
   if (error) {

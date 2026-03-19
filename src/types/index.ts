@@ -14,9 +14,11 @@ export interface Product {
   featured: boolean;
   image?: string;
   image2?: string;
-  stockQuantity?: number;
-  price75g?: number;     // 75g 規格售價
-  priceTeaBag?: number;  // 茶包 15包×3g 售價
+  stockQuantity?: number;  // 150g 庫存
+  price75g?: number;       // 75g 售價
+  priceTeaBag?: number;    // 茶包 15包×3g 售價
+  stock75g?: number;       // 75g 庫存
+  stockTeaBag?: number;    // 茶包庫存
 }
 
 export type ProductCategory = "烏龍茶" | "紅茶";

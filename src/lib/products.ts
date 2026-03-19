@@ -50,8 +50,9 @@ function mapRow(row: any): Product {
     image:         row.image_url   ?? undefined,
     image2:        row.image_url2  ?? undefined,
     stockQuantity: row.stock_quantity,
-    // 若 DB 日後新增欄位可直接使用；否則以公式計算
     price75g:    row.price_75g    ?? Math.round(price * 0.6 / 10) * 10,
     priceTeaBag: row.price_tea_bag ?? Math.round(price * 0.7 / 10) * 10,
+    stock75g:    row.stock_75g    ?? undefined,
+    stockTeaBag: row.stock_tea_bag ?? undefined,
   };
 }

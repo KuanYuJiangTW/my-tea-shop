@@ -8,14 +8,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     name?: string;
     price?: number;
     stock_quantity?: number;
+    price_75g?: number | null;
+    stock_75g?: number | null;
+    price_tea_bag?: number | null;
+    stock_tea_bag?: number | null;
     is_active?: boolean;
   };
 
   const update: Record<string, unknown> = {};
-  if (body.name !== undefined)           update.name           = body.name;
-  if (body.price !== undefined)          update.price          = body.price;
+  if (body.name !== undefined)          update.name          = body.name;
+  if (body.price !== undefined)         update.price         = body.price;
   if (body.stock_quantity !== undefined) update.stock_quantity = body.stock_quantity;
-  if (body.is_active !== undefined)      update.is_active      = body.is_active;
+  if (body.price_75g !== undefined)     update.price_75g     = body.price_75g;
+  if (body.stock_75g !== undefined)     update.stock_75g     = body.stock_75g;
+  if (body.price_tea_bag !== undefined) update.price_tea_bag = body.price_tea_bag;
+  if (body.stock_tea_bag !== undefined) update.stock_tea_bag = body.stock_tea_bag;
+  if (body.is_active !== undefined)     update.is_active     = body.is_active;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
