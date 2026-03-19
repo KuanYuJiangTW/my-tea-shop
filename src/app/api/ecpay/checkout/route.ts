@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
   if (dbError) console.error("建立訂單失敗:", dbError);
 
   const params: Record<string, string> = {
-    ChoosePayment:     "Credit",
+    ChoosePayment:     "ALL",
     EncryptType:       "1",
     ItemName:          itemName,
     MerchantID:        MERCHANT,
