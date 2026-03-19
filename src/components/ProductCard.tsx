@@ -10,17 +10,67 @@ interface ProductCardProps {
   product: Product;
 }
 
+type VariantKey = "150g" | "75g" | "teabag";
+
+interface Variant {
+  key: VariantKey;
+  label: string;
+  hint: string;
+  price: number;
+  weight: string;
+  cartId: number;   // 合成 ID：避免與其他規格碰撞
+  cartName: string;
+}
+
+function buildVariants(product: Product): Variant[] {
+  const variants: Variant[] = [
+    {
+      key:      "150g",
+      label:    "150g",
+      hint:     "散茶",
+      price:    product.price,
+      weight:   "150g",
+      cartId:   product.id,
+      cartName: product.name,
+    },
+  ];
+  if (product.price75g) {
+    variants.push({
+      key:      "75g",
+      label:    "75g",
+      hint:     "散茶",
+      price:    product.price75g,
+      weight:   "75g",
+      cartId:   product.id + 10000,
+      cartName: product.name,
+    });
+  }
+  if (product.priceTeaBag) {
+    variants.push({
+      key:      "teabag",
+      label:    "茶包",
+      hint:     "15入 × 3g",
+      price:    product.priceTeaBag,
+      weight:   "15包 × 3g",
+      cartId:   product.id + 20000,
+      cartName: `${product.name} 茶包組`,
+    });
+  }
+  return variants;
+}
+
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [selectedSize, setSelectedSize] = useState<"150g" | "75g">("150g");
+
+  const variants = buildVariants(product);
+  const [selectedKey, setSelectedKey] = useState<VariantKey>(variants[0].key);
+  const selected = variants.find((v) => v.key === selectedKey) ?? variants[0];
 
   const soldOut = product.stockQuantity !== undefined && product.stockQuantity === 0;
-  const currentPrice  = selectedSize === "75g" && product.price75g ? product.price75g : product.price;
-  const currentWeight = selectedSize === "75g" ? "75g" : product.weight;
 
-  // 只收集這個產品自己的照片
+  // Lightbox
   const photos: LightboxPhoto[] = [];
   if (product.image)  photos.push({ src: product.image,  productName: product.name, productNameEn: product.nameEn });
   if (product.image2) photos.push({ src: product.image2, productName: product.name, productNameEn: product.nameEn });
@@ -34,11 +84,13 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (soldOut) return;
-    const productToAdd =
-      selectedSize === "75g" && product.price75g
-        ? { ...product, id: product.id + 10000, price: product.price75g, weight: "75g" }
-        : product;
-    addToCart(productToAdd);
+    addToCart({
+      ...product,
+      id:     selected.cartId,
+      price:  selected.price,
+      weight: selected.weight,
+      name:   selected.cartName,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
@@ -70,7 +122,6 @@ export default function ProductCard({ product }: ProductCardProps) {
                   className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 />
               )}
-              {/* 放大提示圖示 */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                 <div className="bg-black/30 backdrop-blur-sm rounded-full p-2.5">
                   <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -100,7 +151,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
 
-          {/* 海拔標籤 或 售完標籤 */}
+          {/* 海拔 或 售完 */}
           <div className="absolute top-3 right-3">
             {soldOut ? (
               <span className="bg-gray-800/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm">
@@ -114,9 +165,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* 售完遮罩 */}
-          {soldOut && (
-            <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />
-          )}
+          {soldOut && <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />}
         </div>
 
         {/* 卡片內容 */}
@@ -138,26 +187,27 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-xs text-tea-text-light italic mb-3">{product.nameEn}</p>
 
           {/* 描述 */}
-          <p className="text-sm text-tea-text-light leading-relaxed line-clamp-2 flex-1 mb-5">
+          <p className="text-sm text-tea-text-light leading-relaxed line-clamp-2 flex-1 mb-4">
             {product.description}
           </p>
 
           {/* 規格選擇 */}
-          {product.price75g && (
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xs text-tea-text-light">規格：</span>
-              <div className="flex rounded-full overflow-hidden border border-tea-green-pale">
-                {(["150g", "75g"] as const).map((size) => (
+          {variants.length > 1 && (
+            <div className="mb-4">
+              <p className="text-xs text-tea-text-light mb-2">選擇規格</p>
+              <div className="flex gap-2 flex-wrap">
+                {variants.map((v) => (
                   <button
-                    key={size}
-                    onClick={(e) => { e.stopPropagation(); setSelectedSize(size); }}
-                    className={`px-3 py-1 text-xs font-medium transition-colors ${
-                      selectedSize === size
-                        ? "bg-tea-green text-white"
-                        : "text-tea-text-light hover:bg-tea-green-mist"
+                    key={v.key}
+                    onClick={(e) => { e.stopPropagation(); setSelectedKey(v.key); setAdded(false); }}
+                    className={`flex flex-col items-center px-3 py-2 rounded-xl border text-xs font-medium transition-all duration-150 min-w-[60px] ${
+                      selectedKey === v.key
+                        ? "border-tea-green bg-tea-green-mist text-tea-green"
+                        : "border-tea-green-pale text-tea-text-light hover:border-tea-green/50 hover:text-tea-text"
                     }`}
                   >
-                    {size}
+                    <span className="font-bold text-sm leading-tight">{v.label}</span>
+                    <span className="text-[10px] opacity-70 leading-tight">{v.hint}</span>
                   </button>
                 ))}
               </div>
@@ -167,10 +217,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* 價格 + 加入購物車 */}
           <div className="flex items-center justify-between pt-4 border-t border-tea-green-pale/60">
             <div className="flex flex-col">
-              <span className={`font-bold text-xl leading-none ${soldOut ? "text-tea-text/40" : "text-tea-green"}`}>
-                NT${currentPrice.toLocaleString()}
+              <span className={`font-bold text-xl leading-none transition-all ${soldOut ? "text-tea-text/40" : "text-tea-green"}`}>
+                NT${selected.price.toLocaleString()}
               </span>
-              <span className="text-tea-text-light text-xs mt-0.5">/ {currentWeight}</span>
+              <span className="text-tea-text-light text-xs mt-0.5">/ {selected.weight}</span>
             </div>
 
             {soldOut ? (
@@ -214,7 +264,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
 
-      {/* 此產品的 Lightbox */}
+      {/* Lightbox */}
       {lightboxIndex !== null && total > 0 && (
         <ProductLightbox
           photos={photos}
