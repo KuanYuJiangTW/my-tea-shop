@@ -171,29 +171,3 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
   );
 }
 
-// ── 工具函式：從 products 建立 lightbox 照片陣列 ────────────────────────────
-export function buildLightboxPhotos(
-  products: { image?: string; image2?: string; name: string; nameEn: string }[]
-): LightboxPhoto[] {
-  return products.flatMap((p) => {
-    const entries: LightboxPhoto[] = [];
-    if (p.image)  entries.push({ src: p.image,  productName: p.name, productNameEn: p.nameEn });
-    if (p.image2) entries.push({ src: p.image2, productName: p.name, productNameEn: p.nameEn });
-    return entries;
-  });
-}
-
-// ── 工具函式：取得某產品第 n 張圖在 lightboxPhotos 中的全域索引 ──────────────
-export function getPhotoIndex(
-  products: { image?: string; image2?: string }[],
-  productIndex: number,
-  isSecond: boolean
-): number {
-  let idx = 0;
-  for (let i = 0; i < productIndex; i++) {
-    if (products[i].image)  idx++;
-    if (products[i].image2) idx++;
-  }
-  if (isSecond) idx++;
-  return idx;
-}
