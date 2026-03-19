@@ -28,7 +28,7 @@ export default async function AccountPage() {
   // 取得歷史訂單（service role key 繞過 RLS）
   const { data: orders } = await adminSupabase
     .from("orders")
-    .select("id, created_at, total_amount, payment_status, payment_method, items, shipping_address")
+    .select("id, created_at, total_amount, order_status, payment_status, payment_method, items, shipping_address")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 

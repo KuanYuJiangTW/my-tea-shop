@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       items,
       shipping_fee:     body.shippingFee,
       total_amount:     body.totalAmount,
+      order_status:     "new",
       payment_status:   "pending",
       note:             body.note ?? null,
       user_id:          userId,

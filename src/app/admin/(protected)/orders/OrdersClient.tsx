@@ -11,6 +11,7 @@ type Order = {
   customer_email: string;
   customer_phone: string;
   total_amount: number;
+  order_status: string;
   payment_status: string;
   payment_method: string;
   items: { name: string; quantity: number; unitPrice: number }[];
@@ -20,21 +21,24 @@ type Order = {
 
 const STATUS_OPTIONS = [
   { value: "all",       label: "全部訂單" },
-  { value: "pending",   label: "待處理" },
-  { value: "paid",      label: "已付款" },
+  { value: "new",       label: "新訂單" },
   { value: "preparing", label: "備貨中" },
   { value: "shipped",   label: "已出貨" },
-  { value: "delivered", label: "已送達" },
+  { value: "completed", label: "已完成" },
   { value: "cancelled", label: "已取消" },
 ];
 
-const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  pending:   { label: "待處理", cls: "bg-[#EDE8DC] text-[#7A6855]" },
-  paid:      { label: "已付款", cls: "bg-[#C8DDD0] text-[#3D6B46]" },
+const ORDER_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
+  new:       { label: "新訂單", cls: "bg-[#EDE8DC] text-[#7A6855]" },
   preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
   shipped:   { label: "已出貨", cls: "bg-[#7D9B84] text-white" },
-  delivered: { label: "已送達", cls: "bg-[#5C7A67] text-white" },
+  completed: { label: "已完成", cls: "bg-[#5C7A67] text-white" },
   cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+};
+
+const PAYMENT_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
+  pending: { label: "待付款", cls: "bg-[#FEF3C7] text-[#92400E]" },
+  paid:    { label: "已付款", cls: "bg-[#C8DDD0] text-[#3D6B46]" },
 };
 
 function shortId(id: string) {
@@ -57,7 +61,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
 
   const filtered = useMemo(() => {
     return initialOrders.filter((o) => {
-      const matchStatus = filter === "all" || o.payment_status === filter;
+      const matchStatus = filter === "all" || o.order_status === filter;
       const q = search.toLowerCase();
       const matchSearch =
         !q ||
@@ -72,7 +76,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: initialOrders.length };
     for (const o of initialOrders) {
-      c[o.payment_status] = (c[o.payment_status] ?? 0) + 1;
+      c[o.order_status] = (c[o.order_status] ?? 0) + 1;
     }
     return c;
   }, [initialOrders]);
@@ -147,7 +151,8 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
               </thead>
               <tbody className="divide-y divide-[#F5F0E8]">
                 {filtered.map((order) => {
-                  const status = STATUS_LABEL[order.payment_status] ?? STATUS_LABEL.pending;
+                  const os = ORDER_STATUS_LABEL[order.order_status] ?? ORDER_STATUS_LABEL.new;
+                  const ps = PAYMENT_STATUS_LABEL[order.payment_status] ?? PAYMENT_STATUS_LABEL.pending;
                   return (
                     <tr
                       key={order.id}
@@ -172,9 +177,14 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex text-[10px] font-medium px-2 py-0.5 rounded-full ${status.cls}`}>
-                          {status.label}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className={`inline-flex w-fit text-[10px] font-medium px-2 py-0.5 rounded-full ${os.cls}`}>
+                            {os.label}
+                          </span>
+                          <span className={`inline-flex w-fit text-[10px] font-medium px-2 py-0.5 rounded-full ${ps.cls}`}>
+                            {ps.label}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-right font-semibold text-[#3D4A42]">
                         NT${order.total_amount.toLocaleString()}

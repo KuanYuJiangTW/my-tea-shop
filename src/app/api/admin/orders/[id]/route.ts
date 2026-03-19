@@ -22,7 +22,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
 
   const body = await req.json() as {
-    status: string;
+    orderStatus?: string;
+    paymentStatus?: string;
     sendShippingEmail?: boolean;
     customerEmail?: string;
     customerName?: string;
@@ -38,10 +39,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     trackingNote?: string;
   };
 
-  // Update order status
+  // Build update object from whichever fields were provided
+  const updateData: Record<string, string> = {};
+  if (body.orderStatus)   updateData.order_status   = body.orderStatus;
+  if (body.paymentStatus) updateData.payment_status = body.paymentStatus;
+
+  if (Object.keys(updateData).length === 0) {
+    return NextResponse.json({ error: "未提供更新欄位" }, { status: 400 });
+  }
+
   const { error } = await supabase
     .from("orders")
-    .update({ payment_status: body.status })
+    .update(updateData)
     .eq("id", id);
 
   if (error) {
@@ -62,7 +71,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       });
     } catch (emailErr) {
       console.error("出貨通知 Email 寄送失敗:", emailErr);
-      // Don't fail the whole request if email fails
     }
   }
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase as adminSupabase } from "@/lib/supabase";
 
-const CANCELLABLE_STATUSES = ["pending", "paid"];
+const CANCELLABLE_STATUSES = ["new"];
 
 export async function POST(
   _req: NextRequest,
@@ -20,7 +20,7 @@ export async function POST(
   // 確認訂單屬於此會員
   const { data: order, error: fetchError } = await adminSupabase
     .from("orders")
-    .select("id, user_id, payment_status")
+    .select("id, user_id, order_status")
     .eq("id", id)
     .single();
 
@@ -32,7 +32,7 @@ export async function POST(
     return NextResponse.json({ error: "無權限操作此訂單" }, { status: 403 });
   }
 
-  if (!CANCELLABLE_STATUSES.includes(order.payment_status)) {
+  if (!CANCELLABLE_STATUSES.includes(order.order_status)) {
     return NextResponse.json(
       { error: "此訂單狀態無法取消，若有需要請聯絡客服" },
       { status: 400 }
@@ -41,7 +41,7 @@ export async function POST(
 
   const { error } = await adminSupabase
     .from("orders")
-    .update({ payment_status: "cancelled" })
+    .update({ order_status: "cancelled" })
     .eq("id", id);
 
   if (error) {

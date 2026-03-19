@@ -20,13 +20,17 @@ type OrderItem = {
   subtotal: number;
 };
 
-const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  pending:   { label: "待處理", cls: "bg-[#EDE8DC] text-[#7A6855]" },
-  paid:      { label: "已付款", cls: "bg-[#C8DDD0] text-[#3D6B46]" },
-  preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-  shipped:   { label: "已出貨", cls: "bg-[#7D9B84] text-white" },
-  delivered: { label: "已送達", cls: "bg-[#5C7A67] text-white" },
-  cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+const ORDER_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
+  new:       { label: "新訂單",  cls: "bg-[#EDE8DC] text-[#7A6855]" },
+  preparing: { label: "備貨中",  cls: "bg-[#D5E8DA] text-[#2D5A47]" },
+  shipped:   { label: "已出貨",  cls: "bg-[#7D9B84] text-white" },
+  completed: { label: "已完成",  cls: "bg-[#5C7A67] text-white" },
+  cancelled: { label: "已取消",  cls: "bg-[#E0D5D5] text-[#7A4545]" },
+};
+
+const PAYMENT_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
+  pending: { label: "待付款", cls: "bg-[#FEF3C7] text-[#92400E]" },
+  paid:    { label: "已付款", cls: "bg-[#C8DDD0] text-[#3D6B46]" },
 };
 
 const CVS_NAME: Record<string, string> = {
@@ -52,7 +56,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   const shipping = order.shipping_address as ShippingAddress;
   const items = order.items as OrderItem[];
-  const status = STATUS_LABEL[order.payment_status] ?? STATUS_LABEL.pending;
+  const orderStatus  = ORDER_STATUS_LABEL[order.order_status]   ?? ORDER_STATUS_LABEL.new;
+  const paymentStatus = PAYMENT_STATUS_LABEL[order.payment_status] ?? PAYMENT_STATUS_LABEL.pending;
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl">
@@ -66,12 +71,15 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       {/* Header */}
       <div className="flex flex-wrap items-start gap-4 mb-6">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h1 className="text-xl font-bold text-[#3D4A42] font-serif">
               訂單 #{shortId(order.id)}
             </h1>
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${status.cls}`}>
-              {status.label}
+            <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${orderStatus.cls}`}>
+              {orderStatus.label}
+            </span>
+            <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${paymentStatus.cls}`}>
+              {paymentStatus.label}
             </span>
           </div>
           <p className="text-sm text-[#9CA89E]">
@@ -82,7 +90,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         {/* Actions */}
         <OrderActions
           orderId={order.id}
-          currentStatus={order.payment_status}
+          orderStatus={order.order_status}
+          paymentMethod={order.payment_method}
+          paymentStatus={order.payment_status}
           customerEmail={order.customer_email}
           customerName={order.customer_name}
           shippingAddress={shipping}
@@ -191,6 +201,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               <Row
                 label="方式"
                 value={order.payment_method === "cod" ? "貨到付款" : "線上付款（綠界）"}
+              />
+              <Row
+                label="付款狀態"
+                value={order.payment_status === "paid" ? "已付款" : "待付款"}
               />
               {order.ecpay_trade_no && (
                 <Row label="綠界編號" value={order.ecpay_trade_no} mono />

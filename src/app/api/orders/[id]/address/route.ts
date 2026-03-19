@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase as adminSupabase } from "@/lib/supabase";
 
-const EDITABLE_STATUSES = ["pending", "paid", "preparing"];
+const EDITABLE_STATUSES = ["new", "preparing"];
 
 export async function PATCH(
   req: NextRequest,
@@ -29,7 +29,7 @@ export async function PATCH(
   // 確認訂單屬於此會員
   const { data: order, error: fetchError } = await adminSupabase
     .from("orders")
-    .select("id, user_id, payment_status, shipping_address")
+    .select("id, user_id, order_status, shipping_address")
     .eq("id", id)
     .single();
 
@@ -41,7 +41,7 @@ export async function PATCH(
     return NextResponse.json({ error: "無權限操作此訂單" }, { status: 403 });
   }
 
-  if (!EDITABLE_STATUSES.includes(order.payment_status)) {
+  if (!EDITABLE_STATUSES.includes(order.order_status)) {
     return NextResponse.json(
       { error: "訂單已出貨，無法修改地址" },
       { status: 400 }

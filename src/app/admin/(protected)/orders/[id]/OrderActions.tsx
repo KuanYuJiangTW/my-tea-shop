@@ -18,9 +18,19 @@ type Item = {
   subtotal: number;
 };
 
+type Action = {
+  label: string;
+  orderStatus: string;
+  paymentStatus?: string;   // 同時更新付款狀態（確認收款用）
+  sendEmail?: boolean;
+  variant: "primary" | "danger" | "success";
+};
+
 type Props = {
   orderId: string;
-  currentStatus: string;
+  orderStatus: string;
+  paymentMethod: string;
+  paymentStatus: string;
   customerEmail: string;
   customerName: string;
   shippingAddress: ShippingAddress;
@@ -28,37 +38,47 @@ type Props = {
   totalAmount: number;
 };
 
-const STATUS_TRANSITIONS: Record<string, { label: string; next: string; sendEmail?: boolean }[]> = {
-  pending:   [
-    { label: "標記已付款", next: "paid" },
-    { label: "開始備貨", next: "preparing" },
-    { label: "直接出貨", next: "shipped", sendEmail: true },
-    { label: "取消訂單", next: "cancelled" },
-  ],
-  paid:      [
-    { label: "開始備貨", next: "preparing" },
-    { label: "標記出貨", next: "shipped", sendEmail: true },
-    { label: "取消訂單", next: "cancelled" },
-  ],
-  preparing: [
-    { label: "標記出貨", next: "shipped", sendEmail: true },
-    { label: "取消訂單", next: "cancelled" },
-  ],
-  shipped:   [
-    { label: "標記已送達", next: "delivered" },
-  ],
-  delivered: [],
-  cancelled: [],
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  pending: "待處理", paid: "已付款", preparing: "備貨中",
-  shipped: "已出貨", delivered: "已送達", cancelled: "已取消",
-};
+function getActions(
+  orderStatus: string,
+  paymentMethod: string,
+  paymentStatus: string
+): Action[] {
+  if (orderStatus === "new") {
+    return [
+      { label: "開始備貨", orderStatus: "preparing", variant: "primary" },
+      { label: "取消訂單", orderStatus: "cancelled", variant: "danger" },
+    ];
+  }
+  if (orderStatus === "preparing") {
+    return [
+      { label: "確認出貨", orderStatus: "shipped", sendEmail: true, variant: "primary" },
+      { label: "取消訂單", orderStatus: "cancelled", variant: "danger" },
+    ];
+  }
+  if (orderStatus === "shipped") {
+    if (paymentMethod === "cod" && paymentStatus === "pending") {
+      return [
+        {
+          label: "確認收款",
+          orderStatus: "completed",
+          paymentStatus: "paid",
+          variant: "success",
+        },
+      ];
+    }
+    // online payment (already paid)
+    return [
+      { label: "標記完成", orderStatus: "completed", variant: "primary" },
+    ];
+  }
+  return [];
+}
 
 export default function OrderActions({
   orderId,
-  currentStatus,
+  orderStatus,
+  paymentMethod,
+  paymentStatus,
   customerEmail,
   customerName,
   shippingAddress,
@@ -68,23 +88,23 @@ export default function OrderActions({
   const [loading, setLoading] = useState<string | null>(null);
   const [trackingNote, setTrackingNote] = useState("");
   const [showShipModal, setShowShipModal] = useState(false);
-  const [pendingShip, setPendingShip] = useState<{ next: string } | null>(null);
+  const [pendingAction, setPendingAction] = useState<Action | null>(null);
   const [actionError, setActionError] = useState("");
   const router = useRouter();
 
-  const actions = STATUS_TRANSITIONS[currentStatus] ?? [];
+  const actions = getActions(orderStatus, paymentMethod, paymentStatus);
 
-  async function handleAction(next: string, sendEmail: boolean) {
-    if (sendEmail) {
-      setPendingShip({ next });
+  async function handleClick(action: Action) {
+    if (action.sendEmail) {
+      setPendingAction(action);
       setShowShipModal(true);
       return;
     }
-    await doUpdate(next, false);
+    await doUpdate(action, false);
   }
 
-  async function doUpdate(next: string, sendEmail: boolean) {
-    setLoading(next);
+  async function doUpdate(action: Action, sendEmail: boolean) {
+    setLoading(action.orderStatus);
     setShowShipModal(false);
     setActionError("");
 
@@ -93,7 +113,8 @@ export default function OrderActions({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          status: next,
+          orderStatus:       action.orderStatus,
+          paymentStatus:     action.paymentStatus,
           sendShippingEmail: sendEmail,
           customerEmail,
           customerName,
@@ -120,10 +141,16 @@ export default function OrderActions({
   if (actions.length === 0) {
     return (
       <div className="text-sm text-[#9CA89E] px-4 py-2 bg-[#FAF7F2] rounded-xl border border-[#EDE8DC]">
-        訂單已完成
+        {orderStatus === "completed" ? "訂單已完成" : "訂單已取消"}
       </div>
     );
   }
+
+  const variantCls: Record<string, string> = {
+    primary: "bg-white hover:bg-[#F5F0E8] text-[#3D4A42] border border-[#EDE8DC]",
+    danger:  "bg-[#F5EDE8] hover:bg-[#EDD5CC] text-[#7A4545] border border-[#EDE0DA]",
+    success: "bg-[#7D9B84] hover:bg-[#5C7A67] text-white shadow-sm",
+  };
 
   return (
     <>
@@ -133,24 +160,18 @@ export default function OrderActions({
         )}
         {actions.map((action) => (
           <button
-            key={action.next}
-            onClick={() => handleAction(action.next, !!action.sendEmail)}
+            key={action.orderStatus}
+            onClick={() => handleClick(action)}
             disabled={!!loading}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition disabled:opacity-60 ${
-              action.next === "shipped"
-                ? "bg-[#7D9B84] hover:bg-[#5C7A67] text-white shadow-sm"
-                : action.next === "cancelled"
-                ? "bg-[#F5EDE8] hover:bg-[#EDD5CC] text-[#7A4545] border border-[#EDE0DA]"
-                : "bg-white hover:bg-[#F5F0E8] text-[#3D4A42] border border-[#EDE8DC]"
-            }`}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition disabled:opacity-60 ${variantCls[action.variant]}`}
           >
-            {loading === action.next ? "處理中…" : action.label}
+            {loading === action.orderStatus ? "處理中…" : action.label}
           </button>
         ))}
       </div>
 
       {/* Ship Confirmation Modal */}
-      {showShipModal && pendingShip && (
+      {showShipModal && pendingAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
           <div className="bg-white rounded-2xl border border-[#EDE8DC] shadow-xl w-full max-w-md p-6">
             <h3 className="text-base font-bold text-[#3D4A42] mb-1">確認出貨</h3>
@@ -173,13 +194,13 @@ export default function OrderActions({
 
             <div className="flex gap-2 justify-end">
               <button
-                onClick={() => { setShowShipModal(false); setPendingShip(null); }}
+                onClick={() => { setShowShipModal(false); setPendingAction(null); }}
                 className="px-4 py-2 rounded-xl text-sm text-[#6B8872] hover:bg-[#F5F0E8] transition"
               >
                 取消
               </button>
               <button
-                onClick={() => doUpdate(pendingShip.next, true)}
+                onClick={() => doUpdate(pendingAction, true)}
                 className="px-4 py-2 rounded-xl text-sm font-medium bg-[#7D9B84] hover:bg-[#5C7A67] text-white transition"
               >
                 確認出貨並寄信

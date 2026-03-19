@@ -16,6 +16,7 @@ type Order = {
   id: string;
   created_at: string;
   total_amount: number;
+  order_status: string;
   payment_status: string;
   payment_method: string;
   items: { name: string; quantity: number; unitPrice: number; subtotal: number }[];
@@ -30,14 +31,21 @@ type Props = {
 
 const CITIES = ["台北市","新北市","桃園市","台中市","台南市","高雄市","基隆市","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","屏東縣","宜蘭縣","花蓮縣","台東縣","澎湖縣","金門縣","連江縣"];
 
-const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  pending:   { label: "待處理", cls: "bg-[#EDE8DC] text-[#7A6855]" },
-  paid:      { label: "已付款", cls: "bg-[#C8DDD0] text-[#3D6B46]" },
-  preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-  shipped:   { label: "已出貨", cls: "bg-tea-green text-white" },
-  delivered: { label: "已送達", cls: "bg-tea-green-dark text-white" },
-  cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
-};
+// 會員端依 order_status + payment_status 組合顯示
+function getMemberStatusLabel(orderStatus: string, paymentStatus: string): { label: string; cls: string } {
+  if (orderStatus === "new") {
+    return paymentStatus === "paid"
+      ? { label: "已付款", cls: "bg-[#C8DDD0] text-[#3D6B46]" }
+      : { label: "待處理", cls: "bg-[#EDE8DC] text-[#7A6855]" };
+  }
+  const map: Record<string, { label: string; cls: string }> = {
+    preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
+    shipped:   { label: "已出貨", cls: "bg-tea-green text-white" },
+    completed: { label: "已完成", cls: "bg-tea-green-dark text-white" },
+    cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+  };
+  return map[orderStatus] ?? { label: "待處理", cls: "bg-[#EDE8DC] text-[#7A6855]" };
+}
 
 const CVS_NAME: Record<string, string> = {
   seven: "7-ELEVEN", family: "全家", hilife: "萊爾富", ok: "OK 超商",
@@ -152,7 +160,7 @@ export default function AccountClient({ user, profile, orders: initialOrders }: 
 
     // Update local state
     setOrderList(prev =>
-      prev.map(o => o.id === cancelConfirmId ? { ...o, payment_status: "cancelled" } : o)
+      prev.map(o => o.id === cancelConfirmId ? { ...o, order_status: "cancelled" } : o)
     );
     setCancelConfirmId(null);
   }
@@ -347,7 +355,7 @@ export default function AccountClient({ user, profile, orders: initialOrders }: 
               </div>
             ) : (
               orderList.map((order) => {
-                const status = STATUS_LABEL[order.payment_status] ?? STATUS_LABEL.pending;
+                const status = getMemberStatusLabel(order.order_status, order.payment_status);
                 const isExpanded = expandedOrder === order.id;
                 const itemCount = Array.isArray(order.items) ? order.items.reduce((s, i) => s + i.quantity, 0) : 0;
                 const addr = order.shipping_address;
@@ -356,9 +364,9 @@ export default function AccountClient({ user, profile, orders: initialOrders }: 
                   ? `宅配｜${addr.city ?? ""} ${addr.address ?? ""}`
                   : `超商｜${CVS_NAME[addr?.company ?? ""] ?? addr?.company} ${addr?.storeName ?? ""}`;
 
-                const canCancel = ["pending", "paid"].includes(order.payment_status);
-                const canEditAddress = isHomeDelivery && ["pending", "paid", "preparing"].includes(order.payment_status);
-                const isCvsPending = !isHomeDelivery && ["pending", "paid", "preparing"].includes(order.payment_status);
+                const canCancel = order.order_status === "new";
+                const canEditAddress = isHomeDelivery && ["new", "preparing"].includes(order.order_status);
+                const isCvsPending = !isHomeDelivery && ["new", "preparing"].includes(order.order_status);
 
                 return (
                   <div key={order.id} className="bg-white rounded-2xl border border-tea-green-pale overflow-hidden">

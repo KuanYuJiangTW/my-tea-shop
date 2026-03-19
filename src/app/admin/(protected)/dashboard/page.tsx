@@ -15,23 +15,23 @@ async function getStats() {
       .select("*", { count: "exact", head: true })
       .gte("created_at", todayStart),
 
-    // Monthly revenue (all non-cancelled orders)
+    // Monthly revenue (只計算 payment_status = paid 的訂單)
     supabase
       .from("orders")
-      .select("total_amount, payment_status")
+      .select("total_amount")
       .gte("created_at", monthStart)
-      .neq("payment_status", "cancelled"),
+      .eq("payment_status", "paid"),
 
-    // Pending shipment (pending or paid, not yet shipped/delivered/cancelled)
+    // Pending shipment (新訂單 + 備貨中，尚未出貨)
     supabase
       .from("orders")
       .select("*", { count: "exact", head: true })
-      .in("payment_status", ["pending", "paid", "preparing"]),
+      .in("order_status", ["new", "preparing"]),
 
     // Recent 5 orders
     supabase
       .from("orders")
-      .select("id, created_at, customer_name, total_amount, payment_status, items")
+      .select("id, created_at, customer_name, total_amount, order_status, payment_status, items")
       .order("created_at", { ascending: false })
       .limit(5),
   ]);
@@ -48,11 +48,10 @@ async function getStats() {
 }
 
 const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  pending:   { label: "待處理", cls: "bg-[#EDE8DC] text-[#7A6855]" },
-  paid:      { label: "已付款", cls: "bg-[#C8DDD0] text-[#3D6B46]" },
+  new:       { label: "新訂單", cls: "bg-[#EDE8DC] text-[#7A6855]" },
   preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
   shipped:   { label: "已出貨", cls: "bg-[#7D9B84] text-white" },
-  delivered: { label: "已送達", cls: "bg-[#5C7A67] text-white" },
+  completed: { label: "已完成", cls: "bg-[#5C7A67] text-white" },
   cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
 };
 
@@ -141,7 +140,7 @@ export default async function DashboardPage() {
             <div className="px-6 py-8 text-center text-sm text-[#9CA89E]">目前尚無訂單</div>
           ) : (
             recentOrders.map((order) => {
-              const status = STATUS_LABEL[order.payment_status] ?? STATUS_LABEL.pending;
+              const status = STATUS_LABEL[order.order_status] ?? STATUS_LABEL.new;
               const itemCount = Array.isArray(order.items) ? order.items.length : 0;
               return (
                 <Link
