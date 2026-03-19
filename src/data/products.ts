@@ -17,6 +17,8 @@ export const products: Product[] = [
     color: "from-green-100 to-emerald-200",
     featured: true,
     image: "/images/products/01.jpg",
+    price75g: 250,
+    priceTeaBag: 280,
   },
   {
     id: 2,
@@ -33,6 +35,8 @@ export const products: Product[] = [
     featured: true,
     image: "/images/products/02.jpg",
     image2: "/images/products/02-2.jpg",
+    price75g: 250,
+    priceTeaBag: 280,
   },
   {
     id: 3,
@@ -49,6 +53,8 @@ export const products: Product[] = [
     featured: true,
     image: "/images/products/03.jpg",
     image2: "/images/products/03-2.jpg",
+    price75g: 220,
+    priceTeaBag: 250,
   },
   {
     id: 4,
@@ -63,6 +69,8 @@ export const products: Product[] = [
       "重度發酵的特色烏龍，融合烏龍茶香氣與紅茶甘醇，茶湯橙紅明亮，果香蜜韻交織，風味獨特，耐人尋味。",
     color: "from-red-100 to-rose-200",
     featured: false,
+    price75g: 300,
+    priceTeaBag: 350,
   },
   {
     id: 5,
@@ -77,6 +85,8 @@ export const products: Product[] = [
       "一年四季皆可採製，以清新花香著稱，茶湯翠綠明亮，滋味鮮爽甘甜，花香持久，是日常品飲的絕佳良伴。",
     color: "from-lime-100 to-green-200",
     featured: false,
+    price75g: 90,
+    priceTeaBag: 100,
   },
 ];
 

@@ -15,6 +15,8 @@ export interface Product {
   image?: string;
   image2?: string;
   stockQuantity?: number;
+  price75g?: number;     // 75g 規格售價
+  priceTeaBag?: number;  // 茶包 15包×3g 售價
 }
 
 export type ProductCategory = "烏龍茶" | "紅茶";

@@ -14,8 +14,11 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [selectedSize, setSelectedSize] = useState<"150g" | "75g">("150g");
 
   const soldOut = product.stockQuantity !== undefined && product.stockQuantity === 0;
+  const currentPrice  = selectedSize === "75g" && product.price75g ? product.price75g : product.price;
+  const currentWeight = selectedSize === "75g" ? "75g" : product.weight;
 
   // 只收集這個產品自己的照片
   const photos: LightboxPhoto[] = [];
@@ -31,7 +34,11 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (soldOut) return;
-    addToCart(product);
+    const productToAdd =
+      selectedSize === "75g" && product.price75g
+        ? { ...product, id: product.id + 10000, price: product.price75g, weight: "75g" }
+        : product;
+    addToCart(productToAdd);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
@@ -135,13 +142,35 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.description}
           </p>
 
+          {/* 規格選擇 */}
+          {product.price75g && (
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xs text-tea-text-light">規格：</span>
+              <div className="flex rounded-full overflow-hidden border border-tea-green-pale">
+                {(["150g", "75g"] as const).map((size) => (
+                  <button
+                    key={size}
+                    onClick={(e) => { e.stopPropagation(); setSelectedSize(size); }}
+                    className={`px-3 py-1 text-xs font-medium transition-colors ${
+                      selectedSize === size
+                        ? "bg-tea-green text-white"
+                        : "text-tea-text-light hover:bg-tea-green-mist"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* 價格 + 加入購物車 */}
           <div className="flex items-center justify-between pt-4 border-t border-tea-green-pale/60">
             <div className="flex flex-col">
               <span className={`font-bold text-xl leading-none ${soldOut ? "text-tea-text/40" : "text-tea-green"}`}>
-                NT${product.price.toLocaleString()}
+                NT${currentPrice.toLocaleString()}
               </span>
-              <span className="text-tea-text-light text-xs mt-0.5">/ {product.weight}</span>
+              <span className="text-tea-text-light text-xs mt-0.5">/ {currentWeight}</span>
             </div>
 
             {soldOut ? (
