@@ -7,9 +7,10 @@ import { useState } from "react";
 
 interface ProductCardProps {
   product: Product;
+  onImageClick?: (isSecond?: boolean) => void;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, onImageClick }: ProductCardProps) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
 
@@ -26,7 +27,12 @@ export default function ProductCard({ product }: ProductCardProps) {
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col border border-tea-green-pale/40 hover:scale-[1.03] hover:-translate-y-1">
 
       {/* 圖片區 */}
-      <div className={`h-56 bg-gradient-to-br ${product.color} relative overflow-hidden flex-shrink-0`}>
+      <div
+        className={`h-56 bg-gradient-to-br ${product.color} relative overflow-hidden flex-shrink-0 ${onImageClick && product.image ? "cursor-zoom-in" : ""}`}
+        onClick={() => onImageClick && product.image && onImageClick(false)}
+        role={onImageClick && product.image ? "button" : undefined}
+        aria-label={onImageClick && product.image ? `放大查看 ${product.name}` : undefined}
+      >
         {product.image ? (
           <>
             <Image
@@ -42,6 +48,17 @@ export default function ProductCard({ product }: ProductCardProps) {
                 fill
                 className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               />
+            )}
+            {/* 放大提示圖示 */}
+            {onImageClick && (
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                <div className="bg-black/30 backdrop-blur-sm rounded-full p-2.5">
+                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+                  </svg>
+                </div>
+              </div>
             )}
           </>
         ) : (

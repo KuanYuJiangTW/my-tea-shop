@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import ProductCard from "@/components/ProductCard";
+import FeaturedSection from "./FeaturedSection";
 import { getFeaturedProducts } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -158,11 +158,7 @@ export default async function HomePage() {
               </svg>
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <FeaturedSection products={featuredProducts} />
         </div>
       </section>
 
