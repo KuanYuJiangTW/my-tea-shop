@@ -6,76 +6,75 @@ import { useCart } from "@/context/CartContext";
 import { useState, useCallback } from "react";
 import ProductLightbox, { type LightboxPhoto } from "@/components/ProductLightbox";
 
-interface ProductCardProps {
-  product: Product;
-}
-
 type VariantKey = "150g" | "75g" | "teabag";
 
 interface Variant {
-  key: VariantKey;
-  label: string;
-  hint: string;
-  price: number;
-  weight: string;
-  cartId: number;   // 合成 ID：避免與其他規格碰撞
+  key:      VariantKey;
+  label:    string;  // "150g 散茶"
+  desc:     string;  // "約可沖泡 30 次"
+  unit:     string;  // "份" | "盒"
+  price:    number;
+  weight:   string;
+  cartId:   number;
   cartName: string;
-  stock?: number;   // undefined = 不限量；0 = 售完
+  stock?:   number;  // undefined = 不限；0 = 售完
 }
 
-function buildVariants(product: Product): Variant[] {
+function buildVariants(p: Product): Variant[] {
   const variants: Variant[] = [
     {
       key:      "150g",
-      label:    "150g",
-      hint:     "散茶",
-      price:    product.price,
+      label:    "150g 散茶",
+      desc:     "約可沖泡 30 次",
+      unit:     "份",
+      price:    p.price,
       weight:   "150g",
-      cartId:   product.id,
-      cartName: product.name,
-      stock:    product.stockQuantity,
+      cartId:   p.id,
+      cartName: p.name,
+      stock:    p.stockQuantity,
     },
   ];
-  if (product.price75g) {
+  if (p.price75g) {
     variants.push({
       key:      "75g",
-      label:    "75g",
-      hint:     "散茶",
-      price:    product.price75g,
+      label:    "75g 散茶",
+      desc:     "約可沖泡 15 次",
+      unit:     "份",
+      price:    p.price75g,
       weight:   "75g",
-      cartId:   product.id + 10000,
-      cartName: product.name,
-      stock:    product.stock75g,
+      cartId:   p.id + 10000,
+      cartName: p.name,
+      stock:    p.stock75g,
     });
   }
-  if (product.priceTeaBag) {
+  if (p.priceTeaBag) {
     variants.push({
       key:      "teabag",
-      label:    "茶包",
-      hint:     "15入 × 3g",
-      price:    product.priceTeaBag,
+      label:    "茶包 15 入",
+      desc:     "每包 3g，方便沖泡",
+      unit:     "盒",
+      price:    p.priceTeaBag,
       weight:   "15包 × 3g",
-      cartId:   product.id + 20000,
-      cartName: `${product.name} 茶包組`,
-      stock:    product.stockTeaBag,
+      cartId:   p.id + 20000,
+      cartName: `${p.name} 茶包組`,
+      stock:    p.stockTeaBag,
     });
   }
   return variants;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
-  const [added, setAdded] = useState(false);
+  const [added,        setAdded]        = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [quantity,     setQuantity]     = useState(1);
 
-  const variants = buildVariants(product);
+  const variants    = buildVariants(product);
   const [selectedKey, setSelectedKey] = useState<VariantKey>(variants[0].key);
-  const selected = variants.find((v) => v.key === selectedKey) ?? variants[0];
+  const selected    = variants.find((v) => v.key === selectedKey) ?? variants[0];
 
-  // 目前選取的規格是否售完（stock 為 0 才算售完；undefined = 不限）
   const selectedSoldOut = selected.stock === 0;
-  // 是否所有規格都售完（用於圖片區遮罩）
-  const allSoldOut = variants.every((v) => v.stock === 0);
+  const allSoldOut      = variants.every((v) => v.stock === 0);
 
   // Lightbox
   const photos: LightboxPhoto[] = [];
@@ -88,27 +87,30 @@ export default function ProductCard({ product }: ProductCardProps) {
   const prev  = useCallback(() => setLightboxIndex(i => i === null ? 0 : (i - 1 + total) % total), [total]);
   const next  = useCallback(() => setLightboxIndex(i => i === null ? 0 : (i + 1) % total), [total]);
 
+  function selectVariant(key: VariantKey) {
+    setSelectedKey(key);
+    setQuantity(1);
+    setAdded(false);
+  }
+
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (selectedSoldOut) return;
-    addToCart({
-      ...product,
-      id:     selected.cartId,
-      price:  selected.price,
-      weight: selected.weight,
-      name:   selected.cartName,
-    });
+    addToCart(
+      { ...product, id: selected.cartId, price: selected.price, weight: selected.weight, name: selected.cartName },
+      quantity
+    );
     setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    setTimeout(() => setAdded(false), 2000);
   };
 
   return (
     <>
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col border border-tea-green-pale/40 hover:scale-[1.03] hover:-translate-y-1">
+      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col border border-tea-green-pale/40">
 
         {/* 圖片區 */}
         <div
-          className={`h-56 bg-gradient-to-br ${product.color} relative overflow-hidden flex-shrink-0 ${product.image ? "cursor-zoom-in" : ""}`}
+          className={`h-52 bg-gradient-to-br ${product.color} relative overflow-hidden flex-shrink-0 ${product.image ? "cursor-zoom-in" : ""}`}
           onClick={() => product.image && open()}
           role={product.image ? "button" : undefined}
           aria-label={product.image ? `放大查看 ${product.name}` : undefined}
@@ -140,38 +142,30 @@ export default function ProductCard({ product }: ProductCardProps) {
             </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg width="100" height="100" viewBox="0 0 100 100" fill="none"
-                className="opacity-25 group-hover:opacity-35 transition-opacity duration-300 group-hover:scale-110 transform">
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="none"
+                className="opacity-20 group-hover:opacity-30 transition-opacity duration-300">
                 <path d="M50 10C50 10 22 30 22 55C22 70.46 34.54 83 50 83C65.46 83 78 70.46 78 55C78 30 50 10 50 10Z" fill="#3D4A42"/>
                 <path d="M50 24C50 24 34 40 34 55C34 61.63 41.37 69 50 69C58.63 69 66 61.63 66 55C66 40 50 24 50 24Z" fill="#7D9B84"/>
-                <line x1="50" y1="83" x2="50" y2="94" stroke="#3D4A42" strokeWidth="4" strokeLinecap="round"/>
-                <path d="M50 55 Q38 45 30 35" stroke="#3D4A42" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5"/>
-                <path d="M50 55 Q62 45 70 35" stroke="#3D4A42" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5"/>
               </svg>
             </div>
           )}
 
-          {/* 類別標籤 */}
+          {/* 類別 */}
           <div className="absolute top-3 left-3">
             <span className="bg-white/75 backdrop-blur-sm text-tea-text text-xs px-3 py-1 rounded-full font-medium shadow-sm">
               {product.category}
             </span>
           </div>
 
-          {/* 海拔 或 售完 */}
+          {/* 海拔 / 售完 */}
           <div className="absolute top-3 right-3">
             {allSoldOut ? (
-              <span className="bg-gray-800/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm">
-                售完
-              </span>
+              <span className="bg-gray-800/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm">售完</span>
             ) : (
-              <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-xs px-3 py-1 rounded-full shadow-sm">
-                {product.altitude}
-              </span>
+              <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-xs px-3 py-1 rounded-full shadow-sm">{product.altitude}</span>
             )}
           </div>
 
-          {/* 售完遮罩 */}
           {allSoldOut && <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />}
         </div>
 
@@ -180,7 +174,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* 產地 */}
           <div className="flex items-center gap-1.5 mb-2">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-tea-green flex-shrink-0">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-tea-green flex-shrink-0">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/>
               <circle cx="12" cy="9" r="2.5" fill="white"/>
             </svg>
@@ -188,57 +182,92 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* 茶名 */}
-          <h3 className={`font-serif text-xl font-bold mb-1 group-hover:text-tea-green transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
+          <h3 className={`font-serif text-lg font-bold mb-0.5 group-hover:text-tea-green transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
             {product.name}
           </h3>
           <p className="text-xs text-tea-text-light italic mb-3">{product.nameEn}</p>
 
           {/* 描述 */}
-          <p className="text-sm text-tea-text-light leading-relaxed line-clamp-2 flex-1 mb-4">
+          <p className="text-sm text-tea-text-light leading-relaxed line-clamp-2 mb-4">
             {product.description}
           </p>
 
           {/* 規格選擇 */}
-          {variants.length > 1 && (
-            <div className="mb-4">
-              <p className="text-xs text-tea-text-light mb-2">選擇規格</p>
-              <div className="flex gap-2 flex-wrap">
-                {variants.map((v) => {
-                  const variantSoldOut = v.stock === 0;
-                  return (
-                    <button
-                      key={v.key}
-                      onClick={(e) => { e.stopPropagation(); setSelectedKey(v.key); setAdded(false); }}
-                      className={`flex flex-col items-center px-3 py-2 rounded-xl border text-xs font-medium transition-all duration-150 min-w-[60px] relative ${
-                        variantSoldOut
-                          ? "border-gray-200 text-gray-300 cursor-default"
-                          : selectedKey === v.key
-                          ? "border-tea-green bg-tea-green-mist text-tea-green"
-                          : "border-tea-green-pale text-tea-text-light hover:border-tea-green/50 hover:text-tea-text"
-                      }`}
-                    >
-                      <span className="font-bold text-sm leading-tight">{v.label}</span>
-                      <span className="text-[10px] opacity-70 leading-tight">
-                        {variantSoldOut ? "售完" : v.hint}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+          <div className="mb-4">
+            <p className="text-xs font-medium text-tea-text-light mb-2">選擇規格</p>
+            <div className={`grid gap-2 ${variants.length === 3 ? "grid-cols-3" : variants.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+              {variants.map((v) => {
+                const variantSoldOut = v.stock === 0;
+                const isSelected     = selectedKey === v.key && !variantSoldOut;
+                return (
+                  <button
+                    key={v.key}
+                    onClick={(e) => { e.stopPropagation(); if (!variantSoldOut) selectVariant(v.key); }}
+                    disabled={variantSoldOut}
+                    className={`flex flex-col p-2.5 rounded-xl border text-left transition-all duration-150 ${
+                      variantSoldOut
+                        ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
+                        : isSelected
+                        ? "border-tea-green bg-tea-green-mist ring-1 ring-tea-green/50"
+                        : "border-tea-green-pale hover:border-tea-green/60 hover:bg-tea-green-mist/30"
+                    }`}
+                  >
+                    <span className={`text-xs font-bold leading-tight ${isSelected ? "text-tea-green" : "text-tea-text"}`}>
+                      {v.label}
+                    </span>
+                    <span className="text-[10px] text-tea-text-light mt-0.5 leading-tight">
+                      {variantSoldOut ? "售完" : v.desc}
+                    </span>
+                    <span className={`text-sm font-bold mt-1.5 ${variantSoldOut ? "text-gray-300" : isSelected ? "text-tea-green" : "text-tea-text"}`}>
+                      NT${v.price.toLocaleString()}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-          )}
+          </div>
 
-          {/* 價格 + 加入購物車 */}
-          <div className="flex items-center justify-between pt-4 border-t border-tea-green-pale/60">
-            <div className="flex flex-col">
-              <span className={`font-bold text-xl leading-none transition-all ${selectedSoldOut ? "text-tea-text/40" : "text-tea-green"}`}>
-                NT${selected.price.toLocaleString()}
+          {/* 數量 */}
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-tea-text-light font-medium">數量</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.max(1, q - 1)); }}
+                disabled={selectedSoldOut || quantity <= 1}
+                className="w-7 h-7 rounded-full border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors disabled:opacity-30 disabled:cursor-default text-base leading-none"
+                aria-label="減少數量"
+              >
+                −
+              </button>
+              <span className="w-7 text-center text-sm font-semibold text-tea-text tabular-nums">
+                {quantity}
               </span>
-              <span className="text-tea-text-light text-xs mt-0.5">/ {selected.weight}</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.min(99, q + 1)); }}
+                disabled={selectedSoldOut || quantity >= 99}
+                className="w-7 h-7 rounded-full border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors disabled:opacity-30 disabled:cursor-default text-base leading-none"
+                aria-label="增加數量"
+              >
+                +
+              </button>
+              <span className="text-xs text-tea-text-light">{selected.unit}</span>
+            </div>
+          </div>
+
+          {/* 總計 + 加入購物車 */}
+          <div className="flex items-center justify-between pt-3 mt-auto border-t border-tea-green-pale/60">
+            <div className="flex flex-col">
+              <span className="text-xs text-tea-text-light mb-0.5">總計</span>
+              <span className={`font-bold text-xl leading-none ${selectedSoldOut ? "text-tea-text/40" : "text-tea-green"}`}>
+                NT${(selected.price * quantity).toLocaleString()}
+              </span>
             </div>
 
             {selectedSoldOut ? (
-              <button disabled className="flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-full font-medium bg-gray-100 text-gray-400 cursor-not-allowed">
+              <button
+                disabled
+                className="flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-full font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+              >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                   <line x1="8" y1="8" x2="16" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -260,7 +289,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    已加入
+                    已加入 ×{quantity}
                   </>
                 ) : (
                   <>
@@ -274,6 +303,20 @@ export default function ProductCard({ product }: ProductCardProps) {
                 )}
               </button>
             )}
+          </div>
+
+          {/* 產品特色標籤 */}
+          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-tea-green-pale/40">
+            <span className="flex items-center gap-1 text-[10px] text-tea-text-light">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="text-tea-green flex-shrink-0">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              </svg>
+              {product.origin}
+            </span>
+            <span className="text-tea-green-pale">·</span>
+            <span className="text-[10px] text-tea-text-light">自產自銷</span>
+            <span className="text-tea-green-pale">·</span>
+            <span className="text-[10px] text-tea-text-light">低溫保存</span>
           </div>
         </div>
       </div>
