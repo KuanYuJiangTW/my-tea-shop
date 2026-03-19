@@ -56,12 +56,12 @@ type ProfileErrors = {
 
 const phoneRegex = /^09\d{8}$/;
 
-export default function AccountClient({ user, profile, orders }: Props) {
+export default function AccountClient({ user, profile, orders: initialOrders }: Props) {
   const searchParams = useSearchParams();
   const defaultTab = searchParams.get("tab") === "orders" ? "orders" : "profile";
   const [tab, setTab] = useState<"profile" | "orders">(defaultTab);
 
-  // Profile form state
+  // ── Profile state ──────────────────────────────────────────────────────────
   const [form, setForm] = useState({
     name:    profile?.name    ?? "",
     phone:   profile?.phone   ?? "",
@@ -73,8 +73,20 @@ export default function AccountClient({ user, profile, orders }: Props) {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState("");
 
-  // 展開的訂單
+  // ── Orders state ───────────────────────────────────────────────────────────
+  const [orderList, setOrderList] = useState<Order[]>(initialOrders);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+
+  // Cancel state
+  const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState("");
+
+  // Address edit state
+  const [editAddressOrder, setEditAddressOrder] = useState<Order | null>(null);
+  const [addressForm, setAddressForm] = useState({ city: "", address: "" });
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [addressError, setAddressError] = useState("");
 
   useEffect(() => {
     if (saveSuccess) {
@@ -124,6 +136,72 @@ export default function AccountClient({ user, profile, orders }: Props) {
     }
   }
 
+  async function handleCancelOrder() {
+    if (!cancelConfirmId) return;
+    setCancelling(true);
+    setCancelError("");
+
+    const res = await fetch(`/api/orders/${cancelConfirmId}/cancel`, { method: "POST" });
+    const json = await res.json();
+
+    setCancelling(false);
+    if (!res.ok) {
+      setCancelError(json.error ?? "取消失敗，請稍後再試");
+      return;
+    }
+
+    // Update local state
+    setOrderList(prev =>
+      prev.map(o => o.id === cancelConfirmId ? { ...o, payment_status: "cancelled" } : o)
+    );
+    setCancelConfirmId(null);
+  }
+
+  function openEditAddress(order: Order) {
+    setEditAddressOrder(order);
+    setAddressForm({
+      city:    order.shipping_address.city    ?? "",
+      address: order.shipping_address.address ?? "",
+    });
+    setAddressError("");
+  }
+
+  async function handleSaveAddress(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (!editAddressOrder) return;
+
+    if (!addressForm.city || !addressForm.address.trim()) {
+      setAddressError("請填寫完整的縣市與地址");
+      return;
+    }
+
+    setSavingAddress(true);
+    setAddressError("");
+
+    const res = await fetch(`/api/orders/${editAddressOrder.id}/address`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(addressForm),
+    });
+    const json = await res.json();
+
+    setSavingAddress(false);
+    if (!res.ok) {
+      setAddressError(json.error ?? "更新失敗，請稍後再試");
+      return;
+    }
+
+    // Update local state
+    setOrderList(prev =>
+      prev.map(o =>
+        o.id === editAddressOrder.id
+          ? { ...o, shipping_address: { ...o.shipping_address, city: addressForm.city, address: addressForm.address } }
+          : o
+      )
+    );
+    setEditAddressOrder(null);
+  }
+
   const inputCls = (hasError?: string) =>
     `w-full px-4 py-3 rounded-xl border text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 bg-tea-cream-light/50 transition ${
       hasError
@@ -153,7 +231,7 @@ export default function AccountClient({ user, profile, orders }: Props) {
                   : "text-tea-text-light hover:text-tea-text"
               }`}
             >
-              {t === "profile" ? "個人資料" : `訂單紀錄（${orders.length}）`}
+              {t === "profile" ? "個人資料" : `訂單紀錄（${orderList.length}）`}
             </button>
           ))}
         </div>
@@ -257,7 +335,7 @@ export default function AccountClient({ user, profile, orders }: Props) {
         {/* ─── Orders Tab ─── */}
         {tab === "orders" && (
           <div className="space-y-3">
-            {orders.length === 0 ? (
+            {orderList.length === 0 ? (
               <div className="bg-white rounded-2xl border border-tea-green-pale p-12 text-center">
                 <div className="w-12 h-12 bg-tea-green-mist rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg viewBox="0 0 24 24" className="w-6 h-6 fill-tea-green">
@@ -268,14 +346,19 @@ export default function AccountClient({ user, profile, orders }: Props) {
                 <p className="text-sm text-tea-text-light">去探索我們的高山茶品吧！</p>
               </div>
             ) : (
-              orders.map((order) => {
+              orderList.map((order) => {
                 const status = STATUS_LABEL[order.payment_status] ?? STATUS_LABEL.pending;
                 const isExpanded = expandedOrder === order.id;
                 const itemCount = Array.isArray(order.items) ? order.items.reduce((s, i) => s + i.quantity, 0) : 0;
                 const addr = order.shipping_address;
-                const shippingText = addr?.type === "home"
+                const isHomeDelivery = addr?.type === "home";
+                const shippingText = isHomeDelivery
                   ? `宅配｜${addr.city ?? ""} ${addr.address ?? ""}`
                   : `超商｜${CVS_NAME[addr?.company ?? ""] ?? addr?.company} ${addr?.storeName ?? ""}`;
+
+                const canCancel = ["pending", "paid"].includes(order.payment_status);
+                const canEditAddress = isHomeDelivery && ["pending", "paid", "preparing"].includes(order.payment_status);
+                const isCvsPending = !isHomeDelivery && ["pending", "paid", "preparing"].includes(order.payment_status);
 
                 return (
                   <div key={order.id} className="bg-white rounded-2xl border border-tea-green-pale overflow-hidden">
@@ -317,12 +400,48 @@ export default function AccountClient({ user, profile, orders }: Props) {
                               </div>
                             ))}
                           </div>
+                          {(canCancel) && (
+                            <p className="mt-2 text-xs text-tea-text-light">
+                              如需變更商品或數量，請先取消訂單後重新下單。
+                            </p>
+                          )}
                         </div>
+
                         {/* Shipping */}
                         <div>
                           <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-1">配送資訊</p>
                           <p className="text-sm text-tea-text-light">{shippingText}</p>
+                          {/* Edit address button (home delivery only, before shipped) */}
+                          {canEditAddress && (
+                            <button
+                              onClick={() => openEditAddress(order)}
+                              className="mt-2 text-xs text-tea-green hover:text-tea-green-dark font-medium underline underline-offset-2"
+                            >
+                              修改收件地址
+                            </button>
+                          )}
+                          {/* CVS: show contact info */}
+                          {isCvsPending && (
+                            <p className="mt-2 text-xs text-tea-text-light">
+                              如需變更超商門市，請聯絡客服：
+                              <a href="tel:0972619391" className="text-tea-green hover:underline mx-1">0972-619-391</a>
+                              或
+                              <a href="mailto:qdbzdt2846@gmail.com" className="text-tea-green hover:underline ml-1">qdbzdt2846@gmail.com</a>
+                            </p>
+                          )}
                         </div>
+
+                        {/* Actions */}
+                        {canCancel && (
+                          <div className="pt-1 border-t border-tea-green-pale/60">
+                            <button
+                              onClick={() => { setCancelConfirmId(order.id); setCancelError(""); }}
+                              className="text-sm text-rose-500 hover:text-rose-700 font-medium transition-colors"
+                            >
+                              取消訂單
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -332,6 +451,92 @@ export default function AccountClient({ user, profile, orders }: Props) {
           </div>
         )}
       </div>
+
+      {/* ─── Cancel Confirmation Modal ─── */}
+      {cancelConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => { if (!cancelling) setCancelConfirmId(null); }} />
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <h3 className="font-semibold text-tea-text text-lg mb-2">確認取消訂單？</h3>
+            <p className="text-sm text-tea-text-light mb-5">
+              取消後無法復原。若使用線上付款，退款事宜請聯絡客服處理。
+            </p>
+            {cancelError && (
+              <p className="mb-3 text-sm text-rose-500 bg-rose-50 rounded-lg px-3 py-2">{cancelError}</p>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setCancelConfirmId(null)}
+                disabled={cancelling}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
+              >
+                返回
+              </button>
+              <button
+                onClick={handleCancelOrder}
+                disabled={cancelling}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition disabled:opacity-60"
+              >
+                {cancelling ? "取消中…" : "確認取消"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Edit Address Modal ─── */}
+      {editAddressOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => { if (!savingAddress) setEditAddressOrder(null); }} />
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <h3 className="font-semibold text-tea-text text-lg mb-1">修改收件地址</h3>
+            <p className="text-xs text-tea-text-light mb-4">訂單 #{shortId(editAddressOrder.id)}</p>
+            <form onSubmit={handleSaveAddress} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-tea-text mb-1.5">縣市</label>
+                <select
+                  value={addressForm.city}
+                  onChange={(e) => setAddressForm(p => ({ ...p, city: e.target.value }))}
+                  className={inputCls(addressError && !addressForm.city ? addressError : undefined)}
+                >
+                  <option value="">請選擇縣市</option>
+                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-tea-text mb-1.5">地址</label>
+                <input
+                  type="text"
+                  value={addressForm.address}
+                  onChange={(e) => setAddressForm(p => ({ ...p, address: e.target.value }))}
+                  placeholder="鄉鎮市區、街道路、門牌號"
+                  className={inputCls(addressError && !addressForm.address ? addressError : undefined)}
+                />
+              </div>
+              {addressError && (
+                <p className="text-sm text-rose-500 bg-rose-50 rounded-lg px-3 py-2">{addressError}</p>
+              )}
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEditAddressOrder(null)}
+                  disabled={savingAddress}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
+                >
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingAddress}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition disabled:opacity-60"
+                >
+                  {savingAddress ? "儲存中…" : "儲存地址"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
