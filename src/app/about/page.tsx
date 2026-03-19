@@ -122,20 +122,20 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* 右側兩格 */}
-            <div className="grid grid-rows-2 gap-4">
-              <div className="relative rounded-3xl overflow-hidden group">
+            {/* 右側兩格：手機橫排 2 欄，桌機直排 2 列 */}
+            <div className="grid grid-cols-2 md:grid-cols-1 md:grid-rows-2 gap-4">
+              <div className="relative rounded-3xl overflow-hidden aspect-[4/3] group">
                 <Image src="/images/gallery/picking2.jpg" alt="清晨手工採摘茶葉" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
                   <p className="text-white text-sm font-bold">清晨採摘嫩芽</p>
-                  <p className="text-tea-green-pale text-xs mt-0.5">一心二葉，品質的起點</p>
+                  <p className="text-tea-green-pale text-xs mt-0.5 hidden sm:block">一心二葉，品質的起點</p>
                 </div>
               </div>
-              <div className="relative rounded-3xl overflow-hidden group">
+              <div className="relative rounded-3xl overflow-hidden aspect-[4/3] group">
                 <Image src="/images/gallery/wilting.jpg" alt="日光萎凋製程" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
                   <p className="text-white text-sm font-bold">日光萎凋</p>
-                  <p className="text-tea-green-pale text-xs mt-0.5">讓茶葉在陽光中舒展</p>
+                  <p className="text-tea-green-pale text-xs mt-0.5 hidden sm:block">讓茶葉在陽光中舒展</p>
                 </div>
               </div>
             </div>
