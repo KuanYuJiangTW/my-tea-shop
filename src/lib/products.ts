@@ -49,10 +49,11 @@ function mapRow(row: any): Product {
     featured:      row.featured,
     image:         row.image_url   ?? undefined,
     image2:        row.image_url2  ?? undefined,
-    stockQuantity: row.stock_quantity,
+    // null → undefined（null = 資料庫未設定，視同不限量；0 = 明確售完）
+    stockQuantity: row.stock_quantity ?? undefined,
     price75g:    row.price_75g    ?? Math.round(price * 0.6 / 10) * 10,
     priceTeaBag: row.price_tea_bag ?? Math.round(price * 0.7 / 10) * 10,
-    stock75g:    row.stock_75g    ?? undefined,
-    stockTeaBag: row.stock_tea_bag ?? undefined,
+    stock75g:    row.stock_75g    != null ? row.stock_75g    : undefined,
+    stockTeaBag: row.stock_tea_bag != null ? row.stock_tea_bag : undefined,
   };
 }

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getProducts } from "@/lib/products";
 import ProductsClient from "./ProductsClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "茶葉系列",
   description: "嚴選嘉義梅山高山烏龍茶、金萱茶、紅茶、紅烏龍、四季春等台灣頂級茶葉。每一款都來自自家茶園，品質親手把關。",

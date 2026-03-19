@@ -3,6 +3,8 @@ import Link from "next/link";
 import FeaturedSection from "./FeaturedSection";
 import { getFeaturedProducts } from "@/lib/products";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "霧抉茶 | 台灣嘉義梅山高山茶",
   description: "嘉義梅山一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。從茶園到您手上，每一泡都由我們親手把關。",
