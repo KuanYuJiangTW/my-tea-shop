@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import PhotoGallery from "./PhotoGallery";
 
 export const metadata: Metadata = {
   title: "關於我們",
@@ -111,84 +112,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* 主圖 + 兩格側欄 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            {/* 大圖：茶園全景 */}
-            <div className="md:col-span-2 relative rounded-3xl overflow-hidden aspect-[4/3] md:aspect-auto md:min-h-[400px] group">
-              <Image src="/images/gallery/farm2.jpg" alt="嘉義梅山高山茶園全景" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-6">
-                <p className="text-white font-serif text-lg font-bold">嘉義梅山高山茶園</p>
-                <p className="text-tea-green-pale text-sm mt-1">終年雲霧環繞的高山茶園</p>
-              </div>
-            </div>
-
-            {/* 右側兩格：手機橫排 2 欄，桌機直排 2 列 */}
-            <div className="grid grid-cols-2 md:grid-cols-1 md:grid-rows-2 gap-4">
-              <div className="relative rounded-3xl overflow-hidden aspect-[4/3] group">
-                <Image src="/images/gallery/picking2.jpg" alt="清晨手工採摘茶葉" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
-                  <p className="text-white text-sm font-bold">清晨採摘嫩芽</p>
-                  <p className="text-tea-green-pale text-xs mt-0.5 hidden sm:block">一心二葉，品質的起點</p>
-                </div>
-              </div>
-              <div className="relative rounded-3xl overflow-hidden aspect-[4/3] group">
-                <Image src="/images/gallery/wilting.jpg" alt="日光萎凋製程" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
-                  <p className="text-white text-sm font-bold">日光萎凋</p>
-                  <p className="text-tea-green-pale text-xs mt-0.5 hidden sm:block">讓茶葉在陽光中舒展</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 下排四格 */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <div className="relative rounded-3xl overflow-hidden aspect-square group">
-              <Image src="/images/gallery/wilting2.jpg" alt="室內萎凋製程" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
-                <p className="text-white text-sm font-bold">室內萎凋</p>
-                <p className="text-tea-green-pale text-xs mt-0.5">室內靜置，讓茶葉緩慢發酵</p>
-              </div>
-            </div>
-            <div className="relative rounded-3xl overflow-hidden aspect-square group">
-              <Image src="/images/gallery/rolling.jpg" alt="手工揉捻茶葉" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
-                <p className="text-white text-sm font-bold">揉捻成形</p>
-                <p className="text-tea-green-pale text-xs mt-0.5">手工揉出茶葉的形與韻</p>
-              </div>
-            </div>
-            <div className="relative rounded-3xl overflow-hidden aspect-square group">
-              <Image src="/images/gallery/roasting.jpg" alt="精控焙火烘焙" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
-                <p className="text-white text-sm font-bold">精控焙火烘焙</p>
-                <p className="text-tea-green-pale text-xs mt-0.5">40年累積的火候手感</p>
-              </div>
-            </div>
-            <div className="relative rounded-3xl overflow-hidden aspect-square group">
-              <Image src="/images/gallery/tea-cup.jpg" alt="沖泡完成的茶湯" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-tea-text/70 to-transparent p-4">
-                <p className="text-white text-sm font-bold">一杯好茶</p>
-                <p className="text-tea-green-pale text-xs mt-0.5">從茶園到您手中的完整旅程</p>
-              </div>
-            </div>
-          </div>
-
-          {/* 更多照片：六宮格 */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[
-              { src: "/images/gallery/farm.jpeg",     alt: "茶園景色" },
-              { src: "/images/gallery/picking.jpeg",  alt: "採摘過程" },
-              { src: "/images/gallery/wilting2.jpg",  alt: "室內萎凋" },
-              { src: "/images/gallery/wilting3.jpg",  alt: "室內萎凋" },
-              { src: "/images/gallery/rolling2.jpg",  alt: "揉捻細節" },
-              { src: "/images/gallery/tea-cup2.jpg",  alt: "茶湯特寫" },
-            ].map((photo) => (
-              <div key={photo.src} className="relative rounded-2xl overflow-hidden aspect-square group">
-                <Image src={photo.src} alt={photo.alt} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-tea-text/0 group-hover:bg-tea-text/20 transition-colors duration-300" />
-              </div>
-            ))}
-          </div>
+          <PhotoGallery />
         </div>
       </section>
 
