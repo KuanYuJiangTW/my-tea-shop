@@ -31,7 +31,14 @@ function buildCheckMacValue(params: Record<string, string>): string {
   return createHash("sha256").update(encoded).digest("hex").toUpperCase();
 }
 
+const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
+
 export async function POST(req: NextRequest) {
+  const origin = req.headers.get("origin") ?? "";
+  if (origin && origin !== ALLOWED_ORIGIN) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const body = await req.json() as EcpayCheckoutRequest;
 
   // 取得當前登入的 user_id（若有登入）
@@ -113,5 +120,26 @@ export async function POST(req: NextRequest) {
 
   params.CheckMacValue = buildCheckMacValue(params);
 
-  return NextResponse.json({ ecpayUrl: ECPAY_URL, params } satisfies EcpayCheckoutResponse);
+  return NextResponse.json(
+    { ecpayUrl: ECPAY_URL, params } satisfies EcpayCheckoutResponse,
+    {
+      headers: {
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    }
+  );
+}
+
+// preflight
+export async function OPTIONS(req: NextRequest) {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+      "Access-Control-Allow-Methods": "POST",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
 }

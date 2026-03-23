@@ -39,10 +39,17 @@ export async function middleware(request: NextRequest) {
     const session = request.cookies.get("admin_session")?.value;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
-    const isValid =
-      !!adminPassword &&
-      !!session &&
-      session === Buffer.from(adminPassword).toString("base64");
+    // Timing-safe 比對：防止 timing attack（Edge Runtime 不支援 Node crypto，手動 XOR）
+    const isValid = (() => {
+      if (!adminPassword || !session) return false;
+      const expected = Buffer.from(adminPassword).toString("base64");
+      if (session.length !== expected.length) return false;
+      let diff = 0;
+      for (let i = 0; i < session.length; i++) {
+        diff |= session.charCodeAt(i) ^ expected.charCodeAt(i);
+      }
+      return diff === 0;
+    })();
 
     if (!isValid) {
       if (pathname.startsWith("/api/")) {
