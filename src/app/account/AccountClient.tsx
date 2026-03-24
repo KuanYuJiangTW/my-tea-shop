@@ -114,6 +114,9 @@ export default function AccountClient({ user, profile, orders: initialOrders }: 
     if (form.city && !CITIES.includes(form.city)) {
       e.city = "請選擇有效縣市";
     }
+    if (form.address.trim() && form.address.trim().length < 4) {
+      e.address = "地址請至少填入 4 個字";
+    }
     setProfileErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -312,10 +315,11 @@ export default function AccountClient({ user, profile, orders: initialOrders }: 
                   <input
                     type="text"
                     value={form.address}
-                    onChange={(e) => setForm(p => ({ ...p, address: e.target.value }))}
+                    onChange={(e) => { setForm(p => ({ ...p, address: e.target.value })); setProfileErrors(p => ({ ...p, address: undefined })); }}
                     placeholder="鄉鎮市區、街道路、門牌號"
-                    className={inputCls()}
+                    className={inputCls(profileErrors.address)}
                   />
+                  {profileErrors.address && <p className="mt-1 text-xs text-rose-500">{profileErrors.address}</p>}
                 </div>
               </div>
 

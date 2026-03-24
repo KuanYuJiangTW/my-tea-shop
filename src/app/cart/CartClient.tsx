@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CartClient() {
-  const { items, removeFromCart, updateQuantity, totalPrice, totalItems } =
-    useCart();
+  const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
+  const { user } = useAuth();
 
   if (items.length === 0) {
     return (
@@ -167,12 +168,21 @@ export default function CartClient() {
                   </span>
                 </div>
               </div>
-              <Link
-                href="/checkout"
-                className="block w-full bg-tea-green hover:bg-tea-green-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
-              >
-                前往結帳
-              </Link>
+              {user ? (
+                <Link
+                  href="/checkout"
+                  className="block w-full bg-tea-green hover:bg-tea-green-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
+                >
+                  前往結帳
+                </Link>
+              ) : (
+                <Link
+                  href="/auth/login?redirect=/checkout"
+                  className="block w-full bg-tea-green hover:bg-tea-green-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
+                >
+                  登入後結帳
+                </Link>
+              )}
               <Link
                 href="/products"
                 className="block w-full text-center text-tea-text-light hover:text-tea-green text-sm mt-4 transition-colors"

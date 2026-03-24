@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  // OAuth / Magic Link 登入後跳轉目的地（只允許站內路徑）
+  const next = searchParams.get("next");
 
   if (code) {
     const cookieStore = await cookies();
@@ -34,5 +36,6 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/account`);
+  const redirectPath = next && next.startsWith("/") ? next : "/account";
+  return NextResponse.redirect(`${origin}${redirectPath}`);
 }

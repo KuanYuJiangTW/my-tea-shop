@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
@@ -13,11 +14,26 @@ import type {
   CreateOrderRequest,
 } from "@/types";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^09\d{8}$/;
+const CITIES = ["台北市","新北市","桃園市","台中市","台南市","高雄市","基隆市","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","屏東縣","宜蘭縣","花蓮縣","台東縣","澎湖縣","金門縣","連江縣"];
+
+type FormErrors = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+  address?: string;
+  cvsStoreName?: string;
+};
+
 export default function CheckoutClient() {
   const { items, totalPrice, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading }   = useAuth();
+  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState("");
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [codSuccess, setCodSuccess] = useState(false);
   const [payment, setPayment]       = useState<PaymentMethod>("online");
   const [delivery, setDelivery]     = useState<DeliveryType>("home");
@@ -61,6 +77,13 @@ export default function CheckoutClient() {
       });
   }, [user]);
 
+  // 未登入時導向登入頁
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/auth/login?redirect=/checkout");
+    }
+  }, [user, authLoading, router]);
+
   useEffect(() => {
     if (ecpayData && ecpayFormRef.current) {
       ecpayFormRef.current.submit();
@@ -91,6 +114,7 @@ export default function CheckoutClient() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setSubmitting(true);
     setError("");
 
@@ -127,7 +151,27 @@ export default function CheckoutClient() {
     }
   };
 
-  const inputCls = "w-full border border-tea-green-pale rounded-xl px-4 py-3 text-sm text-tea-text placeholder-tea-text-light/60 focus:outline-none focus:border-tea-green bg-tea-cream-light/50";
+  function validate(): boolean {
+    const e: FormErrors = {};
+    const phone = form.phone.replace(/[-\s]/g, "");
+    if (form.name.trim().length < 2)          e.name  = "請輸入至少 2 個字的姓名";
+    if (!emailRegex.test(form.email))         e.email = "請輸入有效的 Email 格式";
+    if (!phoneRegex.test(phone))              e.phone = "請輸入有效的手機號碼（例：0912345678）";
+    if (delivery === "home") {
+      if (!CITIES.includes(form.city))        e.city    = "請選擇縣市";
+      if (form.address.trim().length < 4)     e.address = "請輸入完整的收件地址";
+    }
+    if (delivery === "cvs") {
+      if (form.cvsStoreName.trim().length < 2) e.cvsStoreName = "請輸入門市名稱";
+    }
+    setFormErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  const inputCls = (hasError?: boolean) =>
+    `w-full border rounded-xl px-4 py-3 text-sm text-tea-text placeholder-tea-text-light/60 focus:outline-none focus:border-tea-green bg-tea-cream-light/50 ${
+      hasError ? "border-rose-300" : "border-tea-green-pale"
+    }`;
 
   // 貨到付款成功畫面
   if (codSuccess) {
@@ -183,15 +227,18 @@ export default function CheckoutClient() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-tea-text mb-2">姓名 *</label>
-                    <input type="text" name="name" required value={form.name} onChange={handleChange} placeholder="請輸入您的姓名" className={inputCls} />
+                    <input type="text" name="name" value={form.name} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, name: undefined })); }} placeholder="請輸入您的姓名" className={inputCls(!!formErrors.name)} />
+                    {formErrors.name && <p className="mt-1 text-xs text-rose-500">{formErrors.name}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-tea-text mb-2">電話 *</label>
-                    <input type="tel" name="phone" required value={form.phone} onChange={handleChange} placeholder="0912-345-678" className={inputCls} />
+                    <label className="block text-sm font-medium text-tea-text mb-2">手機號碼 *</label>
+                    <input type="tel" name="phone" value={form.phone} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, phone: undefined })); }} placeholder="0912345678" className={inputCls(!!formErrors.phone)} />
+                    {formErrors.phone && <p className="mt-1 text-xs text-rose-500">{formErrors.phone}</p>}
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-tea-text mb-2">電子郵件 *</label>
-                    <input type="email" name="email" required value={form.email} onChange={handleChange} placeholder="your@email.com" className={inputCls} />
+                    <input type="email" name="email" value={form.email} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, email: undefined })); }} placeholder="your@email.com" className={inputCls(!!formErrors.email)} />
+                    {formErrors.email && <p className="mt-1 text-xs text-rose-500">{formErrors.email}</p>}
                   </div>
                 </div>
               </div>
@@ -246,17 +293,19 @@ export default function CheckoutClient() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-tea-text mb-2">縣市 *</label>
-                      <select name="city" required value={form.city} onChange={handleChange} className={inputCls}>
+                      <select name="city" value={form.city} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, city: undefined })); }} className={inputCls(!!formErrors.city)}>
                         <option value="">請選擇縣市</option>
-                        {["台北市","新北市","桃園市","台中市","台南市","高雄市","基隆市","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","屏東縣","宜蘭縣","花蓮縣","台東縣","澎湖縣","金門縣","連江縣"].map(c => (
+                        {CITIES.map(c => (
                           <option key={c} value={c}>{c}</option>
                         ))}
                       </select>
+                      {formErrors.city && <p className="mt-1 text-xs text-rose-500">{formErrors.city}</p>}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-tea-text mb-2">詳細地址 *</label>
-                      <input type="text" name="address" required value={form.address} onChange={handleChange}
-                        placeholder="鄉鎮市區、街道路、門牌號" className={inputCls} />
+                      <input type="text" name="address" value={form.address} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, address: undefined })); }}
+                        placeholder="鄉鎮市區、街道路、門牌號" className={inputCls(!!formErrors.address)} />
+                      {formErrors.address && <p className="mt-1 text-xs text-rose-500">{formErrors.address}</p>}
                     </div>
                   </div>
                 )}
@@ -275,8 +324,9 @@ export default function CheckoutClient() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-tea-text mb-2">門市名稱 *</label>
-                      <input type="text" name="cvsStoreName" required value={form.cvsStoreName} onChange={handleChange}
-                        placeholder="例：台北忠孝門市" className={inputCls} />
+                      <input type="text" name="cvsStoreName" value={form.cvsStoreName} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, cvsStoreName: undefined })); }}
+                        placeholder="例：台北忠孝門市" className={inputCls(!!formErrors.cvsStoreName)} />
+                      {formErrors.cvsStoreName && <p className="mt-1 text-xs text-rose-500">{formErrors.cvsStoreName}</p>}
                     </div>
                     <div className="flex items-start gap-2 bg-amber-50 rounded-xl p-3">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0 mt-0.5">
@@ -291,7 +341,7 @@ export default function CheckoutClient() {
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-tea-text mb-2">備註（選填）</label>
                   <textarea name="note" value={form.note} onChange={handleChange} rows={3}
-                    placeholder="如有特殊需求請在此說明" className={`${inputCls} resize-none`} />
+                    placeholder="如有特殊需求請在此說明" className={`${inputCls()} resize-none`} />
                 </div>
               </div>
 

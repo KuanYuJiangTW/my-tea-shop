@@ -3,7 +3,9 @@
 import Image from "next/image";
 import type { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { useState, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import ProductLightbox, { type LightboxPhoto } from "@/components/ProductLightbox";
 
 type VariantKey = "150g" | "75g" | "teabag";
@@ -65,6 +67,9 @@ function buildVariants(p: Product): Variant[] {
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
+  const { user }      = useAuth();
+  const router        = useRouter();
+  const pathname      = usePathname();
   const [added,         setAdded]         = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [quantity,      setQuantity]      = useState(1);
@@ -96,6 +101,10 @@ export default function ProductCard({ product }: { product: Product }) {
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (selectedSoldOut) return;
+    if (!user) {
+      router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
     addToCart(
       { ...product, id: selected.cartId, price: selected.price, weight: selected.weight, name: selected.cartName },
       quantity
