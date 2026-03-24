@@ -315,7 +315,7 @@ export default function CheckoutClient() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-tea-text mb-2">超商品牌 *</label>
-                      <select name="cvsCompany" required value={form.cvsCompany} onChange={handleChange} className={inputCls}>
+                      <select name="cvsCompany" required value={form.cvsCompany} onChange={handleChange} className={inputCls()}>
                         <option value="seven">7-ELEVEN</option>
                         <option value="family">全家 FamilyMart</option>
                         <option value="hilife">萊爾富 Hi-Life</option>
