@@ -196,7 +196,7 @@ export async function POST(req: NextRequest) {
     await supabase.from("coupons").update({ used_at: new Date().toISOString(), order_id: data.id }).eq("id", couponId);
   }
 
-  // 扣除點數（先）＋ 累積點數（後）
+  // 若使用點數折抵，立即扣除（防止重複使用）
   if (pointsUsed > 0) {
     await supabase.from("point_transactions").insert({
       user_id:     userId,
@@ -206,14 +206,7 @@ export async function POST(req: NextRequest) {
       description: `訂單折抵 NT$${pointsDiscount}`,
     });
   }
-  await supabase.from("point_transactions").insert({
-    user_id:     userId,
-    points:      subtotal,
-    type:        "earn",
-    order_id:    data.id,
-    description: `訂單消費回饋`,
-    expires_at:  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-  });
+  // 注意：點數累積（earn）在管理後台確認完成後才發放
 
   // 寄送訂單確認信
   await sendOrderEmails({

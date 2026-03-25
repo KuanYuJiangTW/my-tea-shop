@@ -229,11 +229,7 @@ export async function POST(req: NextRequest) {
         order_id: orderData.id, description: `訂單折抵 NT$${pointsDiscount}`,
       });
     }
-    await supabase.from("point_transactions").insert({
-      user_id: userId, points: subtotal, type: "earn",
-      order_id: orderData.id, description: "訂單消費回饋",
-      expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-    });
+    // 注意：點數累積（earn）在管理後台確認完成後才發放
   }
 
   const params: Record<string, string> = {

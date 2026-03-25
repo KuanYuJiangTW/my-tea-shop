@@ -38,6 +38,7 @@ type CouponRow = {
   discount_amount: number;
   min_order_amount: number;
   expires_at: string;
+  used_at: string | null;
   created_at: string;
 };
 
@@ -407,20 +408,30 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               <p className="text-xs text-tea-text-light mb-5">結帳時輸入折價券代碼即可使用</p>
               {coupons.length > 0 ? (
                 <div className="space-y-3">
-                  {coupons.map(c => (
-                    <div key={c.id} className="flex items-center justify-between p-4 rounded-xl border border-dashed border-tea-green bg-tea-green-mist/40">
-                      <div>
-                        <p className="font-mono text-base font-bold text-tea-green tracking-widest">{c.code}</p>
-                        <p className="text-xs text-tea-text-light mt-0.5">
-                          折抵 NT${c.discount_amount} · 滿 NT${c.min_order_amount} 可用 · 有效至 {new Date(c.expires_at).toLocaleDateString("zh-TW")}
-                        </p>
+                  {coupons.map(c => {
+                    const isUsed    = !!c.used_at;
+                    const isExpired = !isUsed && new Date(c.expires_at) < new Date();
+                    const isActive  = !isUsed && !isExpired;
+                    return (
+                      <div key={c.id} className={`flex items-center justify-between p-4 rounded-xl border ${isActive ? "border-dashed border-tea-green bg-tea-green-mist/40" : "border-tea-green-pale bg-gray-50 opacity-60"}`}>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className={`font-mono text-base font-bold tracking-widest ${isActive ? "text-tea-green" : "text-tea-text-light"}`}>{c.code}</p>
+                            {isUsed    && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500">已使用</span>}
+                            {isExpired && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500">已過期</span>}
+                          </div>
+                          <p className="text-xs text-tea-text-light mt-0.5">
+                            折抵 NT${c.discount_amount} · 滿 NT${c.min_order_amount} 可用
+                            {isUsed ? ` · 使用於 ${new Date(c.used_at!).toLocaleDateString("zh-TW")}` : ` · 有效至 ${new Date(c.expires_at).toLocaleDateString("zh-TW")}`}
+                          </p>
+                        </div>
+                        <span className={`text-xl font-bold ${isActive ? "text-tea-green" : "text-tea-text-light"}`}>-${c.discount_amount}</span>
                       </div>
-                      <span className="text-xl font-bold text-tea-green">-${c.discount_amount}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
-                <p className="text-sm text-tea-text-light">目前沒有可用的折價券。</p>
+                <p className="text-sm text-tea-text-light">目前沒有折價券記錄。</p>
               )}
             </div>
           </div>

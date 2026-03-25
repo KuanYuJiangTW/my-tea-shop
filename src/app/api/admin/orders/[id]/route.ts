@@ -48,6 +48,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "未提供更新欄位" }, { status: 400 });
   }
 
+  // 更新前先取得訂單目前狀態（判斷是否剛變成 completed）
+  const { data: prevOrder } = await supabase
+    .from("orders")
+    .select("order_status, user_id, items, shipping_fee, discount_amount")
+    .eq("id", id)
+    .single();
+
   const { error } = await supabase
     .from("orders")
     .update(updateData)
@@ -55,6 +62,32 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // 訂單狀態剛變成「已完成」→ 發放點數（防止重複：確認該訂單尚無 earn 記錄）
+  if (
+    body.orderStatus === "completed" &&
+    prevOrder?.order_status !== "completed" &&
+    prevOrder?.user_id
+  ) {
+    const { count } = await supabase
+      .from("point_transactions")
+      .select("id", { count: "exact", head: true })
+      .eq("order_id", id)
+      .eq("type", "earn");
+
+    if ((count ?? 0) === 0) {
+      const items = prevOrder.items as { subtotal: number }[] ?? [];
+      const subtotal = items.reduce((s, i) => s + i.subtotal, 0);
+      await supabase.from("point_transactions").insert({
+        user_id:     prevOrder.user_id,
+        points:      subtotal,
+        type:        "earn",
+        order_id:    id,
+        description: "訂單完成回饋",
+        expires_at:  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+    }
   }
 
   // Send shipping email if requested

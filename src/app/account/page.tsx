@@ -41,14 +41,12 @@ export default async function AccountPage() {
     .limit(20);
   const pointsBalance = (pointTxs ?? []).reduce((sum: number, t: { points: number }) => sum + t.points, 0);
 
-  // 可用折價券
+  // 折價券（可用 + 已使用，共同顯示）
   const { data: coupons } = await adminSupabase
     .from("coupons")
-    .select("id, code, source, discount_amount, min_order_amount, expires_at, created_at")
+    .select("id, code, source, discount_amount, min_order_amount, expires_at, used_at, created_at")
     .eq("user_id", user.id)
-    .is("used_at", null)
-    .gt("expires_at", new Date().toISOString())
-    .order("expires_at", { ascending: true });
+    .order("created_at", { ascending: false });
 
   return (
     <Suspense>
