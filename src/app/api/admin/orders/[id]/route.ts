@@ -51,7 +51,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // 更新前先取得訂單目前狀態（判斷是否剛變成 completed）
   const { data: prevOrder } = await supabase
     .from("orders")
-    .select("order_status, user_id, items, shipping_fee, discount_amount")
+    .select("order_status, user_id, items, shipping_fee, discount_amount, coupon_id, points_used")
     .eq("id", id)
     .single();
 
@@ -86,6 +86,30 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         order_id:    id,
         description: "訂單完成回饋",
         expires_at:  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+    }
+  }
+
+  // 訂單狀態剛變成「已取消」→ 還原折價券與點數
+  if (
+    body.orderStatus === "cancelled" &&
+    prevOrder?.order_status !== "cancelled" &&
+    prevOrder?.user_id
+  ) {
+    if (prevOrder.coupon_id) {
+      await supabase
+        .from("coupons")
+        .update({ used_at: null, order_id: null })
+        .eq("id", prevOrder.coupon_id);
+    }
+
+    if (prevOrder.points_used > 0) {
+      await supabase.from("point_transactions").insert({
+        user_id:     prevOrder.user_id,
+        points:      prevOrder.points_used,
+        type:        "earn",
+        order_id:    id,
+        description: "訂單取消退還點數",
       });
     }
   }

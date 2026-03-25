@@ -20,7 +20,7 @@ export async function POST(
   // 確認訂單屬於此會員
   const { data: order, error: fetchError } = await adminSupabase
     .from("orders")
-    .select("id, user_id, order_status")
+    .select("id, user_id, order_status, coupon_id, points_used")
     .eq("id", id)
     .single();
 
@@ -46,6 +46,25 @@ export async function POST(
 
   if (error) {
     return NextResponse.json({ error: "取消失敗，請稍後再試" }, { status: 500 });
+  }
+
+  // 還原折價券
+  if (order.coupon_id) {
+    await adminSupabase
+      .from("coupons")
+      .update({ used_at: null, order_id: null })
+      .eq("id", order.coupon_id);
+  }
+
+  // 還原已扣除的點數
+  if (order.points_used > 0) {
+    await adminSupabase.from("point_transactions").insert({
+      user_id:     user.id,
+      points:      order.points_used,
+      type:        "earn",
+      order_id:    id,
+      description: "訂單取消退還點數",
+    });
   }
 
   return NextResponse.json({ ok: true });
