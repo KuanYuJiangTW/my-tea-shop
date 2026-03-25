@@ -92,6 +92,28 @@ export interface Order {
   ecpayTradeNo?:   string;        // 綠界交易編號（線上付款才有）
 }
 
+// ─── Coupon ───────────────────────────────────────────────────────────────────
+
+export interface Coupon {
+  id:             string;
+  code:           string;
+  source:         string;
+  discountAmount: number;
+  minOrderAmount: number;
+  expiresAt:      string;
+  createdAt:      string;
+}
+
+// ─── Points ───────────────────────────────────────────────────────────────────
+
+export interface PointTransaction {
+  id:          string;
+  points:      number;
+  type:        "earn" | "redeem";
+  description: string | null;
+  createdAt:   string;
+}
+
 // ─── API Request / Response ───────────────────────────────────────────────────
 
 export interface CreateOrderRequest {
@@ -115,7 +137,9 @@ export interface CreateOrderRequest {
     quantity:  number;
     spec?:     "150g" | "75g" | "teabag";
   }[];
-  note?: string;
+  note?:        string;
+  couponCode?:  string;
+  pointsToUse?: number;
 }
 
 // ─── ECPay ────────────────────────────────────────────────────────────────────

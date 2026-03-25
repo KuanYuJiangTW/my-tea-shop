@@ -32,12 +32,33 @@ export default async function AccountPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
+  // 點數記錄
+  const { data: pointTxs } = await adminSupabase
+    .from("point_transactions")
+    .select("id, points, type, description, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  const pointsBalance = (pointTxs ?? []).reduce((sum: number, t: { points: number }) => sum + t.points, 0);
+
+  // 可用折價券
+  const { data: coupons } = await adminSupabase
+    .from("coupons")
+    .select("id, code, source, discount_amount, min_order_amount, expires_at, created_at")
+    .eq("user_id", user.id)
+    .is("used_at", null)
+    .gt("expires_at", new Date().toISOString())
+    .order("expires_at", { ascending: true });
+
   return (
     <Suspense>
       <AccountClient
         user={{ id: user.id, email: user.email ?? "" }}
         profile={profile ?? null}
         orders={orders ?? []}
+        pointsBalance={pointsBalance}
+        pointTransactions={pointTxs ?? []}
+        coupons={coupons ?? []}
       />
     </Suspense>
   );

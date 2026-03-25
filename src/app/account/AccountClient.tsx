@@ -23,10 +23,31 @@ type Order = {
   shipping_address: { type: string; city?: string; address?: string; company?: string; storeName?: string };
 };
 
+type PointTx = {
+  id: string;
+  points: number;
+  type: "earn" | "redeem";
+  description: string | null;
+  created_at: string;
+};
+
+type CouponRow = {
+  id: string;
+  code: string;
+  source: string;
+  discount_amount: number;
+  min_order_amount: number;
+  expires_at: string;
+  created_at: string;
+};
+
 type Props = {
   user: { id: string; email: string };
   profile: Profile | null;
   orders: Order[];
+  pointsBalance: number;
+  pointTransactions: PointTx[];
+  coupons: CouponRow[];
 };
 
 const CITIES = ["台北市","新北市","桃園市","台中市","台南市","高雄市","基隆市","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","屏東縣","宜蘭縣","花蓮縣","台東縣","澎湖縣","金門縣","連江縣"];
@@ -64,10 +85,11 @@ type ProfileErrors = {
 
 const phoneRegex = /^09\d{8}$/;
 
-export default function AccountClient({ user, profile, orders: initialOrders }: Props) {
+export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, pointTransactions, coupons }: Props) {
   const searchParams = useSearchParams();
-  const defaultTab = searchParams.get("tab") === "orders" ? "orders" : "profile";
-  const [tab, setTab] = useState<"profile" | "orders">(defaultTab);
+  const rawTab = searchParams.get("tab");
+  const defaultTab = rawTab === "orders" ? "orders" : rawTab === "rewards" ? "rewards" : "profile";
+  const [tab, setTab] = useState<"profile" | "orders" | "rewards">(defaultTab);
 
   // ── Profile state ──────────────────────────────────────────────────────────
   const [form, setForm] = useState({
@@ -231,18 +253,22 @@ export default function AccountClient({ user, profile, orders: initialOrders }: 
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 bg-white rounded-xl border border-tea-green-pale p-1 w-fit">
-          {(["profile", "orders"] as const).map((t) => (
+        <div className="flex gap-1 mb-6 bg-white rounded-xl border border-tea-green-pale p-1 w-fit flex-wrap">
+          {([
+            { key: "profile",  label: "個人資料" },
+            { key: "orders",   label: `訂單紀錄（${orderList.length}）` },
+            { key: "rewards",  label: `點數 & 折價券` },
+          ] as const).map(({ key, label }) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={key}
+              onClick={() => setTab(key)}
               className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
-                tab === t
+                tab === key
                   ? "bg-tea-green text-white shadow-sm"
                   : "text-tea-text-light hover:text-tea-text"
               }`}
             >
-              {t === "profile" ? "個人資料" : `訂單紀錄（${orderList.length}）`}
+              {label}
             </button>
           ))}
         </div>
@@ -341,6 +367,62 @@ export default function AccountClient({ user, profile, orders: initialOrders }: 
                 {saveError && <span className="text-sm text-rose-500">{saveError}</span>}
               </div>
             </form>
+          </div>
+        )}
+
+        {/* ─── Rewards Tab ─── */}
+        {tab === "rewards" && (
+          <div className="space-y-6">
+            {/* 點數餘額 */}
+            <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-7">
+              <h2 className="font-semibold text-tea-text mb-1">會員點數</h2>
+              <p className="text-xs text-tea-text-light mb-5">每消費 NT$1 累積 1 點，100 點折抵 NT$1（單筆最高折抵 10%）</p>
+              <div className="flex items-end gap-2 mb-6">
+                <span className="font-serif text-5xl font-bold text-tea-green">{pointsBalance.toLocaleString()}</span>
+                <span className="text-tea-text-light mb-1">點</span>
+              </div>
+              {pointTransactions.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-3">近期記錄</p>
+                  {pointTransactions.map(tx => (
+                    <div key={tx.id} className="flex justify-between items-center py-2 border-b border-tea-green-pale/60 last:border-0">
+                      <div>
+                        <p className="text-sm text-tea-text">{tx.description ?? (tx.type === "earn" ? "消費回饋" : "點數折抵")}</p>
+                        <p className="text-xs text-tea-text-light">{new Date(tx.created_at).toLocaleDateString("zh-TW")}</p>
+                      </div>
+                      <span className={`text-sm font-semibold ${tx.points > 0 ? "text-tea-green" : "text-rose-500"}`}>
+                        {tx.points > 0 ? "+" : ""}{tx.points.toLocaleString()} 點
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-tea-text-light">尚無點數記錄，完成第一筆訂單後即可開始累積！</p>
+              )}
+            </div>
+
+            {/* 折價券 */}
+            <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-7">
+              <h2 className="font-semibold text-tea-text mb-1">我的折價券</h2>
+              <p className="text-xs text-tea-text-light mb-5">結帳時輸入折價券代碼即可使用</p>
+              {coupons.length > 0 ? (
+                <div className="space-y-3">
+                  {coupons.map(c => (
+                    <div key={c.id} className="flex items-center justify-between p-4 rounded-xl border border-dashed border-tea-green bg-tea-green-mist/40">
+                      <div>
+                        <p className="font-mono text-base font-bold text-tea-green tracking-widest">{c.code}</p>
+                        <p className="text-xs text-tea-text-light mt-0.5">
+                          折抵 NT${c.discount_amount} · 滿 NT${c.min_order_amount} 可用 · 有效至 {new Date(c.expires_at).toLocaleDateString("zh-TW")}
+                        </p>
+                      </div>
+                      <span className="text-xl font-bold text-tea-green">-${c.discount_amount}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-tea-text-light">目前沒有可用的折價券。</p>
+              )}
+            </div>
           </div>
         )}
 

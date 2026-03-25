@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { supabase as adminSupabase } from "@/lib/supabase";
+
+function genCouponCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return "WEL-" + Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -33,6 +39,18 @@ export async function GET(request: NextRequest) {
         { id: data.user.id, name: data.user.user_metadata?.name ?? null },
         { onConflict: "id", ignoreDuplicates: true }
       );
+
+      // 新用戶發送歡迎折價券（unique index 確保每人只發一次，重複時自動忽略）
+      const expires = new Date();
+      expires.setDate(expires.getDate() + 30);
+      await adminSupabase.from("coupons").insert({
+        user_id:          data.user.id,
+        code:             genCouponCode(),
+        source:           "welcome",
+        discount_amount:  50,
+        min_order_amount: 350,
+        expires_at:       expires.toISOString(),
+      });
     }
   }
 

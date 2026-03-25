@@ -102,12 +102,11 @@ export async function POST(req: NextRequest) {
     validatedItems.push({ productId: product.id, name: product.name, quantity: qty, unitPrice, subtotal: unitPrice * qty });
   }
 
-  // ── 3. 後端計算運費與總金額 ──────────────────────────────────────────────
+  // ── 3. 後端計算運費 ──────────────────────────────────────────────────────
   const subtotal    = validatedItems.reduce((sum, i) => sum + i.subtotal, 0);
   const shippingFee = subtotal >= 1000 ? 0 : body.deliveryType === "home" ? 250 : 60;
-  const totalAmount = subtotal + shippingFee;
 
-  // 取得當前登入的 user_id（若有登入）
+  // ── 4. 驗證 token ────────────────────────────────────────────────────────
   const cookieStore = await cookies();
   const authClient = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -124,7 +123,62 @@ export async function POST(req: NextRequest) {
     }
   );
   const { data: { user } } = await authClient.auth.getUser();
-  const userId = user?.id ?? null;
+  if (!user) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+  const userId = user.id;
+  const verifiedEmail = user.email!;
+
+  // ── 5. 折價券驗證 ────────────────────────────────────────────────────────
+  let couponId: string | null = null;
+  let couponDiscount = 0;
+
+  if (body.couponCode) {
+    const { data: coupon } = await supabase
+      .from("coupons")
+      .select("id, discount_amount, min_order_amount")
+      .eq("user_id", userId)
+      .eq("code", body.couponCode)
+      .is("used_at", null)
+      .gt("expires_at", new Date().toISOString())
+      .single();
+
+    if (!coupon) {
+      return NextResponse.json({ error: "折價券無效或已使用" }, { status: 400 });
+    }
+    if (subtotal + shippingFee < coupon.min_order_amount) {
+      return NextResponse.json({ error: `未達折價券最低消費 NT$${coupon.min_order_amount}` }, { status: 400 });
+    }
+    couponId = coupon.id;
+    couponDiscount = coupon.discount_amount;
+  }
+
+  // ── 6. 點數折抵驗證 ──────────────────────────────────────────────────────
+  let pointsUsed = 0;
+  let pointsDiscount = 0;
+  const pointsToUse = body.pointsToUse ?? 0;
+
+  if (pointsToUse > 0) {
+    if (pointsToUse < 200 || pointsToUse % 100 !== 0) {
+      return NextResponse.json({ error: "點數最少 200 點，且須為 100 的倍數" }, { status: 400 });
+    }
+    const { data: txs } = await supabase
+      .from("point_transactions")
+      .select("points")
+      .eq("user_id", userId);
+    const balance = (txs ?? []).reduce((s: number, t: { points: number }) => s + t.points, 0);
+    if (balance < pointsToUse) {
+      return NextResponse.json({ error: "點數不足" }, { status: 400 });
+    }
+    const afterCoupon = subtotal + shippingFee - couponDiscount;
+    const maxDiscount = Math.floor(afterCoupon * 0.1);
+    if (pointsToUse / 100 > maxDiscount) {
+      return NextResponse.json({ error: `點數折抵上限為 NT$${maxDiscount}` }, { status: 400 });
+    }
+    pointsUsed = pointsToUse;
+    pointsDiscount = pointsToUse / 100;
+  }
+
+  // ── 7. 計算最終金額 ──────────────────────────────────────────────────────
+  const totalAmount = Math.max(subtotal + shippingFee - couponDiscount - pointsDiscount, 0);
 
   const base =
     process.env.NEXT_PUBLIC_BASE_URL ??
@@ -144,9 +198,9 @@ export async function POST(req: NextRequest) {
       ? { type: "home", city: body.shippingAddress?.city, address: body.shippingAddress?.address }
       : { type: "cvs",  company: body.cvsInfo?.company,   storeName: body.cvsInfo?.storeName };
 
-  const { error: dbError } = await supabase.from("orders").insert({
+  const { data: orderData, error: dbError } = await supabase.from("orders").insert({
     customer_name:    body.customer.name,
-    customer_email:   body.customer.email,
+    customer_email:   verifiedEmail,
     customer_phone:   body.customer.phone,
     payment_method:   "online",
     shipping_address: shippingAddress,
@@ -158,9 +212,29 @@ export async function POST(req: NextRequest) {
     ecpay_trade_no:   tradeNo,
     note:             body.note ?? null,
     user_id:          userId,
-  });
+    coupon_id:        couponId,
+    discount_amount:  couponDiscount + pointsDiscount,
+    points_used:      pointsUsed,
+  }).select("id").single();
 
-  if (dbError) console.error("建立訂單失敗:", dbError);
+  if (dbError) {
+    console.error("建立訂單失敗:", dbError);
+  } else if (orderData) {
+    if (couponId) {
+      await supabase.from("coupons").update({ used_at: new Date().toISOString(), order_id: orderData.id }).eq("id", couponId);
+    }
+    if (pointsUsed > 0) {
+      await supabase.from("point_transactions").insert({
+        user_id: userId, points: -pointsUsed, type: "redeem",
+        order_id: orderData.id, description: `訂單折抵 NT$${pointsDiscount}`,
+      });
+    }
+    await supabase.from("point_transactions").insert({
+      user_id: userId, points: subtotal, type: "earn",
+      order_id: orderData.id, description: "訂單消費回饋",
+      expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+  }
 
   const params: Record<string, string> = {
     ChoosePayment:     "ALL",

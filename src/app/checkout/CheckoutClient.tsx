@@ -40,9 +40,54 @@ export default function CheckoutClient() {
   const [ecpayData, setEcpayData]   = useState<EcpayCheckoutResponse | null>(null);
   const ecpayFormRef = useRef<HTMLFormElement>(null);
 
-  // 運費：未滿 1000 元 — 宅配 +250、超商 +60，滿 1000 元免運
+  // 折價券
+  type CouponRow = { id: string; code: string; discount_amount: number; min_order_amount: number; expires_at: string };
+  const [availableCoupons, setAvailableCoupons] = useState<CouponRow[]>([]);
+  const [couponInput, setCouponInput]           = useState("");
+  const [appliedCoupon, setAppliedCoupon]       = useState<CouponRow | null>(null);
+  const [couponError, setCouponError]           = useState("");
+
+  // 點數
+  const [pointsBalance, setPointsBalance] = useState(0);
+  const [usePoints, setUsePoints]         = useState(false);
+
+  // 運費
   const shippingFee = totalPrice >= 1000 ? 0 : delivery === "home" ? 250 : 60;
-  const grandTotal  = totalPrice + shippingFee;
+
+  // 折扣計算
+  const couponDiscount  = appliedCoupon ? appliedCoupon.discount_amount : 0;
+  const afterCoupon     = totalPrice + shippingFee - couponDiscount;
+  const maxPointsToUse  = Math.floor(Math.min(pointsBalance, afterCoupon * 0.1) / 100) * 100;
+  const pointsDiscount  = usePoints && maxPointsToUse >= 200 ? maxPointsToUse / 100 : 0;
+  const grandTotal      = Math.max(afterCoupon - pointsDiscount, 0);
+
+  // 載入折價券 + 點數
+  useEffect(() => {
+    fetch("/api/user/coupons").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setAvailableCoupons(data);
+    }).catch(() => {});
+    fetch("/api/user/points").then(r => r.json()).then(data => {
+      if (typeof data.balance === "number") setPointsBalance(data.balance);
+    }).catch(() => {});
+  }, []);
+
+  function handleApplyCoupon() {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+    const match = availableCoupons.find(c => c.code.toUpperCase() === code);
+    if (!match) {
+      setCouponError("折價券不存在或已使用");
+      setAppliedCoupon(null);
+      return;
+    }
+    if (totalPrice + shippingFee < match.min_order_amount) {
+      setCouponError(`未達最低消費 NT$${match.min_order_amount}`);
+      setAppliedCoupon(null);
+      return;
+    }
+    setCouponError("");
+    setAppliedCoupon(match);
+  }
 
   const [form, setForm] = useState<CheckoutForm>({
     name: "", email: "", phone: "",
@@ -105,7 +150,9 @@ export default function CheckoutClient() {
       productId: i.product.id,
       quantity:  i.quantity,
     })),
-    note: form.note || undefined,
+    note:        form.note || undefined,
+    couponCode:  appliedCoupon?.code,
+    pointsToUse: usePoints && maxPointsToUse >= 200 ? maxPointsToUse : undefined,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -354,7 +401,47 @@ export default function CheckoutClient() {
                     </div>
                   ))}
                 </div>
-                <div className="border-t border-tea-green-pale pt-4 mb-6 space-y-2">
+                {/* 折價券 */}
+                <div className="border-t border-tea-green-pale pt-4 mb-3">
+                  <p className="text-xs font-medium text-tea-text mb-2">折價券</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponInput}
+                      onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError(""); setAppliedCoupon(null); }}
+                      placeholder="輸入折價券代碼"
+                      className="flex-1 border border-tea-green-pale rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-tea-green bg-tea-cream-light/50"
+                    />
+                    <button type="button" onClick={handleApplyCoupon}
+                      className="px-3 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-xs rounded-lg transition-colors">
+                      套用
+                    </button>
+                  </div>
+                  {couponError && <p className="mt-1 text-xs text-rose-500">{couponError}</p>}
+                  {appliedCoupon && (
+                    <div className="mt-1.5 flex items-center justify-between">
+                      <span className="text-xs text-tea-green font-medium">折抵 -NT${appliedCoupon.discount_amount}</span>
+                      <button type="button" onClick={() => { setAppliedCoupon(null); setCouponInput(""); }}
+                        className="text-xs text-tea-text-light hover:text-rose-500">移除</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* 點數折抵 */}
+                {pointsBalance >= 200 && maxPointsToUse >= 200 && (
+                  <div className="mb-3 pb-3 border-b border-tea-green-pale">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked={usePoints} onChange={e => setUsePoints(e.target.checked)}
+                        className="accent-tea-green" />
+                      <span className="text-xs text-tea-text">
+                        使用 {maxPointsToUse.toLocaleString()} 點 折抵 NT${(maxPointsToUse / 100).toLocaleString()}
+                        <span className="text-tea-text-light ml-1">（餘額 {pointsBalance.toLocaleString()} 點）</span>
+                      </span>
+                    </label>
+                  </div>
+                )}
+
+                <div className="mb-6 space-y-2">
                   <div className="flex justify-between text-sm text-tea-text-light">
                     <span>運費</span>
                     {shippingFee === 0 ? (
@@ -365,6 +452,18 @@ export default function CheckoutClient() {
                   </div>
                   {shippingFee > 0 && (
                     <p className="text-xs text-amber-600">滿 NT$1,000 即享免運費</p>
+                  )}
+                  {couponDiscount > 0 && (
+                    <div className="flex justify-between text-sm text-tea-green">
+                      <span>折價券折扣</span>
+                      <span>-NT${couponDiscount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {pointsDiscount > 0 && (
+                    <div className="flex justify-between text-sm text-tea-green">
+                      <span>點數折抵</span>
+                      <span>-NT${pointsDiscount.toLocaleString()}</span>
+                    </div>
                   )}
                   <div className="flex justify-between text-sm text-tea-text-light">
                     <span>付款</span>
