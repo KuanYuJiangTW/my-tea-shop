@@ -427,7 +427,12 @@ export default function CheckoutClient() {
                       <input
                         type="text"
                         value={couponInput}
-                        onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError(""); }}
+                        onChange={e => {
+                          const val = e.target.value.toUpperCase();
+                          setCouponInput(val);
+                          setCouponError("");
+                          if (appliedCoupon && val !== appliedCoupon.code) setAppliedCoupon(null);
+                        }}
                         onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
                         placeholder="輸入折價券代碼"
                         className="flex-1 border border-tea-green-pale rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-tea-green bg-tea-cream-light/50 font-mono"
