@@ -75,6 +75,75 @@ function itemRows(items: EmailOrderData["items"]): string {
     </tr>`).join("");
 }
 
+// ─── 聯絡表單通知信 ────────────────────────────────────────────────────────────
+
+const subjectLabel: Record<string, string> = {
+  product:   "產品詢問",
+  order:     "訂單問題",
+  wholesale: "批量採購",
+  visit:     "茶園參訪",
+  other:     "其他",
+};
+
+export async function sendContactEmail(data: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  const label = subjectLabel[data.subject] ?? data.subject;
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F5F0E8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+
+        <tr><td style="background:#7D9B84;border-radius:16px 16px 0 0;padding:28px 40px;text-align:center;">
+          <div style="font-size:14px;font-weight:700;color:#ffffff;letter-spacing:2px;">📬 新聯絡訊息</div>
+          <div style="font-size:22px;font-weight:700;color:#ffffff;margin-top:4px;">霧抉茶後台</div>
+        </td></tr>
+
+        <tr><td style="background:#ffffff;padding:40px;">
+          <h2 style="margin:0 0 20px;font-size:18px;color:#3D4A42;">您收到一則新訊息</h2>
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;width:80px;">姓名</td>
+              <td style="color:#3D4A42;font-size:13px;font-weight:600;">${data.name}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">Email</td>
+              <td style="color:#3D4A42;font-size:13px;">${data.email}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">主旨</td>
+              <td style="color:#3D4A42;font-size:13px;">${label}</td>
+            </tr>
+          </table>
+          <h3 style="margin:0 0 10px;font-size:13px;color:#7D9B84;font-weight:700;letter-spacing:1px;">訊息內容</h3>
+          <div style="background:#F5F0E8;border-radius:10px;padding:20px;font-size:14px;color:#3D4A42;line-height:1.8;white-space:pre-wrap;">${data.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+        </td></tr>
+
+        <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#9CA89E;">直接回覆此郵件即可回覆給 ${data.name}</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from:     FROM,
+    to:       ADMIN,
+    replyTo:  data.email,
+    subject:  `【聯絡我們】${label}｜${data.name}`,
+    html,
+  });
+}
+
 // ─── 出貨通知信 ───────────────────────────────────────────────────────────────
 
 export async function sendShippingEmail(data: ShippingEmailData) {

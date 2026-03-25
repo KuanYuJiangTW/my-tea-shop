@@ -21,8 +21,17 @@ export default function ContactClient() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("submitting");
-    await new Promise((r) => setTimeout(r, 1200));
-    setStatus("success");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("send failed");
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
   }
 
   const inputClass =
@@ -192,6 +201,10 @@ export default function ContactClient() {
                   className={`${inputClass} resize-none`}
                 />
               </div>
+
+              {status === "error" && (
+                <p className="text-red-500 text-sm text-center">寄送失敗，請稍後再試或直接來電聯繫我們。</p>
+              )}
 
               <button
                 type="submit"
