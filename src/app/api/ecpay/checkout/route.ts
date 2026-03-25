@@ -33,6 +33,17 @@ function buildCheckMacValue(params: Record<string, string>): string {
 
 const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
+type ProductRow = {
+  id:              number;
+  name:            string;
+  price:           number;
+  price_75g:       number | null;
+  price_tea_bag:   number | null;
+  stock_quantity:  number | null;
+  stock_75g:       number | null;
+  stock_tea_bag:   number | null;
+};
+
 export async function POST(req: NextRequest) {
   const origin = req.headers.get("origin") ?? "";
   if (origin && origin !== ALLOWED_ORIGIN) {
@@ -40,6 +51,61 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json() as EcpayCheckoutRequest;
+
+  // ── 1. 後端查詢真實價格，完全不信任前端傳來的金額 ──────────────────────
+  const productIds = body.items.map(i => i.productId);
+  const { data: products, error: productError } = await supabase
+    .from("products")
+    .select("id, name, price, price_75g, price_tea_bag, stock_quantity, stock_75g, stock_tea_bag")
+    .in("id", productIds) as { data: ProductRow[] | null; error: unknown };
+
+  if (productError || !products) {
+    return NextResponse.json({ error: "查詢商品失敗" }, { status: 500 });
+  }
+
+  // ── 2. 驗證每筆商品：存在、數量合法、庫存充足 ───────────────────────────
+  type ValidatedItem = { productId: number; name: string; quantity: number; unitPrice: number; subtotal: number };
+  const validatedItems: ValidatedItem[] = [];
+
+  for (const reqItem of body.items) {
+    const product = products.find(p => p.id === reqItem.productId);
+    if (!product) {
+      return NextResponse.json({ error: `商品不存在：${reqItem.productId}` }, { status: 400 });
+    }
+
+    const qty = reqItem.quantity;
+    if (!Number.isInteger(qty) || qty < 1) {
+      return NextResponse.json({ error: "數量必須為正整數" }, { status: 400 });
+    }
+
+    const spec = reqItem.spec ?? "150g";
+    let unitPrice: number;
+    let stock: number | null;
+
+    if (spec === "75g") {
+      if (!product.price_75g) return NextResponse.json({ error: `商品無 75g 規格：${product.name}` }, { status: 400 });
+      unitPrice = product.price_75g;
+      stock = product.stock_75g;
+    } else if (spec === "teabag") {
+      if (!product.price_tea_bag) return NextResponse.json({ error: `商品無茶包規格：${product.name}` }, { status: 400 });
+      unitPrice = product.price_tea_bag;
+      stock = product.stock_tea_bag;
+    } else {
+      unitPrice = product.price;
+      stock = product.stock_quantity;
+    }
+
+    if (stock !== null && stock < qty) {
+      return NextResponse.json({ error: `庫存不足：${product.name}` }, { status: 400 });
+    }
+
+    validatedItems.push({ productId: product.id, name: product.name, quantity: qty, unitPrice, subtotal: unitPrice * qty });
+  }
+
+  // ── 3. 後端計算運費與總金額 ──────────────────────────────────────────────
+  const subtotal    = validatedItems.reduce((sum, i) => sum + i.subtotal, 0);
+  const shippingFee = subtotal >= 1000 ? 0 : body.deliveryType === "home" ? 250 : 60;
+  const totalAmount = subtotal + shippingFee;
 
   // 取得當前登入的 user_id（若有登入）
   const cookieStore = await cookies();
@@ -70,7 +136,7 @@ export async function POST(req: NextRequest) {
                `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
   const tradeNo  = `T${Date.now()}`.slice(0, 20);
-  const itemName = body.items.map(i => `${i.name} x${i.quantity}`).join("#").slice(0, 200);
+  const itemName = validatedItems.map(i => `${i.name} x${i.quantity}`).join("#").slice(0, 200);
 
   // 建立 pending 訂單
   const shippingAddress =
@@ -78,23 +144,15 @@ export async function POST(req: NextRequest) {
       ? { type: "home", city: body.shippingAddress?.city, address: body.shippingAddress?.address }
       : { type: "cvs",  company: body.cvsInfo?.company,   storeName: body.cvsInfo?.storeName };
 
-  const items = body.items.map((i) => ({
-    productId: i.productId,
-    name:      i.name,
-    quantity:  i.quantity,
-    unitPrice: i.unitPrice,
-    subtotal:  i.unitPrice * i.quantity,
-  }));
-
   const { error: dbError } = await supabase.from("orders").insert({
     customer_name:    body.customer.name,
     customer_email:   body.customer.email,
     customer_phone:   body.customer.phone,
     payment_method:   "online",
     shipping_address: shippingAddress,
-    items,
-    shipping_fee:     body.shippingFee,
-    total_amount:     body.totalAmount,
+    items:            validatedItems,
+    shipping_fee:     shippingFee,
+    total_amount:     totalAmount,
     order_status:     "new",
     payment_status:   "pending",
     ecpay_trade_no:   tradeNo,
@@ -114,7 +172,7 @@ export async function POST(req: NextRequest) {
     OrderResultURL:    `${base}/api/ecpay/result`,
     PaymentType:       "aio",
     ReturnURL:         `${base}/api/ecpay/return`,
-    TotalAmount:       String(Math.round(body.totalAmount)),
+    TotalAmount:       String(Math.round(totalAmount)),
     TradeDesc:         "WuJueTea",
   };
 

@@ -111,14 +111,11 @@ export interface CreateOrderRequest {
     storeName: string;
   };
   items: {
-    productId:  number;
-    name:       string;
-    quantity:   number;
-    unitPrice:  number;
+    productId: number;
+    quantity:  number;
+    spec?:     "150g" | "75g" | "teabag";
   }[];
-  shippingFee:  number;
-  totalAmount:  number;
-  note?:        string;
+  note?: string;
 }
 
 // ─── ECPay ────────────────────────────────────────────────────────────────────

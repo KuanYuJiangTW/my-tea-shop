@@ -103,12 +103,8 @@ export default function CheckoutClient() {
       : { cvsInfo: { company: form.cvsCompany, storeName: form.cvsStoreName } }),
     items: items.map(i => ({
       productId: i.product.id,
-      name:      i.product.name,
       quantity:  i.quantity,
-      unitPrice: i.product.price,
     })),
-    shippingFee,
-    totalAmount: grandTotal,
     note: form.note || undefined,
   });
 
