@@ -59,7 +59,7 @@ export default function CheckoutClient() {
   // 折扣計算
   const couponDiscount  = appliedCoupon ? appliedCoupon.discount_amount : 0;
   const afterCoupon     = totalPrice + shippingFee - couponDiscount;
-  const maxPointsToUse  = Math.floor(Math.min(pointsBalance, afterCoupon * 0.1) / 100) * 100;
+  const maxPointsToUse  = Math.floor(Math.min(pointsBalance, Math.floor(afterCoupon * 0.1) * 100) / 100) * 100;
   const pointsDiscount  = usePoints && maxPointsToUse >= 200 ? maxPointsToUse / 100 : 0;
   const grandTotal      = Math.max(afterCoupon - pointsDiscount, 0);
 
