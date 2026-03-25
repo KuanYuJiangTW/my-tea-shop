@@ -43,9 +43,7 @@ export default function CheckoutClient() {
   // 折價券
   type CouponRow = { id: string; code: string; discount_amount: number; min_order_amount: number; expires_at: string };
   const [availableCoupons, setAvailableCoupons] = useState<CouponRow[]>([]);
-  const [couponInput, setCouponInput]           = useState("");
   const [appliedCoupon, setAppliedCoupon]       = useState<CouponRow | null>(null);
-  const [couponError, setCouponError]           = useState("");
 
   // 點數
   const [pointsBalance, setPointsBalance] = useState(0);
@@ -71,23 +69,14 @@ export default function CheckoutClient() {
     }).catch(() => {});
   }, []);
 
-  function handleApplyCoupon() {
-    const code = couponInput.trim().toUpperCase();
-    if (!code) return;
-    const match = availableCoupons.find(c => c.code.toUpperCase() === code);
-    if (!match) {
-      setCouponError("折價券不存在或已使用");
-      setAppliedCoupon(null);
-      return;
-    }
-    if (totalPrice + shippingFee < match.min_order_amount) {
-      setCouponError(`未達最低消費 NT$${match.min_order_amount}`);
-      setAppliedCoupon(null);
-      return;
-    }
-    setCouponError("");
-    setAppliedCoupon(match);
-  }
+  // 自動套用最優惠且符合低消的折價券
+  useEffect(() => {
+    const orderTotal = totalPrice + shippingFee;
+    const best = availableCoupons
+      .filter(c => orderTotal >= c.min_order_amount)
+      .sort((a, b) => b.discount_amount - a.discount_amount)[0] ?? null;
+    setAppliedCoupon(best);
+  }, [availableCoupons, totalPrice, shippingFee]);
 
   const [form, setForm] = useState<CheckoutForm>({
     name: "", email: "", phone: "",
@@ -404,26 +393,17 @@ export default function CheckoutClient() {
                 {/* 折價券 */}
                 <div className="border-t border-tea-green-pale pt-4 mb-3">
                   <p className="text-xs font-medium text-tea-text mb-2">折價券</p>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={couponInput}
-                      onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError(""); setAppliedCoupon(null); }}
-                      placeholder="輸入折價券代碼"
-                      className="flex-1 border border-tea-green-pale rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-tea-green bg-tea-cream-light/50"
-                    />
-                    <button type="button" onClick={handleApplyCoupon}
-                      className="px-3 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-xs rounded-lg transition-colors">
-                      套用
-                    </button>
-                  </div>
-                  {couponError && <p className="mt-1 text-xs text-rose-500">{couponError}</p>}
-                  {appliedCoupon && (
-                    <div className="mt-1.5 flex items-center justify-between">
-                      <span className="text-xs text-tea-green font-medium">折抵 -NT${appliedCoupon.discount_amount}</span>
-                      <button type="button" onClick={() => { setAppliedCoupon(null); setCouponInput(""); }}
-                        className="text-xs text-tea-text-light hover:text-rose-500">移除</button>
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between bg-tea-green-mist/60 rounded-lg px-3 py-2">
+                      <div>
+                        <p className="text-xs font-mono font-bold text-tea-green">{appliedCoupon.code}</p>
+                        <p className="text-xs text-tea-text-light">已自動套用，折抵 NT${appliedCoupon.discount_amount}</p>
+                      </div>
+                      <button type="button" onClick={() => setAppliedCoupon(null)}
+                        className="text-xs text-tea-text-light hover:text-rose-500 transition-colors">移除</button>
                     </div>
+                  ) : (
+                    <p className="text-xs text-tea-text-light">目前無可用折價券</p>
                   )}
                 </div>
 
