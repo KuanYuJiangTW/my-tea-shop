@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
   const shippingFee = subtotal >= 1000 ? 0 : body.deliveryType === "home" ? 250 : 60;
   const totalAmount = subtotal + shippingFee;
 
-  // 取得當前登入的 user_id（若有登入）
+  // ── 4. 驗證 token，未登入直接拒絕 ──────────────────────────────────────
   const cookieStore = await cookies();
   const authClient = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -94,7 +94,12 @@ export async function POST(req: NextRequest) {
     }
   );
   const { data: { user } } = await authClient.auth.getUser();
-  const userId = user?.id ?? null;
+  if (!user) {
+    return NextResponse.json({ error: "請先登入" }, { status: 401 });
+  }
+  const userId = user.id;
+  // email 以 token 為準，防止前端傳入他人信箱
+  const verifiedEmail = user.email!;
 
   const shippingAddress =
     body.deliveryType === "home"
@@ -105,7 +110,7 @@ export async function POST(req: NextRequest) {
     .from("orders")
     .insert({
       customer_name:    body.customer.name,
-      customer_email:   body.customer.email,
+      customer_email:   verifiedEmail,
       customer_phone:   body.customer.phone,
       payment_method:   body.paymentMethod,
       shipping_address: shippingAddress,
@@ -136,7 +141,7 @@ export async function POST(req: NextRequest) {
   await sendOrderEmails({
     orderId:         data.id,
     customerName:    body.customer.name,
-    customerEmail:   body.customer.email,
+    customerEmail:   verifiedEmail,
     paymentMethod:   body.paymentMethod,
     shippingAddress: shippingAddress as Parameters<typeof sendOrderEmails>[0]["shippingAddress"],
     items:           validatedItems,

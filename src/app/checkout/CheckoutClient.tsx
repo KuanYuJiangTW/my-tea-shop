@@ -151,7 +151,6 @@ export default function CheckoutClient() {
     const e: FormErrors = {};
     const phone = form.phone.replace(/[-\s]/g, "");
     if (form.name.trim().length < 2)          e.name  = "請輸入至少 2 個字的姓名";
-    if (!emailRegex.test(form.email))         e.email = "請輸入有效的 Email 格式";
     if (!phoneRegex.test(phone))              e.phone = "請輸入有效的手機號碼（例：0912345678）";
     if (delivery === "home") {
       if (!CITIES.includes(form.city))        e.city    = "請選擇縣市";
@@ -233,8 +232,8 @@ export default function CheckoutClient() {
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-tea-text mb-2">電子郵件 *</label>
-                    <input type="email" name="email" value={form.email} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, email: undefined })); }} placeholder="your@email.com" className={inputCls(!!formErrors.email)} />
-                    {formErrors.email && <p className="mt-1 text-xs text-rose-500">{formErrors.email}</p>}
+                    <input type="email" name="email" value={form.email} readOnly placeholder="your@email.com" className={inputCls() + " cursor-not-allowed opacity-70"} />
+                    <p className="mt-1 text-xs text-tea-text-light">訂單通知將寄至您的帳號信箱</p>
                   </div>
                 </div>
               </div>
