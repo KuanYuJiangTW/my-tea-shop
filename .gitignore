@@ -22,3 +22,4 @@ yarn-error.log*
 
 # claude code
 .claude/
+.vercel
