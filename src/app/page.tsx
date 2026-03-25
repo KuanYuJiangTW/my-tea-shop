@@ -3,7 +3,7 @@ import Link from "next/link";
 import FeaturedSection from "./FeaturedSection";
 import { getFeaturedProducts } from "@/lib/products";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "霧抉茶 | 台灣嘉義梅山高山茶",
