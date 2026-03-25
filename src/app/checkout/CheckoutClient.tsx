@@ -42,8 +42,12 @@ export default function CheckoutClient() {
 
   // 折價券
   type CouponRow = { id: string; code: string; discount_amount: number; min_order_amount: number; expires_at: string };
-  const [availableCoupons, setAvailableCoupons] = useState<CouponRow[]>([]);
-  const [appliedCoupon, setAppliedCoupon]       = useState<CouponRow | null>(null);
+  const [availableCoupons, setAvailableCoupons]   = useState<CouponRow[]>([]);
+  const [couponInput, setCouponInput]             = useState("");
+  const [appliedCoupon, setAppliedCoupon]         = useState<CouponRow | null>(null);
+  const [couponError, setCouponError]             = useState("");
+  const [showCouponDropdown, setShowCouponDropdown] = useState(false);
+  const autoAppliedRef = useRef(false);
 
   // 點數
   const [pointsBalance, setPointsBalance] = useState(0);
@@ -69,14 +73,39 @@ export default function CheckoutClient() {
     }).catch(() => {});
   }, []);
 
-  // 自動套用最優惠且符合低消的折價券
+  // 折價券載入後自動填入最優惠（只執行一次，不覆蓋使用者之後的手動選擇）
   useEffect(() => {
-    const orderTotal = totalPrice + shippingFee;
+    if (availableCoupons.length === 0 || autoAppliedRef.current) return;
+    autoAppliedRef.current = true;
     const best = availableCoupons
-      .filter(c => orderTotal >= c.min_order_amount)
-      .sort((a, b) => b.discount_amount - a.discount_amount)[0] ?? null;
-    setAppliedCoupon(best);
+      .filter(c => totalPrice + shippingFee >= c.min_order_amount)
+      .sort((a, b) => b.discount_amount - a.discount_amount)[0];
+    if (best) {
+      setCouponInput(best.code);
+      setAppliedCoupon(best);
+    }
   }, [availableCoupons, totalPrice, shippingFee]);
+
+  function handleApplyCoupon() {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) { setAppliedCoupon(null); setCouponError(""); return; }
+    const match = availableCoupons.find(c => c.code.toUpperCase() === code);
+    if (!match) { setCouponError("折價券不存在或已使用"); setAppliedCoupon(null); return; }
+    if (totalPrice + shippingFee < match.min_order_amount) {
+      setCouponError(`未達最低消費 NT$${match.min_order_amount}`);
+      setAppliedCoupon(null);
+      return;
+    }
+    setCouponError("");
+    setAppliedCoupon(match);
+  }
+
+  function selectCoupon(c: CouponRow) {
+    setCouponInput(c.code);
+    setAppliedCoupon(c);
+    setCouponError("");
+    setShowCouponDropdown(false);
+  }
 
   const [form, setForm] = useState<CheckoutForm>({
     name: "", email: "", phone: "",
@@ -393,17 +422,66 @@ export default function CheckoutClient() {
                 {/* 折價券 */}
                 <div className="border-t border-tea-green-pale pt-4 mb-3">
                   <p className="text-xs font-medium text-tea-text mb-2">折價券</p>
-                  {appliedCoupon ? (
-                    <div className="flex items-center justify-between bg-tea-green-mist/60 rounded-lg px-3 py-2">
-                      <div>
-                        <p className="text-xs font-mono font-bold text-tea-green">{appliedCoupon.code}</p>
-                        <p className="text-xs text-tea-text-light">已自動套用，折抵 NT${appliedCoupon.discount_amount}</p>
-                      </div>
-                      <button type="button" onClick={() => setAppliedCoupon(null)}
-                        className="text-xs text-tea-text-light hover:text-rose-500 transition-colors">移除</button>
+                  <div className="relative">
+                    <div className="flex gap-1.5">
+                      <input
+                        type="text"
+                        value={couponInput}
+                        onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError(""); }}
+                        onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
+                        placeholder="輸入折價券代碼"
+                        className="flex-1 border border-tea-green-pale rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-tea-green bg-tea-cream-light/50 font-mono"
+                      />
+                      {availableCoupons.length > 0 && (
+                        <button type="button" onClick={() => setShowCouponDropdown(v => !v)}
+                          className="px-2.5 border border-tea-green-pale rounded-lg hover:bg-tea-cream-light transition-colors text-tea-text-light"
+                          title="選擇折價券">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M6 9l6 6 6-6"/>
+                          </svg>
+                        </button>
+                      )}
+                      <button type="button" onClick={handleApplyCoupon}
+                        className="px-3 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-xs rounded-lg transition-colors whitespace-nowrap">
+                        套用
+                      </button>
                     </div>
-                  ) : (
-                    <p className="text-xs text-tea-text-light">目前無可用折價券</p>
+
+                    {/* 下拉選單 */}
+                    {showCouponDropdown && availableCoupons.length > 0 && (
+                      <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-hidden">
+                        {availableCoupons.map(c => {
+                          const eligible = totalPrice + shippingFee >= c.min_order_amount;
+                          const isApplied = appliedCoupon?.id === c.id;
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              disabled={!eligible}
+                              onClick={() => eligible && selectCoupon(c)}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors border-b border-tea-green-pale/50 last:border-0
+                                ${eligible ? "hover:bg-tea-cream-light cursor-pointer" : "opacity-40 cursor-not-allowed"}
+                                ${isApplied ? "bg-tea-green-mist/50" : ""}`}
+                            >
+                              <div>
+                                <span className="font-mono text-xs font-bold text-tea-green">{c.code}</span>
+                                <span className="ml-2 text-xs text-tea-text-light">折抵 NT${c.discount_amount}</span>
+                                {!eligible && <span className="ml-1 text-xs text-rose-400">（需滿 NT${c.min_order_amount}）</span>}
+                              </div>
+                              {isApplied && (
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7D9B84" strokeWidth="2.5">
+                                  <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  {couponError && <p className="mt-1 text-xs text-rose-500">{couponError}</p>}
+                  {appliedCoupon && !couponError && (
+                    <p className="mt-1 text-xs text-tea-green">已套用，折抵 -NT${appliedCoupon.discount_amount}</p>
                   )}
                 </div>
 
