@@ -187,11 +187,14 @@ export default function CheckoutClient() {
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify(buildOrderPayload()),
         });
-        if (!res.ok) throw new Error();
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}));
+          throw new Error(json.error ?? "訂單建立失敗，請稍後再試");
+        }
         clearCart();
         setCodSuccess(true);
-      } catch {
-        setError("訂單建立失敗，請稍後再試。");
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "訂單建立失敗，請稍後再試。");
       }
       setSubmitting(false);
       return;
@@ -204,10 +207,13 @@ export default function CheckoutClient() {
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify(buildOrderPayload()),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error ?? "連線失敗，請稍後再試");
+      }
       setEcpayData(await res.json());
-    } catch {
-      setError("連線失敗，請稍後再試。");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "連線失敗，請稍後再試。");
       setSubmitting(false);
     }
   };

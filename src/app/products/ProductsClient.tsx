@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ProductCard from "@/components/ProductCard";
 import { categories } from "@/data/products";
 import type { Product } from "@/types";
+
+interface StockRow {
+  id:            number;
+  stockQuantity?: number;
+  stock75g?:     number;
+  stockTeaBag?:  number;
+}
 
 interface Props {
   products: Product[];
@@ -11,11 +18,27 @@ interface Props {
 
 export default function ProductsClient({ products }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
+  const [liveProducts, setLiveProducts] = useState<Product[]>(products);
+
+  // 即時抓庫存（不走快取），合併到 ISR 商品資料
+  useEffect(() => {
+    fetch("/api/products/stock")
+      .then(r => r.json())
+      .then((stocks: StockRow[]) => {
+        const map = new Map(stocks.map(s => [s.id, s]));
+        setLiveProducts(products.map(p => {
+          const s = map.get(p.id);
+          if (!s) return p;
+          return { ...p, stockQuantity: s.stockQuantity, stock75g: s.stock75g, stockTeaBag: s.stockTeaBag };
+        }));
+      })
+      .catch(() => {});
+  }, [products]);
 
   const filtered =
     selectedCategory === "全部"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
+      ? liveProducts
+      : liveProducts.filter((p) => p.category === selectedCategory);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
