@@ -153,7 +153,10 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await authClient.auth.getUser();
   if (!user) return NextResponse.json({ error: "請先登入" }, { status: 401 });
   const userId = user.id;
-  const verifiedEmail = user.email!;
+  const verifiedEmail = user.email?.trim() || body.customer.email?.trim();
+  if (!verifiedEmail) {
+    return NextResponse.json({ error: "請填寫 Email 以接收訂單通知" }, { status: 400 });
+  };
 
   // ── 5. 折價券驗證 ────────────────────────────────────────────────────────
   let couponId: string | null = null;

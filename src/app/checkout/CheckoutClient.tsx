@@ -221,8 +221,9 @@ export default function CheckoutClient() {
   function validate(): boolean {
     const e: FormErrors = {};
     const phone = form.phone.replace(/[-\s]/g, "");
-    if (form.name.trim().length < 2)          e.name  = "請輸入至少 2 個字的姓名";
-    if (!phoneRegex.test(phone))              e.phone = "請輸入有效的手機號碼（例：0912345678）";
+    if (form.name.trim().length < 2)                       e.name  = "請輸入至少 2 個字的姓名";
+    if (!user?.email && !emailRegex.test(form.email.trim())) e.email = "請輸入有效的電子郵件";
+    if (!phoneRegex.test(phone))                           e.phone = "請輸入有效的手機號碼（例：0912345678）";
     if (delivery === "home") {
       if (!CITIES.includes(form.city))        e.city    = "請選擇縣市";
       if (form.address.trim().length < 4)     e.address = "請輸入完整的收件地址";
@@ -303,8 +304,18 @@ export default function CheckoutClient() {
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-tea-text mb-2">電子郵件 *</label>
-                    <input type="email" name="email" value={form.email} readOnly placeholder="your@email.com" className={inputCls() + " cursor-not-allowed opacity-70"} />
-                    <p className="mt-1 text-xs text-tea-text-light">訂單通知將寄至您的帳號信箱</p>
+                    {user?.email ? (
+                      <>
+                        <input type="email" name="email" value={form.email} readOnly placeholder="your@email.com" className={inputCls() + " cursor-not-allowed opacity-70"} />
+                        <p className="mt-1 text-xs text-tea-text-light">訂單通知將寄至您的帳號信箱</p>
+                      </>
+                    ) : (
+                      <>
+                        <input type="email" name="email" value={form.email} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, email: undefined })); }} placeholder="your@email.com" className={inputCls(!!formErrors.email)} />
+                        {formErrors.email && <p className="mt-1 text-xs text-rose-500">{formErrors.email}</p>}
+                        <p className="mt-1 text-xs text-tea-text-light">請填寫 Email 以接收訂單通知</p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
