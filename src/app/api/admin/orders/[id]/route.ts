@@ -39,6 +39,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     trackingNote?: string;
   };
 
+  // 白名單驗證：防止插入任意字串到訂單狀態欄位
+  const VALID_ORDER_STATUSES = ["new", "preparing", "shipped", "delivered", "completed", "cancelled"];
+  const VALID_PAYMENT_STATUSES = ["pending", "paid", "failed"];
+
+  if (body.orderStatus && !VALID_ORDER_STATUSES.includes(body.orderStatus)) {
+    return NextResponse.json({ error: "無效的訂單狀態" }, { status: 400 });
+  }
+  if (body.paymentStatus && !VALID_PAYMENT_STATUSES.includes(body.paymentStatus)) {
+    return NextResponse.json({ error: "無效的付款狀態" }, { status: 400 });
+  }
+
   // Build update object from whichever fields were provided
   const updateData: Record<string, string> = {};
   if (body.orderStatus)   updateData.order_status   = body.orderStatus;

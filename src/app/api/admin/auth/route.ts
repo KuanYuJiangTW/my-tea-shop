@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { computeAdminToken } from "@/lib/admin-token";
 
 // ─── In-memory Rate Limiter ───────────────────────────────────────────────────
 // 注意：Vercel serverless 在高流量下可能有多個 instance，
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
 
   clearAttempts(ip);
 
-  const token = Buffer.from(adminPassword).toString("base64");
+  const token = computeAdminToken(adminPassword);
   const res = NextResponse.json({ ok: true });
   res.cookies.set("admin_session", token, {
     httpOnly: true,

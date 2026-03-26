@@ -53,12 +53,26 @@ export async function sendOrderEmails(data: EmailOrderData) {
 
 const shortId = (id: string) => id.replace(/-/g, "").slice(0, 10).toUpperCase();
 
+/** 防止用戶輸入內容在 HTML email 中造成 HTML injection */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
 function formatShipping(addr: EmailOrderData["shippingAddress"]): string {
-  if (addr.type === "home") return `宅配到府｜${addr.city ?? ""} ${addr.address ?? ""}`;
+  if (addr.type === "home") {
+    return `宅配到府｜${escapeHtml(addr.city ?? "")} ${escapeHtml(addr.address ?? "")}`;
+  }
   const companyName: Record<string, string> = {
     seven: "7-ELEVEN", family: "全家", hilife: "萊爾富", ok: "OK 超商",
   };
-  return `超商店到店｜${companyName[addr.company ?? ""] ?? addr.company} ${addr.storeName ?? ""}`;
+  const company   = companyName[addr.company ?? ""] ?? escapeHtml(addr.company ?? "");
+  const storeName = escapeHtml(addr.storeName ?? "");
+  return `超商店到店｜${company} ${storeName}`;
 }
 
 function formatPayment(method: "online" | "cod"): string {
@@ -91,7 +105,10 @@ export async function sendContactEmail(data: {
   subject: string;
   message: string;
 }) {
-  const label = subjectLabel[data.subject] ?? data.subject;
+  const label = subjectLabel[data.subject] ?? escapeHtml(data.subject);
+  const safeName    = escapeHtml(data.name);
+  const safeEmail   = escapeHtml(data.email);
+  const safeMessage = escapeHtml(data.message);
   const html = `<!DOCTYPE html>
 <html lang="zh-TW">
 <head><meta charset="UTF-8"></head>
@@ -110,11 +127,11 @@ export async function sendContactEmail(data: {
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
             <tr>
               <td style="color:#6B7B6E;font-size:13px;padding:5px 0;width:80px;">姓名</td>
-              <td style="color:#3D4A42;font-size:13px;font-weight:600;">${data.name}</td>
+              <td style="color:#3D4A42;font-size:13px;font-weight:600;">${safeName}</td>
             </tr>
             <tr>
               <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">Email</td>
-              <td style="color:#3D4A42;font-size:13px;">${data.email}</td>
+              <td style="color:#3D4A42;font-size:13px;">${safeEmail}</td>
             </tr>
             <tr>
               <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">主旨</td>
@@ -122,11 +139,11 @@ export async function sendContactEmail(data: {
             </tr>
           </table>
           <h3 style="margin:0 0 10px;font-size:13px;color:#7D9B84;font-weight:700;letter-spacing:1px;">訊息內容</h3>
-          <div style="background:#F5F0E8;border-radius:10px;padding:20px;font-size:14px;color:#3D4A42;line-height:1.8;white-space:pre-wrap;">${data.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+          <div style="background:#F5F0E8;border-radius:10px;padding:20px;font-size:14px;color:#3D4A42;line-height:1.8;white-space:pre-wrap;">${safeMessage}</div>
         </td></tr>
 
         <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#9CA89E;">直接回覆此郵件即可回覆給 ${data.name}</p>
+          <p style="margin:0;font-size:12px;color:#9CA89E;">直接回覆此郵件即可回覆給 ${safeName}</p>
         </td></tr>
 
       </table>
@@ -139,7 +156,7 @@ export async function sendContactEmail(data: {
     from:     FROM,
     to:       ADMIN,
     replyTo:  data.email,
-    subject:  `【聯絡我們】${label}｜${data.name}`,
+    subject:  `【聯絡我們】${label}｜${safeName}`,
     html,
   });
 }
@@ -147,6 +164,8 @@ export async function sendContactEmail(data: {
 // ─── 出貨通知信 ───────────────────────────────────────────────────────────────
 
 export async function sendShippingEmail(data: ShippingEmailData) {
+  const safeCustomerName  = escapeHtml(data.customerName);
+  const safeTrackingNote  = data.trackingNote ? escapeHtml(data.trackingNote) : undefined;
   const html = `<!DOCTYPE html>
 <html lang="zh-TW">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -167,7 +186,7 @@ export async function sendShippingEmail(data: ShippingEmailData) {
           <div style="display:inline-block;background:#EBF3EE;color:#5C7A67;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">已出貨</div>
 
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">您的茶葉已出發囉！</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${data.customerName}，您的訂單已完成出貨，請注意簽收。</p>
+          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeCustomerName}，您的訂單已完成出貨，請注意簽收。</p>
 
           <!-- 訂單資訊 -->
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
@@ -179,9 +198,9 @@ export async function sendShippingEmail(data: ShippingEmailData) {
               <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">配送方式</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${formatShipping(data.shippingAddress)}</td>
             </tr>
-            ${data.trackingNote ? `<tr>
+            ${safeTrackingNote ? `<tr>
               <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">備註</td>
-              <td style="color:#7D9B84;font-size:13px;font-weight:600;text-align:right;">${data.trackingNote}</td>
+              <td style="color:#7D9B84;font-size:13px;font-weight:600;text-align:right;">${safeTrackingNote}</td>
             </tr>` : ""}
           </table>
 
@@ -239,6 +258,7 @@ export async function sendShippingEmail(data: ShippingEmailData) {
 // ─── 顧客確認信 ───────────────────────────────────────────────────────────────
 
 async function sendCustomerEmail(data: EmailOrderData) {
+  const safeNote = data.note ? escapeHtml(data.note) : undefined;
   const html = `<!DOCTYPE html>
 <html lang="zh-TW">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -307,7 +327,7 @@ async function sendCustomerEmail(data: EmailOrderData) {
             </tr>
           </table>
 
-          ${data.note ? `<div style="margin-top:24px;padding:14px;background:#F5F0E8;border-radius:8px;font-size:13px;color:#6B7B6E;">備註：${data.note}</div>` : ""}
+          ${safeNote ? `<div style="margin-top:24px;padding:14px;background:#F5F0E8;border-radius:8px;font-size:13px;color:#6B7B6E;">備註：${safeNote}</div>` : ""}
 
           <!-- 說明 -->
           <div style="margin-top:32px;padding:20px;background:#F0F6F1;border-radius:10px;border-left:3px solid #7D9B84;">
@@ -341,6 +361,9 @@ async function sendCustomerEmail(data: EmailOrderData) {
 // ─── 商家通知信 ───────────────────────────────────────────────────────────────
 
 async function sendAdminEmail(data: EmailOrderData) {
+  const safeCustomerName  = escapeHtml(data.customerName);
+  const safeCustomerEmail = escapeHtml(data.customerEmail);
+  const safeNote          = data.note ? escapeHtml(data.note) : undefined;
   const html = `<!DOCTYPE html>
 <html lang="zh-TW">
 <head><meta charset="UTF-8"></head>
@@ -369,11 +392,11 @@ async function sendAdminEmail(data: EmailOrderData) {
             </tr>
             <tr>
               <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">姓名</td>
-              <td style="color:#3D4A42;font-size:13px;">${data.customerName}</td>
+              <td style="color:#3D4A42;font-size:13px;">${safeCustomerName}</td>
             </tr>
             <tr>
               <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">Email</td>
-              <td style="color:#3D4A42;font-size:13px;">${data.customerEmail}</td>
+              <td style="color:#3D4A42;font-size:13px;">${safeCustomerEmail}</td>
             </tr>
             <tr>
               <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">付款</td>
@@ -383,7 +406,7 @@ async function sendAdminEmail(data: EmailOrderData) {
               <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">配送</td>
               <td style="color:#3D4A42;font-size:13px;">${formatShipping(data.shippingAddress)}</td>
             </tr>
-            ${data.note ? `<tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">備註</td><td style="color:#e07b39;font-size:13px;font-weight:600;">${data.note}</td></tr>` : ""}
+            ${safeNote ? `<tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">備註</td><td style="color:#e07b39;font-size:13px;font-weight:600;">${safeNote}</td></tr>` : ""}
           </table>
 
           <!-- 品項 -->

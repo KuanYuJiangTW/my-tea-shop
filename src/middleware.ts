@@ -39,10 +39,16 @@ export async function middleware(request: NextRequest) {
     const session = request.cookies.get("admin_session")?.value;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
-    // Timing-safe 比對：防止 timing attack（Edge Runtime 不支援 Node crypto，手動 XOR）
-    const isValid = (() => {
+    // Timing-safe 比對：Edge Runtime 用 WebCrypto 重算 HMAC-SHA256 token 再 XOR 比對
+    const isValid = await (async () => {
       if (!adminPassword || !session) return false;
-      const expected = Buffer.from(adminPassword).toString("base64");
+      const enc = new TextEncoder();
+      const key = await globalThis.crypto.subtle.importKey(
+        "raw", enc.encode(adminPassword), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+      );
+      const sig = await globalThis.crypto.subtle.sign("HMAC", key, enc.encode("wujue-admin-v1"));
+      const expected = Array.from(new Uint8Array(sig))
+        .map(b => b.toString(16).padStart(2, "0")).join("");
       if (session.length !== expected.length) return false;
       let diff = 0;
       for (let i = 0; i < session.length; i++) {

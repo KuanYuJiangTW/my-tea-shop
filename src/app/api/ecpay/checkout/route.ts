@@ -44,6 +44,10 @@ type ProductRow = {
   stock_tea_bag:   number | null;
 };
 
+const MAX_LENGTHS = {
+  name: 100, phone: 20, city: 50, address: 200, note: 500, storeName: 100,
+};
+
 export async function POST(req: NextRequest) {
   const origin = req.headers.get("origin") ?? "";
   if (origin && origin !== ALLOWED_ORIGIN) {
@@ -51,6 +55,27 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json() as EcpayCheckoutRequest;
+
+  // ── 0. 基本格式驗證 ──────────────────────────────────────────────────────
+  if (!body || !Array.isArray(body.items) || body.items.length === 0) {
+    return NextResponse.json({ error: "購物車不能為空" }, { status: 400 });
+  }
+  if (!body.customer?.name?.trim() || !body.customer?.phone?.trim()) {
+    return NextResponse.json({ error: "請填寫完整的客戶資訊" }, { status: 400 });
+  }
+  if (body.deliveryType !== "home" && body.deliveryType !== "cvs") {
+    return NextResponse.json({ error: "無效的配送方式" }, { status: 400 });
+  }
+  const VALID_CVS = ["seven", "family", "hilife", "ok"];
+  if (body.deliveryType === "cvs" && body.cvsInfo?.company && !VALID_CVS.includes(body.cvsInfo.company)) {
+    return NextResponse.json({ error: "無效的超商類型" }, { status: 400 });
+  }
+  if (body.customer.name.length > MAX_LENGTHS.name)       return NextResponse.json({ error: "姓名過長" },   { status: 400 });
+  if (body.customer.phone.length > MAX_LENGTHS.phone)      return NextResponse.json({ error: "電話過長" },   { status: 400 });
+  if (body.shippingAddress?.city    && body.shippingAddress.city.length    > MAX_LENGTHS.city)    return NextResponse.json({ error: "縣市過長" },   { status: 400 });
+  if (body.shippingAddress?.address && body.shippingAddress.address.length > MAX_LENGTHS.address) return NextResponse.json({ error: "地址過長" },   { status: 400 });
+  if (body.cvsInfo?.storeName       && body.cvsInfo.storeName.length       > MAX_LENGTHS.storeName) return NextResponse.json({ error: "門市名稱過長" }, { status: 400 });
+  if (body.note && body.note.length > MAX_LENGTHS.note)   return NextResponse.json({ error: "備註過長" },   { status: 400 });
 
   // ── 1. 後端查詢真實價格，完全不信任前端傳來的金額 ──────────────────────
   const productIds = body.items.map(i => i.productId);
@@ -79,6 +104,9 @@ export async function POST(req: NextRequest) {
     }
 
     const spec = reqItem.spec ?? "150g";
+    if (spec !== "150g" && spec !== "75g" && spec !== "teabag") {
+      return NextResponse.json({ error: `無效的規格：${spec}` }, { status: 400 });
+    }
     let unitPrice: number;
     let stock: number | null;
 
