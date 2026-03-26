@@ -120,7 +120,7 @@ export default function LoginForm() {
     const supabase = getSupabaseBrowserClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await supabase.auth.signInWithOAuth({
-      provider: "line" as any,
+      provider: "custom:line" as any,
       options: { redirectTo: callbackUrl() },
     });
   }
