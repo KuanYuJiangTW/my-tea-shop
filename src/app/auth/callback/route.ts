@@ -1,5 +1,4 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { supabase as adminSupabase } from "@/lib/supabase";
 
@@ -14,18 +13,23 @@ export async function GET(request: NextRequest) {
   // OAuth / Magic Link 登入後跳轉目的地（只允許站內路徑）
   const next = searchParams.get("next");
 
+  const redirectPath = next && next.startsWith("/") ? next : "/account";
+  const response = NextResponse.redirect(`${origin}${redirectPath}`);
+
   if (code) {
-    const cookieStore = await cookies();
+    // 關鍵：supabase client 的 setAll 同時寫入 request 與 response
+    // 這樣 session cookie 才會隨著 redirect response 一起帶回瀏覽器
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          getAll() { return cookieStore.getAll(); },
+          getAll() { return request.cookies.getAll(); },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            cookiesToSet.forEach(({ name, value, options }) => {
+              request.cookies.set(name, value);
+              response.cookies.set(name, value, options);
+            });
           },
         },
       }
@@ -54,6 +58,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const redirectPath = next && next.startsWith("/") ? next : "/account";
-  return NextResponse.redirect(`${origin}${redirectPath}`);
+  return response;
 }
