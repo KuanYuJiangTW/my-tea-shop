@@ -131,7 +131,10 @@ export default function LoginForm() {
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signInWithOAuth({
       provider: "facebook",
-      options: { redirectTo: callbackUrl() },
+      options: {
+        redirectTo: callbackUrl(),
+        scopes: "public_profile", // 不要求 email，結帳時讓用戶自填
+      },
     });
   }
 
