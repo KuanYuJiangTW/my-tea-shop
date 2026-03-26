@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
     const session = request.cookies.get("admin_session")?.value;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
-    // Timing-safe 比對：Edge Runtime 用 WebCrypto 重算 HMAC-SHA256 token 再 XOR 比對
+    // Timing-safe 比對（Edge Runtime 使用 WebCrypto）
     const isValid = await (async () => {
       if (!adminPassword || !session) return false;
       const enc = new TextEncoder();
