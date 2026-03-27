@@ -60,11 +60,11 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error("更新訂單付款狀態失敗:", error);
     } else if (order) {
-      // 扣除庫存（線上付款，付款成功後才扣）
-      const orderItems = order.items as { productId: number; quantity: number }[];
+      // 扣除庫存（線上付款，付款成功後才扣，原子性防超賣）
+      const orderItems = order.items as { productId: number; quantity: number; spec: string }[];
       await Promise.all(
         orderItems.map((item) =>
-          supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity })
+          supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity, spec: item.spec ?? "150g" })
         )
       );
 

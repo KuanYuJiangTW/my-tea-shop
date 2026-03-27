@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 2. 驗證每筆商品：存在、數量合法、庫存充足 ───────────────────────────
-  type ValidatedItem = { productId: number; name: string; quantity: number; unitPrice: number; subtotal: number };
+  type ValidatedItem = { productId: number; name: string; quantity: number; unitPrice: number; subtotal: number; spec: string };
   const validatedItems: ValidatedItem[] = [];
 
   for (const reqItem of body.items) {
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `庫存不足：${product.name}` }, { status: 400 });
     }
 
-    validatedItems.push({ productId: product.id, name: product.name, quantity: qty, unitPrice, subtotal: unitPrice * qty });
+    validatedItems.push({ productId: product.id, name: product.name, quantity: qty, unitPrice, subtotal: unitPrice * qty, spec });
   }
 
   // ── 3. 後端計算運費 ──────────────────────────────────────────────────────

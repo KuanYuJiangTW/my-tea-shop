@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 2. 驗證每筆商品：存在、數量合法、庫存充足 ───────────────────────────
-  type ValidatedItem = { productId: number; name: string; quantity: number; unitPrice: number; subtotal: number };
+  type ValidatedItem = { productId: number; name: string; quantity: number; unitPrice: number; subtotal: number; spec: string };
   const validatedItems: ValidatedItem[] = [];
 
   for (const reqItem of body.items) {
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `庫存不足：${product.name}` }, { status: 400 });
     }
 
-    validatedItems.push({ productId: product.id, name: product.name, quantity: qty, unitPrice, subtotal: unitPrice * qty });
+    validatedItems.push({ productId: product.id, name: product.name, quantity: qty, unitPrice, subtotal: unitPrice * qty, spec });
   }
 
   // ── 3. 後端計算運費 ──────────────────────────────────────────────────────
@@ -189,6 +189,17 @@ export async function POST(req: NextRequest) {
       ? { type: "home", city: body.shippingAddress?.city, address: body.shippingAddress?.address }
       : { type: "cvs",  company: body.cvsInfo?.company,   storeName: body.cvsInfo?.storeName };
 
+  // ── 8. 原子性扣除庫存（訂單建立前，防止競態條件超賣）────────────────────
+  const decrementResults = await Promise.all(
+    validatedItems.map((item) =>
+      supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity, spec: item.spec })
+    )
+  );
+  const failedIdx = decrementResults.findIndex((r) => r.data === false || r.error);
+  if (failedIdx !== -1) {
+    return NextResponse.json({ error: `庫存不足：${validatedItems[failedIdx].name}，請減少數量或選擇其他商品` }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from("orders")
     .insert({
@@ -215,13 +226,6 @@ export async function POST(req: NextRequest) {
     console.error("建立訂單失敗:", error);
     return NextResponse.json({ error: "建立訂單失敗" }, { status: 500 });
   }
-
-  // 扣除庫存
-  await Promise.all(
-    validatedItems.map((item) =>
-      supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity })
-    )
-  );
 
   // 標記折價券已使用
   if (couponId) {
