@@ -177,8 +177,8 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     }
   }
 
-  async function handleBindEmail(ev: React.FormEvent) {
-    ev.preventDefault();
+  async function handleBindEmail(ev?: React.FormEvent | React.MouseEvent) {
+    ev?.preventDefault();
     if (!emailRegex.test(emailInput.trim())) {
       setEmailError("請輸入有效的電子郵件格式");
       return;
@@ -359,17 +359,19 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleBindEmail} className="space-y-1.5">
+                  <div className="space-y-1.5">
                     <div className="flex gap-2">
                       <input
                         type="email"
                         value={emailInput}
                         onChange={(e) => { setEmailInput(e.target.value); setEmailError(""); }}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleBindEmail(e as unknown as React.FormEvent))}
                         placeholder="your@email.com"
                         className={inputCls(emailError)}
                       />
                       <button
-                        type="submit"
+                        type="button"
+                        onClick={handleBindEmail}
                         disabled={emailSaving}
                         className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
                       >
@@ -378,7 +380,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     </div>
                     {emailError && <p className="text-xs text-rose-500">{emailError}</p>}
                     <p className="text-xs text-tea-text-light">綁定後將寄送驗證信，點擊確認連結即完成</p>
-                  </form>
+                  </div>
                 )}
               </div>
 
