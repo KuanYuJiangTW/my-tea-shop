@@ -85,6 +85,7 @@ type ProfileErrors = {
 };
 
 const phoneRegex = /^09\d{8}$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, pointTransactions, coupons }: Props) {
   const searchParams = useSearchParams();
@@ -103,6 +104,12 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState("");
+
+  // ── Email 綁定 state（無帳號 email 時使用）──────────────────────────────
+  const [emailInput, setEmailInput] = useState("");
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
 
   // ── Orders state ───────────────────────────────────────────────────────────
   const [orderList, setOrderList] = useState<Order[]>(initialOrders);
@@ -167,6 +174,27 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
       setSaveError("儲存失敗，請稍後再試。");
     } else {
       setSaveSuccess(true);
+    }
+  }
+
+  async function handleBindEmail(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (!emailRegex.test(emailInput.trim())) {
+      setEmailError("請輸入有效的電子郵件格式");
+      return;
+    }
+    setEmailSaving(true);
+    setEmailError("");
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.auth.updateUser(
+      { email: emailInput.trim() },
+      { emailRedirectTo: `${window.location.origin}/account` }
+    );
+    setEmailSaving(false);
+    if (error) {
+      setEmailError(error.message.includes("already") ? "此 Email 已被其他帳號使用" : "綁定失敗，請稍後再試");
+    } else {
+      setEmailSent(true);
     }
   }
 
@@ -250,7 +278,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-tea-text mb-1">會員中心</h1>
-          <p className="text-sm text-tea-text-light">{user.email}</p>
+          <p className="text-sm text-tea-text-light">{user.email || "尚未綁定 Email"}</p>
         </div>
 
         {/* Tabs */}
@@ -298,16 +326,60 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 {profileErrors.name && <p className="mt-1 text-xs text-rose-500">{profileErrors.name}</p>}
               </div>
 
-              {/* Email (read-only) */}
+              {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-tea-text mb-1.5">電子郵件</label>
-                <input
-                  type="email"
-                  value={user.email}
-                  disabled
-                  className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text-light bg-gray-50 cursor-not-allowed"
-                />
-                <p className="mt-1 text-xs text-tea-text-light">Email 無法修改</p>
+                {user.email ? (
+                  <>
+                    <input
+                      type="email"
+                      value={user.email}
+                      disabled
+                      className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text-light bg-gray-50 cursor-not-allowed"
+                    />
+                    <p className="mt-1 text-xs text-tea-text-light">Email 無法修改</p>
+                  </>
+                ) : emailSent ? (
+                  <div className="flex items-start gap-2 bg-tea-green-mist/50 border border-tea-green-pale rounded-xl px-4 py-3">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7D9B84" strokeWidth="2" strokeLinecap="round" className="flex-shrink-0 mt-0.5">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    <div>
+                      <p className="text-sm text-tea-text font-medium">驗證信已寄出</p>
+                      <p className="text-xs text-tea-text-light mt-0.5">
+                        請前往 <strong>{emailInput}</strong> 點擊確認連結，完成後 Email 即生效。
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => { setEmailSent(false); setEmailInput(""); }}
+                        className="mt-1.5 text-xs text-tea-green hover:text-tea-green-dark underline"
+                      >
+                        重新填寫
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleBindEmail} className="space-y-1.5">
+                    <div className="flex gap-2">
+                      <input
+                        type="email"
+                        value={emailInput}
+                        onChange={(e) => { setEmailInput(e.target.value); setEmailError(""); }}
+                        placeholder="your@email.com"
+                        className={inputCls(emailError)}
+                      />
+                      <button
+                        type="submit"
+                        disabled={emailSaving}
+                        className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
+                      >
+                        {emailSaving ? "傳送中…" : "綁定"}
+                      </button>
+                    </div>
+                    {emailError && <p className="text-xs text-rose-500">{emailError}</p>}
+                    <p className="text-xs text-tea-text-light">綁定後將寄送驗證信，點擊確認連結即完成</p>
+                  </form>
+                )}
               </div>
 
               {/* Phone */}

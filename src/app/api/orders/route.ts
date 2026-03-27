@@ -240,7 +240,10 @@ export async function POST(req: NextRequest) {
   }
   // 注意：點數累積（earn）在管理後台確認完成後才發放
 
-  // 寄送訂單確認信
+  // 寄送訂單確認信（只寄給已驗證的帳號 email，避免被拿來騷擾任意信箱）
+  if (!user.email) {
+    return NextResponse.json({ orderId: data.id });
+  }
   await sendOrderEmails({
     orderId:         data.id,
     customerName:    body.customer.name,
