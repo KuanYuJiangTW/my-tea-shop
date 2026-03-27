@@ -117,9 +117,9 @@ export default function LoginForm() {
 
   // ── LINE OAuth（Supabase Custom Provider，名稱需與後台設定一致）──────────
   async function handleLineLogin() {
-    // Android 裝置提示跨瀏覽器問題
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    if (isAndroid) {
+    // 行動裝置提示跨瀏覽器問題（Android / iOS / iPadOS 皆可能發生）
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
       setShowAndroidWarning(true);
       return;
     }
@@ -346,10 +346,10 @@ export default function LoginForm() {
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" className="flex-shrink-0">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
-              <h3 className="font-semibold text-tea-text">Android 裝置提醒</h3>
+              <h3 className="font-semibold text-tea-text">行動裝置提醒</h3>
             </div>
             <p className="text-sm text-tea-text-light mb-2">
-              使用 LINE 登入時，Android 裝置可能會跳轉到其他瀏覽器（如三星瀏覽器），導致登入失敗。
+              使用 LINE 登入時，手機或平板裝置可能會跳轉到其他瀏覽器，導致登入失敗。
             </p>
             <p className="text-sm text-tea-text-light mb-5">
               建議改用 <strong className="text-tea-text">Google 帳號</strong> 或 <strong className="text-tea-text">Email 登入</strong>，或將常用瀏覽器設為手機的預設瀏覽器後再試。
