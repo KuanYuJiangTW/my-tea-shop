@@ -188,7 +188,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.updateUser(
       { email: emailInput.trim() },
-      { emailRedirectTo: `${window.location.origin}/account` }
+      { emailRedirectTo: `${window.location.origin}/auth/callback?next=/account` }
     );
     setEmailSaving(false);
     if (error) {
