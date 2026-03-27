@@ -352,7 +352,7 @@ export default function LoginForm() {
               使用 LINE 登入時，手機或平板裝置可能會跳轉到其他瀏覽器，導致登入失敗。
             </p>
             <p className="text-sm text-tea-text-light mb-5">
-              建議改用 <strong className="text-tea-text">Google 帳號</strong> 或 <strong className="text-tea-text">Email 登入</strong>，或將常用瀏覽器設為手機的預設瀏覽器後再試。
+              建議改用 <strong className="text-tea-text">Google 帳號</strong> 或 <strong className="text-tea-text">Email 登入</strong>，或將常用瀏覽器設為裝置的預設瀏覽器後再試。
             </p>
             <div className="flex gap-3">
               <button
