@@ -47,6 +47,7 @@ export default function LoginForm() {
   const [lineLoading, setLineLoading]       = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
   const [magicSent, setMagicSent]       = useState(false);
+  const [showAndroidWarning, setShowAndroidWarning] = useState(false);
   const router      = useRouter();
   const searchParams = useSearchParams();
   const redirectTo  = searchParams.get("redirect") ?? "/account";
@@ -116,10 +117,27 @@ export default function LoginForm() {
 
   // ── LINE OAuth（Supabase Custom Provider，名稱需與後台設定一致）──────────
   async function handleLineLogin() {
+    // Android 裝置提示跨瀏覽器問題
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    if (isAndroid) {
+      setShowAndroidWarning(true);
+      return;
+    }
     setLineLoading(true);
     const supabase = getSupabaseBrowserClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await supabase.auth.signInWithOAuth({
+      provider: "custom:line" as any,
+      options: { redirectTo: callbackUrl() },
+    });
+  }
+
+  function handleLineLoginConfirm() {
+    setShowAndroidWarning(false);
+    setLineLoading(true);
+    const supabase = getSupabaseBrowserClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    supabase.auth.signInWithOAuth({
       provider: "custom:line" as any,
       options: { redirectTo: callbackUrl() },
     });
@@ -318,6 +336,43 @@ export default function LoginForm() {
           </Link>
         </p>
       </div>
+
+      {/* Android LINE 跨瀏覽器警告 Modal */}
+      {showAndroidWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowAndroidWarning(false)} />
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" className="flex-shrink-0">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <h3 className="font-semibold text-tea-text">Android 裝置提醒</h3>
+            </div>
+            <p className="text-sm text-tea-text-light mb-2">
+              使用 LINE 登入時，Android 裝置可能會跳轉到其他瀏覽器（如三星瀏覽器），導致登入失敗。
+            </p>
+            <p className="text-sm text-tea-text-light mb-5">
+              建議改用 <strong className="text-tea-text">Google 帳號</strong> 或 <strong className="text-tea-text">Email 登入</strong>，或將 Chrome 設為手機的預設瀏覽器後再試。
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAndroidWarning(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleLineLoginConfirm}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-[#06C755] text-sm font-medium text-[#06C755] hover:bg-[#f0fdf4] transition"
+              >
+                仍要使用 LINE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
