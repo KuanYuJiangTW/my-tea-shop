@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 function ResultContent() {
-  const params  = useSearchParams();
-  const success = params.get("RtnCode") === "1";
+  const params   = useSearchParams();
+  const success  = params.get("RtnCode") === "1";
+  const { user } = useAuth();
   const tradeNo = params.get("MerchantTradeNo");
   const rtnMsg  = params.get("RtnMsg");
 
@@ -28,7 +30,15 @@ function ResultContent() {
                 訂單編號：<span className="font-mono font-medium">{tradeNo}</span>
               </p>
             )}
-            <p className="text-tea-text-light text-sm mb-10">確認信將寄至您的電子郵件，請耐心等候。</p>
+            {user?.email ? (
+              <p className="text-tea-text-light text-sm mb-10">確認信將寄至 {user.email}，請耐心等候。</p>
+            ) : (
+              <p className="text-sm text-amber-600 mb-10">
+                如需 Email 訂單通知，請前往{" "}
+                <Link href="/account" className="underline font-medium">會員中心</Link>
+                {" "}綁定並驗證信箱。
+              </p>
+            )}
           </>
         ) : (
           <>

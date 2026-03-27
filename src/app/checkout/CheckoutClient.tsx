@@ -257,7 +257,16 @@ export default function CheckoutClient() {
           <p className="text-tea-text-light text-sm mb-2">
             配送方式：{delivery === "home" ? "宅配到府" : `超商店到店（${form.cvsCompany === "seven" ? "7-ELEVEN" : form.cvsCompany === "family" ? "全家" : form.cvsCompany === "hilife" ? "萊爾富" : "OK 超商"}）`}
           </p>
-          <p className="text-tea-text-light text-sm mb-10">付款方式：貨到付款</p>
+          <p className="text-tea-text-light text-sm mb-2">付款方式：貨到付款</p>
+          {user?.email ? (
+            <p className="text-tea-text-light text-sm mb-10">確認信將寄至 {user.email}，請耐心等候。</p>
+          ) : (
+            <p className="text-sm text-amber-600 mb-10">
+              如需 Email 訂單通知，請前往{" "}
+              <Link href="/account" className="underline font-medium">會員中心</Link>
+              {" "}綁定並驗證信箱。
+            </p>
+          )}
           <Link href="/" className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors">
             回到首頁
           </Link>
