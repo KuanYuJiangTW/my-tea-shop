@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 
 const steps = [
@@ -80,9 +80,19 @@ const steps = [
 
 export default function ProcessContent() {
   const [activeStep, setActiveStep] = useState("01");
+  const isScrollingRef = useRef(false);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 點擊步驟按鈕：捲動並垂直置中
+  // 點擊步驟按鈕：立刻 highlight，捲動並垂直置中
   const scrollToStep = useCallback((number: string) => {
+    // 立刻設定 active，避免捲動途中被 Observer 覆蓋
+    setActiveStep(number);
+    isScrollingRef.current = true;
+    if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+    scrollTimerRef.current = setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 900);
+
     const el = document.getElementById(`step-${number}`);
     if (!el) return;
     const rect = el.getBoundingClientRect();
@@ -90,7 +100,7 @@ export default function ProcessContent() {
     window.scrollTo({ top: Math.max(0, offset), behavior: "smooth" });
   }, []);
 
-  // IntersectionObserver：追蹤畫面中央的步驟
+  // IntersectionObserver：手動捲動時追蹤畫面中央的步驟
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
 
@@ -99,7 +109,9 @@ export default function ProcessContent() {
       if (!el) return;
       const obs = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) setActiveStep(step.number);
+          if (entry.isIntersecting && !isScrollingRef.current) {
+            setActiveStep(step.number);
+          }
         },
         { rootMargin: "-35% 0px -35% 0px", threshold: 0 }
       );
