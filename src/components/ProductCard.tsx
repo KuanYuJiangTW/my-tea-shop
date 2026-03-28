@@ -80,6 +80,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const selectedSoldOut = selected.stock === 0;
   const allSoldOut      = variants.every((v) => v.stock === 0);
+  const maxQty          = selected.stock !== undefined ? Math.min(selected.stock, 99) : 99;
 
   // Lightbox
   const photos: LightboxPhoto[] = [];
@@ -228,6 +229,11 @@ export default function ProductCard({ product }: { product: Product }) {
                       <span className="text-[10px] opacity-70 leading-tight">
                         {variantSoldOut ? "售完" : v.hint}
                       </span>
+                      {!variantSoldOut && v.stock !== undefined && (
+                        <span className={`text-[10px] leading-tight mt-0.5 ${v.stock <= 10 ? "text-amber-500 font-semibold" : "opacity-50"}`}>
+                          剩 {v.stock} 件
+                        </span>
+                      )}
                     </button>
                   );
                 })}
@@ -237,7 +243,14 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* 數量選擇 */}
           <div className="flex items-center justify-between mb-4">
-            <span className="text-xs text-tea-text-light font-medium">數量</span>
+            <div className="flex flex-col">
+              <span className="text-xs text-tea-text-light font-medium">數量</span>
+              {!selectedSoldOut && selected.stock !== undefined && (
+                <span className={`text-[10px] mt-0.5 ${selected.stock <= 10 ? "text-amber-500 font-semibold" : "text-tea-text-light"}`}>
+                  庫存 {selected.stock} 件
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.max(1, q - 1)); }}
@@ -251,8 +264,8 @@ export default function ProductCard({ product }: { product: Product }) {
                 {quantity}
               </span>
               <button
-                onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.min(99, q + 1)); }}
-                disabled={selectedSoldOut || quantity >= 99}
+                onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.min(maxQty, q + 1)); }}
+                disabled={selectedSoldOut || quantity >= maxQty}
                 className="w-7 h-7 rounded-full border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors disabled:opacity-30 disabled:cursor-default"
                 aria-label="增加數量"
               >
