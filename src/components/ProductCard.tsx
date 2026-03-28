@@ -231,7 +231,7 @@ export default function ProductCard({ product }: { product: Product }) {
                       </span>
                       {!variantSoldOut && v.stock !== undefined && (
                         <span className={`text-[10px] leading-tight mt-0.5 ${v.stock <= 10 ? "text-amber-500 font-semibold" : "opacity-50"}`}>
-                          剩 {v.stock} 件
+                          剩 {v.stock} 包
                         </span>
                       )}
                     </button>
@@ -247,7 +247,7 @@ export default function ProductCard({ product }: { product: Product }) {
               <span className="text-xs text-tea-text-light font-medium">數量</span>
               {!selectedSoldOut && selected.stock !== undefined && (
                 <span className={`text-[10px] mt-0.5 ${selected.stock <= 10 ? "text-amber-500 font-semibold" : "text-tea-text-light"}`}>
-                  庫存 {selected.stock} 件
+                  庫存 {selected.stock} 包
                 </span>
               )}
             </div>
