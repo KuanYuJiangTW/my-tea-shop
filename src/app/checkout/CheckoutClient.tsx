@@ -164,10 +164,22 @@ export default function CheckoutClient() {
     ...(delivery === "home"
       ? { shippingAddress: { city: form.city, address: form.address } }
       : { cvsInfo: { company: form.cvsCompany, storeName: form.cvsStoreName } }),
-    items: items.map(i => ({
-      productId: i.product.id,
-      quantity:  i.quantity,
-    })),
+    items: items.map(i => {
+      const rawId = i.product.id;
+      let productId: number;
+      let spec: "150g" | "75g" | "teabag";
+      if (rawId >= 20000) {
+        productId = rawId - 20000;
+        spec = "teabag";
+      } else if (rawId >= 10000) {
+        productId = rawId - 10000;
+        spec = "75g";
+      } else {
+        productId = rawId;
+        spec = "150g";
+      }
+      return { productId, quantity: i.quantity, spec };
+    }),
     note:        form.note || undefined,
     couponCode:  appliedCoupon?.code,
     pointsToUse: usePoints && maxPointsToUse >= 200 ? maxPointsToUse : undefined,
