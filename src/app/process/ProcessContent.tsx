@@ -82,6 +82,24 @@ export default function ProcessContent() {
   const [activeStep, setActiveStep] = useState("01");
   const isScrollingRef = useRef(false);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stepBarRef = useRef<HTMLElement>(null);
+
+  // 動態同步步驟 bar 的 top，讓它永遠貼緊 Header 底部
+  useEffect(() => {
+    const sync = () => {
+      if (!stepBarRef.current) return;
+      const header = document.querySelector("header");
+      const bottom = header ? header.getBoundingClientRect().bottom : 0;
+      stepBarRef.current.style.top = `${Math.max(0, bottom)}px`;
+    };
+    sync();
+    window.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", sync);
+      window.removeEventListener("resize", sync);
+    };
+  }, []);
 
   // 點擊步驟按鈕：立刻 highlight，捲動並垂直置中
   const scrollToStep = useCallback((number: string) => {
@@ -142,7 +160,7 @@ export default function ProcessContent() {
       </section>
 
       {/* 步驟導覽列（sticky） */}
-      <section className="sticky top-16 z-20 bg-white border-b border-tea-green-pale/50 shadow-sm">
+      <section ref={stepBarRef} className="sticky top-16 z-20 bg-white border-b border-tea-green-pale/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="grid grid-cols-4 md:grid-cols-8 gap-1 md:gap-2">
             {steps.map((step, i) => {
