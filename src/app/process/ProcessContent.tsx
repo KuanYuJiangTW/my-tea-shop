@@ -166,31 +166,34 @@ export default function ProcessContent() {
             {steps.map((step, i) => {
               const isActive = activeStep === step.number;
               return (
-                <div key={step.number} className="text-center group">
-                  <div className="flex items-center justify-center md:justify-start">
-                    <button
-                      onClick={() => scrollToStep(step.number)}
-                      aria-label={`跳到步驟 ${step.number} ${step.name}`}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 flex-shrink-0 ${
+                <div key={step.number} className="flex items-start justify-center md:justify-start group">
+                  {/* 圓圈 + 文字同在 button 內，文字永遠置中於圓圈下方 */}
+                  <button
+                    onClick={() => scrollToStep(step.number)}
+                    aria-label={`跳到步驟 ${step.number} ${step.name}`}
+                    className="flex flex-col items-center shrink-0"
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 ${
                         isActive
                           ? "bg-tea-green text-white scale-110 shadow-md"
                           : "bg-tea-green-mist text-tea-green group-hover:bg-tea-green group-hover:text-white"
                       }`}
                     >
                       {step.number}
-                    </button>
-                    {i < steps.length - 1 && (
-                      <div className="h-0.5 flex-1 bg-tea-green-pale hidden md:block" />
-                    )}
-                  </div>
-                  <p
-                    onClick={() => scrollToStep(step.number)}
-                    className={`text-xs mt-2 font-medium transition-colors cursor-pointer ${
-                      isActive ? "text-tea-green" : "text-tea-text-light group-hover:text-tea-green"
-                    }`}
-                  >
-                    {step.name}
-                  </p>
+                    </div>
+                    <span
+                      className={`text-xs mt-2 font-medium transition-colors leading-tight text-center ${
+                        isActive ? "text-tea-green" : "text-tea-text-light group-hover:text-tea-green"
+                      }`}
+                    >
+                      {step.name}
+                    </span>
+                  </button>
+                  {/* 連接線：對齊圓圈垂直中心（mt-5 = 20px = h-10 / 2） */}
+                  {i < steps.length - 1 && (
+                    <div className="h-0.5 flex-1 bg-tea-green-pale hidden md:block self-start mt-5" />
+                  )}
                 </div>
               );
             })}
