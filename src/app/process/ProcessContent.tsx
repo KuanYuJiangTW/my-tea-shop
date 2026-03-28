@@ -149,7 +149,7 @@ export default function ProcessContent() {
               const isActive = activeStep === step.number;
               return (
                 <div key={step.number} className="text-center group">
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center md:justify-start">
                     <button
                       onClick={() => scrollToStep(step.number)}
                       aria-label={`跳到步驟 ${step.number} ${step.name}`}
