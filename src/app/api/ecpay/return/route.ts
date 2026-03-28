@@ -62,11 +62,20 @@ export async function POST(req: NextRequest) {
     } else if (order) {
       // 扣除庫存（線上付款，付款成功後才扣，原子性防超賣）
       const orderItems = order.items as { productId: number; quantity: number; spec: string }[];
-      await Promise.all(
+      const decrementResults = await Promise.all(
         orderItems.map((item) =>
           supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity, spec: item.spec ?? "150g" })
         )
       );
+      const stockFailed = decrementResults.some((r) => r.data === false || r.error);
+      if (stockFailed) {
+        // 付款已成功但庫存不足（極端競態），標記訂單需人工處理
+        await supabase
+          .from("orders")
+          .update({ order_status: "stock_issue" })
+          .eq("id", order.id);
+        console.error("ECPay 付款成功但庫存扣減失敗，訂單需人工處理:", order.id);
+      }
 
       // 寄送訂單確認信
       const emailData: EmailOrderData = {
