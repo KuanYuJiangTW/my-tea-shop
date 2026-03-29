@@ -227,7 +227,7 @@ export async function POST(req: NextRequest) {
   const shippingAddress =
     body.deliveryType === "home"
       ? { type: "home", city: body.shippingAddress?.city, address: body.shippingAddress?.address }
-      : { type: "cvs",  company: body.cvsInfo?.company,   storeName: body.cvsInfo?.storeName };
+      : { type: "cvs",  company: body.cvsInfo?.company,   storeId: body.cvsInfo?.storeId, storeName: body.cvsInfo?.storeName };
 
   const { data: orderData, error: dbError } = await supabase.from("orders").insert({
     customer_name:    body.customer.name,

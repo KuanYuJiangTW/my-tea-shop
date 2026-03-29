@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
   const shippingAddress =
     body.deliveryType === "home"
       ? { type: "home", city: body.shippingAddress?.city, address: body.shippingAddress?.address }
-      : { type: "cvs",  company: body.cvsInfo?.company,   storeName: body.cvsInfo?.storeName };
+      : { type: "cvs",  company: body.cvsInfo?.company,   storeId: body.cvsInfo?.storeId, storeName: body.cvsInfo?.storeName };
 
   // ── 8. 原子性扣除庫存（訂單建立前，防止競態條件超賣）────────────────────
   const decrementResults = await Promise.all(
