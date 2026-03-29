@@ -113,9 +113,14 @@ export default function ProcessContent() {
 
     const el = document.getElementById(`step-${number}`);
     if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const offset = window.scrollY + rect.top - (window.innerHeight - rect.height) / 2;
-    window.scrollTo({ top: Math.max(0, offset), behavior: "smooth" });
+
+    // 扣掉 sticky bar 底部位置，在剩餘可視區域內垂直置中
+    const stickyBottom = stepBarRef.current?.getBoundingClientRect().bottom ?? 0;
+    const rect         = el.getBoundingClientRect();
+    const available    = window.innerHeight - stickyBottom;
+    const idealOffset  = Math.max(0, (available - rect.height) / 2);
+    const scrollDelta  = rect.top - stickyBottom - idealOffset;
+    window.scrollTo({ top: window.scrollY + scrollDelta, behavior: "smooth" });
   }, []);
 
   // IntersectionObserver：手動捲動時追蹤畫面中央的步驟
