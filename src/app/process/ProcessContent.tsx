@@ -114,12 +114,15 @@ export default function ProcessContent() {
     const el = document.getElementById(`step-${number}`);
     if (!el) return;
 
-    // 扣掉 sticky bar 底部位置，在剩餘可視區域內垂直置中
-    const stickyBottom = stepBarRef.current?.getBoundingClientRect().bottom ?? 0;
-    const rect         = el.getBoundingClientRect();
-    const available    = window.innerHeight - stickyBottom;
-    const idealOffset  = Math.max(0, (available - rect.height) / 2);
-    const scrollDelta  = rect.top - stickyBottom - idealOffset;
+    // 用 offsetHeight 取得各 sticky 元素的固定高度，不受捲動位置影響
+    const headerHeight  = (document.querySelector("header") as HTMLElement)?.offsetHeight ?? 0;
+    const stepBarHeight = stepBarRef.current?.offsetHeight ?? 0;
+    const stickyHeight  = headerHeight + stepBarHeight;
+
+    const rect        = el.getBoundingClientRect();
+    const available   = window.innerHeight - stickyHeight;
+    const idealOffset = Math.max(0, (available - rect.height) / 2);
+    const scrollDelta = rect.top - stickyHeight - idealOffset;
     window.scrollTo({ top: window.scrollY + scrollDelta, behavior: "smooth" });
   }, []);
 
