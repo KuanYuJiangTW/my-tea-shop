@@ -16,9 +16,9 @@ const CSP = [
   // Google Fonts 字體檔案
   "font-src 'self' data: https://fonts.gstatic.com",
   // API 連線：Supabase + Google Analytics + ECPay
-  `connect-src 'self' https://${SUPABASE_HOST} https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://payment.ecpay.com.tw`,
+  `connect-src 'self' https://${SUPABASE_HOST} https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://payment.ecpay.com.tw https://logistics.ecpay.com.tw`,
   // ECPay 結帳頁面（form POST 後的跳轉）
-  "frame-src https://payment.ecpay.com.tw",
+  "frame-src https://payment.ecpay.com.tw https://logistics.ecpay.com.tw",
   // 禁止任何網站將本站嵌入 iframe（與 X-Frame-Options: DENY 雙重保護）
   "frame-ancestors 'none'",
   // 禁止 Flash / plugins
@@ -26,7 +26,7 @@ const CSP = [
   // 防止 base tag 注入攻擊
   "base-uri 'self'",
   // form 只能提交到本站或 ECPay
-  "form-action 'self' https://payment.ecpay.com.tw",
+  "form-action 'self' https://payment.ecpay.com.tw https://logistics.ecpay.com.tw",
 ].join("; ");
 
 const nextConfig: NextConfig = {
