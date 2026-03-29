@@ -43,6 +43,7 @@ export interface CheckoutForm {
   city:         string;
   address:      string;
   cvsCompany:   CvsCompany;
+  cvsStoreId:   string;
   cvsStoreName: string;
   note:         string;
 }
@@ -86,6 +87,7 @@ export interface Order {
   };
   cvsInfo?: {
     company:   CvsCompany;
+    storeId?:  string;
     storeName: string;
   };
   note?:           string;
@@ -130,6 +132,7 @@ export interface CreateOrderRequest {
   };
   cvsInfo?: {
     company:   CvsCompany;
+    storeId?:  string;
     storeName: string;
   };
   items: {

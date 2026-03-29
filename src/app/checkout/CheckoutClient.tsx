@@ -31,7 +31,8 @@ export default function CheckoutClient() {
   const { items, totalPrice, clearCart } = useCart();
   const { user, loading: authLoading }   = useAuth();
   const router = useRouter();
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting]     = useState(false);
+  const [selectingStore, setSelectingStore] = useState(false);
   const [error, setError]           = useState("");
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [codSuccess, setCodSuccess] = useState(false);
@@ -110,7 +111,7 @@ export default function CheckoutClient() {
   const [form, setForm] = useState<CheckoutForm>({
     name: "", email: "", phone: "",
     city: "", address: "",
-    cvsCompany: "seven", cvsStoreName: "",
+    cvsCompany: "seven", cvsStoreId: "", cvsStoreName: "",
     note: "",
   });
 
@@ -153,9 +154,59 @@ export default function CheckoutClient() {
     }
   }, [ecpayData]);
 
+  // 接收綠界超商地圖選擇結果
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.type !== "cvs-selected") return;
+      setForm(prev => ({
+        ...prev,
+        cvsStoreId:   e.data.storeId   ?? "",
+        cvsStoreName: e.data.storeName ?? "",
+      }));
+      setFormErrors(prev => ({ ...prev, cvsStoreName: undefined }));
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  async function handleSelectStore() {
+    setSelectingStore(true);
+    try {
+      const res = await fetch("/api/ecpay/cvs-map", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cvsCompany: form.cvsCompany }),
+      });
+      if (!res.ok) throw new Error();
+      const { actionUrl, params } = await res.json() as { actionUrl: string; params: Record<string, string> };
+
+      window.open("", "cvs-map-popup", "width=1024,height=768,resizable=yes");
+
+      const mapForm = document.createElement("form");
+      mapForm.method = "POST";
+      mapForm.action = actionUrl;
+      mapForm.target = "cvs-map-popup";
+      for (const [key, value] of Object.entries(params)) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+        mapForm.appendChild(input);
+      }
+      document.body.appendChild(mapForm);
+      mapForm.submit();
+      document.body.removeChild(mapForm);
+    } catch {
+      setError("無法開啟超商地圖，請稍後再試");
+    } finally {
+      setSelectingStore(false);
+    }
+  }
 
   const buildOrderPayload = (): CreateOrderRequest => ({
     customer: { name: form.name, email: form.email, phone: form.phone },
@@ -163,7 +214,7 @@ export default function CheckoutClient() {
     deliveryType:  delivery,
     ...(delivery === "home"
       ? { shippingAddress: { city: form.city, address: form.address } }
-      : { cvsInfo: { company: form.cvsCompany, storeName: form.cvsStoreName } }),
+      : { cvsInfo: { company: form.cvsCompany, storeId: form.cvsStoreId, storeName: form.cvsStoreName } }),
     items: items.map(i => {
       const rawId = i.product.id;
       let productId: number;
@@ -241,7 +292,7 @@ export default function CheckoutClient() {
       if (form.address.trim().length < 4)     e.address = "請輸入完整的收件地址";
     }
     if (delivery === "cvs") {
-      if (form.cvsStoreName.trim().length < 2) e.cvsStoreName = "請輸入門市名稱";
+      if (!form.cvsStoreId || !form.cvsStoreName) e.cvsStoreName = "請點選「選擇門市」選擇取貨門市";
     }
     setFormErrors(e);
     return Object.keys(e).length === 0;
@@ -413,7 +464,7 @@ export default function CheckoutClient() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-tea-text mb-2">超商品牌 *</label>
-                      <select name="cvsCompany" required value={form.cvsCompany} onChange={handleChange} className={inputCls()}>
+                      <select name="cvsCompany" required value={form.cvsCompany} onChange={e => { handleChange(e); setForm(prev => ({ ...prev, cvsStoreId: "", cvsStoreName: "" })); }} className={inputCls()}>
                         <option value="seven">7-ELEVEN</option>
                         <option value="family">全家 FamilyMart</option>
                         <option value="hilife">萊爾富 Hi-Life</option>
@@ -421,9 +472,40 @@ export default function CheckoutClient() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-tea-text mb-2">門市名稱 *</label>
-                      <input type="text" name="cvsStoreName" value={form.cvsStoreName} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, cvsStoreName: undefined })); }}
-                        placeholder="例：台北忠孝門市" className={inputCls(!!formErrors.cvsStoreName)} />
+                      <label className="block text-sm font-medium text-tea-text mb-2">取貨門市 *</label>
+                      {form.cvsStoreName ? (
+                        <div className={`flex items-center justify-between rounded-xl px-4 py-3 border ${formErrors.cvsStoreName ? "border-rose-300" : "border-tea-green"} bg-tea-green-mist/40`}>
+                          <div>
+                            <p className="text-sm font-medium text-tea-text">{form.cvsStoreName}</p>
+                            <p className="text-xs text-tea-text-light mt-0.5">店號：{form.cvsStoreId}</p>
+                          </div>
+                          <button type="button" onClick={handleSelectStore}
+                            className="text-xs text-tea-green hover:text-tea-green-dark font-medium whitespace-nowrap ml-4 transition-colors">
+                            重新選擇
+                          </button>
+                        </div>
+                      ) : (
+                        <button type="button" onClick={handleSelectStore} disabled={selectingStore}
+                          className={`w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 border text-sm font-medium transition-colors
+                            ${formErrors.cvsStoreName ? "border-rose-300" : "border-tea-green-pale hover:border-tea-green"}
+                            text-tea-text hover:bg-tea-cream-light disabled:opacity-60`}>
+                          {selectingStore ? (
+                            <>
+                              <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M12 2a10 10 0 0110 10"/>
+                              </svg>
+                              開啟地圖中...
+                            </>
+                          ) : (
+                            <>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                              </svg>
+                              選擇門市
+                            </>
+                          )}
+                        </button>
+                      )}
                       {formErrors.cvsStoreName && <p className="mt-1 text-xs text-rose-500">{formErrors.cvsStoreName}</p>}
                     </div>
                     <div className="flex items-start gap-2 bg-amber-50 rounded-xl p-3">
