@@ -62,7 +62,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // 更新前先取得訂單目前狀態（判斷是否剛變成 completed）
   const { data: prevOrder } = await supabase
     .from("orders")
-    .select("order_status, user_id, items, shipping_fee, discount_amount, coupon_id, points_used")
+    .select("order_status, user_id, items, shipping_fee, discount_amount, coupon_id, points_used, payment_method, payment_status")
     .eq("id", id)
     .single();
 
@@ -122,6 +122,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         order_id:    id,
         description: "訂單取消退還點數",
       });
+    }
+
+    // 還原庫存
+    const shouldRestoreStock =
+      prevOrder.payment_method !== "ecpay" || prevOrder.payment_status === "paid";
+
+    if (shouldRestoreStock && Array.isArray(prevOrder.items)) {
+      const orderItems = prevOrder.items as { productId: number; quantity: number; spec: string }[];
+      await Promise.all(
+        orderItems.map((item) =>
+          supabase.rpc("increment_stock", {
+            p_id: item.productId,
+            qty:  item.quantity,
+            spec: item.spec ?? "150g",
+          })
+        )
+      );
     }
   }
 

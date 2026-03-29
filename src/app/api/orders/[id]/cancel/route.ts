@@ -20,7 +20,7 @@ export async function POST(
   // 確認訂單屬於此會員
   const { data: order, error: fetchError } = await adminSupabase
     .from("orders")
-    .select("id, user_id, order_status, coupon_id, points_used")
+    .select("id, user_id, order_status, coupon_id, points_used, items, payment_method, payment_status")
     .eq("id", id)
     .single();
 
@@ -46,6 +46,23 @@ export async function POST(
 
   if (error) {
     return NextResponse.json({ error: "取消失敗，請稍後再試" }, { status: 500 });
+  }
+
+  // 還原庫存（COD 下單即扣庫存；ECPay 付款成功後才扣，未付款則不需還原）
+  const shouldRestoreStock =
+    order.payment_method !== "ecpay" || order.payment_status === "paid";
+
+  if (shouldRestoreStock && Array.isArray(order.items)) {
+    const orderItems = order.items as { productId: number; quantity: number; spec: string }[];
+    await Promise.all(
+      orderItems.map((item) =>
+        adminSupabase.rpc("increment_stock", {
+          p_id: item.productId,
+          qty:  item.quantity,
+          spec: item.spec ?? "150g",
+        })
+      )
+    );
   }
 
   // 還原折價券
