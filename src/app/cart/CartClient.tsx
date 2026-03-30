@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import type { Product } from "@/types";
+
+function getItemStock(product: Product): number | undefined {
+  if (product.weight === "75g") return product.stock75g;
+  if (product.weight === "15包 × 3g") return product.stockTeaBag;
+  return product.stockQuantity;
+}
 
 export default function CartClient() {
   const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
@@ -122,7 +129,12 @@ export default function CartClient() {
                         onClick={() =>
                           updateQuantity(item.product.id, item.quantity + 1)
                         }
-                        className="w-6 h-6 flex items-center justify-center text-tea-text-light hover:text-tea-green transition-colors font-medium"
+                        disabled={(() => {
+                          const stock = getItemStock(item.product);
+                          const maxQty = stock !== undefined ? Math.min(stock, 99) : 99;
+                          return item.quantity >= maxQty;
+                        })()}
+                        className="w-6 h-6 flex items-center justify-center text-tea-text-light hover:text-tea-green transition-colors font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-tea-text-light"
                       >
                         +
                       </button>

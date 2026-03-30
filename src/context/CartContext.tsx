@@ -5,6 +5,12 @@ import type { Product, CartItem } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
+function getItemStock(product: Product): number | undefined {
+  if (product.weight === "75g") return product.stock75g;
+  if (product.weight === "15包 × 3g") return product.stockTeaBag;
+  return product.stockQuantity;
+}
+
 export type { CartItem };
 
 interface CartContextType {
@@ -158,9 +164,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     setItems((prev) => {
-      const newItems = prev.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
-      );
+      const newItems = prev.map((item) => {
+        if (item.product.id !== productId) return item;
+        const stock = getItemStock(item.product);
+        const maxQty = stock !== undefined ? Math.min(stock, 99) : 99;
+        return { ...item, quantity: Math.min(quantity, maxQty) };
+      });
       saveToStorage(newItems);
       return newItems;
     });
