@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -11,11 +12,77 @@ function getItemStock(product: Product): number | undefined {
   return product.stockQuantity;
 }
 
+function getOriginalId(product: Product): number {
+  if (product.weight === "75g") return product.id - 10000;
+  if (product.weight === "15包 × 3g") return product.id - 20000;
+  return product.id;
+}
+
+interface StockEntry {
+  id: number;
+  stockQuantity?: number;
+  stock75g?: number;
+  stockTeaBag?: number;
+}
+
+interface Adjustment {
+  id: number;
+  message: string;
+  soldOut: boolean;
+}
+
 export default function CartClient() {
   const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
   const { user } = useAuth();
+  const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
+  const hasCheckedRef = useRef(false);
 
-  if (items.length === 0) {
+  useEffect(() => {
+    if (items.length === 0 || hasCheckedRef.current) return;
+    hasCheckedRef.current = true;
+
+    fetch("/api/products/stock")
+      .then((r) => r.json())
+      .then((stockList: StockEntry[]) => {
+        const newAdjustments: Adjustment[] = [];
+
+        for (const item of items) {
+          const originalId = getOriginalId(item.product);
+          const entry = stockList.find((s) => s.id === originalId);
+          if (!entry) continue;
+
+          let freshStock: number | undefined;
+          if (item.product.weight === "75g") freshStock = entry.stock75g;
+          else if (item.product.weight === "15包 × 3g") freshStock = entry.stockTeaBag;
+          else freshStock = entry.stockQuantity;
+
+          if (freshStock === undefined) continue; // 無限庫存，不需處理
+
+          if (item.quantity > freshStock) {
+            updateQuantity(item.product.id, freshStock); // freshStock=0 → 自動呼叫 removeFromCart
+
+            const label =
+              item.product.weight === "15包 × 3g"
+                ? item.product.name
+                : `${item.product.name} ${item.product.weight}`;
+
+            newAdjustments.push({
+              id: item.product.id,
+              message:
+                freshStock === 0
+                  ? `${label} 已售完，已自動從購物車移除`
+                  : `${label} 庫存剩 ${freshStock} 個，數量已調整`,
+              soldOut: freshStock === 0,
+            });
+          }
+        }
+
+        if (newAdjustments.length > 0) setAdjustments(newAdjustments);
+      })
+      .catch(() => {}); // 靜默失敗，後端結帳時仍會驗證
+  }, [items]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (items.length === 0 && adjustments.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-tea-cream-light px-4">
         <div className="text-center">
@@ -55,6 +122,37 @@ export default function CartClient() {
         <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-8 md:mb-10">
           購物車
         </h1>
+
+        {/* 庫存調整提示 */}
+        {adjustments.length > 0 && (
+          <div className="mb-6 space-y-2">
+            {adjustments.map((adj) => (
+              <div
+                key={adj.id}
+                className="flex items-start justify-between gap-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl px-4 py-3"
+              >
+                <div className="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <span>{adj.message}</span>
+                </div>
+                <button
+                  onClick={() => setAdjustments((prev) => prev.filter((a) => a.id !== adj.id))}
+                  className="text-amber-500 hover:text-amber-700 transition-colors flex-shrink-0"
+                  aria-label="關閉"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Items */}
