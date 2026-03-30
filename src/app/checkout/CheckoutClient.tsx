@@ -534,7 +534,7 @@ export default function CheckoutClient() {
                 <div className="space-y-3 mb-5">
                   {items.map(item => (
                     <div key={item.product.id} className="flex justify-between text-sm">
-                      <span className="text-tea-text-light">{item.product.name} × {item.quantity}</span>
+                      <span className="text-tea-text-light">{item.product.name} {item.product.weight} × {item.quantity}</span>
                       <span className="text-tea-text font-medium">NT${(item.product.price * item.quantity).toLocaleString()}</span>
                     </div>
                   ))}
