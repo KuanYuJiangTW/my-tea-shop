@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
@@ -10,10 +10,20 @@ import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { totalItems } = useCart();
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isTransparent = pathname === "/" && !scrolled && !isMenuOpen;
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navLinks = [
     { href: "/", label: "首頁" },
@@ -49,7 +59,11 @@ export default function Header() {
     "會員";
 
   return (
-    <header className="bg-tea-cream border-b border-tea-green-pale sticky top-0 z-50 shadow-sm">
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${
+      isTransparent
+        ? "bg-transparent border-b border-transparent shadow-none"
+        : "bg-tea-cream border-b border-tea-green-pale shadow-sm"
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -57,18 +71,18 @@ export default function Header() {
             <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
               <path
                 d="M17 4C17 4 8 11 8 20C8 24.97 12.03 29 17 29C21.97 29 26 24.97 26 20C26 11 17 4 17 4Z"
-                fill="#7D9B84"
+                fill={isTransparent ? "white" : "#7D9B84"}
                 opacity="0.85"
               />
               <path
                 d="M17 9C17 9 12 15 12 20C12 22.76 14.24 25 17 25C19.76 25 22 22.76 22 20C22 15 17 9 17 9Z"
-                fill="#A3BFA8"
+                fill={isTransparent ? "rgba(255,255,255,0.7)" : "#A3BFA8"}
               />
-              <line x1="17" y1="29" x2="17" y2="33" stroke="#5C7A67" strokeWidth="2.5" strokeLinecap="round" />
-              <line x1="14" y1="31" x2="17" y2="29" stroke="#5C7A67" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="20" y1="31" x2="17" y2="29" stroke="#5C7A67" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="17" y1="29" x2="17" y2="33" stroke={isTransparent ? "white" : "#5C7A67"} strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="14" y1="31" x2="17" y2="29" stroke={isTransparent ? "white" : "#5C7A67"} strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="20" y1="31" x2="17" y2="29" stroke={isTransparent ? "white" : "#5C7A67"} strokeWidth="1.5" strokeLinecap="round" />
             </svg>
-            <span className="font-serif text-xl font-bold text-tea-text tracking-wide">霧抉茶</span>
+            <span className={`font-serif text-xl font-bold tracking-wide transition-colors ${isTransparent ? "text-white" : "text-tea-text"}`}>霧抉茶</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -77,7 +91,11 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-tea-text-light hover:text-tea-green transition-colors text-sm font-medium tracking-wide"
+                className={`transition-colors text-sm font-medium tracking-wide ${
+                  isTransparent
+                    ? "text-white/80 hover:text-white"
+                    : "text-tea-text-light hover:text-tea-green"
+                }`}
               >
                 {link.label}
               </Link>
@@ -94,7 +112,11 @@ export default function Header() {
                   <>
                     <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-tea-green-mist transition-colors text-sm text-tea-text-light hover:text-tea-green"
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors text-sm ${
+                        isTransparent
+                          ? "text-white/80 hover:text-white hover:bg-white/10"
+                          : "text-tea-text-light hover:text-tea-green hover:bg-tea-green-mist"
+                      }`}
                     >
                       <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                         <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
@@ -143,7 +165,11 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/auth/login"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-tea-green-mist transition-colors text-sm text-tea-text-light hover:text-tea-green"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors text-sm ${
+                      isTransparent
+                        ? "text-white/80 hover:text-white hover:bg-white/10"
+                        : "text-tea-text-light hover:text-tea-green hover:bg-tea-green-mist"
+                    }`}
                   >
                     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                       <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
@@ -159,7 +185,7 @@ export default function Header() {
               <svg
                 width="22" height="22" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="1.8"
-                className="text-tea-text group-hover:text-tea-green transition-colors"
+                className={`transition-colors ${isTransparent ? "text-white/80 group-hover:text-white" : "text-tea-text group-hover:text-tea-green"}`}
               >
                 <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                 <line x1="3" y1="6" x2="21" y2="6" />
@@ -175,7 +201,7 @@ export default function Header() {
             {/* Mobile hamburger */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-tea-text"
+              className={`md:hidden p-2 transition-colors ${isTransparent ? "text-white" : "text-tea-text"}`}
               aria-label="選單"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
