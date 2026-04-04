@@ -135,12 +135,12 @@ export default async function HomePage() {
 
             {/* 右側照片 */}
             <div className="lg:col-span-2">
-              <div className="relative h-64 lg:h-full lg:min-h-[500px] rounded-2xl overflow-hidden">
+              <div className="relative h-64 lg:h-full lg:min-h-[500px] rounded-2xl overflow-hidden bg-tea-cream">
                 <Image
                   src="/images/gallery/picking2.jpg"
                   alt="採茶實景"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                 />
               </div>
             </div>
