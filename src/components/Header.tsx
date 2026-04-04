@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
-export default function Header() {
+export default function Header({ transparent = false }: { transparent?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -15,9 +15,8 @@ export default function Header() {
   const { totalItems } = useCart();
   const { user, loading } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
 
-  const isTransparent = pathname === "/" && !scrolled && !isMenuOpen;
+  const isTransparent = transparent && !scrolled && !isMenuOpen;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);

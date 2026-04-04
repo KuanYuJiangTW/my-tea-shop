@@ -13,7 +13,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
 
   return (
     <>
-      <Header />
+      <Header transparent={pathname === "/"} />
       <main>{children}</main>
       <Footer />
     </>
