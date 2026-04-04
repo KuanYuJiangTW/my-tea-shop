@@ -176,46 +176,46 @@ export default async function HomePage() {
       {/* Brand Story */}
       <section className="py-16 md:py-24 bg-tea-text">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            <div>
-              <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
-                Brand Story
-              </p>
-              <h2 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-7 leading-snug">
-                從一片葉子<br />到一杯好茶
-              </h2>
-              <p className="text-tea-green-pale leading-relaxed mb-4 text-sm">
-                從爸爸媽媽年輕時踏入茶產業開始，我們在嘉義梅山的山區辛勤耕耘超過40年。因為熱愛，也因為責任，霧抉茶始終堅持自產自銷。
-              </p>
-              <p className="text-tea-green-pale leading-relaxed mb-10 text-sm">
-                從茶園種植、茶葉製作、焙火烘焙、分裝包裝到出貨，每一道工序都由我們一家三口親手把關。你手上的每一泡茶，都是我們用時間和心意累積而成的風味。
-              </p>
-              <Link
-                href="/about"
-                className="border border-tea-green-light text-tea-green-light hover:bg-tea-green-light hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors inline-block"
-              >
-                了解更多
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { number: "40+", label: "年製茶經驗" },
-                { number: "3", label: "家人親手把關" },
-                { number: "50+", label: "茶款系列" },
-                { number: "10K+", label: "忠實茶客" },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-8 text-center hover:bg-white/10 transition-colors"
-                >
-                  <div className="font-serif text-4xl md:text-5xl font-bold text-tea-green-light mb-2">
-                    {stat.number}
-                  </div>
-                  <div className="text-tea-green-pale text-sm">{stat.label}</div>
-                </div>
-              ))}
-            </div>
+
+          {/* 故事文字 */}
+          <div className="max-w-2xl mb-14">
+            <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
+              Brand Story
+            </p>
+            <h2 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-7 leading-snug">
+              從一片葉子<br />到一杯好茶
+            </h2>
+            <p className="text-tea-green-pale leading-relaxed mb-4 text-sm">
+              從爸爸媽媽年輕時踏入茶產業開始，我們在嘉義梅山的山區辛勤耕耘超過40年。因為熱愛，也因為責任，霧抉茶始終堅持自產自銷。
+            </p>
+            <p className="text-tea-green-pale leading-relaxed mb-10 text-sm">
+              從茶園種植、茶葉製作、焙火烘焙、分裝包裝到出貨，每一道工序都由我們一家三口親手把關。你手上的每一泡茶，都是我們用時間和心意累積而成的風味。
+            </p>
+            <Link
+              href="/about"
+              className="border border-tea-green-light text-tea-green-light hover:bg-tea-green-light hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors inline-block"
+            >
+              了解更多
+            </Link>
           </div>
+
+          {/* 統計數字橫排 */}
+          <div className="border-t border-white/10 pt-10 grid grid-cols-2 md:grid-cols-4 gap-y-8">
+            {[
+              { number: "40+", label: "年製茶經驗" },
+              { number: "3",   label: "家人親手把關" },
+              { number: "50+", label: "茶款系列" },
+              { number: "10K+",label: "忠實茶客" },
+            ].map((stat, i) => (
+              <div key={stat.label} className={`flex flex-col gap-1 ${i > 0 ? "md:border-l md:border-white/10 md:pl-10" : ""}`}>
+                <span className="font-serif text-4xl md:text-5xl font-bold text-tea-green-light leading-none">
+                  {stat.number}
+                </span>
+                <span className="text-tea-green-pale text-sm mt-1">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+
         </div>
       </section>
 
