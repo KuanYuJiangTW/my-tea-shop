@@ -206,8 +206,8 @@ export default async function HomePage() {
               {[
                 { number: "40+",  label: "年製茶經驗" },
                 { number: "3",    label: "家人親手把關" },
-                { number: "50+",  label: "茶款系列" },
-                { number: "10K+", label: "忠實茶客" },
+                { number: "10+",  label: "茶款系列" },
+                { number: "1300m", label: "茶園最高海拔" },
               ].map((stat, i) => (
                 <div key={stat.label} className={`flex flex-col gap-1 ${i > 0 ? "border-l border-white/10 pl-10" : ""}`}>
                   <span className="font-serif text-5xl font-bold text-tea-green-light leading-none">
@@ -222,8 +222,8 @@ export default async function HomePage() {
               {[
                 { number: "40+",  label: "年製茶經驗" },
                 { number: "3",    label: "家人親手把關" },
-                { number: "50+",  label: "茶款系列" },
-                { number: "10K+", label: "忠實茶客" },
+                { number: "10+",  label: "茶款系列" },
+                { number: "1300m", label: "茶園最高海拔" },
               ].map((stat, i) => (
                 <div key={stat.label} className={`flex flex-col gap-1 py-6 ${i % 2 === 1 ? "border-l border-white/10 pl-6" : "pr-6"} ${i >= 2 ? "border-t border-white/10" : ""}`}>
                   <span className="font-serif text-4xl font-bold text-tea-green-light leading-none">
