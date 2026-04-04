@@ -89,10 +89,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     if ((count ?? 0) === 0) {
       const items = prevOrder.items as { subtotal: number }[] ?? [];
-      const subtotal = items.reduce((s, i) => s + i.subtotal, 0);
+      const productSubtotal = items.reduce((s, i) => s + i.subtotal, 0);
+      const couponDiscount = (prevOrder.discount_amount as number) ?? 0;
+      const pointsDiscount = ((prevOrder.points_used as number) ?? 0) / 100;
+      const earnBase = Math.max(Math.floor(productSubtotal - couponDiscount - pointsDiscount), 0);
       await supabase.from("point_transactions").insert({
         user_id:     prevOrder.user_id,
-        points:      subtotal,
+        points:      earnBase,
         type:        "earn",
         order_id:    id,
         description: "訂單完成回饋",
