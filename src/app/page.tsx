@@ -20,27 +20,31 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative min-h-screen bg-tea-green-mist flex items-center overflow-hidden">
-        {/* Decorative shapes */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-tea-green-pale/40 rounded-full" />
-          <div className="absolute bottom-0 -left-20 w-80 h-80 bg-tea-cream/60 rounded-full" />
-          <div className="absolute top-1/2 right-1/3 w-24 h-24 bg-tea-green/10 rounded-full" />
-        </div>
+      <section className="relative min-h-screen flex items-center overflow-hidden">
+        {/* 背景照片 */}
+        <Image
+          src="/images/gallery/picking2.jpg"
+          alt="嘉義梅山採茶實景"
+          fill
+          priority
+          className="object-cover"
+        />
+        {/* 深色遮罩 */}
+        <div className="absolute inset-0 bg-tea-text/55" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10 w-full">
           <div className="max-w-2xl">
-            <p className="text-tea-green font-medium tracking-[0.3em] text-xs mb-6 uppercase">
+            <p className="text-tea-green-light font-medium tracking-[0.3em] text-xs mb-6 uppercase">
               Taiwan Premium Tea
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-text mb-6 leading-none">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-white mb-6 leading-none">
               霧抉茶
             </h1>
-            <div className="w-16 h-0.5 bg-tea-green mb-7" />
-            <p className="text-tea-text font-serif text-xl md:text-3xl mb-3">
+            <div className="w-16 h-0.5 bg-tea-green-light mb-7" />
+            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
               源自台灣高山
             </p>
-            <p className="text-tea-text-light text-sm md:text-lg leading-relaxed mb-10 max-w-lg">
+            <p className="text-tea-cream/75 text-sm md:text-lg leading-relaxed mb-10 max-w-lg">
               嘉義梅山山區，一家三口40年的堅持與心意。從茶園到您手上，每一泡都是我們親手把關的好茶。
             </p>
             <div className="flex flex-wrap gap-4">
@@ -52,28 +56,12 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/about"
-                className="border-2 border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-full font-medium transition-colors"
+                className="border-2 border-white/60 text-white hover:bg-white hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors"
               >
                 我們的故事
               </Link>
             </div>
           </div>
-        </div>
-
-        {/* Large decorative tea leaf */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-8 hidden lg:block select-none">
-          <svg width="560" height="560" viewBox="0 0 560 560" fill="none">
-            <path
-              d="M280 60C280 60 120 180 120 320C120 410.5 193.5 484 284 484C374.5 484 448 410.5 448 320C448 180 280 60 280 60Z"
-              fill="#3D4A42"
-              opacity="0.06"
-            />
-            <path
-              d="M280 120C280 120 200 220 200 320C200 364.18 236 400 280.18 400C324.36 400 360.36 364.18 360.36 320C360.36 220 280 120 280 120Z"
-              fill="#7D9B84"
-              opacity="0.09"
-            />
-          </svg>
         </div>
       </section>
 
