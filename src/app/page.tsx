@@ -34,17 +34,17 @@ export default async function HomePage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10 w-full">
           <div className="max-w-2xl">
-            <p className="text-tea-green-light font-medium tracking-[0.3em] text-xs mb-6 uppercase">
+            <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
               Taiwan Premium Tea
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-white mb-6 leading-none">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-6 leading-none">
               霧抉茶
             </h1>
-            <div className="w-16 h-0.5 bg-tea-green-light mb-7" />
+            <div className="w-16 h-0.5 bg-tea-green-pale mb-7" />
             <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
               源自台灣高山
             </p>
-            <p className="text-tea-cream/75 text-sm md:text-lg leading-relaxed mb-10 max-w-lg">
+            <p className="text-tea-cream text-sm md:text-lg leading-relaxed mb-10 max-w-lg">
               嘉義梅山山區，一家三口40年的堅持與心意。從茶園到您手上，每一泡都是我們親手把關的好茶。
             </p>
             <div className="flex flex-wrap gap-4">
@@ -56,7 +56,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/about"
-                className="border-2 border-white/60 text-white hover:bg-white hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors"
+                className="border-2 border-tea-cream/70 text-tea-cream hover:bg-tea-cream hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors"
               >
                 我們的故事
               </Link>
