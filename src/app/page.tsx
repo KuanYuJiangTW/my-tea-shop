@@ -80,10 +80,10 @@ export default async function HomePage() {
       {/* 品茶哲學 */}
       <section className="py-16 md:py-24 bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
             {/* 左側文字列表 */}
-            <div className="lg:col-span-3 flex flex-col justify-center">
+            <div className="flex flex-col justify-center">
               <p className="text-tea-green font-medium tracking-[0.3em] text-xs uppercase mb-4">
                 Tea Philosophy
               </p>
@@ -134,8 +134,8 @@ export default async function HomePage() {
             </div>
 
             {/* 右側照片 */}
-            <div className="lg:col-span-2">
-              <div className="relative h-64 lg:aspect-[4/3] rounded-2xl overflow-hidden">
+            <div>
+              <div className="relative h-64 lg:h-full lg:min-h-[480px] rounded-2xl overflow-hidden">
                 <Image
                   src="/images/gallery/picking2.jpg"
                   alt="採茶實景"
