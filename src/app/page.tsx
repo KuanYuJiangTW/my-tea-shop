@@ -199,21 +199,40 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* 統計數字橫排 */}
-          <div className="border-t border-white/10 pt-10 grid grid-cols-2 md:grid-cols-4 gap-y-8">
-            {[
-              { number: "40+", label: "年製茶經驗" },
-              { number: "3",   label: "家人親手把關" },
-              { number: "50+", label: "茶款系列" },
-              { number: "10K+",label: "忠實茶客" },
-            ].map((stat, i) => (
-              <div key={stat.label} className={`flex flex-col gap-1 ${i > 0 ? "md:border-l md:border-white/10 md:pl-10" : ""}`}>
-                <span className="font-serif text-4xl md:text-5xl font-bold text-tea-green-light leading-none">
-                  {stat.number}
-                </span>
-                <span className="text-tea-green-pale text-sm mt-1">{stat.label}</span>
-              </div>
-            ))}
+          {/* 統計數字 */}
+          <div className="border-t border-white/10 pt-10">
+            {/* 桌機：四欄橫排 */}
+            <div className="hidden md:grid md:grid-cols-4">
+              {[
+                { number: "40+",  label: "年製茶經驗" },
+                { number: "3",    label: "家人親手把關" },
+                { number: "50+",  label: "茶款系列" },
+                { number: "10K+", label: "忠實茶客" },
+              ].map((stat, i) => (
+                <div key={stat.label} className={`flex flex-col gap-1 ${i > 0 ? "border-l border-white/10 pl-10" : ""}`}>
+                  <span className="font-serif text-5xl font-bold text-tea-green-light leading-none">
+                    {stat.number}
+                  </span>
+                  <span className="text-tea-green-pale text-sm mt-1">{stat.label}</span>
+                </div>
+              ))}
+            </div>
+            {/* 手機：單欄 + 分隔線 */}
+            <div className="md:hidden divide-y divide-white/10">
+              {[
+                { number: "40+",  label: "年製茶經驗" },
+                { number: "3",    label: "家人親手把關" },
+                { number: "50+",  label: "茶款系列" },
+                { number: "10K+", label: "忠實茶客" },
+              ].map((stat) => (
+                <div key={stat.label} className="flex items-baseline gap-4 py-5">
+                  <span className="font-serif text-4xl font-bold text-tea-green-light leading-none w-24 flex-shrink-0">
+                    {stat.number}
+                  </span>
+                  <span className="text-tea-green-pale text-sm">{stat.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>
