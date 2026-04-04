@@ -217,19 +217,19 @@ export default async function HomePage() {
                 </div>
               ))}
             </div>
-            {/* 手機：單欄 + 分隔線 */}
-            <div className="md:hidden divide-y divide-white/10">
+            {/* 手機：2x2 格子 + 分隔線 */}
+            <div className="md:hidden grid grid-cols-2">
               {[
                 { number: "40+",  label: "年製茶經驗" },
                 { number: "3",    label: "家人親手把關" },
                 { number: "50+",  label: "茶款系列" },
                 { number: "10K+", label: "忠實茶客" },
-              ].map((stat) => (
-                <div key={stat.label} className="flex items-baseline gap-4 py-5">
-                  <span className="font-serif text-4xl font-bold text-tea-green-light leading-none w-24 flex-shrink-0">
+              ].map((stat, i) => (
+                <div key={stat.label} className={`flex flex-col gap-1 py-6 ${i % 2 === 1 ? "border-l border-white/10 pl-6" : "pr-6"} ${i >= 2 ? "border-t border-white/10" : ""}`}>
+                  <span className="font-serif text-4xl font-bold text-tea-green-light leading-none">
                     {stat.number}
                   </span>
-                  <span className="text-tea-green-pale text-sm">{stat.label}</span>
+                  <span className="text-tea-green-pale text-sm mt-1">{stat.label}</span>
                 </div>
               ))}
             </div>
