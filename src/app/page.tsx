@@ -23,7 +23,7 @@ export default async function HomePage() {
       <section className="relative min-h-screen flex items-center overflow-hidden">
         {/* 背景照片 */}
         <Image
-          src="/images/gallery/flipped-image.jpg"
+          src="/images/gallery/flipped.jpg"
           alt="嘉義梅山採茶實景"
           fill
           priority
