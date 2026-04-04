@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import { Mountain, Flame, Sprout } from "lucide-react";
 import FeaturedSection from "./FeaturedSection";
 import { getFeaturedProducts } from "@/lib/products";
 
@@ -76,66 +78,73 @@ export default async function HomePage() {
       </section>
 
       {/* 品茶哲學 */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24 bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
-              品茶哲學
-            </h2>
-            <div className="w-10 h-0.5 bg-tea-green mx-auto mb-4" />
-            <p className="text-tea-text-light max-w-md mx-auto">
-              我們相信，一杯好茶，是天、地、人三者的完美結合
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: (
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="mx-auto">
-                    <path d="M20 5L22.5 15H35L25.25 21.5L28.5 32.5L20 26L11.5 32.5L14.75 21.5L5 15H17.5L20 5Z" fill="#A3BFA8" />
-                    <path d="M20 10L21.8 17H29L23 21L25.2 28L20 24.5L14.8 28L17 21L11 17H18.2L20 10Z" fill="#7D9B84" />
-                  </svg>
-                ),
-                title: "高山氣韻",
-                desc: "茶園坐落於嘉義阿里山梅山山區，終年雲霧繚繞，高山冷涼氣候與晝夜溫差，造就茶葉清甜甘醇的獨特風味。",
-              },
-              {
-                icon: (
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="mx-auto">
-                    <path d="M20 4C20 4 10 14 10 24C10 29.52 14.48 34 20 34C25.52 34 30 29.52 30 24C30 14 20 4 20 4Z" fill="#A3BFA8" />
-                    <path d="M20 10C20 10 14 17 14 24C14 27.31 16.69 30 20 30C23.31 30 26 27.31 26 24C26 17 20 10 20 10Z" fill="#7D9B84" />
-                  </svg>
-                ),
-                title: "手工製作",
-                desc: "一家三口傳承超過40年的製茶經驗，焙火烘焙憑藉多年積累的手感掌控，每一批茶都是職人心血。",
-              },
-              {
-                icon: (
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="mx-auto">
-                    <circle cx="20" cy="20" r="14" fill="#C8DDD0" />
-                    <circle cx="20" cy="20" r="8" fill="#A3BFA8" />
-                    <circle cx="20" cy="20" r="4" fill="#7D9B84" />
-                    <line x1="20" y1="6" x2="20" y2="10" stroke="#7D9B84" strokeWidth="2" strokeLinecap="round" />
-                    <line x1="20" y1="30" x2="20" y2="34" stroke="#7D9B84" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                ),
-                title: "自產自銷",
-                desc: "從種植、製作、焙火、包裝到出貨，全程由我們親手把關，不假他人之手，讓每一泡茶安心送到您手上。",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="text-center p-10 rounded-2xl bg-tea-cream-light hover:bg-tea-green-mist transition-colors group"
-              >
-                <div className="mb-5">{item.icon}</div>
-                <h3 className="font-serif text-xl font-bold text-tea-text mb-3">
-                  {item.title}
-                </h3>
-                <p className="text-tea-text-light text-sm leading-relaxed">
-                  {item.desc}
-                </p>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-stretch">
+
+            {/* 左側文字列表 */}
+            <div className="lg:col-span-3 flex flex-col justify-center">
+              <p className="text-tea-green font-medium tracking-[0.3em] text-xs uppercase mb-4">
+                Tea Philosophy
+              </p>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
+                品茶哲學
+              </h2>
+              <p className="text-tea-text-light mb-10 max-w-md">
+                我們相信，一杯好茶，是天、地、人三者的完美結合
+              </p>
+
+              <div className="divide-y divide-tea-green-pale">
+                {[
+                  {
+                    number: "01",
+                    Icon: Mountain,
+                    title: "高山氣韻",
+                    desc: "茶園坐落於嘉義阿里山梅山山區，終年雲霧繚繞，高山冷涼氣候與晝夜溫差，造就茶葉清甜甘醇的獨特風味。",
+                  },
+                  {
+                    number: "02",
+                    Icon: Flame,
+                    title: "手工製作",
+                    desc: "一家三口傳承超過40年的製茶經驗，焙火烘焙憑藉多年積累的手感掌控，每一批茶都是職人心血。",
+                  },
+                  {
+                    number: "03",
+                    Icon: Sprout,
+                    title: "自產自銷",
+                    desc: "從種植、製作、焙火、包裝到出貨，全程由我們親手把關，不假他人之手，讓每一泡茶安心送到您手上。",
+                  },
+                ].map(({ number, Icon, title, desc }) => (
+                  <div key={number} className="flex items-start gap-6 py-8 group">
+                    <div className="flex-shrink-0 flex flex-col items-center gap-2 w-8">
+                      <span className="text-xs font-medium text-tea-green tracking-widest">{number}</span>
+                      <Icon className="w-4 h-4 text-tea-green-light" />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-xl font-bold text-tea-text mb-2 group-hover:text-tea-green transition-colors">
+                        {title}
+                      </h3>
+                      <p className="text-tea-text-light text-sm leading-relaxed">
+                        {desc}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* 右側照片 */}
+            <div className="lg:col-span-2">
+              <div className="relative h-64 lg:h-full lg:min-h-[500px] rounded-2xl overflow-hidden">
+                <Image
+                  src="/images/gallery/picking2.jpg"
+                  alt="採茶實景"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
