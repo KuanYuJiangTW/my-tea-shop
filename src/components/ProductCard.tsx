@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import ProductLightbox, { type LightboxPhoto } from "@/components/ProductLightbox";
+import BorderBeam from "@/components/ui/border-beam";
 
 type VariantKey = "150g" | "75g" | "teabag";
 
@@ -116,7 +117,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col border border-tea-green-pale/40 hover:scale-[1.03] hover:-translate-y-1">
+      <div className="relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col border border-tea-green-pale/40 hover:scale-[1.03] hover:-translate-y-1">
+        <BorderBeam className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" size={120} duration={8} />
 
         {/* 圖片區 */}
         <div

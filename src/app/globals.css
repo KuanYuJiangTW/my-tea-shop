@@ -112,3 +112,14 @@
     overflow: hidden;
   }
 }
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes border-beam {
+  to {
+    --angle: 360deg;
+  }
+}
