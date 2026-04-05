@@ -2,21 +2,6 @@
 
 import { useState } from "react";
 import type { ContactForm as FormState, ContactStatus as Status } from "@/types";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-const subjectOptions = [
-  { value: "product", label: "產品詢問" },
-  { value: "order",   label: "訂單問題" },
-  { value: "wholesale", label: "批量採購" },
-  { value: "visit",   label: "茶園參訪" },
-  { value: "other",   label: "其他" },
-];
 
 export default function ContactClient() {
   const [form, setForm] = useState<FormState>({
@@ -28,7 +13,7 @@ export default function ContactClient() {
   const [status, setStatus] = useState<Status>("idle");
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
@@ -186,27 +171,20 @@ export default function ContactClient() {
                 <label className="block text-xs font-medium text-tea-text mb-1.5">
                   主旨 <span className="text-red-400">*</span>
                 </label>
-                {/* 隱藏 input 確保 required 驗證 */}
-                <input type="hidden" name="subject" value={form.subject} required />
-                <Select
-                  value={form.subject || undefined}
-                  onValueChange={(value) => setForm((prev) => ({ ...prev, subject: value as FormState["subject"] }))}
+                <select
+                  name="subject"
+                  required
+                  value={form.subject}
+                  onChange={handleChange}
+                  className={inputClass}
                 >
-                  <SelectTrigger className="w-full h-auto border border-tea-green-pale bg-white rounded-xl px-4 py-3 text-sm text-tea-text data-placeholder:text-tea-text-light/50 focus-visible:ring-2 focus-visible:ring-tea-green/40 focus-visible:border-tea-green transition">
-                    <SelectValue placeholder="請選擇主旨" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl border border-tea-green-pale shadow-lg">
-                    {subjectOptions.map((opt) => (
-                      <SelectItem
-                        key={opt.value}
-                        value={opt.value}
-                        className="text-sm text-tea-text px-4 py-2.5 rounded-lg focus:bg-tea-green-mist focus:text-tea-green cursor-pointer"
-                      >
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="" disabled>請選擇主旨</option>
+                  <option value="product">產品詢問</option>
+                  <option value="order">訂單問題</option>
+                  <option value="wholesale">批量採購</option>
+                  <option value="visit">茶園參訪</option>
+                  <option value="other">其他</option>
+                </select>
               </div>
 
               <div>
