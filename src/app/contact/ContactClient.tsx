@@ -1,7 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 import type { ContactForm as FormState, ContactStatus as Status } from "@/types";
+
+const subjectOptions = [
+  { value: "product",   label: "產品詢問" },
+  { value: "order",     label: "訂單問題" },
+  { value: "wholesale", label: "批量採購" },
+  { value: "visit",     label: "茶園參訪" },
+  { value: "other",     label: "其他" },
+];
 
 export default function ContactClient() {
   const [form, setForm] = useState<FormState>({
@@ -11,9 +20,21 @@ export default function ContactClient() {
     message: "",
   });
   const [status, setStatus] = useState<Status>("idle");
+  const [subjectOpen, setSubjectOpen] = useState(false);
+  const subjectRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (subjectRef.current && !subjectRef.current.contains(e.target as Node)) {
+        setSubjectOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
@@ -171,20 +192,37 @@ export default function ContactClient() {
                 <label className="block text-xs font-medium text-tea-text mb-1.5">
                   主旨 <span className="text-red-400">*</span>
                 </label>
-                <select
-                  name="subject"
-                  required
-                  value={form.subject}
-                  onChange={handleChange}
-                  className={inputClass}
-                >
-                  <option value="" disabled>請選擇主旨</option>
-                  <option value="product">產品詢問</option>
-                  <option value="order">訂單問題</option>
-                  <option value="wholesale">批量採購</option>
-                  <option value="visit">茶園參訪</option>
-                  <option value="other">其他</option>
-                </select>
+                <div ref={subjectRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setSubjectOpen(!subjectOpen)}
+                    className={`${inputClass} flex items-center justify-between text-left ${!form.subject ? "text-tea-text-light/50" : "text-tea-text"}`}
+                  >
+                    <span>{subjectOptions.find(o => o.value === form.subject)?.label ?? "請選擇主旨"}</span>
+                    <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${subjectOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {subjectOpen && (
+                    <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-hidden">
+                      {subjectOptions.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => {
+                            setForm(prev => ({ ...prev, subject: opt.value as FormState["subject"] }));
+                            setSubjectOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                            form.subject === opt.value
+                              ? "bg-tea-green-mist text-tea-green font-medium"
+                              : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>
