@@ -124,7 +124,7 @@ export default async function HomePage() {
 
             {/* 右側照片 */}
             <div>
-              <div className="relative h-64 lg:h-full lg:min-h-[480px] rounded-2xl overflow-hidden">
+              <div className="relative h-64 sm:h-80 md:h-[420px] lg:h-full lg:min-h-[480px] rounded-2xl overflow-hidden">
                 <Image
                   src="/images/gallery/flipped2.jpg"
                   alt="做茶實景"
