@@ -43,11 +43,16 @@ export default function CheckoutClient() {
   const ecpayFormRef = useRef<HTMLFormElement>(null);
   const [cityOpen, setCityOpen] = useState(false);
   const cityRef = useRef<HTMLDivElement>(null);
+  const [cvsOpen, setCvsOpen] = useState(false);
+  const cvsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (cityRef.current && !cityRef.current.contains(e.target as Node)) {
         setCityOpen(false);
+      }
+      if (cvsRef.current && !cvsRef.current.contains(e.target as Node)) {
+        setCvsOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -503,12 +508,50 @@ export default function CheckoutClient() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-tea-text mb-2">超商品牌 *</label>
-                      <select name="cvsCompany" required value={form.cvsCompany} onChange={e => { handleChange(e); setForm(prev => ({ ...prev, cvsStoreId: "", cvsStoreName: "" })); }} className={inputCls()}>
-                        <option value="seven">7-ELEVEN</option>
-                        <option value="family">全家 FamilyMart</option>
-                        <option value="hilife">萊爾富 Hi-Life</option>
-                        <option value="ok">OK 超商</option>
-                      </select>
+                      <div ref={cvsRef} className="relative">
+                        {(() => {
+                          const cvsOptions = [
+                            { value: "seven",  label: "7-ELEVEN" },
+                            { value: "family", label: "全家 FamilyMart" },
+                            { value: "hilife", label: "萊爾富 Hi-Life" },
+                            { value: "ok",     label: "OK 超商" },
+                          ];
+                          const selected = cvsOptions.find(o => o.value === form.cvsCompany);
+                          return (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => setCvsOpen(!cvsOpen)}
+                                className={`${inputCls()} flex items-center justify-between text-left text-tea-text`}
+                              >
+                                <span>{selected?.label}</span>
+                                <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${cvsOpen ? "rotate-180" : ""}`} />
+                              </button>
+                              {cvsOpen && (
+                                <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-hidden">
+                                  {cvsOptions.map(opt => (
+                                    <button
+                                      key={opt.value}
+                                      type="button"
+                                      onClick={() => {
+                                        setForm(prev => ({ ...prev, cvsCompany: opt.value as CheckoutForm["cvsCompany"], cvsStoreId: "", cvsStoreName: "" }));
+                                        setCvsOpen(false);
+                                      }}
+                                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                                        form.cvsCompany === opt.value
+                                          ? "bg-tea-green-mist text-tea-green font-medium"
+                                          : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-tea-text mb-2">取貨門市 *</label>
