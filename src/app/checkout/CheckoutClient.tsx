@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
@@ -40,6 +41,18 @@ export default function CheckoutClient() {
   const [delivery, setDelivery]     = useState<DeliveryType>("home");
   const [ecpayData, setEcpayData]   = useState<EcpayCheckoutResponse | null>(null);
   const ecpayFormRef = useRef<HTMLFormElement>(null);
+  const [cityOpen, setCityOpen] = useState(false);
+  const cityRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (cityRef.current && !cityRef.current.contains(e.target as Node)) {
+        setCityOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // 折價券
   type CouponRow = { id: string; code: string; discount_amount: number; min_order_amount: number; expires_at: string };
@@ -442,12 +455,38 @@ export default function CheckoutClient() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-tea-text mb-2">縣市 *</label>
-                      <select name="city" value={form.city} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, city: undefined })); }} className={inputCls(!!formErrors.city)}>
-                        <option value="">請選擇縣市</option>
-                        {CITIES.map(c => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
+                      <div ref={cityRef} className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setCityOpen(!cityOpen)}
+                          className={`${inputCls(!!formErrors.city)} flex items-center justify-between text-left ${!form.city ? "text-tea-text-light/60" : "text-tea-text"}`}
+                        >
+                          <span>{form.city || "請選擇縣市"}</span>
+                          <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${cityOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {cityOpen && (
+                          <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-y-auto max-h-56">
+                            {CITIES.map(c => (
+                              <button
+                                key={c}
+                                type="button"
+                                onClick={() => {
+                                  setForm(prev => ({ ...prev, city: c }));
+                                  setFormErrors(p => ({ ...p, city: undefined }));
+                                  setCityOpen(false);
+                                }}
+                                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                                  form.city === c
+                                    ? "bg-tea-green-mist text-tea-green font-medium"
+                                    : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
+                                }`}
+                              >
+                                {c}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       {formErrors.city && <p className="mt-1 text-xs text-rose-500">{formErrors.city}</p>}
                     </div>
                     <div>
