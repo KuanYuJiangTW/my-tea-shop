@@ -31,7 +31,7 @@ export default async function HomePage() {
           className="object-cover"
         />
         {/* 深色遮罩 */}
-        <div className="absolute inset-0 bg-black/45" />
+        <div className="absolute inset-0 bg-black/35" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10 w-full">
           <div className="max-w-2xl">
