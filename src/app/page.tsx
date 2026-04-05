@@ -126,7 +126,7 @@ export default async function HomePage() {
             <div>
               <div className="relative h-64 sm:h-80 md:h-[420px] lg:h-full lg:min-h-[480px] rounded-2xl overflow-hidden">
                 <Image
-                  src="/images/gallery/flipped2.jpg"
+                  src="/images/gallery/flipped.jpg"
                   alt="做茶實景"
                   fill
                   className="object-cover"
