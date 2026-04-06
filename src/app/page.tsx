@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Mountain, Flame, Sprout } from "lucide-react";
+import { Mountain, Flame, Sprout, Clock, Users } from "lucide-react";
 import FeaturedSection from "./FeaturedSection";
 import BrandStats from "./BrandStats";
 import { getFeaturedProducts } from "@/lib/products";
+import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
 
 export const revalidate = 3600;
 
@@ -17,7 +18,12 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const featuredProducts = await getFeaturedProducts();
+  const [featuredProducts, experiences, contents] = await Promise.all([
+    getFeaturedProducts(),
+    getExperienceTypes(),
+    getExperienceContents(),
+  ]);
+  const contentMap = Object.fromEntries(contents.map(c => [c.slug, c]));
   return (
     <div>
       {/* Hero */}
@@ -161,6 +167,91 @@ export default async function HomePage() {
           <FeaturedSection products={featuredProducts} />
         </div>
       </section>
+
+      {/* 茶藝體驗 */}
+      {experiences.length > 0 && (
+        <section className="py-16 md:py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-end justify-between mb-12">
+              <div>
+                <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">Experience</p>
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">茶藝體驗</h2>
+                <p className="text-tea-text-light">走入嘉義梅山茶園，用雙手感受一片葉子的故事</p>
+              </div>
+              <Link
+                href="/experiences"
+                className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 transition-colors"
+              >
+                查看全部
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {experiences.slice(0, 3).map((exp) => {
+                const content = contentMap[exp.slug];
+                if (!content) return null;
+                const imgSrc = content.coverImage ?? "/images/gallery/tea-cup.jpg";
+                return (
+                  <Link
+                    key={exp.id}
+                    href={`/experiences/${exp.slug}`}
+                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-tea-green-pale/50"
+                  >
+                    <div className="relative h-48 overflow-hidden">
+                      <Image
+                        src={imgSrc}
+                        alt={exp.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      {exp.requiresAdult && (
+                        <span className="absolute top-3 right-3 bg-tea-text text-tea-cream text-xs px-3 py-1 rounded-full">
+                          18 歲以上
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">
+                        {exp.name}
+                      </h3>
+                      <p className="text-tea-text-light text-sm leading-relaxed mb-4 line-clamp-2">
+                        {content.tagline}
+                      </p>
+                      <div className="flex items-center justify-between text-sm text-tea-text-light">
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5 text-tea-green" />
+                            {exp.durationHours}h
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3.5 h-3.5 text-tea-green" />
+                            {exp.minParticipants}–{exp.maxParticipants}人
+                          </span>
+                        </div>
+                        <span className="font-semibold text-tea-text">NT$ {exp.price.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {experiences.length > 3 && (
+              <div className="text-center mt-8">
+                <Link
+                  href="/experiences"
+                  className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-full font-medium transition-colors inline-block"
+                >
+                  查看全部 {experiences.length} 個體驗
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Brand Story */}
       <section className="py-16 md:py-24 bg-tea-text">

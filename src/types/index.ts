@@ -154,6 +154,92 @@ export interface EcpayCheckoutResponse {
   params:   Record<string, string>;
 }
 
+// ─── Experience Booking ───────────────────────────────────────────────────────
+
+export interface ExperienceType {
+  id:               number;
+  slug:             string;
+  name:             string;
+  nameEn:           string;
+  price:            number;
+  durationHours:    number;
+  maxParticipants:  number;
+  minParticipants:  number;
+  requiresAdult:    boolean;
+  isActive:         boolean;
+}
+
+export interface ExperienceSession {
+  id:                  string;
+  experienceTypeId:    number;
+  sessionDate:         string;   // YYYY-MM-DD
+  startTime:           string;   // HH:MM
+  status:              SessionStatus;
+  currentParticipants: number;
+  cancelReason?:       string;
+  experienceType?:     ExperienceType;
+}
+
+export type SessionStatus = 'open' | 'full' | 'cancelled';
+
+export type BookingStatus = 'pending_payment' | 'confirmed' | 'cancelled';
+
+export type RefundStatus = 'none' | 'pending' | 'processed';
+
+export interface ExperienceBooking {
+  id:                 string;
+  sessionId:          string;
+  userId?:            string;
+  participantCount:   number;
+  totalPrice:         number;
+  status:             BookingStatus;
+  bookerName:         string;
+  bookerPhone:        string;
+  bookerEmail:        string;
+  dietaryNotes?:      string;
+  adultConfirmed:     boolean;
+  ecpayTradeNo?:      string;
+  paidAt?:            string;
+  cancelledAt?:       string;
+  cancellationReason?: string;
+  refundAmount?:      number;
+  refundStatus:       RefundStatus;
+  participantsDueAt?: string;
+  createdAt:          string;
+  session?:           ExperienceSession;
+  participants?:      BookingParticipant[];
+}
+
+export interface BookingParticipant {
+  id:                   string;
+  bookingId:            string;
+  isPrimary:            boolean;
+  name:                 string;
+  idNumber:             string;
+  dateOfBirth:          string;   // YYYY-MM-DD
+  emergencyContactName:  string;
+  emergencyContactPhone: string;
+}
+
+export interface CreateBookingRequest {
+  sessionId:        string;
+  participantCount: number;
+  bookerName:       string;
+  bookerPhone:      string;
+  dietaryNotes?:    string;
+  adultConfirmed?:  boolean;
+}
+
+export interface AddParticipantRequest {
+  bookingId:            string;
+  isPrimary?:           boolean;
+  name:                 string;
+  idNumber:             string;
+  dateOfBirth:          string;
+  emergencyContactName:  string;
+  emergencyContactPhone: string;
+}
+
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 
 export type ContactSubject = "product" | "order" | "wholesale" | "visit" | "other";

@@ -1,0 +1,93 @@
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
+
+// POST /api/bookings — 建立預約（付款前，取得 booking id 後導向 ECPay）
+export async function POST(req: NextRequest) {
+  // 驗證登入狀態
+  const supabaseUser = await createSupabaseServerClient();
+  const { data: { user } } = await supabaseUser.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "請先登入" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { sessionId, participantCount, bookerName, bookerPhone, dietaryNotes, adultConfirmed } = body;
+
+  if (!sessionId || !participantCount || !bookerName || !bookerPhone) {
+    return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
+  }
+
+  // 查詢場次資訊
+  const { data: session, error: sessionError } = await supabase
+    .from("experience_sessions")
+    .select("*, experience_types(*)")
+    .eq("id", sessionId)
+    .single();
+
+  if (sessionError || !session) {
+    return NextResponse.json({ error: "找不到此場次" }, { status: 404 });
+  }
+
+  if (session.status !== "open") {
+    return NextResponse.json({ error: "此場次已額滿或取消" }, { status: 409 });
+  }
+
+  const expType = session.experience_types;
+
+  // 檢查剩餘名額
+  const available = expType.max_participants - session.current_participants;
+  if (participantCount > available) {
+    return NextResponse.json(
+      { error: `名額不足，目前剩餘 ${available} 個名額` },
+      { status: 409 }
+    );
+  }
+
+  // 茶果酒需確認成年
+  if (expType.requires_adult && !adultConfirmed) {
+    return NextResponse.json(
+      { error: "請確認所有參加者均已年滿 18 歲" },
+      { status: 400 }
+    );
+  }
+
+  const totalPrice = expType.price * participantCount;
+
+  // 參加者資料截止日（活動前 5 天）
+  const sessionDateTime = new Date(`${session.session_date}T${session.start_time}`);
+  const participantsDueAt = new Date(sessionDateTime);
+  participantsDueAt.setDate(participantsDueAt.getDate() - 5);
+
+  // 建立預約（status: pending_payment，待付款完成後改 confirmed）
+  const { data: booking, error: bookingError } = await supabase
+    .from("experience_bookings")
+    .insert({
+      session_id:          sessionId,
+      user_id:             user.id,
+      participant_count:   participantCount,
+      total_price:         totalPrice,
+      status:              "pending_payment",
+      booker_name:         bookerName,
+      booker_phone:        bookerPhone,
+      booker_email:        user.email,
+      dietary_notes:       dietaryNotes ?? null,
+      adult_confirmed:     adultConfirmed ?? false,
+      participants_due_at: participantsDueAt.toISOString(),
+    })
+    .select()
+    .single();
+
+  if (bookingError) {
+    return NextResponse.json({ error: bookingError.message }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    bookingId:   booking.id,
+    totalPrice,
+    sessionDate: session.session_date,
+    startTime:   session.start_time,
+    experience:  expType.name,
+  });
+}
