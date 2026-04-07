@@ -7,7 +7,7 @@ import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "茶藝體驗 | 霧抉茶",
+  title: "茶山體驗 | 霧抉茶",
   description: "親身走入嘉義梅山茶園，體驗茶藝、烤茶、採茶、紅茶製作與淺漬茶果酒，感受從茶葉到生活的每一個細節。",
   alternates: { canonical: "/experiences" },
 };
@@ -26,7 +26,7 @@ export default async function ExperiencesPage() {
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-4">Experience</p>
-          <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">茶藝體驗</h1>
+          <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">茶山體驗</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
           <p className="text-tea-text-light max-w-lg mx-auto">走入嘉義梅山茶園，用雙手感受一片葉子的故事</p>
         </div>
