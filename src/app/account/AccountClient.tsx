@@ -126,6 +126,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   const [cancelBookingError, setCancelBookingError] = useState("");
   const [cancelBookingResult, setCancelBookingResult] = useState<{ refundAmount: number; daysUntil: number } | null>(null);
 
+  // ── Booking retry payment state ─────────────────────────────────────────────
+  const [retryingId, setRetryingId] = useState<string | null>(null);
+
   // ── Profile state ──────────────────────────────────────────────────────────
   const [form, setForm] = useState({
     name:    profile?.name    ?? "",
@@ -252,12 +255,38 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     setCancelConfirmId(null);
   }
 
+  async function handleRetryPayment(bookingId: string) {
+    setRetryingId(bookingId);
+    const res  = await fetch("/api/ecpay/experience-checkout", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ bookingId }),
+    });
+    const json = await res.json();
+    setRetryingId(null);
+    if (!res.ok) return;
+
+    // 動態建立 form 並 submit
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = json.ecpayUrl;
+    Object.entries(json.params as Record<string, string>).forEach(([k, v]) => {
+      const input = document.createElement("input");
+      input.type  = "hidden";
+      input.name  = k;
+      input.value = v;
+      form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
+  }
+
   async function handleCancelBooking() {
     if (!cancelBookingId) return;
     setCancellingBooking(true);
     setCancelBookingError("");
 
-    const res = await fetch(`/api/bookings/${cancelBookingId}`, { method: "POST" });
+    const res = await fetch(`/api/bookings/${cancelBookingId}/cancel`, { method: "POST" });
     const json = await res.json();
     setCancellingBooking(false);
 
@@ -523,16 +552,17 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   ? new Date(`${session.session_date}T00:00:00`).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric", weekday: "short" })
                   : "—";
                 const timeLabel   = session?.start_time?.slice(0, 5) ?? "—";
-                const st          = bookingStatusLabel(booking.status);
-                const isDue       = booking.participants_due_at && new Date() < new Date(booking.participants_due_at);
-                const isConfirmed = booking.status === "confirmed";
-                const isCancelled = booking.status === "cancelled";
+                const st             = bookingStatusLabel(booking.status);
+                const isDue          = booking.participants_due_at && new Date() < new Date(booking.participants_due_at);
+                const isConfirmed    = booking.status === "confirmed";
+                const isCancelled    = booking.status === "cancelled";
+                const isPending      = booking.status === "pending_payment";
 
                 // 是否可取消（活動日還沒到）
                 const sessionDate = session?.session_date
                   ? new Date(`${session.session_date}T${session.start_time}`)
                   : null;
-                const canCancel   = isConfirmed && sessionDate && sessionDate > new Date();
+                const canCancel   = (isConfirmed || isPending) && sessionDate && sessionDate > new Date();
 
                 // 退款比例說明
                 const daysUntil = sessionDate
@@ -574,6 +604,15 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                             >
                               補填資料
                             </Link>
+                          )}
+                          {isPending && (
+                            <button
+                              onClick={() => handleRetryPayment(booking.id)}
+                              disabled={retryingId === booking.id}
+                              className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white text-sm font-medium rounded-full transition-colors"
+                            >
+                              {retryingId === booking.id ? "處理中…" : "重新付款"}
+                            </button>
                           )}
                           {canCancel && (
                             <button
@@ -812,64 +851,76 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
       )}
 
       {/* ─── Cancel Booking Modal ─── */}
-      {cancelBookingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => { if (!cancellingBooking) { setCancelBookingId(null); setCancelBookingResult(null); } }} />
-          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            {cancelBookingResult ? (
-              <>
-                <h3 className="font-semibold text-tea-text text-lg mb-2">預約已取消</h3>
-                <p className="text-sm text-tea-text-light mb-2">
-                  退款金額：
-                  {cancelBookingResult.refundAmount > 0
-                    ? <strong className="text-tea-text"> NT$ {cancelBookingResult.refundAmount.toLocaleString()}</strong>
-                    : <span> 不退款（距活動不足 24 小時）</span>
-                  }
-                </p>
-                {cancelBookingResult.refundAmount > 0 && (
-                  <p className="text-xs text-tea-text-light mb-5">退款將於 5–7 個工作天內退回原付款帳號。</p>
-                )}
-                <button
-                  onClick={() => { setCancelBookingId(null); setCancelBookingResult(null); }}
-                  className="w-full px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition"
-                >
-                  確認
-                </button>
-              </>
-            ) : (
-              <>
-                <h3 className="font-semibold text-tea-text text-lg mb-2">確認取消預約？</h3>
-                <p className="text-sm text-tea-text-light mb-1">取消後無法復原，退款依以下政策計算：</p>
-                <div className="bg-tea-cream-light rounded-xl px-4 py-3 mb-4 text-xs space-y-1">
-                  <div className="flex justify-between"><span className="text-tea-text-light">活動前 7 天以上</span><span className="text-tea-green font-medium">退款 100%</span></div>
-                  <div className="flex justify-between"><span className="text-tea-text-light">活動前 3–6 天</span><span className="text-amber-600 font-medium">退款 50%</span></div>
-                  <div className="flex justify-between"><span className="text-tea-text-light">活動前 1–2 天</span><span className="text-amber-600 font-medium">退款 20%</span></div>
-                  <div className="flex justify-between"><span className="text-tea-text-light">24 小時內</span><span className="text-rose-500 font-medium">不退款</span></div>
-                </div>
-                {cancelBookingError && (
-                  <p className="mb-3 text-sm text-rose-500 bg-rose-50 rounded-lg px-3 py-2">{cancelBookingError}</p>
-                )}
-                <div className="flex gap-3">
+      {cancelBookingId && (() => {
+        const cancellingBookingObj = bookingList.find(b => b.id === cancelBookingId);
+        const isCancellingPending  = cancellingBookingObj?.status === "pending_payment";
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div className="absolute inset-0 bg-black/40" onClick={() => { if (!cancellingBooking) { setCancelBookingId(null); setCancelBookingResult(null); } }} />
+            <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+              {cancelBookingResult ? (
+                <>
+                  <h3 className="font-semibold text-tea-text text-lg mb-2">預約已取消</h3>
+                  {!isCancellingPending && (
+                    <p className="text-sm text-tea-text-light mb-2">
+                      退款金額：
+                      {cancelBookingResult.refundAmount > 0
+                        ? <strong className="text-tea-text"> NT$ {cancelBookingResult.refundAmount.toLocaleString()}</strong>
+                        : <span> 不退款（距活動不足 24 小時）</span>
+                      }
+                    </p>
+                  )}
+                  {cancelBookingResult.refundAmount > 0 && (
+                    <p className="text-xs text-tea-text-light mb-5">退款將於 5–7 個工作天內退回原付款帳號。</p>
+                  )}
                   <button
-                    onClick={() => setCancelBookingId(null)}
-                    disabled={cancellingBooking}
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
+                    onClick={() => { setCancelBookingId(null); setCancelBookingResult(null); }}
+                    className="w-full px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition"
                   >
-                    返回
+                    確認
                   </button>
-                  <button
-                    onClick={handleCancelBooking}
-                    disabled={cancellingBooking}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition disabled:opacity-60"
-                  >
-                    {cancellingBooking ? "取消中…" : "確認取消"}
-                  </button>
-                </div>
-              </>
-            )}
+                </>
+              ) : (
+                <>
+                  <h3 className="font-semibold text-tea-text text-lg mb-2">確認取消預約？</h3>
+                  {isCancellingPending ? (
+                    <p className="text-sm text-tea-text-light mb-4">此預約尚未付款，取消後無法復原，不會產生任何費用。</p>
+                  ) : (
+                    <>
+                      <p className="text-sm text-tea-text-light mb-1">取消後無法復原，退款依以下政策計算：</p>
+                      <div className="bg-tea-cream-light rounded-xl px-4 py-3 mb-4 text-xs space-y-1">
+                        <div className="flex justify-between"><span className="text-tea-text-light">活動前 7 天以上</span><span className="text-tea-green font-medium">退款 100%</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-light">活動前 3–6 天</span><span className="text-amber-600 font-medium">退款 50%</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-light">活動前 1–2 天</span><span className="text-amber-600 font-medium">退款 20%</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-light">24 小時內</span><span className="text-rose-500 font-medium">不退款</span></div>
+                      </div>
+                    </>
+                  )}
+                  {cancelBookingError && (
+                    <p className="mb-3 text-sm text-rose-500 bg-rose-50 rounded-lg px-3 py-2">{cancelBookingError}</p>
+                  )}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setCancelBookingId(null)}
+                      disabled={cancellingBooking}
+                      className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
+                    >
+                      返回
+                    </button>
+                    <button
+                      onClick={handleCancelBooking}
+                      disabled={cancellingBooking}
+                      className="flex-1 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition disabled:opacity-60"
+                    >
+                      {cancellingBooking ? "取消中…" : "確認取消"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ─── Edit Address Modal ─── */}
       {editAddressOrder && (
