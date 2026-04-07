@@ -52,6 +52,35 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
   const [bookings, setBookings] = useState<Booking[]>(initial);
   const [processing, setProcessing] = useState<string | null>(null);
 
+  // cancel state
+  const [cancelId, setCancelId]       = useState<string | null>(null);
+  const [cancelling, setCancelling]   = useState(false);
+  const [cancelError, setCancelError] = useState("");
+  const [cancelResult, setCancelResult] = useState<{ refundAmount: number } | null>(null);
+
+  async function handleAdminCancel() {
+    if (!cancelId) return;
+    setCancelling(true);
+    setCancelError("");
+
+    const res  = await fetch(`/api/admin/experience-bookings/${cancelId}/cancel`, { method: "POST" });
+    const json = await res.json();
+    setCancelling(false);
+
+    if (!res.ok) {
+      setCancelError(json.error ?? "取消失敗");
+      return;
+    }
+
+    setCancelResult(json);
+    setBookings(prev =>
+      prev.map(b => b.id === cancelId
+        ? { ...b, status: "cancelled", refund_amount: json.refundAmount, refund_status: json.refundAmount > 0 ? "pending" : "none", cancellation_reason: "管理者代為取消" }
+        : b
+      )
+    );
+  }
+
   async function markRefundProcessed(id: string) {
     setProcessing(id);
     const res = await fetch(`/api/admin/experience-bookings/${id}`, {
@@ -124,6 +153,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                   <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">狀態</th>
                   <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">退款</th>
                   <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">特殊需求</th>
+                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F5F0E8]">
@@ -132,9 +162,10 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                   const needFill    = b.participant_count - filledCount;
                   const dueAt       = b.participants_due_at ? new Date(b.participants_due_at) : null;
                   const isOverdue   = dueAt && dueAt < new Date() && needFill > 0;
-                  const isCancelled = b.status === "cancelled";
-                  const refundSt    = b.refund_status ?? "none";
-                  const needsRefund = isCancelled && refundSt === "pending";
+                  const isCancelled  = b.status === "cancelled";
+                  const isConfirmed  = b.status === "confirmed";
+                  const refundSt     = b.refund_status ?? "none";
+                  const needsRefund  = isCancelled && refundSt === "pending";
 
                   return (
                     <tr key={b.id} className={`hover:bg-[#F9F6F1] transition-colors ${needsRefund ? "bg-orange-50" : ""}`}>
@@ -201,6 +232,16 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                       <td className="px-4 py-3.5 text-xs text-[#6B8872] max-w-[120px] truncate">
                         {b.dietary_notes || "—"}
                       </td>
+                      <td className="px-4 py-3.5">
+                        {isConfirmed && (
+                          <button
+                            onClick={() => { setCancelId(b.id); setCancelError(""); setCancelResult(null); }}
+                            className="text-xs text-rose-500 hover:text-rose-700 border border-rose-200 hover:border-rose-400 px-2.5 py-1 rounded-full transition-colors whitespace-nowrap"
+                          >
+                            代為取消
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -209,6 +250,61 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
           </div>
         )}
       </div>
+      {/* 取消確認 Modal */}
+      {cancelId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => { if (!cancelling) { setCancelId(null); setCancelResult(null); } }} />
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            {cancelResult ? (
+              <>
+                <h3 className="font-semibold text-[#3D4A42] text-lg mb-2">預約已取消</h3>
+                <p className="text-sm text-[#6B8872] mb-1">
+                  退款金額：
+                  {cancelResult.refundAmount > 0
+                    ? <strong className="text-[#3D4A42]"> NT$ {cancelResult.refundAmount.toLocaleString()}</strong>
+                    : <span> 不退款</span>
+                  }
+                </p>
+                {cancelResult.refundAmount > 0 && (
+                  <p className="text-xs text-[#6B8872] mb-4">退款狀態已設為「待退款」，請完成退款後標記已退款。</p>
+                )}
+                <button
+                  onClick={() => { setCancelId(null); setCancelResult(null); }}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#7D9B84] hover:bg-[#5C7A67] text-white text-sm font-medium transition"
+                >
+                  確認
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="font-semibold text-[#3D4A42] text-lg mb-2">代為取消預約？</h3>
+                <p className="text-sm text-[#6B8872] mb-4">
+                  此操作將取消預約並依退款政策計算退款金額，取消後無法復原。
+                </p>
+                {cancelError && (
+                  <p className="mb-3 text-sm text-rose-500 bg-rose-50 rounded-lg px-3 py-2">{cancelError}</p>
+                )}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setCancelId(null)}
+                    disabled={cancelling}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-[#C8DDD0] text-sm font-medium text-[#3D4A42] hover:bg-[#F9F6F1] transition disabled:opacity-50"
+                  >
+                    返回
+                  </button>
+                  <button
+                    onClick={handleAdminCancel}
+                    disabled={cancelling}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition disabled:opacity-60"
+                  >
+                    {cancelling ? "取消中…" : "確認取消"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
