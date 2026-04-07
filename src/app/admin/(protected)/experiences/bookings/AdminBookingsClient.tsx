@@ -287,7 +287,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                         {b.dietary_notes || "—"}
                       </td>
                       <td className="px-4 py-3.5">
-                        {isConfirmed && (
+                        {(isConfirmed || b.status === "pending_payment") && (
                           <button
                             onClick={() => { setCancelId(b.id); setCancelError(""); setCancelResult(null); }}
                             className="text-xs text-rose-500 hover:text-rose-700 border border-rose-200 hover:border-rose-400 px-2.5 py-1 rounded-full transition-colors whitespace-nowrap"
