@@ -1076,6 +1076,72 @@ export async function sendAdminSessionCancelNotice(data: {
   });
 }
 
+// ─── 候補：有名額通知 ───────────────────────────────────────────────────────────
+
+export async function sendWaitlistNotifyEmail(data: {
+  waitlistId:     string;
+  bookerName:     string;
+  bookerEmail:    string;
+  experienceName: string;
+  sessionDate:    string;
+  startTime:      string;
+  confirmUrl:     string;
+  deadlineLabel:  string;
+}) {
+  const safeName = escapeHtml(data.bookerName);
+  const safeExp  = escapeHtml(data.experienceName);
+  const dateLabel = new Date(`${data.sessionDate}T00:00:00`).toLocaleDateString("zh-TW", {
+    year: "numeric", month: "long", day: "numeric", weekday: "long",
+  });
+  const timeLabel = data.startTime.slice(0, 5);
+
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F5F0E8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+        <tr><td style="background:#3D4A42;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#C8DDD0;letter-spacing:4px;margin-bottom:4px;">霧抉茶</div>
+          <div style="font-size:11px;color:#7D9B84;letter-spacing:3px;text-transform:uppercase;">Wu Jue Tea</div>
+        </td></tr>
+        <tr><td style="background:#ffffff;padding:40px;">
+          <div style="display:inline-block;background:#EBF3EE;color:#5C7A67;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">🎉 候補名額釋出</div>
+          <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">有名額了！請盡快確認</h2>
+          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，您等候的場次有名額釋出，請於 <strong style="color:#dc2626;">${data.deadlineLabel}</strong> 前確認是否參加。</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td><td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td></tr>
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">活動日期</td><td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td></tr>
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">開始時間</td><td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td></tr>
+          </table>
+          <div style="background:#FEF9EC;border-radius:10px;border-left:3px solid #d97706;padding:16px;margin-bottom:24px;">
+            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">超過截止時間未確認，名額將自動釋出給下一位候補者。</p>
+          </div>
+          <div style="text-align:center;">
+            <a href="${data.confirmUrl}" style="display:inline-block;background:#7D9B84;color:#ffffff;font-size:15px;font-weight:700;padding:14px 40px;border-radius:28px;text-decoration:none;">確認參加並付款</a>
+          </div>
+          <p style="font-size:12px;color:#9CA89E;text-align:center;margin-top:20px;">如不打算參加，無須任何操作，名額將自動釋出。</p>
+        </td></tr>
+        <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+          <p style="margin:0 0 4px;font-size:13px;color:#7D9B84;font-weight:600;">霧抉茶</p>
+          <p style="margin:0 0 4px;font-size:12px;color:#9CA89E;">嘉義縣梅山鄉太興村8鄰溪頭19號之2</p>
+          <p style="margin:0;font-size:12px;color:#9CA89E;">電話：0972-619-391</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from:    FROM,
+    to:      data.bookerEmail,
+    subject: `【霧抉茶】候補通知！${safeExp} ${data.sessionDate} 有名額釋出，請在 ${data.deadlineLabel} 前確認`,
+    html,
+  });
+}
+
 async function sendBookingAdminEmail(data: BookingEmailData) {
   const safeName = escapeHtml(data.bookerName);
   const safeExp  = escapeHtml(data.experienceName);

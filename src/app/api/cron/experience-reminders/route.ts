@@ -7,6 +7,7 @@ import {
   sendDayBeforeReminder,
   sendAdminSessionCancelNotice,
 } from "@/lib/email";
+import { expireWaitlistAndNotifyNext } from "@/lib/waitlist";
 
 // Vercel Cron: 每天 01:00 UTC（台灣時間 09:00）執行
 // 受 CRON_SECRET 保護，只有 Vercel 可以呼叫
@@ -215,6 +216,9 @@ export async function GET(req: NextRequest) {
       }
     }
   }
+
+  // ── 4. 清理過期候補，通知下一位 ───────────────────────────────────────────────
+  await expireWaitlistAndNotifyNext().catch(console.error);
 
   console.log("Experience reminders cron result:", results);
   return NextResponse.json({ ok: true, results });

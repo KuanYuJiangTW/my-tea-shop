@@ -26,6 +26,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
   const exp    = session.experienceType;
 
   const available = exp.maxParticipants - session.currentParticipants;
+  const isFull    = available <= 0;
 
   const [step, setStep]           = useState<Step>(1);
   const [count, setCount]         = useState(Math.max(exp.minParticipants, 1));
@@ -37,10 +38,55 @@ export default function BookingFlow({ session, userEmail }: Props) {
   const [loading, setLoading]     = useState(false);
   const [error,  setError]        = useState("");
 
+  // 候補模式
+  const [waitlistCount, setWaitlistCount] = useState(1);
+  const [waitlistDone, setWaitlistDone]   = useState(false);
+
   const totalPrice = exp.price * count;
   const dateLabel  = new Date(session.sessionDate + "T00:00:00").toLocaleDateString("zh-TW", {
     year: "numeric", month: "long", day: "numeric", weekday: "long",
   });
+
+  const handleJoinWaitlist = async () => {
+    if (!name.trim())  return setError("請填寫姓名");
+    if (!phone.trim()) return setError("請填寫手機號碼");
+    if (exp.requiresAdult && !adultConfirmed) return setError("請確認所有參加者均已年滿 18 歲");
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/waitlist", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId:        session.id,
+          participantCount: waitlistCount,
+          bookerName:       name.trim(),
+          bookerPhone:      phone.trim(),
+          dietaryNotes:     diet.trim() || undefined,
+          adultConfirmed,
+        }),
+      });
+
+      if (res.status === 401) {
+        router.push(`/auth/login?redirect=/experiences/booking/${session.id}`);
+        return;
+      }
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "加入候補失敗，請稍後再試");
+        return;
+      }
+
+      setWaitlistDone(true);
+    } catch {
+      setError("網路錯誤，請稍後再試");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!name.trim())  return setError("請填寫姓名");
@@ -146,8 +192,69 @@ export default function BookingFlow({ session, userEmail }: Props) {
         )}
       </div>
 
+      {/* 額滿：候補模式 */}
+      {isFull && !waitlistDone && (
+        <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
+          <div className="flex items-center gap-2 mb-4 text-amber-600 bg-amber-50 rounded-xl p-3 text-sm">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            此場次已額滿，您可以加入候補候位。有人取消時我們會第一時間 Email 通知您。
+          </div>
+          <h3 className="font-serif text-lg font-bold text-tea-text mb-5">加入候補</h3>
+
+          {/* 候補人數 */}
+          <div className="flex items-center gap-6 mb-5">
+            <button onClick={() => setWaitlistCount(c => Math.max(1, c - 1))} disabled={waitlistCount <= 1}
+              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green font-bold text-xl hover:bg-tea-green hover:text-white transition-colors disabled:opacity-30">−</button>
+            <span className="text-3xl font-bold text-tea-text w-8 text-center">{waitlistCount}</span>
+            <button onClick={() => setWaitlistCount(c => Math.min(exp.maxParticipants, c + 1))} disabled={waitlistCount >= exp.maxParticipants}
+              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green font-bold text-xl hover:bg-tea-green hover:text-white transition-colors disabled:opacity-30">+</button>
+            <span className="text-sm text-tea-text-light">人</span>
+          </div>
+
+          {/* 姓名電話 */}
+          <div className="space-y-4 mb-5">
+            <div>
+              <label className="block text-sm font-medium text-tea-text mb-1.5">姓名 <span className="text-red-500">*</span></label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="請輸入真實姓名"
+                className="w-full border border-tea-green-pale rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30 focus:border-tea-green" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-tea-text mb-1.5">手機號碼 <span className="text-red-500">*</span></label>
+              <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="09XX-XXX-XXX"
+                className="w-full border border-tea-green-pale rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30 focus:border-tea-green" />
+            </div>
+            {exp.requiresAdult && (
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" checked={adultConfirmed} onChange={e => setAdult(e.target.checked)} className="mt-0.5 accent-tea-green w-4 h-4 shrink-0" />
+                <span className="text-sm text-tea-text-light">我確認所有參加者均已年滿 <strong className="text-tea-text">18 歲</strong></span>
+              </label>
+            )}
+          </div>
+
+          {error && (
+            <div className="flex items-center gap-2 text-red-600 text-sm mb-4 bg-red-50 rounded-xl p-3">
+              <AlertCircle className="w-4 h-4 shrink-0" />{error}
+            </div>
+          )}
+          <button onClick={handleJoinWaitlist} disabled={loading}
+            className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-full font-medium transition-colors disabled:opacity-50">
+            {loading ? "處理中…" : "加入候補"}
+          </button>
+        </div>
+      )}
+
+      {/* 候補成功 */}
+      {isFull && waitlistDone && (
+        <div className="bg-white rounded-2xl p-8 border border-tea-green-pale/50 shadow-sm text-center">
+          <div className="text-4xl mb-4">🎋</div>
+          <h3 className="font-serif text-xl font-bold text-tea-text mb-2">已加入候補！</h3>
+          <p className="text-sm text-tea-text-light mb-6">有名額釋出時，我們會立即寄 Email 通知您，請於 24 小時內確認。</p>
+          <button onClick={() => router.push("/account?tab=bookings")} className="text-sm text-tea-green hover:underline">查看我的候補記錄</button>
+        </div>
+      )}
+
       {/* Step 1：選人數 */}
-      {step === 1 && (
+      {!isFull && step === 1 && (
         <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
           <h3 className="font-serif text-lg font-bold text-tea-text mb-6">選擇參加人數</h3>
 
@@ -226,7 +333,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
       )}
 
       {/* Step 2：訂購人資料 */}
-      {step === 2 && (
+      {!isFull && step === 2 && (
         <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
           <button
             onClick={() => setStep(1)}

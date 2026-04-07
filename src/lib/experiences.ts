@@ -148,6 +148,7 @@ export async function getSessionsForMonth(
     startTime:           s.start_time as string,
     status:              s.status as ExperienceSession["status"],
     currentParticipants: s.current_participants as number,
+    waitlistCount:       (s.waitlist_count as number) ?? 0,
     cancelReason:        s.cancel_reason as string | undefined,
   }));
 }

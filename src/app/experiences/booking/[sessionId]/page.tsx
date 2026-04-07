@@ -25,7 +25,7 @@ export default async function BookingPage({ params }: Props) {
 
   if (error || !session) notFound();
 
-  if (session.status !== "open") {
+  if (session.status === "cancelled") {
     redirect(`/experiences/${session.experienceType.slug}?error=unavailable`);
   }
 
@@ -51,6 +51,7 @@ export default async function BookingPage({ params }: Props) {
     startTime:           session.start_time,
     status:              session.status,
     currentParticipants: session.current_participants,
+    waitlistCount:       session.waitlist_count ?? 0,
     experienceType,
   };
 

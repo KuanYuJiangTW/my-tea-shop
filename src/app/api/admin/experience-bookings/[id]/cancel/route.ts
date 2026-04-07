@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { notifyNextWaitlist } from "@/lib/waitlist";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -48,6 +49,9 @@ export async function POST(_req: NextRequest, { params }: Params) {
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
+
+  // 通知候補者（fire-and-forget）
+  notifyNextWaitlist(booking.session_id, booking.participant_count).catch(console.error);
 
   return NextResponse.json({ refundAmount, daysUntil });
 }

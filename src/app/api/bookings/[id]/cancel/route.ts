@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { sendBookingCancelEmail } from "@/lib/email";
+import { notifyNextWaitlist } from "@/lib/waitlist";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -69,6 +70,9 @@ export async function POST(_req: NextRequest, { params }: Params) {
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
+
+  // 通知候補者（fire-and-forget）
+  notifyNextWaitlist(booking.session_id, booking.participant_count).catch(console.error);
 
   // 寄取消確認信（fire-and-forget，不影響回應）
   const expName = (booking.session?.experience_types as { name: string } | null)?.name ?? "茶藝體驗";
