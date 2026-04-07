@@ -57,6 +57,7 @@ export default function Footer() {
               {[
                 { href: "/privacy", label: "隱私權政策" },
                 { href: "/return-policy", label: "退換貨政策" },
+                { href: "/faq", label: "常見問題" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link

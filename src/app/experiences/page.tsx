@@ -106,6 +106,18 @@ export default async function ExperiencesPage() {
             <li>• 活動前 7 天取消可全額退款，詳細退款政策請見各體驗頁面</li>
             <li>• 如有特殊需求（素食、過敏等），請於預約時填寫備註</li>
           </ul>
+          <div className="mt-5 pt-5 border-t border-tea-green-pale flex items-center justify-between">
+            <p className="text-sm text-tea-text-light">還有其他疑問？</p>
+            <Link
+              href="/faq"
+              className="text-tea-green hover:text-tea-green-dark text-sm font-medium flex items-center gap-1 transition-colors"
+            >
+              查看常見問題
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
