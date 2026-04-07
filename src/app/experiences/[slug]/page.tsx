@@ -130,7 +130,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
                 <li className="flex justify-between"><span>活動前 1–2 天</span><span className="text-amber-600 font-medium">退款 20%</span></li>
                 <li className="flex justify-between"><span>活動前 24 小時內</span><span className="text-red-500 font-medium">不退款</span></li>
               </ul>
-              <p className="mt-3 text-xs text-tea-text-light/70">可於活動前 3 天以上申請改期（每筆限 1 次）</p>
+              <p className="mt-3 text-xs text-tea-text-light/70">如需改期請聯絡客服，由我們協助處理。</p>
             </div>
           </div>
 

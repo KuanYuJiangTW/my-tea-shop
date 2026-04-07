@@ -210,7 +210,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
               ))}
             </div>
             <p className="text-xs text-tea-text-light/70 mt-2">
-              活動前 3 天以上可申請改期（每筆限 1 次）
+              如需改期請聯絡客服，由我們協助處理。
             </p>
           </div>
 
