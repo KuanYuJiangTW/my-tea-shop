@@ -52,7 +52,7 @@ export default async function AccountPage() {
   const { data: bookings } = await adminSupabase
     .from("experience_bookings")
     .select(`
-      id, created_at, status, participant_count, total_price, participants_due_at,
+      id, created_at, status, participant_count, total_price, participants_due_at, refund_amount,
       session:experience_sessions(session_date, start_time, experience_types(name))
     `)
     .eq("user_id", user.id)

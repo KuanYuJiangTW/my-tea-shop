@@ -50,6 +50,7 @@ type BookingRow = {
   participant_count: number;
   total_price: number;
   participants_due_at: string | null;
+  refund_amount: number | null;
   session: {
     session_date: string;
     start_time: string;
@@ -117,6 +118,13 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   const rawTab = searchParams.get("tab");
   const defaultTab = rawTab === "orders" ? "orders" : rawTab === "rewards" ? "rewards" : rawTab === "bookings" ? "bookings" : "profile";
   const [tab, setTab] = useState<"profile" | "orders" | "rewards" | "bookings">(defaultTab);
+
+  // ── Booking cancel state ────────────────────────────────────────────────────
+  const [bookingList, setBookingList]           = useState(bookings);
+  const [cancelBookingId, setCancelBookingId]   = useState<string | null>(null);
+  const [cancellingBooking, setCancellingBooking] = useState(false);
+  const [cancelBookingError, setCancelBookingError] = useState("");
+  const [cancelBookingResult, setCancelBookingResult] = useState<{ refundAmount: number; daysUntil: number } | null>(null);
 
   // ── Profile state ──────────────────────────────────────────────────────────
   const [form, setForm] = useState({
@@ -242,6 +250,26 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
       prev.map(o => o.id === cancelConfirmId ? { ...o, order_status: "cancelled" } : o)
     );
     setCancelConfirmId(null);
+  }
+
+  async function handleCancelBooking() {
+    if (!cancelBookingId) return;
+    setCancellingBooking(true);
+    setCancelBookingError("");
+
+    const res = await fetch(`/api/bookings/${cancelBookingId}`, { method: "POST" });
+    const json = await res.json();
+    setCancellingBooking(false);
+
+    if (!res.ok) {
+      setCancelBookingError(json.error ?? "取消失敗，請稍後再試");
+      return;
+    }
+
+    setCancelBookingResult(json);
+    setBookingList(prev =>
+      prev.map(b => b.id === cancelBookingId ? { ...b, status: "cancelled" as const, refund_amount: json.refundAmount } : b)
+    );
   }
 
   function openEditAddress(order: Order) {
@@ -474,7 +502,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         {/* ─── Bookings Tab ─── */}
         {tab === "bookings" && (
           <div className="space-y-3">
-            {bookings.length === 0 ? (
+            {bookingList.length === 0 ? (
               <div className="bg-white rounded-2xl border border-tea-green-pale p-12 text-center">
                 <div className="w-12 h-12 bg-tea-green-mist rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg viewBox="0 0 24 24" className="w-6 h-6 fill-tea-green">
@@ -488,45 +516,75 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 </Link>
               </div>
             ) : (
-              bookings.map((booking) => {
-                const session = booking.session;
-                const expName = (session?.experience_types as { name: string } | null)?.name ?? "茶藝體驗";
+              bookingList.map((booking) => {
+                const session  = booking.session;
+                const expName  = (session?.experience_types as { name: string } | null)?.name ?? "茶藝體驗";
                 const dateLabel = session?.session_date
                   ? new Date(`${session.session_date}T00:00:00`).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric", weekday: "short" })
                   : "—";
-                const timeLabel = session?.start_time?.slice(0, 5) ?? "—";
-                const status = bookingStatusLabel(booking.status);
-                const isDue = booking.participants_due_at && new Date() < new Date(booking.participants_due_at);
-                const canFill = booking.status === "confirmed";
+                const timeLabel   = session?.start_time?.slice(0, 5) ?? "—";
+                const st          = bookingStatusLabel(booking.status);
+                const isDue       = booking.participants_due_at && new Date() < new Date(booking.participants_due_at);
+                const isConfirmed = booking.status === "confirmed";
+                const isCancelled = booking.status === "cancelled";
+
+                // 是否可取消（活動日還沒到）
+                const sessionDate = session?.session_date
+                  ? new Date(`${session.session_date}T${session.start_time}`)
+                  : null;
+                const canCancel   = isConfirmed && sessionDate && sessionDate > new Date();
+
+                // 退款比例說明
+                const daysUntil = sessionDate
+                  ? Math.ceil((sessionDate.getTime() - Date.now()) / 86400000)
+                  : 0;
+                const refundRate = daysUntil >= 7 ? 100 : daysUntil >= 3 ? 50 : daysUntil >= 1 ? 20 : 0;
 
                 return (
                   <div key={booking.id} className="bg-white rounded-2xl border border-tea-green-pale overflow-hidden">
-                    <div className="px-6 py-4 flex items-center gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <span className="font-medium text-tea-text">{expName}</span>
-                          <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status.cls}`}>
-                            {status.label}
-                          </span>
-                        </div>
-                        <div className="text-sm text-tea-text-light">
-                          {dateLabel} {timeLabel} · {booking.participant_count} 人 · NT${booking.total_price.toLocaleString()}
-                        </div>
-                        {canFill && booking.participants_due_at && (
-                          <div className={`mt-1 text-xs ${isDue ? "text-amber-600" : "text-rose-500"}`}>
-                            補填截止：{new Date(booking.participants_due_at).toLocaleDateString("zh-TW")}
-                            {!isDue && "（已截止）"}
+                    <div className="px-6 py-4">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span className="font-medium text-tea-text">{expName}</span>
+                            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.cls}`}>
+                              {st.label}
+                            </span>
                           </div>
-                        )}
+                          <div className="text-sm text-tea-text-light">
+                            {dateLabel} {timeLabel} · {booking.participant_count} 人 · NT${booking.total_price.toLocaleString()}
+                          </div>
+                          {isConfirmed && booking.participants_due_at && (
+                            <div className={`mt-1 text-xs ${isDue ? "text-amber-600" : "text-rose-500"}`}>
+                              補填截止：{new Date(booking.participants_due_at).toLocaleDateString("zh-TW")}
+                              {!isDue && "（已截止）"}
+                            </div>
+                          )}
+                          {isCancelled && booking.refund_amount != null && (
+                            <div className="mt-1 text-xs text-tea-text-light">
+                              退款金額：NT$ {booking.refund_amount.toLocaleString()}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-2 flex-shrink-0">
+                          {isConfirmed && (
+                            <Link
+                              href={`/account/bookings/${booking.id}/participants`}
+                              className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium rounded-full transition-colors text-center"
+                            >
+                              補填資料
+                            </Link>
+                          )}
+                          {canCancel && (
+                            <button
+                              onClick={() => { setCancelBookingId(booking.id); setCancelBookingError(""); setCancelBookingResult(null); }}
+                              className="px-4 py-2 border border-rose-300 text-rose-500 hover:bg-rose-50 text-sm font-medium rounded-full transition-colors"
+                            >
+                              取消預約
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      {canFill && (
-                        <Link
-                          href={`/account/bookings/${booking.id}/participants`}
-                          className="flex-shrink-0 px-4 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium rounded-full transition-colors"
-                        >
-                          補填資料
-                        </Link>
-                      )}
                     </div>
                   </div>
                 );
@@ -749,6 +807,66 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 {cancelling ? "取消中…" : "確認取消"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Cancel Booking Modal ─── */}
+      {cancelBookingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => { if (!cancellingBooking) { setCancelBookingId(null); setCancelBookingResult(null); } }} />
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            {cancelBookingResult ? (
+              <>
+                <h3 className="font-semibold text-tea-text text-lg mb-2">預約已取消</h3>
+                <p className="text-sm text-tea-text-light mb-2">
+                  退款金額：
+                  {cancelBookingResult.refundAmount > 0
+                    ? <strong className="text-tea-text"> NT$ {cancelBookingResult.refundAmount.toLocaleString()}</strong>
+                    : <span> 不退款（距活動不足 24 小時）</span>
+                  }
+                </p>
+                {cancelBookingResult.refundAmount > 0 && (
+                  <p className="text-xs text-tea-text-light mb-5">退款將於 5–7 個工作天內退回原付款帳號。</p>
+                )}
+                <button
+                  onClick={() => { setCancelBookingId(null); setCancelBookingResult(null); }}
+                  className="w-full px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition"
+                >
+                  確認
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="font-semibold text-tea-text text-lg mb-2">確認取消預約？</h3>
+                <p className="text-sm text-tea-text-light mb-1">取消後無法復原，退款依以下政策計算：</p>
+                <div className="bg-tea-cream-light rounded-xl px-4 py-3 mb-4 text-xs space-y-1">
+                  <div className="flex justify-between"><span className="text-tea-text-light">活動前 7 天以上</span><span className="text-tea-green font-medium">退款 100%</span></div>
+                  <div className="flex justify-between"><span className="text-tea-text-light">活動前 3–6 天</span><span className="text-amber-600 font-medium">退款 50%</span></div>
+                  <div className="flex justify-between"><span className="text-tea-text-light">活動前 1–2 天</span><span className="text-amber-600 font-medium">退款 20%</span></div>
+                  <div className="flex justify-between"><span className="text-tea-text-light">24 小時內</span><span className="text-rose-500 font-medium">不退款</span></div>
+                </div>
+                {cancelBookingError && (
+                  <p className="mb-3 text-sm text-rose-500 bg-rose-50 rounded-lg px-3 py-2">{cancelBookingError}</p>
+                )}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setCancelBookingId(null)}
+                    disabled={cancellingBooking}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
+                  >
+                    返回
+                  </button>
+                  <button
+                    onClick={handleCancelBooking}
+                    disabled={cancellingBooking}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition disabled:opacity-60"
+                  >
+                    {cancellingBooking ? "取消中…" : "確認取消"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
