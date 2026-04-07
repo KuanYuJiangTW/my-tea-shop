@@ -13,13 +13,21 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug }   = await params;
-  const content    = await getExperienceContent(slug);
+  const { slug }    = await params;
+  const content     = await getExperienceContent(slug);
   if (!content) return {};
+  const description = content.seoDescription ?? content.tagline;
+  const ogImage     = content.coverImage ?? "/images/gallery/tea-cup.jpg";
   return {
     title:       `${content.name} | 霧抉茶體驗`,
-    description: content.seoDescription ?? content.tagline,
+    description,
     alternates:  { canonical: `/experiences/${slug}` },
+    openGraph: {
+      title:       `${content.name} | 霧抉茶體驗`,
+      description,
+      url:         `/experiences/${slug}`,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: content.name }],
+    },
   };
 }
 
