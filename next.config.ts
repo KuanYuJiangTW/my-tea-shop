@@ -26,7 +26,7 @@ const CSP = [
   // 防止 base tag 注入攻擊
   "base-uri 'self'",
   // form 只能提交到本站或 ECPay
-  "form-action 'self' https://payment.ecpay.com.tw https://logistics.ecpay.com.tw",
+  "form-action 'self' https://payment.ecpay.com.tw https://payment-stage.ecpay.com.tw https://logistics.ecpay.com.tw",
 ].join("; ");
 
 const nextConfig: NextConfig = {
