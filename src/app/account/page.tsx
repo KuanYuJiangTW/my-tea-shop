@@ -53,9 +53,21 @@ export default async function AccountPage() {
     .from("experience_bookings")
     .select(`
       id, created_at, status, participant_count, total_price, participants_due_at, refund_amount,
+      session:experience_sessions(session_date, start_time, experience_types(name)),
+      reviews:experience_reviews(id)
+    `)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  // 候補記錄（待確認或候補中）
+  const { data: waitlist } = await adminSupabase
+    .from("waitlist_entries")
+    .select(`
+      id, status, participant_count, confirm_deadline, created_at,
       session:experience_sessions(session_date, start_time, experience_types(name))
     `)
     .eq("user_id", user.id)
+    .in("status", ["waiting", "notified"])
     .order("created_at", { ascending: false });
 
   return (
@@ -67,7 +79,13 @@ export default async function AccountPage() {
         pointsBalance={pointsBalance}
         pointTransactions={pointTxs ?? []}
         coupons={coupons ?? []}
-        bookings={(bookings ?? []) as unknown as Parameters<typeof AccountClient>[0]["bookings"]}
+        bookings={
+          (bookings ?? []).map((b: Record<string, unknown>) => ({
+            ...b,
+            has_review: Array.isArray(b.reviews) && b.reviews.length > 0,
+          })) as unknown as Parameters<typeof AccountClient>[0]["bookings"]
+        }
+        waitlist={(waitlist ?? []) as unknown as Parameters<typeof AccountClient>[0]["waitlist"]}
       />
     </Suspense>
   );

@@ -176,6 +176,7 @@ export interface ExperienceSession {
   startTime:           string;   // HH:MM
   status:              SessionStatus;
   currentParticipants: number;
+  waitlistCount:       number;
   cancelReason?:       string;
   experienceType?:     ExperienceType;
 }
@@ -238,6 +239,39 @@ export interface AddParticipantRequest {
   dateOfBirth:          string;
   emergencyContactName:  string;
   emergencyContactPhone: string;
+}
+
+// ─── Experience Review ────────────────────────────────────────────────────────
+
+export interface ExperienceReview {
+  id:               string;
+  bookingId:        string;
+  userId:           string;
+  experienceTypeId: number;
+  rating:           number;
+  comment:          string | null;
+  isVisible:        boolean;
+  createdAt:        string;
+}
+
+// ─── Waitlist ─────────────────────────────────────────────────────────────────
+
+export type WaitlistStatus = 'waiting' | 'notified' | 'confirmed' | 'expired' | 'cancelled';
+
+export interface WaitlistEntry {
+  id:               string;
+  sessionId:        string;
+  userId?:          string;
+  bookerName:       string;
+  bookerPhone:      string;
+  bookerEmail:      string;
+  participantCount: number;
+  dietaryNotes?:    string;
+  adultConfirmed:   boolean;
+  status:           WaitlistStatus;
+  notifiedAt?:      string;
+  confirmDeadline?: string;
+  createdAt:        string;
 }
 
 // ─── Contact Form ─────────────────────────────────────────────────────────────

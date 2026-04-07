@@ -51,9 +51,23 @@ type BookingRow = {
   total_price: number;
   participants_due_at: string | null;
   refund_amount: number | null;
+  has_review: boolean;
   session: {
     session_date: string;
     start_time: string;
+    experience_types: { name: string } | null;
+  } | null;
+};
+
+type WaitlistRow = {
+  id:               string;
+  status:           string;
+  participant_count: number;
+  confirm_deadline: string | null;
+  created_at:       string;
+  session: {
+    session_date: string;
+    start_time:   string;
     experience_types: { name: string } | null;
   } | null;
 };
@@ -66,6 +80,7 @@ type Props = {
   pointTransactions: PointTx[];
   coupons: CouponRow[];
   bookings: BookingRow[];
+  waitlist: WaitlistRow[];
 };
 
 const CITIES = ["台北市","新北市","桃園市","台中市","台南市","高雄市","基隆市","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","屏東縣","宜蘭縣","花蓮縣","台東縣","澎湖縣","金門縣","連江縣"];
@@ -113,7 +128,7 @@ function bookingStatusLabel(status: BookingRow["status"]): { label: string; cls:
   return map[status] ?? { label: status, cls: "bg-gray-100 text-gray-600" };
 }
 
-export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, pointTransactions, coupons, bookings }: Props) {
+export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, pointTransactions, coupons, bookings, waitlist }: Props) {
   const searchParams = useSearchParams();
   const rawTab = searchParams.get("tab");
   const defaultTab = rawTab === "orders" ? "orders" : rawTab === "rewards" ? "rewards" : rawTab === "bookings" ? "bookings" : "profile";
@@ -129,6 +144,14 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
   // ── Booking retry payment state ─────────────────────────────────────────────
   const [retryingId, setRetryingId] = useState<string | null>(null);
+
+  // ── Review state ─────────────────────────────────────────────────────────────
+  const [reviewBookingId, setReviewBookingId] = useState<string | null>(null);
+  const [reviewRating, setReviewRating]       = useState(5);
+  const [reviewHover, setReviewHover]         = useState(0);
+  const [reviewComment, setReviewComment]     = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError]         = useState("");
 
   // ── Profile state ──────────────────────────────────────────────────────────
   const [form, setForm] = useState({
@@ -300,6 +323,27 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     setBookingList(prev =>
       prev.map(b => b.id === cancelBookingId ? { ...b, status: "cancelled" as const, refund_amount: json.refundAmount } : b)
     );
+  }
+
+  async function handleSubmitReview() {
+    if (!reviewBookingId) return;
+    setReviewSubmitting(true);
+    setReviewError("");
+    const res = await fetch("/api/reviews", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ bookingId: reviewBookingId, rating: reviewRating, comment: reviewComment }),
+    });
+    const json = await res.json();
+    setReviewSubmitting(false);
+    if (!res.ok) {
+      setReviewError(json.error ?? "送出失敗，請稍後再試");
+      return;
+    }
+    setBookingList(prev => prev.map(b => b.id === reviewBookingId ? { ...b, has_review: true } : b));
+    setReviewBookingId(null);
+    setReviewComment("");
+    setReviewRating(5);
   }
 
   function openEditAddress(order: Order) {
@@ -564,6 +608,8 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   ? new Date(`${session.session_date}T${session.start_time}`)
                   : null;
                 const canCancel   = (isConfirmed || isPending) && sessionDate && sessionDate > new Date();
+                const isPast      = isConfirmed && sessionDate && sessionDate < new Date();
+                const canReview   = isPast && !booking.has_review;
 
                 // 退款比例說明
                 const daysUntil = sessionDate
@@ -623,6 +669,17 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                               取消預約
                             </button>
                           )}
+                          {canReview && (
+                            <button
+                              onClick={() => { setReviewBookingId(booking.id); setReviewRating(5); setReviewHover(0); setReviewComment(""); setReviewError(""); }}
+                              className="px-4 py-2 border border-amber-300 text-amber-600 hover:bg-amber-50 text-sm font-medium rounded-full transition-colors"
+                            >
+                              留下評價
+                            </button>
+                          )}
+                          {isPast && booking.has_review && (
+                            <span className="text-xs text-tea-text-light px-2">已評價 ★</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -630,6 +687,52 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 );
               })
             )}
+          </div>
+        )}
+
+        {/* ─── Waitlist Section（我的預約 tab 下方）─── */}
+        {tab === "bookings" && waitlist.length > 0 && (
+          <div className="mt-6">
+            <h3 className="font-semibold text-tea-text mb-3">候補記錄</h3>
+            <div className="space-y-3">
+              {waitlist.map(w => {
+                const expName   = (w.session?.experience_types as { name: string } | null)?.name ?? "茶藝體驗";
+                const dateLabel = w.session?.session_date
+                  ? new Date(`${w.session.session_date}T00:00:00`).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric" })
+                  : "—";
+                const statusMap: Record<string, { label: string; cls: string }> = {
+                  waiting:  { label: "候補中", cls: "bg-amber-100 text-amber-700" },
+                  notified: { label: "待確認", cls: "bg-blue-100 text-blue-700" },
+                };
+                const st = statusMap[w.status] ?? { label: w.status, cls: "bg-gray-100 text-gray-600" };
+                return (
+                  <div key={w.id} className="bg-white rounded-2xl border border-tea-green-pale px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-tea-text">{expName}</span>
+                          <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.cls}`}>{st.label}</span>
+                        </div>
+                        <div className="text-sm text-tea-text-light">{dateLabel} · {w.participant_count} 人</div>
+                        {w.status === "notified" && w.confirm_deadline && (
+                          <div className="text-xs text-blue-600 mt-1">
+                            請於 {new Date(w.confirm_deadline).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })} 前確認
+                          </div>
+                        )}
+                      </div>
+                      {w.status === "notified" && (
+                        <a
+                          href={`/waitlist/${w.id}/confirm`}
+                          className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium rounded-full transition-colors"
+                        >
+                          前往確認
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -919,6 +1022,64 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               )}
             </div>
           </div>
+      )}
+
+      {/* ─── Review Modal ─── */}
+      {reviewBookingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => { if (!reviewSubmitting) setReviewBookingId(null); }} />
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <h3 className="font-semibold text-tea-text text-lg mb-4">留下您的評價</h3>
+
+            {/* 星星評分 */}
+            <div className="flex gap-1.5 mb-5 justify-center">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setReviewRating(star)}
+                  onMouseEnter={() => setReviewHover(star)}
+                  onMouseLeave={() => setReviewHover(0)}
+                  className="transition-transform hover:scale-110"
+                >
+                  <svg viewBox="0 0 20 20" className={`w-9 h-9 transition-colors ${star <= (reviewHover || reviewRating) ? "fill-amber-400" : "fill-gray-200"}`}>
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </button>
+              ))}
+            </div>
+
+            {/* 文字評論 */}
+            <textarea
+              value={reviewComment}
+              onChange={e => setReviewComment(e.target.value)}
+              placeholder="分享您的體驗心得（選填）"
+              rows={4}
+              className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 focus:ring-tea-green bg-tea-cream-light/50 resize-none mb-4"
+            />
+
+            {reviewError && (
+              <p className="mb-3 text-sm text-rose-500 bg-rose-50 rounded-lg px-3 py-2">{reviewError}</p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setReviewBookingId(null)}
+                disabled={reviewSubmitting}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleSubmitReview}
+                disabled={reviewSubmitting}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition disabled:opacity-60"
+              >
+                {reviewSubmitting ? "送出中…" : "送出評價"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ─── Edit Address Modal ─── */}
