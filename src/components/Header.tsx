@@ -19,7 +19,7 @@ export default function Header() {
     { href: "/", label: "首頁" },
     { href: "/products", label: "產品" },
     { href: "/process", label: "製茶過程" },
-    { href: "/experiences", label: "體驗" },
+    { href: "/experiences", label: "茶山體驗" },
     { href: "/about", label: "關於我們" },
     { href: "/contact", label: "聯絡我們" },
   ];
