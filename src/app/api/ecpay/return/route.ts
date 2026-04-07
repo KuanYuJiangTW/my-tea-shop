@@ -52,9 +52,28 @@ export async function POST(req: NextRequest) {
 
     // ── B 前綴：體驗預約付款 ─────────────────────────────────────────────────
     if (tradeNo.startsWith("B")) {
+      // 計算 participants_due_at（session_date - 5 天）需先知道場次日期
+      const { data: sessionInfo } = await supabase
+        .from("experience_bookings")
+        .select("session:experience_sessions(session_date)")
+        .eq("ecpay_trade_no", tradeNo)
+        .single();
+
+      const rawDate = (sessionInfo?.session as { session_date?: string } | null)?.session_date;
+      let participantsDueAt: string | null = null;
+      if (rawDate) {
+        const d = new Date(`${rawDate}T00:00:00`);
+        d.setDate(d.getDate() - 5);
+        participantsDueAt = d.toISOString();
+      }
+
       const { data: booking, error: bookingError } = await supabase
         .from("experience_bookings")
-        .update({ status: "confirmed", paid_at: new Date().toISOString() })
+        .update({
+          status:              "confirmed",
+          paid_at:             new Date().toISOString(),
+          ...(participantsDueAt ? { participants_due_at: participantsDueAt } : {}),
+        })
         .eq("ecpay_trade_no", tradeNo)
         .select("*, session:experience_sessions(session_date, start_time, experience_types(name))")
         .single();
