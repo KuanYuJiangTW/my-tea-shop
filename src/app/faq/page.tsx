@@ -1,10 +1,16 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { sanityFetch } from "@/sanity/client";
 import { ALL_FAQS_QUERY } from "@/sanity/queries";
-import { PortableText } from "@portabletext/react";
-import { ChevronDown } from "lucide-react";
+import FaqClient from "./FaqClient";
+
+export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  title: "常見問題 | 霧抉茶",
+  description: "霧抉茶體驗預約常見問題解答，包含預約流程、退款政策、體驗內容與交通資訊。",
+  alternates: { canonical: "/faq" },
+};
 
 interface Faq {
   _id:      string;
@@ -14,32 +20,8 @@ interface Faq {
   order:    number;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  booking:    "預約相關",
-  payment:    "付款退款",
-  experience: "體驗內容",
-  logistics:  "交通住宿",
-  other:      "其他",
-};
-
-const CATEGORY_ORDER = ["booking", "payment", "experience", "logistics", "other"];
-
-export default function FaqPage() {
-  const [faqs, setFaqs] = useState<Faq[]>([]);
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-
-  useEffect(() => {
-    sanityFetch<Faq[]>(ALL_FAQS_QUERY).then(setFaqs).catch(() => setFaqs([]));
-  }, []);
-
-  const categories = ["all", ...CATEGORY_ORDER.filter(c =>
-    faqs.some(f => f.category === c)
-  )];
-
-  const filtered = activeCategory === "all"
-    ? faqs
-    : faqs.filter(f => f.category === activeCategory);
+export default async function FaqPage() {
+  const faqs = await sanityFetch<Faq[]>(ALL_FAQS_QUERY).catch(() => [] as Faq[]);
 
   return (
     <div className="min-h-screen">
@@ -54,63 +36,22 @@ export default function FaqPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        {/* 分類篩選 */}
-        {categories.length > 1 && (
-          <div className="flex flex-wrap gap-2 mb-10">
-            {categories.map(c => (
-              <button
-                key={c}
-                onClick={() => setActiveCategory(c)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  activeCategory === c
-                    ? "bg-tea-green text-white"
-                    : "bg-tea-green-mist text-tea-text-light hover:text-tea-text"
-                }`}
-              >
-                {c === "all" ? "全部" : CATEGORY_LABELS[c] ?? c}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* FAQ 列表 */}
         {faqs.length === 0 ? (
           <p className="text-center text-tea-text-light py-16">內容準備中…</p>
         ) : (
-          <div className="divide-y divide-tea-green-pale border border-tea-green-pale rounded-2xl overflow-hidden">
-            {filtered.map(faq => (
-              <div key={faq._id}>
-                <button
-                  onClick={() => setOpenId(openId === faq._id ? null : faq._id)}
-                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-tea-green-mist/50 transition-colors"
-                >
-                  <span className="font-medium text-tea-text">{faq.question}</span>
-                  <ChevronDown
-                    className={`w-5 h-5 text-tea-green shrink-0 transition-transform ${
-                      openId === faq._id ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {openId === faq._id && (
-                  <div className="px-6 pb-5 text-tea-text-light text-sm leading-relaxed prose prose-sm max-w-none">
-                    <PortableText value={faq.answer as Parameters<typeof PortableText>[0]["value"]} />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <FaqClient faqs={faqs} />
         )}
 
         {/* 聯絡我們 */}
         <div className="mt-12 bg-tea-cream rounded-2xl p-8 text-center border border-tea-green-pale">
           <p className="font-serif text-xl font-bold text-tea-text mb-2">還有其他問題？</p>
           <p className="text-tea-text-light text-sm mb-5">歡迎直接與我們聯繫，我們很樂意為您解答</p>
-          <a
+          <Link
             href="/contact"
             className="bg-tea-green hover:bg-tea-green-dark text-white px-7 py-2.5 rounded-full text-sm font-medium transition-colors inline-block"
           >
             聯絡我們
-          </a>
+          </Link>
         </div>
       </div>
     </div>
