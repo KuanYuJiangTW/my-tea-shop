@@ -168,14 +168,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 茶藝體驗 */}
+      {/* 茶山體驗 */}
       {experiences.length > 0 && (
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
                 <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">Experience</p>
-                <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">茶藝體驗</h2>
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">茶山體驗</h2>
                 <p className="text-tea-text-light">走入嘉義梅山茶園，用雙手感受一片葉子的故事</p>
               </div>
               <Link
