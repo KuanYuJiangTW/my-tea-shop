@@ -770,6 +770,104 @@ export async function sendSessionConfirmEmail(data: SessionConfirmData) {
   });
 }
 
+// ─── 客人自行取消預約通知 ──────────────────────────────────────────────────────
+
+export interface BookingCancelData {
+  bookerName:     string;
+  bookerEmail:    string;
+  experienceName: string;
+  sessionDate:    string;
+  startTime:      string;
+  refundAmount:   number;
+  wasPending:     boolean; // 取消時是否為待付款（未付款）
+}
+
+export async function sendBookingCancelEmail(data: BookingCancelData) {
+  const safeName = escapeHtml(data.bookerName);
+  const safeExp  = escapeHtml(data.experienceName);
+
+  const dateLabel = new Date(`${data.sessionDate}T00:00:00`).toLocaleDateString("zh-TW", {
+    year: "numeric", month: "long", day: "numeric", weekday: "long",
+  });
+  const timeLabel = data.startTime.slice(0, 5);
+
+  const refundBlock = data.wasPending
+    ? `<div style="background:#F0F6F1;border-radius:10px;padding:16px;margin-bottom:24px;">
+        <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">此預約尚未完成付款，取消後不會產生任何費用。</p>
+      </div>`
+    : data.refundAmount > 0
+      ? `<div style="background:#FEF2F2;border-radius:10px;border-left:3px solid #ef4444;padding:20px;margin-bottom:24px;">
+          <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">💰 退款說明</p>
+          <p style="margin:0 0 4px;font-size:13px;color:#6B7B6E;line-height:1.6;">退款金額：<strong>NT$ ${data.refundAmount.toLocaleString()}</strong></p>
+          <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">退款將於 5–7 個工作天內退回您的原付款帳號。如有疑問請回覆此信或來電洽詢。</p>
+        </div>`
+      : `<div style="background:#FFF7ED;border-radius:10px;border-left:3px solid #f59e0b;padding:20px;margin-bottom:24px;">
+          <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">退款說明</p>
+          <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">依本次取消時間距活動日不足 24 小時，依退款政策本次恕無退款。</p>
+        </div>`;
+
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F5F0E8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+
+        <tr><td style="background:#3D4A42;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#C8DDD0;letter-spacing:4px;margin-bottom:4px;">霧抉茶</div>
+          <div style="font-size:11px;color:#7D9B84;letter-spacing:3px;text-transform:uppercase;">Wu Jue Tea</div>
+        </td></tr>
+
+        <tr><td style="background:#ffffff;padding:40px;">
+          <div style="display:inline-block;background:#FEE2E2;color:#991B1B;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">預約取消確認</div>
+
+          <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">您的預約已取消</h2>
+          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，您的茶山體驗預約已成功取消，以下為取消明細。</p>
+
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td>
+              <td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">原訂日期</td>
+              <td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">原訂時間</td>
+              <td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td>
+            </tr>
+          </table>
+
+          ${refundBlock}
+
+          <div style="background:#F0F6F1;border-radius:10px;padding:16px;">
+            <p style="margin:0 0 6px;font-size:13px;color:#3D4A42;font-weight:700;">期待下次相見</p>
+            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">歡迎隨時至官網查看最新場次，期待未來有機會在茶山與您相見。</p>
+          </div>
+        </td></tr>
+
+        <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+          <p style="margin:0 0 4px;font-size:13px;color:#7D9B84;font-weight:600;">霧抉茶</p>
+          <p style="margin:0 0 4px;font-size:12px;color:#9CA89E;">嘉義縣梅山鄉太興村8鄰溪頭19號之2</p>
+          <p style="margin:0;font-size:12px;color:#9CA89E;">電話：0972-619-391</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from:    FROM,
+    to:      data.bookerEmail,
+    subject: `【霧抉茶】預約取消確認 — ${safeExp} ${data.sessionDate}`,
+    html,
+  });
+}
+
 // ─── 3 天前：取消通知 ──────────────────────────────────────────────────────────
 
 export async function sendSessionCancelEmail(data: SessionCancelData) {
