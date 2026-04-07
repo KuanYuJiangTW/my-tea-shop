@@ -51,6 +51,7 @@ const refundStatusStyle: Record<string, string> = {
 export default function AdminBookingsClient({ bookings: initial, sessionId, status }: Props) {
   const [bookings, setBookings] = useState<Booking[]>(initial);
   const [processing, setProcessing] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   // cancel state
   const [cancelId, setCancelId]       = useState<string | null>(null);
@@ -81,6 +82,40 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
     );
   }
 
+  const filteredBookings = search.trim()
+    ? bookings.filter(b => {
+        const q = search.toLowerCase();
+        return b.booker_name.toLowerCase().includes(q) || b.booker_phone.includes(q);
+      })
+    : bookings;
+
+  function handleExportCsv() {
+    const headers = ["場次日期", "時間", "體驗名稱", "訂購人", "電話", "Email", "人數", "金額", "狀態", "退款狀態", "特殊需求"];
+    const rows = bookings.map(b => [
+      b.session?.session_date ?? "",
+      b.session?.start_time?.slice(0, 5) ?? "",
+      (b.session?.experience_types as { name: string } | null)?.name ?? "",
+      b.booker_name,
+      b.booker_phone,
+      b.booker_email,
+      b.participant_count,
+      b.total_price,
+      statusLabel[b.status] ?? b.status,
+      refundStatusLabel[b.refund_status ?? "none"],
+      b.dietary_notes ?? "",
+    ]);
+    const csv = [headers, ...rows]
+      .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `bookings-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   async function markRefundProcessed(id: string) {
     setProcessing(id);
     const res = await fetch(`/api/admin/experience-bookings/${id}`, {
@@ -105,15 +140,32 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
             {sessionId ? "篩選特定場次" : "所有預約紀錄"}
           </p>
         </div>
-        <Link
-          href="/admin/experiences"
-          className="text-sm text-[#6B8872] hover:text-[#3D4A42] transition-colors"
-        >
-          ← 回月曆
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExportCsv}
+            className="text-sm text-[#6B8872] hover:text-[#3D4A42] border border-[#C8DDD0] hover:border-[#6B8872] px-3 py-1.5 rounded-lg transition-colors"
+          >
+            匯出 CSV
+          </button>
+          <Link
+            href="/admin/experiences"
+            className="text-sm text-[#6B8872] hover:text-[#3D4A42] transition-colors"
+          >
+            ← 回月曆
+          </Link>
+        </div>
       </div>
 
-      {/* 狀態篩選 */}
+      {/* 搜尋 + 狀態篩選 */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <input
+          type="text"
+          placeholder="搜尋姓名或電話…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="px-4 py-2 rounded-full border border-[#C8DDD0] text-sm text-[#3D4A42] placeholder-[#A8C0AE] bg-white focus:outline-none focus:ring-2 focus:ring-[#7D9B84] w-56"
+        />
+      </div>
       <div className="flex gap-2 mb-6 flex-wrap">
         {[
           { value: "confirmed",       label: "已確認" },
@@ -137,8 +189,10 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
 
       {/* 名單表格 */}
       <div className="bg-white rounded-2xl border border-[#EDE8DC] shadow-sm overflow-hidden">
-        {bookings.length === 0 ? (
-          <div className="p-12 text-center text-sm text-[#6B8872]">尚無預約紀錄</div>
+        {filteredBookings.length === 0 ? (
+          <div className="p-12 text-center text-sm text-[#6B8872]">
+            {search.trim() ? "無符合的搜尋結果" : "尚無預約紀錄"}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[900px]">
@@ -157,7 +211,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F5F0E8]">
-                {bookings.map((b) => {
+                {filteredBookings.map((b) => {
                   const filledCount = b.participants?.length ?? 0;
                   const needFill    = b.participant_count - filledCount;
                   const dueAt       = b.participants_due_at ? new Date(b.participants_due_at) : null;
