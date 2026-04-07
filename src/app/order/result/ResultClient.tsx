@@ -28,7 +28,7 @@ function ResultContent() {
             {isBooking ? (
               <>
                 <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">預約成功！</h2>
-                <p className="text-tea-text-light mb-2">感謝您的預約，我們期待在茶園與您相見。</p>
+                <p className="text-tea-text-light mb-2">感謝您的預約，我們期待在茶山與您相見。</p>
                 {tradeNo && (
                   <p className="text-xs text-tea-text-light mb-2">
                     預約編號：<span className="font-mono font-medium">{tradeNo}</span>
