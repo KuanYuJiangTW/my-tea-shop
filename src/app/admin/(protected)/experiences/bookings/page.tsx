@@ -33,6 +33,7 @@ export default async function AdminBookingsPage({
 
   return (
     <AdminBookingsClient
+      key={`${status ?? "confirmed"}-${sessionId ?? "all"}`}
       bookings={(bookings ?? []) as unknown as Parameters<typeof AdminBookingsClient>[0]["bookings"]}
       sessionId={sessionId}
       status={status}
