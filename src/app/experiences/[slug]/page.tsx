@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { Clock, Users, CheckCircle, AlertCircle } from "lucide-react";
 import { getExperienceBySlug, getExperienceTypes, getExperienceContent } from "@/lib/experiences";
 import ExperienceCalendar from "./ExperienceCalendar";
+import ExperienceReviews from "./ExperienceReviews";
+
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -143,6 +146,9 @@ export default async function ExperienceDetailPage({ params }: Props) {
           </div>
 
         </div>
+
+        {/* 評價區塊 */}
+        <ExperienceReviews experienceTypeId={experience.id} />
       </div>
     </div>
   );
