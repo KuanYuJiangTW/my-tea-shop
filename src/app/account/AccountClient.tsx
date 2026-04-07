@@ -125,6 +125,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   const [cancellingBooking, setCancellingBooking] = useState(false);
   const [cancelBookingError, setCancelBookingError] = useState("");
   const [cancelBookingResult, setCancelBookingResult] = useState<{ refundAmount: number; daysUntil: number } | null>(null);
+  const [cancelBookingWasPending, setCancelBookingWasPending] = useState(false);
 
   // ── Booking retry payment state ─────────────────────────────────────────────
   const [retryingId, setRetryingId] = useState<string | null>(null);
@@ -616,7 +617,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           )}
                           {canCancel && (
                             <button
-                              onClick={() => { setCancelBookingId(booking.id); setCancelBookingError(""); setCancelBookingResult(null); }}
+                              onClick={() => { setCancelBookingId(booking.id); setCancelBookingError(""); setCancelBookingResult(null); setCancelBookingWasPending(booking.status === "pending_payment"); }}
                               className="px-4 py-2 border border-rose-300 text-rose-500 hover:bg-rose-50 text-sm font-medium rounded-full transition-colors"
                             >
                               取消預約
@@ -851,17 +852,16 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
       )}
 
       {/* ─── Cancel Booking Modal ─── */}
-      {cancelBookingId && (() => {
-        const cancellingBookingObj = bookingList.find(b => b.id === cancelBookingId);
-        const isCancellingPending  = cancellingBookingObj?.status === "pending_payment";
-        return (
+      {cancelBookingId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="absolute inset-0 bg-black/40" onClick={() => { if (!cancellingBooking) { setCancelBookingId(null); setCancelBookingResult(null); } }} />
             <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
               {cancelBookingResult ? (
                 <>
                   <h3 className="font-semibold text-tea-text text-lg mb-2">預約已取消</h3>
-                  {!isCancellingPending && (
+                  {cancelBookingWasPending ? (
+                    <p className="text-sm text-tea-text-light mb-5">此預約尚未付款，已直接取消，不會產生任何費用。</p>
+                  ) : (
                     <p className="text-sm text-tea-text-light mb-2">
                       退款金額：
                       {cancelBookingResult.refundAmount > 0
@@ -883,7 +883,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               ) : (
                 <>
                   <h3 className="font-semibold text-tea-text text-lg mb-2">確認取消預約？</h3>
-                  {isCancellingPending ? (
+                  {cancelBookingWasPending ? (
                     <p className="text-sm text-tea-text-light mb-4">此預約尚未付款，取消後無法復原，不會產生任何費用。</p>
                   ) : (
                     <>
@@ -919,8 +919,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               )}
             </div>
           </div>
-        );
-      })()}
+      )}
 
       {/* ─── Edit Address Modal ─── */}
       {editAddressOrder && (
