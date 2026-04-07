@@ -23,12 +23,14 @@ export async function POST(_req: NextRequest, { params }: Params) {
 
   const sessionDate = new Date(`${booking.session.session_date}T${booking.session.start_time}`);
   const now         = new Date();
-  const daysUntil   = Math.ceil((sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const hoursUntil  = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const daysUntil   = Math.ceil(hoursUntil / 24); // 僅用於回傳顯示
 
   let refundRate = 0;
-  if (daysUntil >= 7)      refundRate = 1.0;
-  else if (daysUntil >= 3) refundRate = 0.5;
-  else if (daysUntil >= 1) refundRate = 0.2;
+  if (hoursUntil >= 7 * 24)      refundRate = 1.0; // 7 天以上
+  else if (hoursUntil >= 3 * 24) refundRate = 0.5; // 3–6 天
+  else if (hoursUntil >= 24)     refundRate = 0.2; // 1–2 天
+  // < 24 小時 → refundRate 維持 0
 
   const refundAmount = Math.floor(booking.total_price * refundRate);
 
