@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
             bookingId:           booking.id,
             bookerName:          booking.booker_name,
             bookerEmail:         booking.booker_email,
-            experienceName:      (session.experience_types as { name: string } | null)?.name ?? "茶藝體驗",
+            experienceName:      (session.experience_types as unknown as { name: string } | null)?.name ?? "茶藝體驗",
             sessionDate:         session.session_date,
             startTime:           session.start_time,
             participantCount:    booking.participant_count,
@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
 
   if (sessions3) {
     for (const session of sessions3) {
-      const expType = session.experience_types as { name: string; min_participants: number } | null;
+      const expType = session.experience_types as unknown as { name: string; min_participants: number } | null;
       const minPax  = expType?.min_participants ?? 4;
       const expName = expType?.name ?? "茶藝體驗";
 
@@ -188,7 +188,7 @@ export async function GET(req: NextRequest) {
 
   if (sessions1) {
     for (const session of sessions1) {
-      const expName = (session.experience_types as { name: string } | null)?.name ?? "茶藝體驗";
+      const expName = (session.experience_types as unknown as { name: string } | null)?.name ?? "茶藝體驗";
 
       const { data: bookings } = await supabase
         .from("experience_bookings")
