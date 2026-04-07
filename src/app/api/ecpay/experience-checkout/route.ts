@@ -6,7 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
 const HASH_KEY  = process.env.ECPAY_HASH_KEY!;
 const HASH_IV   = process.env.ECPAY_HASH_IV!;
-const ECPAY_URL = "https://payment.ecpay.com.tw/Cashier/AioCheckout/index";
+const ECPAY_URL = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckout/index"; // TODO: 測試完換回正式站
 
 function phpUrlencode(input: string): string {
   const SAFE = /^[A-Za-z0-9\-_.]$/;
