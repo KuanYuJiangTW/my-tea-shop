@@ -452,3 +452,171 @@ async function sendAdminEmail(data: EmailOrderData) {
     html,
   });
 }
+
+// ─── 體驗預約確認信 ────────────────────────────────────────────────────────────
+
+export interface BookingEmailData {
+  bookingId:        string;
+  bookerName:       string;
+  bookerEmail:      string;
+  experienceName:   string;
+  sessionDate:      string;   // "2026-05-10"
+  startTime:        string;   // "10:00:00"
+  participantCount: number;
+  totalPrice:       number;
+  participantsFillUrl: string; // 補填參加者資料連結
+}
+
+export async function sendBookingEmails(data: BookingEmailData) {
+  await Promise.allSettled([
+    sendBookingCustomerEmail(data),
+    sendBookingAdminEmail(data),
+  ]);
+}
+
+async function sendBookingCustomerEmail(data: BookingEmailData) {
+  const safeName = escapeHtml(data.bookerName);
+  const safeExp  = escapeHtml(data.experienceName);
+  const shortBid = data.bookingId.replace(/-/g, "").slice(0, 10).toUpperCase();
+
+  const dateLabel = new Date(`${data.sessionDate}T00:00:00`).toLocaleDateString("zh-TW", {
+    year: "numeric", month: "long", day: "numeric", weekday: "long",
+  });
+  const timeLabel = data.startTime.slice(0, 5);
+
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F5F0E8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+
+        <tr><td style="background:#3D4A42;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#C8DDD0;letter-spacing:4px;margin-bottom:4px;">霧抉茶</div>
+          <div style="font-size:11px;color:#7D9B84;letter-spacing:3px;text-transform:uppercase;">Wu Jue Tea</div>
+        </td></tr>
+
+        <tr><td style="background:#ffffff;padding:40px;">
+          <div style="display:inline-block;background:#EBF3EE;color:#5C7A67;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">預約確認</div>
+
+          <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">感謝您的預約！</h2>
+          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，您的茶山體驗預約已確認，我們期待與您在茶園相見。</p>
+
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">預約編號</td>
+              <td style="color:#3D4A42;font-size:13px;font-weight:700;text-align:right;font-family:monospace;">#${shortBid}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td>
+              <td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">活動日期</td>
+              <td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">開始時間</td>
+              <td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">參加人數</td>
+              <td style="color:#3D4A42;font-size:13px;text-align:right;">${data.participantCount} 人</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">已付金額</td>
+              <td style="color:#7D9B84;font-size:14px;font-weight:700;text-align:right;">NT$ ${data.totalPrice.toLocaleString()}</td>
+            </tr>
+          </table>
+
+          <div style="background:#F0F6F1;border-radius:10px;border-left:3px solid #7D9B84;padding:20px;margin-bottom:24px;">
+            <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">📋 請補填參加者資料</p>
+            <p style="margin:0 0 14px;font-size:13px;color:#6B7B6E;line-height:1.6;">請於活動前 5 天內填寫所有參加者的身分證號、生日及緊急聯絡人資料。</p>
+            <a href="${data.participantsFillUrl}" style="display:inline-block;background:#7D9B84;color:#ffffff;font-size:13px;font-weight:600;padding:10px 24px;border-radius:20px;text-decoration:none;">填寫參加者資料</a>
+          </div>
+
+          <div style="background:#FFF8ED;border-radius:10px;padding:16px;">
+            <p style="margin:0 0 6px;font-size:12px;color:#3D4A42;font-weight:700;">取消退款政策</p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr><td style="font-size:12px;color:#6B7B6E;padding:2px 0;">活動前 7 天以上取消</td><td style="font-size:12px;color:#5C7A67;font-weight:600;text-align:right;">全額退款</td></tr>
+              <tr><td style="font-size:12px;color:#6B7B6E;padding:2px 0;">活動前 3–6 天取消</td><td style="font-size:12px;color:#d97706;font-weight:600;text-align:right;">退款 50%</td></tr>
+              <tr><td style="font-size:12px;color:#6B7B6E;padding:2px 0;">活動前 1–2 天取消</td><td style="font-size:12px;color:#d97706;font-weight:600;text-align:right;">退款 20%</td></tr>
+              <tr><td style="font-size:12px;color:#6B7B6E;padding:2px 0;">24 小時內取消</td><td style="font-size:12px;color:#dc2626;font-weight:600;text-align:right;">不退款</td></tr>
+            </table>
+          </div>
+        </td></tr>
+
+        <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+          <p style="margin:0 0 4px;font-size:13px;color:#7D9B84;font-weight:600;">霧抉茶</p>
+          <p style="margin:0 0 4px;font-size:12px;color:#9CA89E;">嘉義縣梅山鄉太興村8鄰溪頭19號之2</p>
+          <p style="margin:0;font-size:12px;color:#9CA89E;">電話：0972-619-391</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from:    FROM,
+    to:      data.bookerEmail,
+    subject: `【霧抉茶】體驗預約確認 — ${safeExp} #${shortBid}`,
+    html,
+  });
+}
+
+async function sendBookingAdminEmail(data: BookingEmailData) {
+  const safeName = escapeHtml(data.bookerName);
+  const safeExp  = escapeHtml(data.experienceName);
+  const shortBid = data.bookingId.replace(/-/g, "").slice(0, 10).toUpperCase();
+
+  const dateLabel = new Date(`${data.sessionDate}T00:00:00`).toLocaleDateString("zh-TW", {
+    year: "numeric", month: "long", day: "numeric", weekday: "long",
+  });
+
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F5F0E8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+
+        <tr><td style="background:#7D9B84;border-radius:16px 16px 0 0;padding:28px 40px;text-align:center;">
+          <div style="font-size:14px;font-weight:700;color:#ffffff;letter-spacing:2px;">🍃 新體驗預約</div>
+          <div style="font-size:22px;font-weight:700;color:#ffffff;margin-top:4px;">霧抉茶後台</div>
+        </td></tr>
+
+        <tr><td style="background:#ffffff;padding:40px;">
+          <h2 style="margin:0 0 20px;font-size:18px;color:#3D4A42;">有新的體驗預約進來了！</h2>
+
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;width:90px;">預約編號</td><td style="color:#3D4A42;font-size:13px;font-weight:700;font-family:monospace;">#${shortBid}</td></tr>
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">訂購人</td><td style="color:#3D4A42;font-size:13px;">${safeName}</td></tr>
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">Email</td><td style="color:#3D4A42;font-size:13px;">${escapeHtml(data.bookerEmail)}</td></tr>
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">體驗</td><td style="color:#3D4A42;font-size:13px;font-weight:600;">${safeExp}</td></tr>
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">日期</td><td style="color:#3D4A42;font-size:13px;">${dateLabel} ${data.startTime.slice(0, 5)}</td></tr>
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">人數</td><td style="color:#3D4A42;font-size:13px;">${data.participantCount} 人</td></tr>
+            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">金額</td><td style="color:#7D9B84;font-size:16px;font-weight:700;">NT$ ${data.totalPrice.toLocaleString()}</td></tr>
+          </table>
+        </td></tr>
+
+        <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#9CA89E;">請至後台查看完整預約詳情</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from:    FROM,
+    to:      ADMIN,
+    subject: `【新預約】${safeName} — ${safeExp} ${data.sessionDate} ${data.startTime.slice(0, 5)}｜${data.participantCount}人`,
+    html,
+  });
+}

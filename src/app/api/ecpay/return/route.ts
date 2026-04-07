@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import { NextRequest } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { sendOrderEmails, type EmailOrderData } from "@/lib/email";
+import { sendOrderEmails, sendBookingEmails, type EmailOrderData, type BookingEmailData } from "@/lib/email";
 
 const HASH_KEY = process.env.ECPAY_HASH_KEY!;
 const HASH_IV  = process.env.ECPAY_HASH_IV!;
@@ -49,6 +49,38 @@ export async function POST(req: NextRequest) {
   const tradeNo = params["MerchantTradeNo"];
 
   if (rtnCode === "1" && tradeNo) {
+
+    // ── B 前綴：體驗預約付款 ─────────────────────────────────────────────────
+    if (tradeNo.startsWith("B")) {
+      const { data: booking, error: bookingError } = await supabase
+        .from("experience_bookings")
+        .update({ status: "confirmed", paid_at: new Date().toISOString() })
+        .eq("ecpay_trade_no", tradeNo)
+        .select("*, session:experience_sessions(session_date, start_time, experience_types(name))")
+        .single();
+
+      if (bookingError) {
+        console.error("更新體驗預約付款狀態失敗:", bookingError);
+      } else if (booking) {
+        const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
+        const emailData: BookingEmailData = {
+          bookingId:           booking.id,
+          bookerName:          booking.booker_name,
+          bookerEmail:         booking.booker_email,
+          experienceName:      booking.session?.experience_types?.name ?? "茶藝體驗",
+          sessionDate:         booking.session?.session_date,
+          startTime:           booking.session?.start_time,
+          participantCount:    booking.participant_count,
+          totalPrice:          booking.total_price,
+          participantsFillUrl: `${base}/account/bookings/${booking.id}/participants`,
+        };
+        await sendBookingEmails(emailData);
+      }
+
+      return new Response("1|OK", { headers: { "Content-Type": "text/plain" } });
+    }
+
+    // ── T 前綴：一般商品訂單付款 ─────────────────────────────────────────────
     // 更新付款狀態並取得訂單資料
     const { data: order, error } = await supabase
       .from("orders")
