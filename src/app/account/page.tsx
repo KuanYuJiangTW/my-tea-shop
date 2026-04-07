@@ -48,6 +48,16 @@ export default async function AccountPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
+  // 體驗預約
+  const { data: bookings } = await adminSupabase
+    .from("experience_bookings")
+    .select(`
+      id, created_at, status, participant_count, total_price, participants_due_at,
+      session:experience_sessions(session_date, start_time, experience_types(name))
+    `)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
   return (
     <Suspense>
       <AccountClient
@@ -57,6 +67,7 @@ export default async function AccountPage() {
         pointsBalance={pointsBalance}
         pointTransactions={pointTxs ?? []}
         coupons={coupons ?? []}
+        bookings={(bookings ?? []) as unknown as Parameters<typeof AccountClient>[0]["bookings"]}
       />
     </Suspense>
   );

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
 type Profile = {
@@ -42,6 +43,20 @@ type CouponRow = {
   created_at: string;
 };
 
+type BookingRow = {
+  id: string;
+  created_at: string;
+  status: "pending_payment" | "confirmed" | "cancelled";
+  participant_count: number;
+  total_price: number;
+  participants_due_at: string | null;
+  session: {
+    session_date: string;
+    start_time: string;
+    experience_types: { name: string } | null;
+  } | null;
+};
+
 type Props = {
   user: { id: string; email: string };
   profile: Profile | null;
@@ -49,6 +64,7 @@ type Props = {
   pointsBalance: number;
   pointTransactions: PointTx[];
   coupons: CouponRow[];
+  bookings: BookingRow[];
 };
 
 const CITIES = ["台北市","新北市","桃園市","台中市","台南市","高雄市","基隆市","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","屏東縣","宜蘭縣","花蓮縣","台東縣","澎湖縣","金門縣","連江縣"];
@@ -87,11 +103,20 @@ type ProfileErrors = {
 const phoneRegex = /^09\d{8}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, pointTransactions, coupons }: Props) {
+function bookingStatusLabel(status: BookingRow["status"]): { label: string; cls: string } {
+  const map = {
+    pending_payment: { label: "待付款", cls: "bg-yellow-100 text-yellow-800" },
+    confirmed:       { label: "已確認", cls: "bg-[#C8DDD0] text-[#3D6B46]" },
+    cancelled:       { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+  };
+  return map[status] ?? { label: status, cls: "bg-gray-100 text-gray-600" };
+}
+
+export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, pointTransactions, coupons, bookings }: Props) {
   const searchParams = useSearchParams();
   const rawTab = searchParams.get("tab");
-  const defaultTab = rawTab === "orders" ? "orders" : rawTab === "rewards" ? "rewards" : "profile";
-  const [tab, setTab] = useState<"profile" | "orders" | "rewards">(defaultTab);
+  const defaultTab = rawTab === "orders" ? "orders" : rawTab === "rewards" ? "rewards" : rawTab === "bookings" ? "bookings" : "profile";
+  const [tab, setTab] = useState<"profile" | "orders" | "rewards" | "bookings">(defaultTab);
 
   // ── Profile state ──────────────────────────────────────────────────────────
   const [form, setForm] = useState({
@@ -286,6 +311,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
           {([
             { key: "profile",  label: "個人資料" },
             { key: "orders",   label: `訂單紀錄（${orderList.length}）` },
+            { key: "bookings", label: `我的預約（${bookings.length}）` },
             { key: "rewards",  label: `點數 & 折價券` },
           ] as const).map(({ key, label }) => (
             <button
@@ -442,6 +468,70 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 {saveError && <span className="text-sm text-rose-500">{saveError}</span>}
               </div>
             </form>
+          </div>
+        )}
+
+        {/* ─── Bookings Tab ─── */}
+        {tab === "bookings" && (
+          <div className="space-y-3">
+            {bookings.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-tea-green-pale p-12 text-center">
+                <div className="w-12 h-12 bg-tea-green-mist rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 fill-tea-green">
+                    <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+                  </svg>
+                </div>
+                <p className="text-tea-text font-medium mb-1">尚無預約紀錄</p>
+                <p className="text-sm text-tea-text-light mb-4">來體驗嘉義梅山的茶山之旅吧！</p>
+                <Link href="/experiences" className="text-sm text-tea-green hover:text-tea-green-dark font-medium underline underline-offset-2">
+                  瀏覽茶山體驗
+                </Link>
+              </div>
+            ) : (
+              bookings.map((booking) => {
+                const session = booking.session;
+                const expName = (session?.experience_types as { name: string } | null)?.name ?? "茶藝體驗";
+                const dateLabel = session?.session_date
+                  ? new Date(`${session.session_date}T00:00:00`).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric", weekday: "short" })
+                  : "—";
+                const timeLabel = session?.start_time?.slice(0, 5) ?? "—";
+                const status = bookingStatusLabel(booking.status);
+                const isDue = booking.participants_due_at && new Date() < new Date(booking.participants_due_at);
+                const canFill = booking.status === "confirmed";
+
+                return (
+                  <div key={booking.id} className="bg-white rounded-2xl border border-tea-green-pale overflow-hidden">
+                    <div className="px-6 py-4 flex items-center gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <span className="font-medium text-tea-text">{expName}</span>
+                          <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status.cls}`}>
+                            {status.label}
+                          </span>
+                        </div>
+                        <div className="text-sm text-tea-text-light">
+                          {dateLabel} {timeLabel} · {booking.participant_count} 人 · NT${booking.total_price.toLocaleString()}
+                        </div>
+                        {canFill && booking.participants_due_at && (
+                          <div className={`mt-1 text-xs ${isDue ? "text-amber-600" : "text-rose-500"}`}>
+                            補填截止：{new Date(booking.participants_due_at).toLocaleDateString("zh-TW")}
+                            {!isDue && "（已截止）"}
+                          </div>
+                        )}
+                      </div>
+                      {canFill && (
+                        <Link
+                          href={`/account/bookings/${booking.id}/participants`}
+                          className="flex-shrink-0 px-4 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium rounded-full transition-colors"
+                        >
+                          補填資料
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
 
