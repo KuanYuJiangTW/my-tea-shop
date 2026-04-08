@@ -18,22 +18,26 @@ export async function POST(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "找不到此預約" }, { status: 404 });
   }
 
-  if (booking.status !== "confirmed") {
+  if (booking.status !== "confirmed" && booking.status !== "pending_payment") {
     return NextResponse.json({ error: "此預約無法取消" }, { status: 409 });
   }
 
-  const sessionDate = new Date(`${booking.session.session_date}T${booking.session.start_time}`);
-  const now         = new Date();
-  const hoursUntil  = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-  const daysUntil   = Math.ceil(hoursUntil / 24); // 僅用於回傳顯示
+  const now = new Date();
+  let refundAmount = 0;
+  let daysUntil    = 0;
 
-  let refundRate = 0;
-  if (hoursUntil >= 7 * 24)      refundRate = 1.0; // 7 天以上
-  else if (hoursUntil >= 3 * 24) refundRate = 0.5; // 3–6 天
-  else if (hoursUntil >= 24)     refundRate = 0.2; // 1–2 天
-  // < 24 小時 → refundRate 維持 0
+  if (booking.status === "confirmed") {
+    const sessionDate = new Date(`${booking.session.session_date}T${booking.session.start_time}`);
+    const hoursUntil  = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    daysUntil = Math.ceil(hoursUntil / 24);
 
-  const refundAmount = Math.floor(booking.total_price * refundRate);
+    let refundRate = 0;
+    if (hoursUntil >= 7 * 24)      refundRate = 1.0;
+    else if (hoursUntil >= 3 * 24) refundRate = 0.5;
+    else if (hoursUntil >= 24)     refundRate = 0.2;
+
+    refundAmount = Math.floor(booking.total_price * refundRate);
+  }
 
   const { error: updateError } = await supabase
     .from("experience_bookings")
@@ -50,8 +54,10 @@ export async function POST(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  // 通知候補者（fire-and-forget）
-  notifyNextWaitlist(booking.session_id, booking.participant_count).catch(console.error);
+  // 通知候補者（僅已確認的預約才有佔名額，待付款不需通知）
+  if (booking.status === "confirmed") {
+    notifyNextWaitlist(booking.session_id, booking.participant_count).catch(console.error);
+  }
 
   return NextResponse.json({ refundAmount, daysUntil });
 }
