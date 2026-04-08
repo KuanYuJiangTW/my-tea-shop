@@ -5,6 +5,7 @@ import { Clock, Users, CheckCircle, AlertCircle } from "lucide-react";
 import { getExperienceBySlug, getExperienceTypes, getExperienceContent } from "@/lib/experiences";
 import ExperienceCalendar from "./ExperienceCalendar";
 import ExperienceReviews from "./ExperienceReviews";
+import ExperienceGallery from "./ExperienceGallery";
 
 export const revalidate = 60;
 
@@ -122,6 +123,15 @@ export default async function ExperienceDetailPage({ params }: Props) {
                   ))}
                 </ul>
               </div>
+            )}
+
+            {/* 相簿 */}
+            {content.gallery && content.gallery.length > 0 && (
+              <ExperienceGallery
+                name={experience.name}
+                nameEn={experience.nameEn}
+                gallery={content.gallery}
+              />
             )}
 
             {/* 退款政策 */}
