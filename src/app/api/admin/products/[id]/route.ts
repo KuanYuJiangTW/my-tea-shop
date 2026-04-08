@@ -16,6 +16,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const body = await req.json() as {
     name?: string;
+    name_en?: string;
+    category?: string;
+    origin?: string;
+    altitude?: string;
+    weight?: string;
+    description?: string;
+    color?: string;
+    image_url?: string;
+    image_url2?: string;
     price?: number;
     stock_quantity?: number;
     price_75g?: number | null;
@@ -27,6 +36,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const update: Record<string, unknown> = {};
   if (body.name !== undefined)          update.name          = body.name;
+  if (body.name_en !== undefined)       update.name_en       = body.name_en;
+  if (body.category !== undefined)      update.category      = body.category;
+  if (body.origin !== undefined)        update.origin        = body.origin;
+  if (body.altitude !== undefined)      update.altitude      = body.altitude;
+  if (body.weight !== undefined)        update.weight        = body.weight;
+  if (body.description !== undefined)   update.description   = body.description;
+  if (body.color !== undefined)         update.color         = body.color;
+  if (body.image_url !== undefined)     update.image_url     = body.image_url;
+  if (body.image_url2 !== undefined)    update.image_url2    = body.image_url2;
   if (body.price !== undefined)         update.price         = body.price;
   if (body.stock_quantity !== undefined) update.stock_quantity = body.stock_quantity;
   if (body.price_75g !== undefined)     update.price_75g     = body.price_75g;
@@ -48,10 +66,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // 上下架變動時立即清除產品頁快取
-  if (body.is_active !== undefined) {
-    await triggerRevalidate();
-  }
+  // 任何儲存都立即清除產品頁快取
+  await triggerRevalidate();
 
   return NextResponse.json({ ok: true });
 }

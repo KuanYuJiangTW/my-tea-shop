@@ -8,7 +8,13 @@ type Product = {
   name: string;
   name_en: string;
   category: string;
+  origin: string;
+  altitude: string;
   weight: string;
+  description: string;
+  color: string;
+  image_url: string;
+  image_url2: string;
   // 150g
   price: number;
   stock_quantity: number | null;
@@ -23,6 +29,15 @@ type Product = {
 
 type EditState = {
   name: string;
+  name_en: string;
+  category: string;
+  origin: string;
+  altitude: string;
+  weight: string;
+  description: string;
+  color: string;
+  image_url: string;
+  image_url2: string;
   is_active: boolean;
   price: string;
   stock_quantity: string;
@@ -116,6 +131,15 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       ...prev,
       [product.id]: {
         name:          product.name,
+        name_en:       product.name_en,
+        category:      product.category,
+        origin:        product.origin,
+        altitude:      product.altitude,
+        weight:        product.weight,
+        description:   product.description,
+        color:         product.color || COLOR_OPTIONS[0].value,
+        image_url:     product.image_url,
+        image_url2:    product.image_url2,
         is_active:     product.is_active,
         price:         toStr(product.price),
         stock_quantity: toStr(product.stock_quantity),
@@ -159,6 +183,15 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name:          draft.name,
+        name_en:       draft.name_en,
+        category:      draft.category,
+        origin:        draft.origin,
+        altitude:      draft.altitude,
+        weight:        draft.weight,
+        description:   draft.description,
+        color:         draft.color,
+        image_url:     draft.image_url,
+        image_url2:    draft.image_url2,
         is_active:     draft.is_active,
         price,
         stock_quantity: draft.stock_quantity.trim() === "" ? null : stock,
@@ -178,6 +211,15 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
             ? {
                 ...p,
                 name:          draft.name,
+                name_en:       draft.name_en,
+                category:      draft.category,
+                origin:        draft.origin,
+                altitude:      draft.altitude,
+                weight:        draft.weight,
+                description:   draft.description,
+                color:         draft.color,
+                image_url:     draft.image_url,
+                image_url2:    draft.image_url2,
                 is_active:     draft.is_active,
                 price,
                 stock_quantity: toNum(draft.stock_quantity),
@@ -640,6 +682,84 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
               {error[product.id] && (
                 <div className="px-5 pb-2">
                   <p className="text-xs text-rose-500">{error[product.id]}</p>
+                </div>
+              )}
+
+              {/* 內容資料編輯區 */}
+              {isEditing && (
+                <div className="border-t border-[#F5F0E8] px-5 py-4 bg-white">
+                  <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-3">內容資料</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                    {([
+                      { field: "name_en"  as const, label: "英文名稱", placeholder: "例如：Oriental Beauty" },
+                      { field: "category" as const, label: "分類",     placeholder: "例如：烏龍茶" },
+                      { field: "origin"   as const, label: "產地",     placeholder: "例如：新竹峨眉" },
+                      { field: "altitude" as const, label: "海拔",     placeholder: "例如：400m" },
+                      { field: "weight"   as const, label: "重量規格", placeholder: "例如：150g / 75g" },
+                    ] as { field: keyof EditState; label: string; placeholder: string }[]).map(({ field, label, placeholder }) => (
+                      <div key={field}>
+                        <label className="block text-xs text-[#9CA89E] mb-1">{label}</label>
+                        <input
+                          type="text"
+                          placeholder={placeholder}
+                          value={draft[field] as string}
+                          onChange={(e) => updateField(product.id, field, e.target.value)}
+                          className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        />
+                      </div>
+                    ))}
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs text-[#9CA89E] mb-1">商品描述</label>
+                      <textarea
+                        rows={2}
+                        placeholder="簡短描述商品特色…"
+                        value={draft.description}
+                        onChange={(e) => updateField(product.id, "description", e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#9CA89E] mb-1">封面圖片 URL</label>
+                      <input
+                        type="url"
+                        placeholder="https://…"
+                        value={draft.image_url}
+                        onChange={(e) => updateField(product.id, "image_url", e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#9CA89E] mb-1">第二張圖片 URL</label>
+                      <input
+                        type="url"
+                        placeholder="https://…"
+                        value={draft.image_url2}
+                        onChange={(e) => updateField(product.id, "image_url2", e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs text-[#9CA89E] mb-2">商品卡背景色</label>
+                      <div className="flex flex-wrap gap-2">
+                        {COLOR_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            title={opt.label}
+                            onClick={() => updateField(product.id, "color", opt.value)}
+                            className={`w-9 h-9 rounded-lg bg-gradient-to-br ${opt.value} border-2 transition-all ${
+                              draft.color === opt.value
+                                ? "border-[#5C7A67] ring-2 ring-[#7D9B84] ring-offset-1 scale-110"
+                                : "border-transparent hover:scale-105"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-xs text-[#9CA89E] mt-1">
+                        已選：{COLOR_OPTIONS.find((o) => o.value === draft.color)?.label ?? "未選"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
 
