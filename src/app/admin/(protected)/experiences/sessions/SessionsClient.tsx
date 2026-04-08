@@ -89,7 +89,7 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
       {/* 新增場次表單 */}
       <div className="bg-white rounded-2xl p-6 border border-[#EDE8DC] shadow-sm">
         <h2 className="font-semibold text-[#3D4A42] mb-5">新增場次</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div>
             <label className="text-xs text-[#6B8872] mb-1.5 block">體驗類型</label>
             <select
@@ -158,7 +158,8 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
         ) : sessions.length === 0 ? (
           <div className="p-10 text-center text-sm text-[#6B8872]">尚無場次</div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[480px]">
             <thead>
               <tr className="bg-[#F9F6F1] text-left">
                 <th className="px-6 py-3 text-xs font-medium text-[#6B8872]">日期</th>
@@ -195,6 +196,7 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

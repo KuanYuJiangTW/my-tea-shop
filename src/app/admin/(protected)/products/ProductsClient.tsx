@@ -912,7 +912,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       {/* 刪除確認 Modal */}
       {confirmDeleteId !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-2 sm:mx-4">
             <h3 className="text-base font-semibold text-[#3D4A42] mb-2">確認刪除商品</h3>
             <p className="text-sm text-[#6B8872] mb-1">即將永久刪除以下商品，此操作無法復原：</p>
             <p className="text-sm font-medium text-[#3D4A42] bg-[#FAF7F2] rounded-lg px-3 py-2 mb-5">

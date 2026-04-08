@@ -138,7 +138,7 @@ export default function AdminCalendarClient({
               <div
                 key={day}
                 onClick={() => !isPast && openModal(dateStr)}
-                className={`min-h-[80px] rounded-xl p-1.5 border transition-colors ${
+                className={`min-h-[60px] sm:min-h-[80px] rounded-xl p-1.5 border transition-colors ${
                   isToday  ? "border-[#7D9B84] bg-[#EBF3EE]" : "border-[#EDE8DC]"
                 } ${isPast ? "opacity-50 cursor-default" : "cursor-pointer hover:bg-[#F5FAF6]"}`}
               >
@@ -175,7 +175,7 @@ export default function AdminCalendarClient({
         </div>
 
         {/* 圖例 */}
-        <div className="flex flex-wrap gap-4 mt-5 text-xs text-[#6B8872]">
+        <div className="flex flex-wrap gap-2 sm:gap-4 mt-5 text-xs text-[#6B8872]">
           {Object.entries(EXP_COLORS).map(([slug, color]) => {
             const names: Record<string, string> = {
               "tea-ceremony": "茶藝體驗",

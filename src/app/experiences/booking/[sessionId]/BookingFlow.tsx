@@ -161,7 +161,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
       <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm mb-6">
         <p className="text-tea-green text-xs tracking-widest uppercase mb-1">{exp.nameEn}</p>
         <h2 className="font-serif text-2xl font-bold text-tea-text mb-4">{exp.name}</h2>
-        <div className="grid grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="flex items-start gap-2 text-tea-text-light">
             <Calendar className="w-4 h-4 text-tea-green mt-0.5 shrink-0" />
             <div>
@@ -386,7 +386,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
               <label className="block text-sm font-medium text-tea-text mb-1.5">
                 特殊需求（選填）
               </label>
-              <div className="flex gap-4 mb-2">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-2">
                 {["素食", "對茶類過敏"].map(opt => (
                   <label key={opt} className="flex items-center gap-1.5 text-sm text-tea-text-light cursor-pointer">
                     <input

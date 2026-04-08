@@ -151,7 +151,7 @@ export default function ExperienceCalendar({ experience }: Props) {
       )}
 
       {/* 圖例 */}
-      <div className="flex gap-4 mt-5 text-xs text-tea-text-light">
+      <div className="flex flex-wrap gap-2 sm:gap-4 mt-5 text-xs text-tea-text-light">
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded bg-tea-green inline-block" />
           可預約

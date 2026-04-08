@@ -163,7 +163,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
           placeholder="搜尋姓名或電話…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="px-4 py-2 rounded-full border border-[#C8DDD0] text-sm text-[#3D4A42] placeholder-[#A8C0AE] bg-white focus:outline-none focus:ring-2 focus:ring-[#7D9B84] w-56"
+          className="px-4 py-2 rounded-full border border-[#C8DDD0] text-sm text-[#3D4A42] placeholder-[#A8C0AE] bg-white focus:outline-none focus:ring-2 focus:ring-[#7D9B84] w-full sm:w-56"
         />
       </div>
       <div className="flex gap-2 mb-6 flex-wrap">

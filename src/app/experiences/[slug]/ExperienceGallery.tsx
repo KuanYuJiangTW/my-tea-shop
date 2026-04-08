@@ -33,7 +33,7 @@ export default function ExperienceGallery({
     <>
       <div>
         <h2 className="font-serif text-xl font-bold text-tea-text mb-4">相簿</h2>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {gallery.map((url, idx) => (
             <button
               key={url}
@@ -46,7 +46,7 @@ export default function ExperienceGallery({
                 src={url}
                 alt={`${name} 相簿 ${idx + 1}`}
                 fill
-                sizes="(max-width: 768px) 33vw, 160px"
+                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 160px"
                 className="object-cover"
               />
             </button>
