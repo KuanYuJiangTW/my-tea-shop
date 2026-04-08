@@ -13,5 +13,5 @@ export const sanityFetch = <T>(
   params?: Record<string, unknown>,
 ): Promise<T> =>
   sanityClient.fetch<T>(query, params ?? {}, {
-    next: { revalidate: 3600 }, // 1 小時重新驗證
+    next: { revalidate: 60 }, // 60 秒重新驗證（配合體驗頁快取週期）
   });
