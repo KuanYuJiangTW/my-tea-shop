@@ -102,6 +102,22 @@ export default function AdminSidebar() {
             </Link>
           );
         })}
+        <a
+          href="/studio"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A3BFA8] hover:bg-[#4D5E55] hover:text-[#EBF3EE] transition-all mt-1"
+        >
+          <span className="text-[#7D9B84]">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+              <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
+            </svg>
+          </span>
+          <span className="flex-1">內容管理</span>
+          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current opacity-60">
+            <path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+          </svg>
+        </a>
       </nav>
 
       {/* Footer */}
