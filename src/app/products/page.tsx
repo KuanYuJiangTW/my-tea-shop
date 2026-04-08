@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getProducts } from "@/lib/products";
 import ProductsClient from "./ProductsClient";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "茶葉系列",
