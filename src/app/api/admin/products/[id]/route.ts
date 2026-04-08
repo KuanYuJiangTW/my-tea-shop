@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
-
-async function triggerRevalidate() {
-  const secret = process.env.REVALIDATE_SECRET;
-  if (!secret) return;
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-  await fetch(`${base}/api/revalidate`, {
-    method: "POST",
-    headers: { "x-revalidate-secret": secret },
-  }).catch(() => null); // 失敗不阻斷主流程
-}
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -69,7 +60,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   // 任何儲存都立即清除產品頁快取
-  await triggerRevalidate();
+  revalidatePath("/products");
 
   return NextResponse.json({ ok: true });
 }
