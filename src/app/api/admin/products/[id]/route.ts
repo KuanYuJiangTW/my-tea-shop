@@ -77,6 +77,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  await triggerRevalidate();
+  revalidatePath("/products");
   return NextResponse.json({ ok: true });
 }
