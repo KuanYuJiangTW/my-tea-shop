@@ -52,6 +52,19 @@ type CreateForm = {
   stock_tea_bag: string;
 };
 
+const COLOR_OPTIONS: { label: string; value: string }[] = [
+  { label: "翠綠",   value: "from-green-100 to-emerald-200" },
+  { label: "琥珀",   value: "from-amber-200 to-orange-300" },
+  { label: "淡黃",   value: "from-yellow-100 to-amber-200" },
+  { label: "玫瑰",   value: "from-red-100 to-rose-200" },
+  { label: "嫩綠",   value: "from-lime-100 to-green-200" },
+  { label: "天藍",   value: "from-sky-100 to-blue-200" },
+  { label: "薰衣草", value: "from-purple-100 to-violet-200" },
+  { label: "蜜桃",   value: "from-pink-100 to-rose-200" },
+  { label: "米白",   value: "from-stone-100 to-amber-100" },
+  { label: "深綠",   value: "from-emerald-200 to-teal-300" },
+];
+
 const EMPTY_CREATE_FORM: CreateForm = {
   slug: "",
   name: "",
@@ -61,7 +74,7 @@ const EMPTY_CREATE_FORM: CreateForm = {
   altitude: "",
   weight: "",
   description: "",
-  color: "",
+  color: COLOR_OPTIONS[0].value,
   image_url: "",
   image_url2: "",
   price: "",
@@ -381,7 +394,6 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                   { field: "origin" as const,   label: "產地",             placeholder: "例如：新竹峨眉" },
                   { field: "altitude" as const, label: "海拔",             placeholder: "例如：400m" },
                   { field: "weight" as const,   label: "重量規格",         placeholder: "例如：150g / 75g" },
-                  { field: "color" as const,    label: "顏色標籤",         placeholder: "例如：#F5E6C8" },
                 ].map(({ field, label, placeholder }) => (
                   <div key={field}>
                     <label className="block text-xs font-medium text-[#3D4A42] mb-1">{label}</label>
@@ -394,6 +406,28 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     />
                   </div>
                 ))}
+                {/* 顏色色票選擇器 */}
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-[#3D4A42] mb-2">商品卡背景色</label>
+                  <div className="flex flex-wrap gap-2">
+                    {COLOR_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        title={opt.label}
+                        onClick={() => updateCreateField("color", opt.value)}
+                        className={`w-10 h-10 rounded-lg bg-gradient-to-br ${opt.value} border-2 transition-all ${
+                          createForm.color === opt.value
+                            ? "border-[#5C7A67] ring-2 ring-[#7D9B84] ring-offset-1 scale-110"
+                            : "border-transparent hover:scale-105"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#9CA89E] mt-1">
+                    已選：{COLOR_OPTIONS.find((o) => o.value === createForm.color)?.label ?? "未選"}
+                  </p>
+                </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-[#3D4A42] mb-1">商品描述</label>
                   <textarea
