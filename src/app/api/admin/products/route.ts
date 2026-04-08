@@ -68,6 +68,8 @@ export async function POST(request: Request) {
       weight:         toStrOrNull(rest.weight),
       description:    toStrOrNull(rest.description),
       color:          toStrOrNull(rest.color),
+      image_url:      toStrOrNull(rest.image_url),
+      image_url2:     toStrOrNull(rest.image_url2),
       stock_quantity: toNumOrNull(rest.stock_quantity),
       price_75g:      toNumOrNull(rest.price_75g),
       stock_75g:      toNumOrNull(rest.stock_75g),

@@ -34,6 +34,16 @@ type EditState = {
 
 type CreateForm = {
   slug: string;
+  name: string;
+  name_en: string;
+  category: string;
+  origin: string;
+  altitude: string;
+  weight: string;
+  description: string;
+  color: string;
+  image_url: string;
+  image_url2: string;
   price: string;
   stock_quantity: string;
   price_75g: string;
@@ -44,6 +54,16 @@ type CreateForm = {
 
 const EMPTY_CREATE_FORM: CreateForm = {
   slug: "",
+  name: "",
+  name_en: "",
+  category: "",
+  origin: "",
+  altitude: "",
+  weight: "",
+  description: "",
+  color: "",
+  image_url: "",
+  image_url2: "",
   price: "",
   stock_quantity: "",
   price_75g: "",
@@ -73,6 +93,10 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
   const [createErrors, setCreateErrors] = useState<Partial<Record<keyof CreateForm | "submit", string>>>({});
   const [creating, setCreating] = useState(false);
   const [createSuccess, setCreateSuccess] = useState(false);
+
+  // 刪除確認狀態
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   function startEdit(product: Product) {
     setEditing((prev) => ({
@@ -176,6 +200,19 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     }
   }
 
+  async function deleteProduct(id: number) {
+    setDeleting(true);
+    const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+    setDeleting(false);
+    if (res.ok) {
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      setConfirmDeleteId(null);
+    } else {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error ?? "刪除失敗，請稍後再試");
+    }
+  }
+
   function updateCreateField(field: keyof CreateForm, value: string) {
     setCreateForm((prev) => ({ ...prev, [field]: value }));
     setCreateErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -208,6 +245,16 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         slug:           createForm.slug.trim(),
+        name:           createForm.name.trim() || undefined,
+        name_en:        createForm.name_en.trim() || undefined,
+        category:       createForm.category.trim() || undefined,
+        origin:         createForm.origin.trim() || undefined,
+        altitude:       createForm.altitude.trim() || undefined,
+        weight:         createForm.weight.trim() || undefined,
+        description:    createForm.description.trim() || undefined,
+        color:          createForm.color.trim() || undefined,
+        image_url:      createForm.image_url.trim() || undefined,
+        image_url2:     createForm.image_url2.trim() || undefined,
         price:          parseInt(createForm.price, 10),
         stock_quantity: toNum(createForm.stock_quantity),
         price_75g:      toNum(createForm.price_75g),
@@ -245,6 +292,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
 
   const active   = products.filter((p) =>  p.is_active);
   const inactive = products.filter((p) => !p.is_active);
+  const confirmProduct = products.find((p) => p.id === confirmDeleteId);
 
   return (
     <div className="p-6 lg:p-8">
@@ -270,11 +318,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       {/* 成功訊息 */}
       {createSuccess && (
         <div className="mb-4 px-4 py-3 bg-[#EBF3EE] border border-[#A3BFA8] rounded-xl text-sm text-[#3D4A42]">
-          商品已建立 ✓　請前往{" "}
-          <a href="/studio" target="_blank" className="font-medium underline text-[#5C7A67]">
-            Sanity Studio
-          </a>{" "}
-          補充商品描述與圖片。
+          商品已建立 ✓　請開啟上架開關讓商品出現在前台。
         </div>
       )}
 
@@ -283,63 +327,117 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         <div className="mb-6 bg-white rounded-2xl border border-[#A3BFA8] shadow-md overflow-hidden">
           <div className="px-5 py-4 border-b border-[#F5F0E8] bg-[#F7FAF7]">
             <h2 className="text-sm font-semibold text-[#3D4A42]">新增商品</h2>
-            <p className="text-xs text-[#9CA89E] mt-0.5">
-              填入商務資訊後，前往{" "}
-              <a href="/studio" target="_blank" className="underline text-[#6B8872]">
-                Sanity Studio
-              </a>{" "}
-              補充商品名稱、描述與圖片。
-            </p>
+            <p className="text-xs text-[#9CA89E] mt-0.5">填入商品資料後點擊「建立商品」，再開啟上架開關即可上架。</p>
           </div>
 
-          <div className="px-5 py-4 space-y-4">
-            {/* 必填區 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-[#3D4A42] mb-1">
-                  Slug <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="例如：dong-fang-mei-ren"
-                  value={createForm.slug}
-                  onChange={(e) => updateCreateField("slug", e.target.value)}
-                  className={`w-full px-3 py-1.5 rounded-lg border text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] ${
-                    createErrors.slug ? "border-rose-400" : "border-[#A3BFA8]"
-                  }`}
-                />
-                {createErrors.slug && (
-                  <p className="text-xs text-rose-500 mt-1">{createErrors.slug}</p>
-                )}
-                <p className="text-xs text-[#9CA89E] mt-1">需與 Sanity Studio 的 slug 一致</p>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#3D4A42] mb-1">
-                  150g 售價 (NT$) <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="例如：1200"
-                  value={createForm.price}
-                  onChange={(e) => updateCreateField("price", e.target.value)}
-                  className={`w-full px-3 py-1.5 rounded-lg border text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] ${
-                    createErrors.price ? "border-rose-400" : "border-[#A3BFA8]"
-                  }`}
-                />
-                {createErrors.price && (
-                  <p className="text-xs text-rose-500 mt-1">{createErrors.price}</p>
-                )}
+          <div className="px-5 py-4 space-y-5">
+            {/* 必填：Slug + 售價 */}
+            <div>
+              <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">必填</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">
+                    Slug <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="例如：dong-fang-mei-ren"
+                    value={createForm.slug}
+                    onChange={(e) => updateCreateField("slug", e.target.value)}
+                    className={`w-full px-3 py-1.5 rounded-lg border text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] ${
+                      createErrors.slug ? "border-rose-400" : "border-[#A3BFA8]"
+                    }`}
+                  />
+                  {createErrors.slug && <p className="text-xs text-rose-500 mt-1">{createErrors.slug}</p>}
+                  <p className="text-xs text-[#9CA89E] mt-1">英文小寫 + 數字 + 連字號，系統內部識別用</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">
+                    150g 售價 (NT$) <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="例如：1200"
+                    value={createForm.price}
+                    onChange={(e) => updateCreateField("price", e.target.value)}
+                    className={`w-full px-3 py-1.5 rounded-lg border text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] ${
+                      createErrors.price ? "border-rose-400" : "border-[#A3BFA8]"
+                    }`}
+                  />
+                  {createErrors.price && <p className="text-xs text-rose-500 mt-1">{createErrors.price}</p>}
+                </div>
               </div>
             </div>
 
-            {/* 規格區（選填） */}
+            {/* 基本資料 */}
             <div>
-              <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">
-                各規格（選填）
-              </p>
+              <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">基本資料（選填）</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { field: "name" as const,     label: "商品名稱（中文）", placeholder: "例如：東方美人" },
+                  { field: "name_en" as const,  label: "商品名稱（英文）", placeholder: "例如：Oriental Beauty" },
+                  { field: "category" as const, label: "分類",             placeholder: "例如：烏龍茶" },
+                  { field: "origin" as const,   label: "產地",             placeholder: "例如：新竹峨眉" },
+                  { field: "altitude" as const, label: "海拔",             placeholder: "例如：400m" },
+                  { field: "weight" as const,   label: "重量規格",         placeholder: "例如：150g / 75g" },
+                  { field: "color" as const,    label: "顏色標籤",         placeholder: "例如：#F5E6C8" },
+                ].map(({ field, label, placeholder }) => (
+                  <div key={field}>
+                    <label className="block text-xs font-medium text-[#3D4A42] mb-1">{label}</label>
+                    <input
+                      type="text"
+                      placeholder={placeholder}
+                      value={createForm[field]}
+                      onChange={(e) => updateCreateField(field, e.target.value)}
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                    />
+                  </div>
+                ))}
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">商品描述</label>
+                  <textarea
+                    rows={3}
+                    placeholder="簡短描述商品特色…"
+                    value={createForm.description}
+                    onChange={(e) => updateCreateField("description", e.target.value)}
+                    className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 圖片 */}
+            <div>
+              <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">圖片（選填）</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">封面圖片 URL</label>
+                  <input
+                    type="url"
+                    placeholder="https://…"
+                    value={createForm.image_url}
+                    onChange={(e) => updateCreateField("image_url", e.target.value)}
+                    className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">第二張圖片 URL</label>
+                  <input
+                    type="url"
+                    placeholder="https://…"
+                    value={createForm.image_url2}
+                    onChange={(e) => updateCreateField("image_url2", e.target.value)}
+                    className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 規格 */}
+            <div>
+              <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">各規格售價與庫存（選填）</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* 150g 庫存 */}
                 <div className="bg-[#FAF7F2] rounded-xl border border-[#EDE8DC] p-3">
                   <p className="text-xs font-bold text-[#3D4A42] mb-2">150g 散茶</p>
                   <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
@@ -351,7 +449,6 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     className="w-full px-2.5 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
                   />
                 </div>
-                {/* 75g */}
                 <div className="bg-[#FAF7F2] rounded-xl border border-[#EDE8DC] p-3">
                   <p className="text-xs font-bold text-[#3D4A42] mb-2">75g 散茶</p>
                   <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
@@ -371,7 +468,6 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     className="w-full px-2.5 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
                   />
                 </div>
-                {/* 茶包 */}
                 <div className="bg-[#FAF7F2] rounded-xl border border-[#EDE8DC] p-3">
                   <p className="text-xs font-bold text-[#3D4A42] mb-2">茶包 15入 × 3g</p>
                   <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
@@ -394,7 +490,6 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
               </div>
             </div>
 
-            {/* 錯誤與送出 */}
             {createErrors.submit && (
               <p className="text-xs text-rose-500">{createErrors.submit}</p>
             )}
@@ -442,7 +537,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     />
                   ) : (
                     <div>
-                      <span className="font-medium text-[#3D4A42]">{product.name}</span>
+                      <span className="font-medium text-[#3D4A42]">{product.name || product.slug}</span>
                       <span className="text-xs text-[#9CA89E] ml-2">{product.name_en} · {product.weight}</span>
                     </div>
                   )}
@@ -489,12 +584,20 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       </button>
                     </>
                   ) : (
-                    <button
-                      onClick={() => startEdit(product)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#3D4A42] bg-[#EDE8DC] hover:bg-[#D9D0C7] transition"
-                    >
-                      編輯
-                    </button>
+                    <>
+                      <button
+                        onClick={() => startEdit(product)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#3D4A42] bg-[#EDE8DC] hover:bg-[#D9D0C7] transition"
+                      >
+                        編輯
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(product.id)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-500 hover:bg-rose-50 transition"
+                      >
+                        刪除
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -506,12 +609,11 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 </div>
               )}
 
-              {/* 規格區（展開狀態） */}
+              {/* 規格區 */}
               {isEditing ? (
                 <div className="border-t border-[#F5F0E8] px-5 py-4 bg-[#FAF7F2]">
                   <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-3">各規格售價與庫存</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {/* 150g */}
                     <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
                       <p className="text-xs font-bold text-[#3D4A42] mb-3">150g 散茶</p>
                       <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
@@ -530,8 +632,6 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         placeholder="不限"
                       />
                     </div>
-
-                    {/* 75g */}
                     <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
                       <p className="text-xs font-bold text-[#3D4A42] mb-3">75g 散茶</p>
                       <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
@@ -551,8 +651,6 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         placeholder="不限"
                       />
                     </div>
-
-                    {/* 茶包 */}
                     <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
                       <p className="text-xs font-bold text-[#3D4A42] mb-3">茶包 15入 × 3g</p>
                       <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
@@ -575,7 +673,6 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                   </div>
                 </div>
               ) : (
-                /* 規格摘要（收合狀態） */
                 <div className="border-t border-[#F5F0E8] px-5 py-3 flex flex-wrap gap-4 bg-[#FAF7F2]">
                   {[
                     { label: "150g", price: product.price,         stock: product.stock_quantity },
@@ -602,6 +699,35 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       <p className="text-xs text-[#9CA89E] mt-4">
         * 庫存 0 = 售完（紅色）；≤5 = 庫存偏低（橘色）；空白 = 不限。售價空白表示不顯示此規格。
       </p>
+
+      {/* 刪除確認 Modal */}
+      {confirmDeleteId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
+            <h3 className="text-base font-semibold text-[#3D4A42] mb-2">確認刪除商品</h3>
+            <p className="text-sm text-[#6B8872] mb-1">即將永久刪除以下商品，此操作無法復原：</p>
+            <p className="text-sm font-medium text-[#3D4A42] bg-[#FAF7F2] rounded-lg px-3 py-2 mb-5">
+              {confirmProduct?.name || confirmProduct?.slug}
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg text-sm text-[#6B8872] hover:bg-[#EDE8DC] transition disabled:opacity-60"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => deleteProduct(confirmDeleteId)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-rose-500 hover:bg-rose-600 text-white transition disabled:opacity-60"
+              >
+                {deleting ? "刪除中…" : "確認刪除"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
