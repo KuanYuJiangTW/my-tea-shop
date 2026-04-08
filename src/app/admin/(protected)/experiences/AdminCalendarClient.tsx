@@ -146,24 +146,36 @@ export default function AdminCalendarClient({
                   {day}
                 </div>
 
-                {daySess.map(s => (
-                  <Link
-                    key={s.id}
-                    href={`/admin/experiences/bookings?session=${s.id}`}
-                    onClick={e => e.stopPropagation()}
-                    className={`block text-xs px-1.5 py-1 rounded-lg mb-0.5 leading-tight transition-opacity hover:opacity-80 ${
-                      s.status === "cancelled"
-                        ? "bg-red-100 text-red-500 line-through"
-                        : s.status === "full"
-                        ? "bg-gray-200 text-gray-500"
-                        : (EXP_COLORS[s.experience_types?.slug] ?? "bg-[#7D9B84]") + " text-white"
-                    }`}
-                  >
-                    <div className="font-medium">{s.start_time.slice(0, 5)}</div>
-                    <div className="opacity-90 truncate">{s.experience_types?.name}</div>
-                    <div className="opacity-75">{s.current_participants} 人</div>
-                  </Link>
-                ))}
+                {daySess.map(s => {
+                  const colorClass = s.status === "cancelled"
+                    ? "bg-red-400"
+                    : s.status === "full"
+                    ? "bg-gray-400"
+                    : (EXP_COLORS[s.experience_types?.slug] ?? "bg-[#7D9B84]");
+                  return (
+                    <Link
+                      key={s.id}
+                      href={`/admin/experiences/bookings?session=${s.id}`}
+                      onClick={e => e.stopPropagation()}
+                      className="block mb-0.5"
+                    >
+                      {/* 手機：只顯示彩色圓點 */}
+                      <span className={`sm:hidden block w-2.5 h-2.5 rounded-full mx-auto ${colorClass} ${s.status === "cancelled" ? "opacity-50" : ""}`} />
+                      {/* 桌機：完整文字區塊 */}
+                      <span className={`hidden sm:block text-xs px-1.5 py-1 rounded-lg leading-tight transition-opacity hover:opacity-80 ${
+                        s.status === "cancelled"
+                          ? "bg-red-100 text-red-500 line-through"
+                          : s.status === "full"
+                          ? "bg-gray-200 text-gray-500"
+                          : colorClass + " text-white"
+                      }`}>
+                        <span className="block font-medium">{s.start_time.slice(0, 5)}</span>
+                        <span className="block opacity-90 truncate">{s.experience_types?.name}</span>
+                        <span className="block opacity-75">{s.current_participants} 人</span>
+                      </span>
+                    </Link>
+                  );
+                })}
 
                 {/* 點空白區域提示 */}
                 {!isPast && daySess.length === 0 && (
@@ -203,7 +215,8 @@ export default function AdminCalendarClient({
           <div className="px-6 py-3 border-b border-[#EDE8DC]">
             <p className="text-sm font-semibold text-[#3D4A42]">本月開放場次</p>
           </div>
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[420px]">
             <tbody className="divide-y divide-[#F5F0E8]">
               {sessions
                 .filter(s => s.status === "open")
@@ -226,6 +239,7 @@ export default function AdminCalendarClient({
                 ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
