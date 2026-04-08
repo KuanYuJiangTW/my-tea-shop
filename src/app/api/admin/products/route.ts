@@ -26,6 +26,11 @@ function toStrOrNull(v: unknown): string | null {
   return s === "" ? null : s;
 }
 
+function toStr(v: unknown): string {
+  if (v === null || v === undefined) return "";
+  return String(v).trim();
+}
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   if (!body) {
@@ -60,16 +65,16 @@ export async function POST(request: Request) {
     .insert({
       slug:           slugVal,
       price:          priceNum,
-      name:           toStrOrNull(rest.name) ?? slugVal,
-      name_en:        toStrOrNull(rest.name_en),
-      category:       toStrOrNull(rest.category),
-      origin:         toStrOrNull(rest.origin),
-      altitude:       toStrOrNull(rest.altitude),
-      weight:         toStrOrNull(rest.weight),
-      description:    toStrOrNull(rest.description),
-      color:          toStrOrNull(rest.color),
-      image_url:      toStrOrNull(rest.image_url),
-      image_url2:     toStrOrNull(rest.image_url2),
+      name:           toStr(rest.name) || slugVal,
+      name_en:        toStr(rest.name_en),
+      category:       toStr(rest.category),
+      origin:         toStr(rest.origin),
+      altitude:       toStr(rest.altitude),
+      weight:         toStr(rest.weight),
+      description:    toStr(rest.description),
+      color:          toStr(rest.color),
+      image_url:      toStr(rest.image_url),
+      image_url2:     toStr(rest.image_url2),
       stock_quantity: toNumOrNull(rest.stock_quantity),
       price_75g:      toNumOrNull(rest.price_75g),
       stock_75g:      toNumOrNull(rest.stock_75g),
