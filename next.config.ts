@@ -36,6 +36,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.sanity.io",
       },
+      {
+        protocol: "https",
+        hostname: SUPABASE_HOST,
+        pathname: "/storage/v1/object/public/**",
+      },
     ],
   },
   // 隱藏 x-powered-by: Next.js 標頭，減少資訊洩漏
