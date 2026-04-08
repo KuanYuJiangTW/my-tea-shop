@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       stock_75g:      toNumOrNull(rest.stock_75g),
       price_tea_bag:  toNumOrNull(rest.price_tea_bag),
       stock_tea_bag:  toNumOrNull(rest.stock_tea_bag),
-      is_featured:    rest.is_featured === true,
+      featured:       false,
       is_active:      false,
     })
     .select()
