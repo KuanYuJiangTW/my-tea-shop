@@ -3,51 +3,87 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-const navItems = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  external?: boolean;
+};
+
+type NavGroup = {
+  title?: string;
+  items: NavItem[];
+};
+
+const navGroups: NavGroup[] = [
   {
-    href: "/admin/dashboard",
-    label: "儀表板",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
-      </svg>
-    ),
+    items: [
+      {
+        href: "/admin/dashboard",
+        label: "儀表板",
+        icon: (
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+          </svg>
+        ),
+      },
+    ],
   },
   {
-    href: "/admin/orders",
-    label: "訂單管理",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
-      </svg>
-    ),
+    title: "茶山體驗",
+    items: [
+      {
+        href: "/admin/experiences",
+        label: "體驗管理",
+        icon: (
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
+          </svg>
+        ),
+      },
+      {
+        href: "/admin/reviews",
+        label: "評價管理",
+        icon: (
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+          </svg>
+        ),
+      },
+      {
+        href: "/studio",
+        label: "內容管理",
+        external: true,
+        icon: (
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
+          </svg>
+        ),
+      },
+    ],
   },
   {
-    href: "/admin/products",
-    label: "產品管理",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-        <path d="M17 8C8 10 5.9 16.17 3.82 19.8L5.71 21l1-1.5A4.49 4.49 0 0 0 8 20c4 0 4-2 8-2s4 2 8 2v-2c-4 0-4-2-8-2c-.65 0-1.2.05-1.7.12C14.93 12.12 16 10 17 8z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/experiences",
-    label: "體驗管理",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-        <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/reviews",
-    label: "評價管理",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-      </svg>
-    ),
+    title: "商品",
+    items: [
+      {
+        href: "/admin/orders",
+        label: "訂單管理",
+        icon: (
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
+          </svg>
+        ),
+      },
+      {
+        href: "/admin/products",
+        label: "產品管理",
+        icon: (
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M17 8C8 10 5.9 16.17 3.82 19.8L5.71 21l1-1.5A4.49 4.49 0 0 0 8 20c4 0 4-2 8-2s4 2 8 2v-2c-4 0-4-2-8-2c-.65 0-1.2.05-1.7.12C14.93 12.12 16 10 17 8z" />
+          </svg>
+        ),
+      },
+    ],
   },
 ];
 
@@ -58,6 +94,11 @@ export default function AdminSidebar() {
   async function handleLogout() {
     await fetch("/api/admin/auth", { method: "DELETE" });
     router.push("/admin");
+  }
+
+  function isActive(href: string) {
+    if (href === "/admin/dashboard") return pathname === "/admin/dashboard";
+    return pathname.startsWith(href);
   }
 
   return (
@@ -78,46 +119,50 @@ export default function AdminSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const isActive =
-            item.href === "/admin/dashboard"
-              ? pathname === "/admin/dashboard"
-              : pathname.startsWith(item.href);
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                isActive
-                  ? "bg-[#7D9B84] text-white font-medium"
-                  : "text-[#A3BFA8] hover:bg-[#4D5E55] hover:text-[#EBF3EE]"
-              }`}
-            >
-              <span className={isActive ? "text-white" : "text-[#7D9B84]"}>
-                {item.icon}
-              </span>
-              {item.label}
-            </Link>
-          );
-        })}
-        <a
-          href="/studio"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A3BFA8] hover:bg-[#4D5E55] hover:text-[#EBF3EE] transition-all mt-1"
-        >
-          <span className="text-[#7D9B84]">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-              <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
-            </svg>
-          </span>
-          <span className="flex-1">內容管理</span>
-          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current opacity-60">
-            <path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
-          </svg>
-        </a>
+      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-4">
+        {navGroups.map((group, gi) => (
+          <div key={gi}>
+            {group.title && (
+              <p className="px-3 mb-1 text-[#7D9B84] text-[10px] tracking-widest uppercase">
+                {group.title}
+              </p>
+            )}
+            <div className="space-y-0.5">
+              {group.items.map((item) =>
+                item.external ? (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A3BFA8] hover:bg-[#4D5E55] hover:text-[#EBF3EE] transition-all"
+                  >
+                    <span className="text-[#7D9B84]">{item.icon}</span>
+                    <span className="flex-1">{item.label}</span>
+                    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current opacity-60">
+                      <path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+                    </svg>
+                  </a>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                      isActive(item.href)
+                        ? "bg-[#7D9B84] text-white font-medium"
+                        : "text-[#A3BFA8] hover:bg-[#4D5E55] hover:text-[#EBF3EE]"
+                    }`}
+                  >
+                    <span className={isActive(item.href) ? "text-white" : "text-[#7D9B84]"}>
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </Link>
+                )
+              )}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Footer */}
