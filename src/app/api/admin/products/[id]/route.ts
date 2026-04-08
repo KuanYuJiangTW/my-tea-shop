@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
+async function triggerRevalidate() {
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!secret) return;
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  await fetch(`${base}/api/revalidate`, {
+    method: "POST",
+    headers: { "x-revalidate-secret": secret },
+  }).catch(() => null); // 失敗不阻斷主流程
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -38,6 +48,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // 上下架變動時立即清除產品頁快取
+  if (body.is_active !== undefined) {
+    await triggerRevalidate();
+  }
+
   return NextResponse.json({ ok: true });
 }
 
@@ -53,5 +68,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  await triggerRevalidate();
   return NextResponse.json({ ok: true });
 }
