@@ -83,16 +83,16 @@ export default async function AdminExperiencesPage({
       </div>
 
       {/* 本月統計 */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
         {[
-          { label: "本月預約數",   value: stats.totalBookings,                          unit: "筆" },
-          { label: "本月參加人數", value: stats.totalParticipants,                      unit: "人" },
-          { label: "本月營收",     value: `NT$ ${stats.totalRevenue.toLocaleString()}`, unit: "" },
+          { label: "本月預約數",   value: String(stats.totalBookings),                          unit: "筆" },
+          { label: "本月參加人數", value: String(stats.totalParticipants),                      unit: "人" },
+          { label: "本月營收",     value: `NT$${stats.totalRevenue.toLocaleString()}`, unit: "" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl p-5 border border-[#EDE8DC] shadow-sm">
-            <div className="text-xs text-[#6B8872] mb-1">{s.label}</div>
-            <div className="text-2xl font-bold text-[#3D4A42]">
-              {s.value}<span className="text-sm font-normal text-[#6B8872] ml-1">{s.unit}</span>
+          <div key={s.label} className="bg-white rounded-2xl p-3 sm:p-5 border border-[#EDE8DC] shadow-sm min-w-0">
+            <div className="text-[10px] sm:text-xs text-[#6B8872] mb-1 truncate">{s.label}</div>
+            <div className="text-base sm:text-2xl font-bold text-[#3D4A42] leading-tight break-all">
+              {s.value}<span className="text-xs sm:text-sm font-normal text-[#6B8872] ml-0.5 sm:ml-1">{s.unit}</span>
             </div>
           </div>
         ))}
