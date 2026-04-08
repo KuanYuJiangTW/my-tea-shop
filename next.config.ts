@@ -8,7 +8,7 @@ const SUPABASE_HOST = "wrknatfejiexqlyywuzz.supabase.co";
 const CSP = [
   "default-src 'self'",
   // Next.js hydration + Google Analytics inline script 需要 unsafe-inline
-  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com`,
+  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com`,
   // Google Fonts CSS + unsafe-inline（CSS-in-JS）
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // 圖片：Supabase Storage 及 data URI（Next.js Image blur placeholder）
@@ -16,7 +16,7 @@ const CSP = [
   // Google Fonts 字體檔案
   "font-src 'self' data: https://fonts.gstatic.com",
   // API 連線：Supabase + Google Analytics + ECPay
-  `connect-src 'self' https://${SUPABASE_HOST} https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://payment.ecpay.com.tw https://logistics.ecpay.com.tw`,
+  `connect-src 'self' https://${SUPABASE_HOST} https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://payment.ecpay.com.tw https://logistics.ecpay.com.tw https://cloudflareinsights.com`,
   // ECPay 結帳頁面（form POST 後的跳轉）
   "frame-src https://payment.ecpay.com.tw https://logistics.ecpay.com.tw",
   // 禁止任何網站將本站嵌入 iframe（與 X-Frame-Options: DENY 雙重保護）
