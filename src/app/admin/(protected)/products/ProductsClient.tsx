@@ -15,6 +15,7 @@ type Product = {
   color: string;
   image_url: string;
   image_url2: string;
+  gallery: string[];
   // 150g
   price: number;
   stock_quantity: number | null;
@@ -38,6 +39,7 @@ type EditState = {
   color: string;
   image_url: string;
   image_url2: string;
+  gallery: string[];
   is_active: boolean;
   price: string;
   stock_quantity: string;
@@ -57,8 +59,7 @@ type CreateForm = {
   weight: string;
   description: string;
   color: string;
-  image_url: string;
-  image_url2: string;
+  gallery: string[];
   price: string;
   stock_quantity: string;
   price_75g: string;
@@ -90,8 +91,7 @@ const EMPTY_CREATE_FORM: CreateForm = {
   weight: "",
   description: "",
   color: COLOR_OPTIONS[0].value,
-  image_url: "",
-  image_url2: "",
+  gallery: [],
   price: "",
   stock_quantity: "",
   price_75g: "",
@@ -99,6 +99,88 @@ const EMPTY_CREATE_FORM: CreateForm = {
   price_tea_bag: "",
   stock_tea_bag: "",
 };
+
+const MAX_IMAGES = 5;
+
+function ImageUploader({
+  slug,
+  gallery,
+  onChange,
+}: {
+  slug: string;
+  gallery: string[];
+  onChange: (urls: string[]) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  async function handleFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const remaining = MAX_IMAGES - gallery.length;
+    const toUpload = Array.from(files).slice(0, remaining);
+
+    setUploading(true);
+    setUploadError("");
+
+    const newUrls: string[] = [];
+    for (const file of toUpload) {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("slug", slug || "draft");
+      const res = await fetch("/api/admin/upload-image", { method: "POST", body: form });
+      if (res.ok) {
+        const data = await res.json();
+        newUrls.push(data.url);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setUploadError(data.error ?? "上傳失敗");
+      }
+    }
+
+    setUploading(false);
+    if (newUrls.length > 0) onChange([...gallery, ...newUrls]);
+  }
+
+  function removeImage(idx: number) {
+    onChange(gallery.filter((_, i) => i !== idx));
+  }
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2 mb-2">
+        {gallery.map((url, idx) => (
+          <div key={url} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#A3BFA8] group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={url} alt={`圖片 ${idx + 1}`} className="w-full h-full object-cover" />
+            <button
+              type="button"
+              onClick={() => removeImage(idx)}
+              className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+        {gallery.length < MAX_IMAGES && (
+          <label className={`w-20 h-20 rounded-lg border-2 border-dashed border-[#A3BFA8] flex flex-col items-center justify-center text-[#9CA89E] text-xs cursor-pointer hover:border-[#7D9B84] hover:text-[#7D9B84] transition ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+            <span className="text-xl mb-0.5">{uploading ? "⏳" : "+"}</span>
+            <span>{uploading ? "上傳中" : "選圖片"}</span>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFiles(e.target.files)}
+              disabled={uploading}
+            />
+          </label>
+        )}
+      </div>
+      {uploadError && <p className="text-xs text-rose-500">{uploadError}</p>}
+      <p className="text-xs text-[#9CA89E]">最多 {MAX_IMAGES} 張，每張不超過 5MB。第一張為封面圖。</p>
+    </div>
+  );
+}
 
 function toStr(v: number | null | undefined): string {
   return v == null ? "" : String(v);
@@ -140,6 +222,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         color:         product.color || COLOR_OPTIONS[0].value,
         image_url:     product.image_url,
         image_url2:    product.image_url2,
+        gallery:       product.gallery ?? [],
         is_active:     product.is_active,
         price:         toStr(product.price),
         stock_quantity: toStr(product.stock_quantity),
@@ -156,7 +239,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     setEditing((prev) => { const n = { ...prev }; delete n[id]; return n; });
   }
 
-  function updateField(id: number, field: keyof EditState, value: string | boolean) {
+  function updateField(id: number, field: keyof EditState, value: string | boolean | string[]) {
     setEditing((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
   }
 
@@ -192,6 +275,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         color:         draft.color,
         image_url:     draft.image_url,
         image_url2:    draft.image_url2,
+        gallery:       draft.gallery,
         is_active:     draft.is_active,
         price,
         stock_quantity: draft.stock_quantity.trim() === "" ? null : stock,
@@ -220,6 +304,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 color:         draft.color,
                 image_url:     draft.image_url,
                 image_url2:    draft.image_url2,
+                gallery:       draft.gallery,
                 is_active:     draft.is_active,
                 price,
                 stock_quantity: toNum(draft.stock_quantity),
@@ -308,8 +393,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         weight:         createForm.weight.trim() || undefined,
         description:    createForm.description.trim() || undefined,
         color:          createForm.color.trim() || undefined,
-        image_url:      createForm.image_url.trim() || undefined,
-        image_url2:     createForm.image_url2.trim() || undefined,
+        gallery:        createForm.gallery,
         price:          parseInt(createForm.price, 10),
         stock_quantity: toNum(createForm.stock_quantity),
         price_75g:      toNum(createForm.price_75g),
@@ -486,28 +570,11 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
             {/* 圖片 */}
             <div>
               <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">圖片（選填）</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">封面圖片 URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://…"
-                    value={createForm.image_url}
-                    onChange={(e) => updateCreateField("image_url", e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">第二張圖片 URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://…"
-                    value={createForm.image_url2}
-                    onChange={(e) => updateCreateField("image_url2", e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
-                  />
-                </div>
-              </div>
+              <ImageUploader
+                slug={createForm.slug}
+                gallery={createForm.gallery}
+                onChange={(urls) => setCreateForm((prev) => ({ ...prev, gallery: urls }))}
+              />
             </div>
 
             {/* 規格 */}
@@ -718,24 +785,12 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
                       />
                     </div>
-                    <div>
-                      <label className="block text-xs text-[#9CA89E] mb-1">封面圖片 URL</label>
-                      <input
-                        type="url"
-                        placeholder="https://…"
-                        value={draft.image_url}
-                        onChange={(e) => updateField(product.id, "image_url", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-[#9CA89E] mb-1">第二張圖片 URL</label>
-                      <input
-                        type="url"
-                        placeholder="https://…"
-                        value={draft.image_url2}
-                        onChange={(e) => updateField(product.id, "image_url2", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs text-[#9CA89E] mb-2">商品圖片</label>
+                      <ImageUploader
+                        slug={product.slug}
+                        gallery={draft.gallery}
+                        onChange={(urls) => updateField(product.id, "gallery", urls)}
                       />
                     </div>
                     <div className="sm:col-span-2">

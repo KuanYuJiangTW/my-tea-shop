@@ -75,6 +75,7 @@ export async function POST(request: Request) {
       color:          toStr(rest.color),
       image_url:      toStr(rest.image_url),
       image_url2:     toStr(rest.image_url2),
+      gallery:        Array.isArray(rest.gallery) ? rest.gallery : [],
       stock_quantity: toNumOrNull(rest.stock_quantity),
       price_75g:      toNumOrNull(rest.price_75g),
       stock_75g:      toNumOrNull(rest.stock_75g),

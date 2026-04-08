@@ -47,8 +47,8 @@ function mapRow(row: any): Product {
     description:   row.description,
     color:         row.color,
     featured:      row.featured,
-    image:         row.image_url   ?? undefined,
-    image2:        row.image_url2  ?? undefined,
+    image:         (row.gallery?.[0]) || row.image_url  || undefined,
+    image2:        (row.gallery?.[1]) || row.image_url2 || undefined,
     // null → undefined（null = 資料庫未設定，視同不限量；0 = 明確售完）
     stockQuantity: row.stock_quantity ?? undefined,
     price75g:    row.price_75g    ?? Math.round(price * 0.6 / 10) * 10,

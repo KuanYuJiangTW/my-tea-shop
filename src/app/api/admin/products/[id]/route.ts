@@ -25,6 +25,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     color?: string;
     image_url?: string;
     image_url2?: string;
+    gallery?: string[];
     price?: number;
     stock_quantity?: number;
     price_75g?: number | null;
@@ -45,6 +46,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.color !== undefined)         update.color         = body.color;
   if (body.image_url !== undefined)     update.image_url     = body.image_url;
   if (body.image_url2 !== undefined)    update.image_url2    = body.image_url2;
+  if (body.gallery !== undefined)       update.gallery       = body.gallery;
   if (body.price !== undefined)         update.price         = body.price;
   if (body.stock_quantity !== undefined) update.stock_quantity = body.stock_quantity;
   if (body.price_75g !== undefined)     update.price_75g     = body.price_75g;
