@@ -41,7 +41,9 @@ function mapRow(row: any): Product {
     nameEn:        row.name_en,
     category:      row.category,
     origin:        row.origin,
-    altitude:      row.altitude,
+    altitude:      row.altitude && /^\d+$/.test(String(row.altitude).trim())
+                    ? `${String(row.altitude).trim()}m`
+                    : row.altitude,
     price,
     weight:        row.weight,
     description:   row.description,
