@@ -1,19 +1,9 @@
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import dynamicImport from "next/dynamic";
+import RevenueChart from "./RevenueChart";
 import type { MonthRevenue } from "./RevenueChart";
 
 export const dynamic = "force-dynamic";
-
-// 動態載入圖表（避免 SSR 錯誤）
-const RevenueChart = dynamicImport(() => import("./RevenueChart"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-[220px] flex items-center justify-center text-sm text-[#9CA89E]">
-      載入圖表中…
-    </div>
-  ),
-});
 
 async function getStats() {
   const now        = new Date();
