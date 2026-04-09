@@ -11,13 +11,20 @@ interface Props {
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
+const DOT_COLOR: Record<string, string> = {
+  open:      "bg-tea-green",
+  full:      "bg-tea-text-light/40",
+  cancelled: "bg-red-300",
+};
+
 export default function ExperienceCalendar({ experience }: Props) {
   const router  = useRouter();
   const today   = new Date();
-  const [year,  setYear]    = useState(today.getFullYear());
-  const [month, setMonth]   = useState(today.getMonth() + 1);
-  const [sessions, setSessions] = useState<ExperienceSession[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const [year,  setYear]       = useState(today.getFullYear());
+  const [month, setMonth]      = useState(today.getMonth() + 1);
+  const [sessions, setSessions]       = useState<ExperienceSession[]>([]);
+  const [loading, setLoading]         = useState(true);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const fetchSessions = useCallback(async () => {
     setLoading(true);
@@ -34,15 +41,16 @@ export default function ExperienceCalendar({ experience }: Props) {
 
   useEffect(() => { fetchSessions(); }, [fetchSessions]);
 
-  // 產生月曆格子
-  const firstDay = new Date(year, month - 1, 1).getDay();
+  const firstDay    = new Date(year, month - 1, 1).getDay();
   const daysInMonth = new Date(year, month, 0).getDate();
 
   const prevMonth = () => {
+    setSelectedDay(null);
     if (month === 1) { setYear(y => y - 1); setMonth(12); }
     else setMonth(m => m - 1);
   };
   const nextMonth = () => {
+    setSelectedDay(null);
     if (month === 12) { setYear(y => y + 1); setMonth(1); }
     else setMonth(m => m + 1);
   };
@@ -57,6 +65,14 @@ export default function ExperienceCalendar({ experience }: Props) {
     d.setHours(23, 59, 59);
     return d < today;
   };
+
+  const handleDayClick = (day: number, hasSessions: boolean, past: boolean) => {
+    if (past || !hasSessions) return;
+    setSelectedDay(prev => (prev === day ? null : day));
+  };
+
+  // 選中日期的場次清單
+  const selectedSessions = selectedDay !== null ? getDateSessions(selectedDay) : [];
 
   return (
     <div>
@@ -90,11 +106,11 @@ export default function ExperienceCalendar({ experience }: Props) {
 
       {/* 日曆格子 */}
       {loading ? (
-        <div className="h-64 flex items-center justify-center text-tea-text-light text-sm">
+        <div className="h-48 flex items-center justify-center text-tea-text-light text-sm">
           載入中…
         </div>
       ) : (
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
           {/* 空格 */}
           {Array.from({ length: firstDay }).map((_, i) => (
             <div key={`empty-${i}`} />
@@ -102,66 +118,124 @@ export default function ExperienceCalendar({ experience }: Props) {
 
           {/* 日期格 */}
           {Array.from({ length: daysInMonth }).map((_, i) => {
-            const day      = i + 1;
+            const day         = i + 1;
             const daySessions = getDateSessions(day);
-            const past     = isPast(day);
-            const hasOpen  = daySessions.some(s => s.status === "open");
+            const past        = isPast(day);
+            const hasSessions = daySessions.length > 0;
+            const isSelected  = selectedDay === day;
+            const dots        = daySessions.slice(0, 3);
 
             return (
               <div
                 key={day}
-                className={`min-h-[72px] rounded-xl p-1.5 border transition-colors ${
-                  past
-                    ? "bg-gray-50 border-transparent opacity-40"
-                    : daySessions.length > 0
-                    ? "border-tea-green-pale bg-tea-green-mist/40"
-                    : "border-transparent"
-                }`}
+                onClick={() => handleDayClick(day, hasSessions, past)}
+                className={`
+                  min-h-[44px] sm:min-h-[52px] rounded-lg p-1 flex flex-col items-center border transition-colors
+                  ${past
+                    ? "border-transparent opacity-40 cursor-default"
+                    : hasSessions
+                      ? isSelected
+                        ? "border-tea-green bg-tea-green-mist/60 ring-2 ring-tea-green cursor-pointer"
+                        : "border-tea-green-pale bg-tea-green-mist/30 cursor-pointer hover:bg-tea-green-mist/50"
+                      : "border-transparent cursor-default"
+                  }
+                `}
               >
-                <div className={`text-xs mb-1 font-medium text-right ${
-                  past ? "text-tea-text-light" : "text-tea-text"
+                {/* 日期數字 */}
+                <span className={`text-xs font-medium leading-none mt-1 ${
+                  past ? "text-tea-text-light" : isSelected ? "text-tea-green font-bold" : "text-tea-text"
                 }`}>
                   {day}
-                </div>
-                {daySessions.map(s => (
-                  <button
-                    key={s.id}
-                    disabled={s.status !== "open" || past}
-                    onClick={() => router.push(`/experiences/booking/${s.id}`)}
-                    className={`w-full text-left text-xs px-1.5 py-1 rounded-lg mb-0.5 transition-colors leading-tight ${
-                      s.status === "open" && !past
-                        ? "bg-tea-green text-white hover:bg-tea-green-dark cursor-pointer"
-                        : s.status === "full"
-                        ? "bg-tea-text-light/20 text-tea-text-light cursor-not-allowed"
-                        : "bg-red-100 text-red-400 cursor-not-allowed line-through"
-                    }`}
-                  >
-                    <div className="font-medium">{s.startTime.slice(0, 5)}</div>
-                    <div className="opacity-80">
-                      {s.status === "open"
-                        ? `${experience.maxParticipants - s.currentParticipants} 位`
-                        : s.status === "full" ? "額滿" : "取消"}
-                    </div>
-                  </button>
-                ))}
+                </span>
+
+                {/* 圓點 */}
+                {!past && hasSessions && (
+                  <div className="flex gap-0.5 mt-1.5 flex-wrap justify-center">
+                    {dots.map((s, idx) => (
+                      <span
+                        key={idx}
+                        className={`w-1.5 h-1.5 rounded-full ${DOT_COLOR[s.status] ?? "bg-gray-300"}`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
       )}
 
+      {/* 選中日期的場次清單 */}
+      {selectedDay !== null && (
+        <div className="mt-4 border-t border-tea-green-pale pt-4">
+          <h4 className="text-sm font-semibold text-tea-text mb-3">
+            {month} 月 {selectedDay} 日　場次
+          </h4>
+          <div className="space-y-2">
+            {selectedSessions.map(s => {
+              const open = s.status === "open";
+              const remaining = experience.maxParticipants - s.currentParticipants;
+              return (
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between bg-tea-cream-light rounded-xl px-4 py-3 border border-tea-green-pale/60"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5 text-tea-green shrink-0" />
+                      <span className="text-sm font-semibold text-tea-text">
+                        {s.startTime.slice(0, 5)}
+                      </span>
+                      <span className="text-xs text-tea-text-light">
+                        （{experience.durationHours} 小時）
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 pl-5">
+                      {open ? (
+                        <span className="text-xs text-tea-green font-medium">
+                          剩餘 {remaining} 位
+                        </span>
+                      ) : s.status === "full" ? (
+                        <span className="text-xs text-tea-text-light bg-tea-text-light/10 px-2 py-0.5 rounded-full">
+                          額滿
+                        </span>
+                      ) : (
+                        <span className="text-xs text-red-400 bg-red-50 px-2 py-0.5 rounded-full">
+                          已取消
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    disabled={!open}
+                    onClick={() => router.push(`/experiences/booking/${s.id}`)}
+                    className={`text-sm font-medium px-4 py-2 rounded-xl transition-colors ${
+                      open
+                        ? "bg-tea-green text-white hover:bg-tea-green-dark cursor-pointer"
+                        : "bg-tea-text-light/10 text-tea-text-light cursor-not-allowed"
+                    }`}
+                  >
+                    {open ? "立即預約" : "不可預約"}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* 圖例 */}
-      <div className="flex flex-wrap gap-2 sm:gap-4 mt-5 text-xs text-tea-text-light">
+      <div className="flex flex-wrap gap-3 sm:gap-4 mt-5 text-xs text-tea-text-light">
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-tea-green inline-block" />
+          <span className="w-2 h-2 rounded-full bg-tea-green inline-block" />
           可預約
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-tea-text-light/20 inline-block" />
+          <span className="w-2 h-2 rounded-full bg-tea-text-light/40 inline-block" />
           額滿
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-red-100 inline-block" />
+          <span className="w-2 h-2 rounded-full bg-red-300 inline-block" />
           取消
         </span>
       </div>

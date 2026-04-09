@@ -147,8 +147,8 @@ export default async function ExperienceDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {/* 右側：日曆 */}
-          <div className="lg:col-span-3">
+          {/* 右側：日曆（手機版優先顯示） */}
+          <div className="lg:col-span-3 order-first lg:order-last">
             <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
               <h2 className="font-serif text-xl font-bold text-tea-text mb-6">選擇場次</h2>
               <ExperienceCalendar experience={experience} />
