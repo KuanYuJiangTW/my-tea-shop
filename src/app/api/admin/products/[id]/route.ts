@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as { params: Promise<{ id: string }> }).params;
 
   const body = await req.json() as {
     name?: string;
@@ -63,10 +64,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   revalidatePath("/products");
 
   return NextResponse.json({ ok: true });
-}
+});
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export const DELETE = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as { params: Promise<{ id: string }> }).params;
 
   const { error } = await supabase
     .from("products")
@@ -79,4 +80,4 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   revalidatePath("/products");
   return NextResponse.json({ ok: true });
-}
+});

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 // GET /api/admin/experience-sessions — 近期 90 天場次
-export async function GET() {
+export const GET = withAdminAuth(async () => {
   const today = new Date().toISOString().split("T")[0];
   const end   = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
@@ -16,10 +17,10 @@ export async function GET() {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
-}
+});
 
 // POST /api/admin/experience-sessions — 新增場次
-export async function POST(req: NextRequest) {
+export const POST = withAdminAuth(async (req: NextRequest) => {
   const { experienceTypeId, date, time } = await req.json();
 
   if (!experienceTypeId || !date || !time) {
@@ -45,4 +46,4 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json(data, { status: 201 });
-}
+});

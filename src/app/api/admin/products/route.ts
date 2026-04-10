@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
-export async function GET() {
+export const GET = withAdminAuth(async () => {
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -12,7 +13,7 @@ export async function GET() {
   }
 
   return NextResponse.json(data);
-}
+});
 
 function toNumOrNull(v: unknown): number | null {
   if (v === null || v === undefined || v === "") return null;
@@ -31,7 +32,7 @@ function toStr(v: unknown): string {
   return String(v).trim();
 }
 
-export async function POST(request: Request) {
+export const POST = withAdminAuth(async (request: NextRequest) => {
   const body = await request.json().catch(() => null);
   if (!body) {
     return NextResponse.json({ error: "無效的請求格式" }, { status: 400 });
@@ -92,4 +93,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json(data, { status: 201 });
-}
+});

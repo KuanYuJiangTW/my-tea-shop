@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
-const BUCKET = "product-images";
+const BUCKET    = "product-images";
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 
-export async function POST(req: NextRequest) {
+const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_EXT  = new Set(["jpg", "jpeg", "png", "webp"]);
+
+export const POST = withAdminAuth(async (req: NextRequest) => {
   const formData = await req.formData().catch(() => null);
   if (!formData) {
     return NextResponse.json({ error: "無效的請求格式" }, { status: 400 });
@@ -21,7 +25,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "圖片不能超過 5MB" }, { status: 400 });
   }
 
-  const ext = file.name.split(".").pop() ?? "jpg";
+  // MIME 類型與副檔名白名單驗證
+  const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+  if (!ALLOWED_MIME.has(file.type) || !ALLOWED_EXT.has(ext)) {
+    return NextResponse.json({ error: "只允許上傳 JPG、PNG、WebP 格式的圖片" }, { status: 400 });
+  }
+
   const path = `${slug}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
   const { error } = await supabase.storage
@@ -35,4 +44,4 @@ export async function POST(req: NextRequest) {
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
 
   return NextResponse.json({ url: data.publicUrl });
-}
+});

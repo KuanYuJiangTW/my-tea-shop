@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-
-type Params = { params: Promise<{ id: string }> };
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 // PATCH /api/admin/experience-bookings/[id]
 // body: { refund_status: "processed" }
-export async function PATCH(req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as { params: Promise<{ id: string }> }).params;
   const body = await req.json();
 
   const { error } = await supabase
@@ -19,4 +18,4 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   return NextResponse.json({ ok: true });
-}
+});
