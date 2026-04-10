@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { authenticator } from "otplib";
+import { verify } from "otplib";
 import { computeAdminToken } from "@/lib/admin-token";
 import { supabase } from "@/lib/supabase";
 
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "2FA 尚未設定" }, { status: 400 });
   }
 
-  const isValid = authenticator.verify({ token: code, secret: data.value });
+  const isValid = await verify({ token: code, secret: data.value });
   if (!isValid) {
     return NextResponse.json({ error: "驗證碼錯誤" }, { status: 401 });
   }

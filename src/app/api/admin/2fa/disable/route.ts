@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticator } from "otplib";
+import { verify } from "otplib";
 import { supabase } from "@/lib/supabase";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
 
@@ -22,7 +22,7 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
     return NextResponse.json({ error: "2FA 尚未設定" }, { status: 400 });
   }
 
-  const isValid = authenticator.verify({ token: code, secret: data.value });
+  const isValid = await verify({ token: code, secret: data.value });
   if (!isValid) {
     return NextResponse.json({ error: "驗證碼錯誤，請重試" }, { status: 400 });
   }
