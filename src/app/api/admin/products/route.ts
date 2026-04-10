@@ -93,4 +93,4 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
   }
 
   return NextResponse.json(data, { status: 201 });
-});
+}, "create_product");

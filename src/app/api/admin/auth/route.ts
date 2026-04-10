@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { computeAdminToken } from "@/lib/admin-token";
+import { supabase } from "@/lib/supabase";
 
 // ─── In-memory Rate Limiter ───────────────────────────────────────────────────
 // 注意：Vercel serverless 在高流量下可能有多個 instance，
@@ -73,12 +74,33 @@ export async function POST(req: NextRequest) {
 
   clearAttempts(ip);
 
+  // 檢查是否已啟用 2FA
+  const { data: totpData } = await supabase
+    .from("admin_settings")
+    .select("value")
+    .eq("key", "totp_secret")
+    .maybeSingle();
+
+  if (totpData?.value) {
+    // 2FA 已啟用：設定暫時 pending cookie，要求進行 TOTP 驗證
+    const res = NextResponse.json({ require2fa: true });
+    res.cookies.set("admin_pending", "1", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 10, // 10 分鐘內完成 2FA
+    });
+    return res;
+  }
+
+  // 2FA 未啟用：直接發放正式 session
   const token = computeAdminToken(adminPassword);
   const res = NextResponse.json({ ok: true });
   res.cookies.set("admin_session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict", // lax → strict：防止 CSRF
+    sameSite: "strict",
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 天
   });

@@ -46,4 +46,4 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
   }
 
   return NextResponse.json(data, { status: 201 });
-});
+}, "create_session");

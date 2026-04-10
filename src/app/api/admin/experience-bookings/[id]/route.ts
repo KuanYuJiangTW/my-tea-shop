@@ -18,4 +18,4 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
   }
 
   return NextResponse.json({ ok: true });
-});
+}, "update_booking");

@@ -64,7 +64,7 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
   revalidatePath("/products");
 
   return NextResponse.json({ ok: true });
-});
+}, "update_product");
 
 export const DELETE = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
   const { id } = await (ctx as { params: Promise<{ id: string }> }).params;
@@ -80,4 +80,4 @@ export const DELETE = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => 
 
   revalidatePath("/products");
   return NextResponse.json({ ok: true });
-});
+}, "delete_product");

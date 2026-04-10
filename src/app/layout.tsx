@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { headers } from "next/headers";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -56,15 +57,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html lang="zh-TW" className={cn("font-sans", geist.variable)}>
       <body>
-        <GoogleAnalytics />
+        <GoogleAnalytics nonce={nonce} />
         <AuthProvider>
           <CartProvider>
             <SiteChrome>{children}</SiteChrome>
