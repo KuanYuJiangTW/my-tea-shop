@@ -6,7 +6,7 @@ const SUPABASE_HOST = "wrknatfejiexqlyywuzz.supabase.co";
 function buildCSP(nonce: string): string {
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com`,
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com https://taiwantea.store`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     `img-src 'self' data: blob: https://${SUPABASE_HOST}`,
     "font-src 'self' data: https://fonts.gstatic.com",
