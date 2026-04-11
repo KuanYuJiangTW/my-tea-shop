@@ -10,41 +10,25 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 計算 7 天前的門檻日期（YYYY-MM-DD 格式，方便與 session_date 比較）
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const cutoffDate   = sevenDaysAgo.toISOString().slice(0, 10);
-
-  // 查詢 session_date 超過 7 天的場次 ID
-  const { data: oldSessions } = await supabase
-    .from("experience_sessions")
-    .select("id, session_date, start_time")
-    .lt("session_date", cutoffDate);
-
-  if (!oldSessions || oldSessions.length === 0) {
-    return NextResponse.json({ ok: true, results: { completed: 0, pointsIssued: 0, skipped: 0, errors: 0 } });
-  }
-
-  // 再精確篩選（含時間）
-  const sessionIds = oldSessions
-    .filter(s => new Date(`${s.session_date}T${s.start_time}`) < sevenDaysAgo)
-    .map(s => s.id);
-
-  if (sessionIds.length === 0) {
-    return NextResponse.json({ ok: true, results: { completed: 0, pointsIssued: 0, skipped: 0, errors: 0 } });
-  }
-
-  // 查詢這些場次中仍為 confirmed 的預約
+  // 查詢所有 confirmed 的預約（含場次資訊）
   const { data: bookings, error } = await supabase
     .from("experience_bookings")
-    .select("id, user_id, total_price, points_discount")
-    .eq("status", "confirmed")
-    .in("session_id", sessionIds);
+    .select("id, user_id, total_price, points_discount, session:experience_sessions(session_date, start_time)")
+    .eq("status", "confirmed");
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const overdue = bookings ?? [];
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  // 篩選活動結束超過 7 天的預約
+  const overdue = (bookings ?? []).filter(b => {
+    const session = b.session as unknown as { session_date: string; start_time: string } | null;
+    if (!session) return false;
+    const sessionTime = new Date(`${session.session_date}T${session.start_time}`);
+    return sessionTime < sevenDaysAgo;
+  });
 
   const results = { completed: 0, pointsIssued: 0, skipped: 0, errors: 0 };
 
