@@ -54,7 +54,8 @@ export async function POST(_req: NextRequest, { params }: Params) {
     // < 24 小時 → refundRate 維持 0
   }
 
-  const refundAmount = Math.floor(booking.total_price * refundRate);
+  const paidAmount   = booking.total_price - (booking.points_discount ?? 0);
+  const refundAmount = Math.floor(paidAmount * refundRate);
 
   const { error: updateError } = await supabase
     .from("experience_bookings")

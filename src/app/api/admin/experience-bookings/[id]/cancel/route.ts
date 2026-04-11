@@ -36,7 +36,8 @@ export async function POST(_req: NextRequest, { params }: Params) {
     else if (hoursUntil >= 3 * 24) refundRate = 0.5;
     else if (hoursUntil >= 24)     refundRate = 0.2;
 
-    refundAmount = Math.floor(booking.total_price * refundRate);
+    const paidAmount = booking.total_price - (booking.points_discount ?? 0);
+    refundAmount = Math.floor(paidAmount * refundRate);
   }
 
   const { error: updateError } = await supabase
@@ -57,7 +58,8 @@ export async function POST(_req: NextRequest, { params }: Params) {
   // 退還已折抵的點數（按退款比例，待付款全額退還，未使用點數不退）
   const wasPending = booking.status === "confirmed" ? false : true;
   if (booking.points_used > 0) {
-    const refundRate   = booking.total_price > 0 ? refundAmount / booking.total_price : 0;
+    const paidAmt      = booking.total_price - (booking.points_discount ?? 0);
+    const refundRate   = paidAmt > 0 ? refundAmount / paidAmt : 0;
     const refundPoints = wasPending
       ? booking.points_used
       : Math.floor(booking.points_used * refundRate);
