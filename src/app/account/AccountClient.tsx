@@ -328,24 +328,26 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   }
 
   async function handleSubmitReview() {
-    if (!reviewBookingId) return;
+    const bookingId = reviewBookingId; // 立即捕獲，避免 async 後閉包過期
+    if (!bookingId) return;
     setReviewSubmitting(true);
     setReviewError("");
     const res = await fetch("/api/reviews", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ bookingId: reviewBookingId, rating: reviewRating, comment: reviewComment }),
+      body:    JSON.stringify({ bookingId, rating: reviewRating, comment: reviewComment }),
     });
     const json = await res.json();
-    setReviewSubmitting(false);
     if (!res.ok) {
+      setReviewSubmitting(false);
       setReviewError(json.error ?? "送出失敗，請稍後再試");
       return;
     }
-    setBookingList(prev => prev.map(b => b.id === reviewBookingId ? { ...b, has_review: true } : b));
+    setBookingList(prev => prev.map(b => b.id === bookingId ? { ...b, has_review: true } : b));
     setReviewBookingId(null);
     setReviewComment("");
     setReviewRating(5);
+    setReviewSubmitting(false);
   }
 
   function openEditAddress(order: Order) {

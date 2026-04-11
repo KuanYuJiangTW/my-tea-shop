@@ -1,6 +1,6 @@
 ## 1. 資料庫 Schema
 
-- [ ] 1.1 在 Supabase 執行 migration：`ALTER TABLE experience_bookings ADD COLUMN IF NOT EXISTS points_used INTEGER DEFAULT 0, ADD COLUMN IF NOT EXISTS points_discount INTEGER DEFAULT 0;`
+- [x] 1.1 在 Supabase 執行 migration：`ALTER TABLE experience_bookings ADD COLUMN IF NOT EXISTS points_used INTEGER DEFAULT 0, ADD COLUMN IF NOT EXISTS points_discount INTEGER DEFAULT 0;`
 
 ## 2. 類型定義
 
