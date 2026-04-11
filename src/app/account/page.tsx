@@ -53,11 +53,17 @@ export default async function AccountPage() {
     .from("experience_bookings")
     .select(`
       id, created_at, status, participant_count, total_price, points_discount, participants_due_at, refund_amount,
-      session:experience_sessions(session_date, start_time, experience_types(name)),
-      reviews:experience_reviews(id)
+      session:experience_sessions(session_date, start_time, experience_types(name))
     `)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
+
+  // 已評價的預約 IDs（獨立查詢，不依賴 FK join）
+  const { data: reviewedRows } = await adminSupabase
+    .from("experience_reviews")
+    .select("booking_id")
+    .eq("user_id", user.id);
+  const reviewedIds = new Set((reviewedRows ?? []).map((r: { booking_id: string }) => r.booking_id));
 
   // 候補記錄（待確認或候補中）
   const { data: waitlist } = await adminSupabase
@@ -82,7 +88,7 @@ export default async function AccountPage() {
         bookings={
           (bookings ?? []).map((b: Record<string, unknown>) => ({
             ...b,
-            has_review: Array.isArray(b.reviews) && b.reviews.length > 0,
+            has_review: reviewedIds.has(b.id as string),
           })) as unknown as Parameters<typeof AccountClient>[0]["bookings"]
         }
         waitlist={(waitlist ?? []) as unknown as Parameters<typeof AccountClient>[0]["waitlist"]}
