@@ -46,7 +46,7 @@ type CouponRow = {
 type BookingRow = {
   id: string;
   created_at: string;
-  status: "pending_payment" | "confirmed" | "cancelled";
+  status: "pending_payment" | "confirmed" | "completed" | "cancelled";
   participant_count: number;
   total_price: number;
   points_discount: number;
@@ -122,9 +122,10 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function bookingStatusLabel(status: BookingRow["status"]): { label: string; cls: string } {
   const map = {
-    pending_payment: { label: "待付款", cls: "bg-yellow-100 text-yellow-800" },
-    confirmed:       { label: "已確認", cls: "bg-[#C8DDD0] text-[#3D6B46]" },
-    cancelled:       { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+    pending_payment: { label: "待付款",  cls: "bg-yellow-100 text-yellow-800" },
+    confirmed:       { label: "已確認",  cls: "bg-[#C8DDD0] text-[#3D6B46]" },
+    completed:       { label: "已完成",  cls: "bg-emerald-100 text-emerald-700" },
+    cancelled:       { label: "已取消",  cls: "bg-[#E0D5D5] text-[#7A4545]" },
   };
   return map[status] ?? { label: status, cls: "bg-gray-100 text-gray-600" };
 }
@@ -601,6 +602,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 const st             = bookingStatusLabel(booking.status);
                 const isDue          = booking.participants_due_at && new Date() < new Date(booking.participants_due_at);
                 const isConfirmed    = booking.status === "confirmed";
+                const isCompleted    = booking.status === "completed";
                 const isCancelled    = booking.status === "cancelled";
                 const isPending      = booking.status === "pending_payment";
 
@@ -609,7 +611,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   ? new Date(`${session.session_date}T${session.start_time}`)
                   : null;
                 const canCancel   = (isConfirmed || isPending) && sessionDate && sessionDate > new Date();
-                const isPast      = isConfirmed && sessionDate && sessionDate < new Date();
+                const isPast      = (isConfirmed || isCompleted) && sessionDate && sessionDate < new Date();
                 const canReview   = isPast && !booking.has_review;
 
                 // 退款比例說明

@@ -30,11 +30,13 @@ type Props = {
 const statusLabel: Record<string, string> = {
   pending_payment: "待付款",
   confirmed:       "已確認",
+  completed:       "已完成",
   cancelled:       "已取消",
 };
 const statusStyle: Record<string, string> = {
   pending_payment: "bg-amber-100 text-amber-700",
   confirmed:       "bg-emerald-100 text-emerald-700",
+  completed:       "bg-blue-100 text-blue-700",
   cancelled:       "bg-red-100 text-red-500",
 };
 const refundStatusLabel: Record<string, string> = {
@@ -58,6 +60,21 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
   const [cancelling, setCancelling]   = useState(false);
   const [cancelError, setCancelError] = useState("");
   const [cancelResult, setCancelResult] = useState<{ refundAmount: number } | null>(null);
+
+  async function handleMarkComplete(id: string) {
+    setProcessing(id);
+    const res = await fetch(`/api/admin/experience-bookings/${id}`, {
+      method:  "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ status: "completed" }),
+    });
+    setProcessing(null);
+    if (res.ok) {
+      setBookings(prev =>
+        prev.map(b => b.id === id ? { ...b, status: "completed" } : b)
+      );
+    }
+  }
 
   async function handleAdminCancel() {
     if (!cancelId) return;
@@ -170,6 +187,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
         {[
           { value: "confirmed",       label: "已確認" },
           { value: "pending_payment", label: "待付款" },
+          { value: "completed",       label: "已完成" },
           { value: "cancelled",       label: "已取消" },
           { value: "all",             label: "全部" },
         ].map(opt => (
@@ -220,9 +238,14 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                   const isConfirmed  = b.status === "confirmed";
                   const refundSt     = b.refund_status ?? "none";
                   const needsRefund  = isCancelled && refundSt === "pending";
+                  const sessionDateTime = b.session
+                    ? new Date(`${b.session.session_date}T${b.session.start_time}`)
+                    : null;
+                  const isPastSession   = sessionDateTime && sessionDateTime < new Date();
+                  const isAwaitingComplete = isConfirmed && isPastSession;
 
                   return (
-                    <tr key={b.id} className={`hover:bg-[#F9F6F1] transition-colors ${needsRefund ? "bg-orange-50" : ""}`}>
+                    <tr key={b.id} className={`hover:bg-[#F9F6F1] transition-colors ${needsRefund ? "bg-orange-50" : isAwaitingComplete ? "bg-amber-50" : ""}`}>
                       <td className="px-6 py-3.5">
                         <div className="font-medium text-[#3D4A42]">
                           {(b.session?.experience_types as { name: string } | null)?.name ?? "—"}
@@ -287,14 +310,25 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                         {b.dietary_notes || "—"}
                       </td>
                       <td className="px-4 py-3.5">
-                        {(isConfirmed || b.status === "pending_payment") && (
-                          <button
-                            onClick={() => { setCancelId(b.id); setCancelError(""); setCancelResult(null); }}
-                            className="text-xs text-rose-500 hover:text-rose-700 border border-rose-200 hover:border-rose-400 px-2.5 py-1 rounded-full transition-colors whitespace-nowrap"
-                          >
-                            代為取消
-                          </button>
-                        )}
+                        <div className="flex flex-col gap-1.5">
+                          {isAwaitingComplete && (
+                            <button
+                              onClick={() => handleMarkComplete(b.id)}
+                              disabled={processing === b.id}
+                              className="text-xs text-white bg-blue-500 hover:bg-blue-600 disabled:opacity-50 px-2.5 py-1 rounded-full transition-colors whitespace-nowrap"
+                            >
+                              {processing === b.id ? "處理中…" : "標記完成"}
+                            </button>
+                          )}
+                          {(isConfirmed || b.status === "pending_payment") && (
+                            <button
+                              onClick={() => { setCancelId(b.id); setCancelError(""); setCancelResult(null); }}
+                              className="text-xs text-rose-500 hover:text-rose-700 border border-rose-200 hover:border-rose-400 px-2.5 py-1 rounded-full transition-colors whitespace-nowrap"
+                            >
+                              代為取消
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
