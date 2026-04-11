@@ -205,6 +205,8 @@ export interface ExperienceBooking {
   cancellationReason?: string;
   refundAmount?:      number;
   refundStatus:       RefundStatus;
+  pointsUsed:         number;
+  pointsDiscount:     number;
   participantsDueAt?: string;
   createdAt:          string;
   session?:           ExperienceSession;

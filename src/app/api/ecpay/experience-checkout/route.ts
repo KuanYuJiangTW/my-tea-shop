@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabaseUser.auth.getUser();
   if (!user) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
-  const { bookingId } = await req.json();
+  const body = await req.json();
+  const { bookingId, pointsToUse = 0 } = body as { bookingId?: string; pointsToUse?: number };
   if (!bookingId) return NextResponse.json({ error: "缺少 bookingId" }, { status: 400 });
 
   // 查詢預約資料
@@ -51,6 +52,48 @@ export async function POST(req: NextRequest) {
 
   if (error || !booking) {
     return NextResponse.json({ error: "找不到此預約或狀態不符" }, { status: 404 });
+  }
+
+  // ── 點數折抵驗證 ────────────────────────────────────────────────────────────
+  let pointsUsed = 0;
+  let pointsDiscount = 0;
+
+  if (pointsToUse > 0) {
+    if (pointsToUse < 200 || pointsToUse % 100 !== 0) {
+      return NextResponse.json({ error: "點數最少 200 點，且須為 100 的倍數" }, { status: 400 });
+    }
+    const { data: txs } = await supabase
+      .from("point_transactions")
+      .select("points")
+      .eq("user_id", user.id);
+    const balance = (txs ?? []).reduce((s: number, t: { points: number }) => s + t.points, 0);
+    if (balance < pointsToUse) {
+      return NextResponse.json({ error: "點數不足" }, { status: 400 });
+    }
+    const maxDiscount = Math.floor(booking.total_price * 0.1);
+    if (pointsToUse / 100 > maxDiscount) {
+      return NextResponse.json({ error: `點數折抵上限為 NT$${maxDiscount}` }, { status: 400 });
+    }
+    pointsUsed = pointsToUse;
+    pointsDiscount = Math.floor(pointsToUse / 100);
+  }
+
+  const actualAmount = Math.max(booking.total_price - pointsDiscount, 0);
+
+  // 更新 booking 的點數記錄
+  if (pointsUsed > 0) {
+    await supabase
+      .from("experience_bookings")
+      .update({ points_used: pointsUsed, points_discount: pointsDiscount })
+      .eq("id", bookingId);
+
+    await supabase.from("point_transactions").insert({
+      user_id:     user.id,
+      points:      -pointsUsed,
+      type:        "redeem",
+      order_id:    bookingId,
+      description: `體驗預約折抵 NT$${pointsDiscount}`,
+    });
   }
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ??
@@ -82,7 +125,7 @@ export async function POST(req: NextRequest) {
     OrderResultURL:    `${base}/api/ecpay/result`,
     PaymentType:       "aio",
     ReturnURL:         `${base}/api/ecpay/return`,
-    TotalAmount:       String(booking.total_price),
+    TotalAmount:       String(actualAmount),
     TradeDesc:         "WuJueTea-Experience",
   };
 

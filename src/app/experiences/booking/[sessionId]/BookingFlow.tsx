@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Users, Clock, Calendar, ChevronRight, AlertCircle } from "lucide-react";
 import { ExperienceSession, ExperienceType } from "@/types";
@@ -37,12 +37,25 @@ export default function BookingFlow({ session, userEmail }: Props) {
   const [agreed, setAgreed]       = useState(false);
   const [loading, setLoading]     = useState(false);
   const [error,  setError]        = useState("");
+  const [pointsBalance, setPointsBalance] = useState(0);
+  const [pointsInput, setPointsInput]     = useState("");
+
+  useEffect(() => {
+    fetch("/api/user/points")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.balance) setPointsBalance(d.balance); })
+      .catch(() => {});
+  }, []);
 
   // 候補模式
   const [waitlistCount, setWaitlistCount] = useState(1);
   const [waitlistDone, setWaitlistDone]   = useState(false);
 
-  const totalPrice = exp.price * count;
+  const totalPrice     = exp.price * count;
+  const parsedPoints   = parseInt(pointsInput) || 0;
+  const validPoints    = parsedPoints >= 200 && parsedPoints % 100 === 0 && parsedPoints <= pointsBalance && parsedPoints / 100 <= Math.floor(totalPrice * 0.1) ? parsedPoints : 0;
+  const pointsDiscount = Math.floor(validPoints / 100);
+  const finalPrice     = Math.max(totalPrice - pointsDiscount, 0);
   const dateLabel  = new Date(session.sessionDate + "T00:00:00").toLocaleDateString("zh-TW", {
     year: "numeric", month: "long", day: "numeric", weekday: "long",
   });
@@ -126,7 +139,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
       const payRes = await fetch("/api/ecpay/experience-checkout", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingId: data.bookingId }),
+        body: JSON.stringify({ bookingId: data.bookingId, pointsToUse: validPoints }),
       });
       const payData = await payRes.json();
 
@@ -279,16 +292,49 @@ export default function BookingFlow({ session, userEmail }: Props) {
           </div>
 
           {/* 費用試算 */}
-          <div className="bg-tea-green-mist rounded-xl p-4 mb-6">
-            <div className="flex justify-between text-sm text-tea-text-light mb-1">
+          <div className="bg-tea-green-mist rounded-xl p-4 mb-6 space-y-1.5">
+            <div className="flex justify-between text-sm text-tea-text-light">
               <span>NT$ {exp.price.toLocaleString()} × {count} 人</span>
               <span>NT$ {totalPrice.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between font-bold text-tea-text text-lg">
-              <span>總金額</span>
-              <span>NT$ {totalPrice.toLocaleString()}</span>
+            {pointsDiscount > 0 && (
+              <div className="flex justify-between text-sm text-tea-green">
+                <span>點數折抵（{validPoints} 點）</span>
+                <span>－NT$ {pointsDiscount.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold text-tea-text text-lg border-t border-tea-green-pale/50 pt-1.5">
+              <span>應付金額</span>
+              <span>NT$ {finalPrice.toLocaleString()}</span>
             </div>
           </div>
+
+          {/* 點數折抵 */}
+          {pointsBalance > 0 && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-tea-text mb-1.5">
+                使用點數折抵
+                <span className="ml-2 text-xs font-normal text-tea-text-light">（可用：{pointsBalance.toLocaleString()} 點，上限 {Math.floor(totalPrice * 0.1).toLocaleString()} 元）</span>
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={100}
+                value={pointsInput}
+                onChange={e => setPointsInput(e.target.value)}
+                placeholder="輸入折抵點數（最少 200、100 的倍數）"
+                className="w-full border border-tea-green-pale rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30 focus:border-tea-green"
+              />
+              {pointsInput && !validPoints && parseInt(pointsInput) > 0 && (
+                <p className="text-xs text-amber-600 mt-1">
+                  {parseInt(pointsInput) < 200 ? "最少需 200 點" :
+                   parseInt(pointsInput) % 100 !== 0 ? "須為 100 的倍數" :
+                   parseInt(pointsInput) > pointsBalance ? "超過可用點數" :
+                   `折抵上限為 NT$${Math.floor(totalPrice * 0.1)}`}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* 18+ 確認（茶果酒） */}
           {exp.requiresAdult && (
@@ -426,9 +472,21 @@ export default function BookingFlow({ session, userEmail }: Props) {
           </label>
 
           {/* 費用確認 */}
-          <div className="bg-tea-green-mist rounded-xl p-4 mb-5 flex justify-between items-center">
-            <span className="text-sm text-tea-text-light">{exp.name} × {count} 人</span>
-            <span className="font-bold text-tea-text text-lg">NT$ {totalPrice.toLocaleString()}</span>
+          <div className="bg-tea-green-mist rounded-xl p-4 mb-5 space-y-1">
+            <div className="flex justify-between text-sm text-tea-text-light">
+              <span>{exp.name} × {count} 人</span>
+              <span>NT$ {totalPrice.toLocaleString()}</span>
+            </div>
+            {pointsDiscount > 0 && (
+              <div className="flex justify-between text-sm text-tea-green">
+                <span>點數折抵（{validPoints} 點）</span>
+                <span>－NT$ {pointsDiscount.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold text-tea-text text-base border-t border-tea-green-pale/50 pt-1">
+              <span>應付金額</span>
+              <span>NT$ {finalPrice.toLocaleString()}</span>
+            </div>
           </div>
 
           {error && (
@@ -443,7 +501,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
             disabled={loading}
             className="w-full bg-tea-green hover:bg-tea-green-dark text-white py-3.5 rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "處理中…" : `前往付款 NT$ ${totalPrice.toLocaleString()}`}
+            {loading ? "處理中…" : `前往付款 NT$ ${finalPrice.toLocaleString()}`}
           </button>
 
           <p className="text-center text-xs text-tea-text-light mt-3">

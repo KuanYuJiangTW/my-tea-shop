@@ -71,6 +71,20 @@ export async function POST(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
+  // 退還已折抵的點數（按退款比例，待付款不退）
+  if (!wasPending && booking.points_used > 0 && refundRate > 0) {
+    const refundPoints = Math.floor(booking.points_used * refundRate);
+    if (refundPoints > 0) {
+      supabase.from("point_transactions").insert({
+        user_id:     user.id,
+        points:      refundPoints,
+        type:        "earn",
+        order_id:    id,
+        description: "體驗預約取消退還點數",
+      }).then(({ error }) => { if (error) console.error("[points] 退還失敗:", error.message); });
+    }
+  }
+
   // 通知候補者（fire-and-forget）
   notifyNextWaitlist(booking.session_id, booking.participant_count).catch(console.error);
 
