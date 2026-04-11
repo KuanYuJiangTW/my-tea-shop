@@ -71,9 +71,13 @@ export async function POST(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  // 退還已折抵的點數（按退款比例，待付款不退）
-  if (!wasPending && booking.points_used > 0 && refundRate > 0) {
-    const refundPoints = Math.floor(booking.points_used * refundRate);
+  // 退還已折抵的點數
+  // 待付款：點數已於結帳時扣除但尚未付款，取消時全額退還
+  // 已確認：按退款比例退還
+  if (booking.points_used > 0) {
+    const refundPoints = wasPending
+      ? booking.points_used
+      : Math.floor(booking.points_used * refundRate);
     if (refundPoints > 0) {
       supabase.from("point_transactions").insert({
         user_id:    user.id,
