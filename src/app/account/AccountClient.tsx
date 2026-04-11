@@ -49,6 +49,7 @@ type BookingRow = {
   status: "pending_payment" | "confirmed" | "cancelled";
   participant_count: number;
   total_price: number;
+  points_discount: number;
   participants_due_at: string | null;
   refund_amount: number | null;
   has_review: boolean;
@@ -629,7 +630,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                             </span>
                           </div>
                           <div className="text-sm text-tea-text-light">
-                            {dateLabel} {timeLabel} · {booking.participant_count} 人 · NT${booking.total_price.toLocaleString()}
+                            {dateLabel} {timeLabel} · {booking.participant_count} 人 · NT${(booking.total_price - (booking.points_discount || 0)).toLocaleString()}
                           </div>
                           {isConfirmed && booking.participants_due_at && (
                             <div className={`mt-1 text-xs ${isDue ? "text-amber-600" : "text-rose-500"}`}>
