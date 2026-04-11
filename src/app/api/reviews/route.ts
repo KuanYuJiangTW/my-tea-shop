@@ -33,12 +33,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "找不到此預約" }, { status: 404 });
   }
 
-  if (booking.status !== "confirmed") {
-    return NextResponse.json({ error: "只有已確認的預約可以留評" }, { status: 409 });
+  if (booking.status !== "confirmed" && booking.status !== "completed") {
+    return NextResponse.json({ error: "只有已確認或已完成的預約可以留評" }, { status: 409 });
   }
 
   const session = booking.session as unknown as { session_date: string; experience_type_id: number } | null;
-  if (!session || new Date(session.session_date) >= new Date()) {
+  // completed 狀態由管理員確認已完成，不需再檢查日期
+  if (!session) {
+    return NextResponse.json({ error: "找不到場次資料" }, { status: 404 });
+  }
+  if (booking.status === "confirmed" && new Date(session.session_date) >= new Date()) {
     return NextResponse.json({ error: "體驗尚未結束，無法留評" }, { status: 409 });
   }
 
