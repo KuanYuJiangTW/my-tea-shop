@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 
   // 篩選活動結束超過 7 天的預約
   const overdue = (bookings ?? []).filter(b => {
-    const session = b.session as { session_date: string; start_time: string } | null;
+    const session = b.session as unknown as { session_date: string; start_time: string } | null;
     if (!session) return false;
     const sessionTime = new Date(`${session.session_date}T${session.start_time}`);
     return sessionTime < sevenDaysAgo;
