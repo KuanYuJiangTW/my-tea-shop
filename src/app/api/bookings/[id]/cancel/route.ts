@@ -79,13 +79,14 @@ export async function POST(_req: NextRequest, { params }: Params) {
       ? booking.points_used
       : Math.floor(booking.points_used * refundRate);
     if (refundPoints > 0) {
-      supabase.from("point_transactions").insert({
+      const { error: pointsError } = await supabase.from("point_transactions").insert({
         user_id:    user.id,
         points:     refundPoints,
         type:       "earn",
         booking_id: id,
         description: "體驗預約取消退還點數",
-      }).then(({ error }) => { if (error) console.error("[points] 退還失敗:", error.message); });
+      });
+      if (pointsError) console.error("[points] 退還失敗:", pointsError.message);
     }
   }
 
