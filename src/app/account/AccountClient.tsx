@@ -611,7 +611,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   ? new Date(`${session.session_date}T${session.start_time}`)
                   : null;
                 const canCancel   = (isConfirmed || isPending) && sessionDate && sessionDate > new Date();
-                const isPast      = (isConfirmed || isCompleted) && sessionDate && sessionDate < new Date();
+                const isPast      = isCompleted || (isConfirmed && sessionDate && sessionDate < new Date());
                 const canReview   = isPast && !booking.has_review;
 
                 // 退款比例說明
