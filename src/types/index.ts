@@ -183,7 +183,7 @@ export interface ExperienceSession {
 
 export type SessionStatus = 'open' | 'full' | 'cancelled';
 
-export type BookingStatus = 'pending_payment' | 'confirmed' | 'cancelled';
+export type BookingStatus = 'pending_payment' | 'confirmed' | 'cancelled' | 'completed';
 
 export type RefundStatus = 'none' | 'pending' | 'processed';
 

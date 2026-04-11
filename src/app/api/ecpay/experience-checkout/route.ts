@@ -88,10 +88,10 @@ export async function POST(req: NextRequest) {
       .eq("id", bookingId);
 
     await supabase.from("point_transactions").insert({
-      user_id:     user.id,
-      points:      -pointsUsed,
-      type:        "redeem",
-      order_id:    bookingId,
+      user_id:    user.id,
+      points:     -pointsUsed,
+      type:       "redeem",
+      booking_id: bookingId,
       description: `體驗預約折抵 NT$${pointsDiscount}`,
     });
   }

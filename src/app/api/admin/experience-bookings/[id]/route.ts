@@ -37,7 +37,7 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
     const { count } = await supabase
       .from("point_transactions")
       .select("id", { count: "exact", head: true })
-      .eq("order_id", id)
+      .eq("booking_id", id)
       .eq("type", "earn");
 
     if ((count ?? 0) === 0) {
@@ -45,10 +45,10 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
       const earnPoints = Math.max(Math.floor(prevBooking.total_price - pointsDiscount), 0);
       if (earnPoints > 0) {
         await supabase.from("point_transactions").insert({
-          user_id:     prevBooking.user_id,
-          points:      earnPoints,
-          type:        "earn",
-          order_id:    id,
+          user_id:    prevBooking.user_id,
+          points:     earnPoints,
+          type:       "earn",
+          booking_id: id,
           description: "體驗完成回饋",
           expires_at:  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
         });
