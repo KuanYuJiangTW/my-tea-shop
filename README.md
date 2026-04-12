@@ -405,4 +405,4 @@ vercel --prod
 
 ## 授權
 
-[MIT](LICENSE) © 2025 霧抉茶 Wu Jue Tea
+[MIT](LICENSE) © 2026 霧抉茶 Wu Jue Tea
