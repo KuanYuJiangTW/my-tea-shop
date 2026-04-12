@@ -16,7 +16,7 @@ const steps = [
   {
     number: "02",
     name: "日光萎凋",
-    nameEn: "Solar Withering",
+    nameEn: "Sun Withering",
     desc: "採摘後的茶葉攤放於乾淨的布上，在陽光下進行日光萎凋。這個步驟讓茶葉失去部分水分，細胞組織軟化，為後續的室內萎凋做準備，同時激發初始的香氣物質。",
     detail: "時間：1-2小時，視日照與溫度調整",
     color: "bg-amber-50",
@@ -43,7 +43,7 @@ const steps = [
   {
     number: "05",
     name: "炒菁",
-    nameEn: "Kill-green",
+    nameEn: "Stir Fixation",
     desc: "在達到理想氧化程度後，茶葉被投入高溫鐵鍋中翻炒，讓葉片中的酵素失去活性，停止氧化，同時激發出炒香與固定香氣，去除青草味。",
     detail: "溫度：260-300°C，時間：約5-8分鐘",
     color: "bg-orange-50",
@@ -52,7 +52,7 @@ const steps = [
   {
     number: "06",
     name: "揉捻",
-    nameEn: "Rolling",
+    nameEn: "Cloth Rolling",
     desc: "炒菁後的茶葉趁熱包布揉捻，使茶葉緊縮成球狀或條索狀。這個步驟使茶汁附著於葉表，沖泡時能快速展開，釋放完整的茶湯滋味。",
     detail: "反覆揉捻3-6次，每次20-30分鐘",
     color: "bg-tea-cream",
@@ -61,7 +61,7 @@ const steps = [
   {
     number: "07",
     name: "焙火",
-    nameEn: "Firing",
+    nameEn: "Roasting",
     desc: "精控的焙火是茶葉的最後蛻變。師傅根據茶款特性決定焙火程度，輕焙保留花香，中焙增添熟果香，重焙則帶出濃郁的烘焙韻味。此步驟也去除多餘水分，延長保存期限。",
     detail: "溫度：70-120°C，時間：4-16小時不等",
     color: "bg-amber-50",
