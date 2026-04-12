@@ -2,7 +2,7 @@
 
 # 霧抉茶 Wu Jue Tea
 
-**台灣嘉義梅山高山茶｜自產自銷電商平台**
+**台灣嘉義梅山高山茶｜自產自銷電商 + 茶藝體驗預約平台**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -16,41 +16,12 @@
 
 ---
 
-## 截圖
-
-<table>
-  <tr>
-    <td align="center"><strong>首頁</strong></td>
-    <td align="center"><strong>產品頁</strong></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/home.png" alt="首頁" width="100%"/></td>
-    <td><img src="docs/screenshots/products.png" alt="產品頁" width="100%"/></td>
-  </tr>
-  <tr>
-    <td align="center"><strong>購物車</strong></td>
-    <td align="center"><strong>結帳頁</strong></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/cart.png" alt="購物車" width="100%"/></td>
-    <td><img src="docs/screenshots/checkout.png" alt="結帳頁" width="100%"/></td>
-  </tr>
-  <tr>
-    <td align="center" colspan="2"><strong>管理後台</strong></td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center"><img src="docs/screenshots/admin.png" alt="管理後台" width="50%"/></td>
-  </tr>
-</table>
-
-> 截圖存放於 `docs/screenshots/`，可自行替換。
-
----
-
 ## 專案簡介
 
-**霧抉茶**是一個為台灣嘉義梅山山區茶農家庭打造的全端電商平台。
-涵蓋從商品瀏覽、購物車管理、多元付款（綠界金流 / 貨到付款）、訂單追蹤，到完整的管理後台，支援庫存管理、訂單狀態更新與自動寄送 Email 通知。
+**霧抉茶**是為台灣嘉義梅山山區茶農家庭打造的全端平台，涵蓋兩大核心系統：
+
+1. **電商系統** — 商品瀏覽、購物車、ECPay 金流（信用卡 / 超商）、訂單追蹤
+2. **茶藝體驗預約系統** — 5 種體驗活動、場次管理、線上預約付款、候補通知、完課後留評
 
 ---
 
@@ -62,40 +33,58 @@
 | **語言** | [TypeScript 5](https://www.typescriptlang.org/)（strict mode） |
 | **樣式** | [Tailwind CSS 3](https://tailwindcss.com/) |
 | **資料庫 / 認證** | [Supabase](https://supabase.com/)（PostgreSQL + Auth + RLS） |
+| **內容管理** | [Sanity CMS](https://www.sanity.io/)（體驗頁面內容） |
 | **金流** | [ECPay 綠界金流](https://www.ecpay.com.tw/)（信用卡 / ATM / 超商代碼） |
-| **Email** | [Resend](https://resend.com/)（訂單確認信、出貨通知） |
-| **分析** | Google Analytics 4 |
+| **Email** | [Resend](https://resend.com/)（訂單 / 預約 / 候補通知） |
+| **圖表** | [Recharts](https://recharts.org/)（後台收益圖表） |
 | **部署** | [Vercel](https://vercel.com/) |
 
 ---
 
 ## 功能列表
 
-### 前台（顧客端）
+### 前台 — 電商
 
-- **商品瀏覽**：依類別篩選（烏龍茶 / 紅茶），即時庫存顯示，售完自動鎖定
-- **購物車**：Context 狀態管理，支援增減數量、刪除品項，運費即時試算
-- **結帳流程**：宅配到府 / 超商店到店，滿 NT$1,000 免運優惠
-- **付款方式**：
-  - 線上付款（ECPay 綠界，支援信用卡 / ATM / 超商代碼）
-  - 貨到付款（宅配 / 超商）
-- **會員系統**：Supabase Auth（Email 密碼 / OAuth），自動帶入收件資料
-- **訂單追蹤**：登入後查看歷史訂單與最新狀態
-- **Email 通知**：下單即發送確認信（顧客 + 商家雙份）
+- **商品瀏覽**：多規格選擇（150g / 75g / 茶包），即時庫存顯示，售完自動鎖定
+- **購物車**：Context 狀態管理，localStorage 本地快取，Supabase 雲端同步
+- **結帳流程**：宅配到府 / 超商店到店，滿額免運
+- **付款方式**：線上付款（ECPay：信用卡 / ATM / 超商代碼）、貨到付款
+- **訂單追蹤**：登入後查看歷史訂單與最新狀態，支援取消
+- **優惠券 / 積點**：優惠碼驗證，完課後自動累積積點
+- **Email 通知**：下單確認、出貨通知（顧客 + 商家雙份）
 
-### 後台（管理端）
+### 前台 — 茶藝體驗預約
 
-- **儀表板**：今日訂單數、待處理件數、月營收統計
-- **訂單管理**：按狀態篩選、點進單筆查看完整明細、一鍵更新狀態（待付款 → 已付款 → 備貨中 → 已出貨 → 已完成）
-- **出貨通知**：狀態改為「已出貨」時自動寄送出貨通知信給顧客
-- **商品管理**：即時修改售價、庫存數量、上下架
-- **安全驗證**：Cookie session 認證，所有 `/admin/*` 路由受 Middleware 保護
+- **體驗瀏覽**：5 種體驗活動（茶藝體驗、焙茶工坊、採茶體驗、紅茶製作、茶果酒釀造）
+- **場次日曆**：按月份查詢可預約場次，即時顯示剩餘名額
+- **線上預約**：填寫參加者資料（含緊急聯絡人），ECPay 付款完成即確認
+- **候補系統**：場次滿額可加入候補；有人取消時按先進先出自動通知，24 小時內確認否則順延下一位
+- **完課留評**：體驗完成後可針對該場次留下評價與星等
+- **帳戶中心**：查看所有預約紀錄、參加者名單、取消申請
+
+### 後台（Admin）
+
+- **雙重認證**：管理員密碼 + 2FA（OTP / TOTP），登入失敗 15 分鐘內限 5 次
+- **儀表板**：今日訂單數、待處理件數、月收益折線圖
+- **訂單管理**：列表篩選、查看明細、一鍵更新狀態、出貨自動寄通知信
+- **商品管理**：修改售價、庫存、上下架、圖片上傳
+- **體驗管理**：場次日曆、新增 / 編輯 / 取消場次、查看預約列表、更新預約狀態、退款處理
+- **評價管理**：審核評價、切換可見性
+- **設定**：2FA 啟用 / 停用
+
+### 自動化（Cron Jobs）
+
+| 任務 | 排程 | 說明 |
+|---|---|---|
+| `complete-bookings` | 每日 02:00 UTC | 自動標記已結束的體驗為「完成」，發放積點 |
+| `experience-reminders` | 定期觸發 | 寄送預約提醒；清理過期候補並通知下一位 |
 
 ### 安全機制
 
-- ECPay 回調 `CheckMacValue` SHA256 簽章驗證，防止偽造付款通知
-- Supabase RLS 確保顧客只能查詢自己的訂單
-- Admin 密碼以 Base64 編碼儲存於 Cookie，全站 API 路由均驗證 session
+- ECPay 回調 `CheckMacValue` SHA256 簽章驗證
+- Supabase RLS 確保顧客只能存取自己的資料
+- Admin 使用 HMAC 簽章 Cookie，全站 `/admin/*` 由 Middleware 守門
+- API 路由 IP 限流（rate limiter），防暴力攻擊與候補濫用
 
 ---
 
@@ -103,67 +92,88 @@
 
 ```
 src/
-├── app/                          # Next.js 15 App Router
-│   ├── layout.tsx                # 根版面（GA、Auth、Cart Provider）
-│   ├── page.tsx                  # 首頁
-│   ├── about/                    # 品牌故事頁
-│   ├── products/                 # 商品列表頁
-│   ├── process/                  # 製茶過程頁
-│   ├── cart/                     # 購物車
-│   ├── checkout/                 # 結帳頁
-│   ├── order/result/             # 付款結果頁
-│   ├── contact/                  # 聯絡表單
-│   ├── privacy/                  # 隱私權政策
-│   ├── return-policy/            # 退換貨政策
-│   ├── auth/                     # 登入 / 註冊 / OAuth callback
-│   ├── account/                  # 會員中心（受保護）
-│   ├── admin/                    # 管理後台
-│   │   ├── page.tsx              # 後台登入頁
-│   │   └── (protected)/          # 受保護路由群組
-│   │       ├── dashboard/        # 儀表板
-│   │       ├── orders/           # 訂單管理
-│   │       │   └── [id]/         # 訂單詳情
-│   │       └── products/         # 商品管理
+├── app/                                  # Next.js 15 App Router
+│   ├── layout.tsx                        # 根版面（GA、Auth、Cart Provider）
+│   ├── page.tsx                          # 首頁
+│   ├── about/                            # 品牌故事
+│   ├── products/                         # 商品列表
+│   ├── process/                          # 製茶過程
+│   ├── experiences/                      # 茶藝體驗列表
+│   │   └── [slug]/                       # 體驗詳情 + 評價
+│   │       └── booking/[sessionId]/      # 預約流程
+│   ├── cart/                             # 購物車
+│   ├── checkout/                         # 結帳
+│   ├── order/result/                     # 付款結果
+│   ├── waitlist/[id]/confirm/            # 候補確認頁
+│   ├── account/                          # 會員中心（受保護）
+│   │   └── bookings/[id]/participants/   # 預約參加者
+│   ├── auth/                             # 登入 / 註冊 / OAuth callback
+│   ├── contact/                          # 聯絡表單
+│   ├── faq/                              # 常見問題
+│   ├── privacy/                          # 隱私權政策
+│   ├── return-policy/                    # 退換貨政策
+│   ├── admin/                            # 管理後台
+│   │   ├── page.tsx                      # 後台登入
+│   │   ├── verify-2fa/                   # 2FA 驗證
+│   │   └── (protected)/                  # 受保護路由群組
+│   │       ├── dashboard/                # 儀表板
+│   │       ├── orders/[id]/              # 訂單管理
+│   │       ├── products/                 # 商品管理
+│   │       ├── experiences/              # 體驗 / 場次 / 預約管理
+│   │       ├── reviews/                  # 評價管理
+│   │       └── settings/                 # 設定（2FA）
 │   └── api/
-│       ├── orders/               # POST 建立訂單（貨到付款）
-│       ├── ecpay/
-│       │   ├── checkout/         # POST 產生綠界付款表單
-│       │   ├── return/           # POST 綠界 server 回調（含簽章驗證）
-│       │   └── result/           # POST 綠界 browser 回調 → 轉址
-│       └── admin/
-│           ├── auth/             # POST 登入 / DELETE 登出
-│           ├── orders/           # GET 訂單列表 / PATCH 更新狀態
-│           └── products/         # GET 商品列表 / PATCH 更新欄位
+│       ├── orders/                       # 建立訂單、查詢、取消
+│       ├── bookings/                     # 建立預約、查詢、取消、參加者
+│       ├── experiences/                  # 體驗類型列表
+│       ├── experience-sessions/          # 場次查詢
+│       ├── waitlist/                     # 加入候補、候補確認
+│       ├── reviews/                      # 建立評價
+│       ├── user/coupons|points/          # 優惠券驗證、積點查詢
+│       ├── products/stock/               # 商品庫存
+│       ├── ecpay/                        # 綠界金流（商品 + 體驗）
+│       ├── cron/                         # 排程任務
+│       ├── admin/                        # 後台管理 API
+│       ├── contact/                      # 聯絡表單
+│       ├── revalidate/                   # ISR 快取更新
+│       └── sanity-webhook/              # Sanity CMS Webhook
 │
 ├── components/
-│   ├── Header.tsx                # 黏性頂部導覽（RWD 漢堡選單）
-│   ├── Footer.tsx                # 頁腳
-│   ├── ProductCard.tsx           # 商品卡片（hover 換圖、售完狀態）
-│   ├── SiteChrome.tsx            # 自動隱藏 Header/Footer（後台路由）
-│   └── GoogleAnalytics.tsx       # GA4 整合
+│   ├── Header.tsx                        # 黏性導覽（RWD 漢堡選單、購物車圖示）
+│   ├── Footer.tsx
+│   ├── ProductCard.tsx                   # 商品卡片（多規格、庫存狀態）
+│   ├── ProductLightbox.tsx               # 商品圖片燈箱
+│   ├── SiteChrome.tsx                    # 自動隱藏 Header/Footer（後台路由）
+│   ├── GoogleAnalytics.tsx               # GA4 整合
+│   └── ui/                              # UI 元件（button、select 等）
 │
 ├── context/
-│   ├── CartContext.tsx            # 購物車全域狀態
-│   └── AuthContext.tsx            # Supabase 認證狀態
+│   ├── CartContext.tsx                   # 購物車全域狀態（localStorage + Supabase）
+│   └── AuthContext.tsx                   # Supabase 認證狀態
 │
 ├── lib/
-│   ├── supabase.ts               # Server 端（Service Role Key）
-│   ├── supabase-client.ts        # Browser 端（Anon Key）
-│   ├── supabase-server.ts        # SSR 輔助
-│   └── email.ts                  # Resend 信件（確認信 / 出貨通知）
+│   ├── supabase.ts / supabase-client.ts / supabase-server.ts
+│   ├── experiences.ts                    # 體驗資料查詢（Sanity + 靜態備援）
+│   ├── products.ts                       # 商品資料查詢
+│   ├── email.ts                          # Resend 信件（訂單 / 預約 / 候補 / 聯絡）
+│   ├── waitlist.ts                       # 候補通知與過期邏輯
+│   ├── admin-auth-guard.ts               # Admin 認證中介
+│   ├── admin-token.ts                    # HMAC 簽章
+│   ├── rate-limit.ts                     # IP 限流
+│   └── utils.ts
 │
 ├── data/
-│   └── products.ts               # 靜態商品資料（seed 來源）
+│   └── products.ts                       # 靜態商品資料（備援）
 │
 ├── types/
-│   └── index.ts                  # 全域 TypeScript 介面定義
+│   └── index.ts                          # 全域 TypeScript 介面定義
 │
-└── middleware.ts                  # Supabase session 刷新 + Admin 路由保護
+└── middleware.ts                         # Supabase session 刷新 + Admin 路由保護
 ```
 
 ---
 
-## 購物流程說明
+## 購物流程
 
 ```
 顧客瀏覽商品
@@ -172,22 +182,41 @@ src/
 加入購物車（CartContext）
      │
      ▼
-填寫結帳表單（收件資訊 + 付款方式 + 配送方式）
+填寫結帳表單（收件資訊 + 付款 + 配送方式）
      │
      ├── 貨到付款 ──► POST /api/orders ──► 寫入 DB（pending）+ 扣庫存 + 寄信
-     │                                          │
-     │                                          ▼
-     │                                     顯示訂單成立頁
      │
      └── 線上付款 ──► POST /api/ecpay/checkout ──► 寫入 DB（pending）
                               │
                               ▼
                       自動提交表單至綠界
                               │
-                 ┌────────────┴─────────────┐
-                 │                           │
-    Server 回調 POST /api/ecpay/return    Browser 回調 POST /api/ecpay/result
-    （驗證簽章 → 更新 paid → 扣庫存 → 寄信）  （轉址至 /order/result）
+             ┌────────────────┴─────────────────┐
+             │                                  │
+  Server 回調 /api/ecpay/return        Browser 回調 /api/ecpay/result
+  （驗證簽章 → 更新 paid → 扣庫存 → 寄信）   （轉址至 /order/result）
+```
+
+## 體驗預約流程
+
+```
+瀏覽體驗 /experiences
+     │
+     ▼
+選擇場次（月曆） /experiences/[slug]
+     │
+     ├── 有名額 ──► 填寫預約資料 /experiences/[slug]/booking/[sessionId]
+     │                    │
+     │                    ▼
+     │             ECPay 付款 ──► 預約確認 Email
+     │
+     └── 已滿 ──► 加入候補 POST /api/waitlist
+                       │
+                       ▼（有人取消時）
+              候補通知 Email（24 小時確認截止）
+                       │
+              ├── 確認 ──► GET /waitlist/[id]/confirm ──► 轉為正式預約
+              └── 逾時 ──► 自動過期，通知下一位
 ```
 
 ---
@@ -197,16 +226,16 @@ src/
 ### 前置需求
 
 - Node.js 18+
-- npm 9+
 - Supabase 專案（免費方案即可）
 - ECPay 測試商店帳號
 - Resend 帳號並驗證寄信域名
+- Sanity 專案（可選，無則使用靜態備援資料）
 
 ### 安裝步驟
 
 ```bash
 # 1. 複製專案
-git clone https://github.com/your-username/my-tea-shop.git
+git clone https://github.com/KuanYuJiangTW/my-tea-shop.git
 cd my-tea-shop
 
 # 2. 安裝依賴
@@ -219,70 +248,39 @@ cp .env.example .env.local
 
 ### 環境變數
 
-在 `.env.local` 填入以下欄位：
-
 ```env
-# ── 綠界金流 ──────────────────────────────────────
-ECPAY_MERCHANT_ID=       # 綠界商店代號
-ECPAY_HASH_KEY=          # 綠界 HashKey
-ECPAY_HASH_IV=           # 綠界 HashIV
-
-# ── 網站網址（開發時用 ngrok 等工具對外曝露） ──────
+# ── 網站網址 ───────────────────────────────────
 NEXT_PUBLIC_BASE_URL=https://your-domain.com
 
-# ── Resend Email ──────────────────────────────────
-RESEND_API_KEY=          # Resend API Key
-RESEND_FROM_EMAIL=霧抉茶 <noreply@your-domain.com>
-ADMIN_EMAIL=             # 接收新訂單通知的信箱
-
-# ── Supabase ──────────────────────────────────────
+# ── Supabase ──────────────────────────────────
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 
-# ── Google Analytics（可選） ──────────────────────
+# ── Resend Email ──────────────────────────────
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=霧抉茶 <noreply@your-domain.com>
+ADMIN_EMAIL=
+
+# ── 綠界金流 ──────────────────────────────────
+ECPAY_MERCHANT_ID=
+ECPAY_HASH_KEY=
+ECPAY_HASH_IV=
+
+# ── 管理後台 ───────────────────────────────────
+ADMIN_PASSWORD=
+ADMIN_TOKEN_SECRET=        # 任意隨機字串，用於 HMAC 簽章
+
+# ── Sanity CMS（可選） ────────────────────────
+NEXT_PUBLIC_SANITY_PROJECT_ID=
+NEXT_PUBLIC_SANITY_DATASET=production
+SANITY_API_TOKEN=
+
+# ── Google Analytics（可選） ──────────────────
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 
-# ── 管理後台登入密碼 ───────────────────────────────
-ADMIN_PASSWORD=
-```
-
-### Supabase 資料表
-
-在 Supabase SQL Editor 執行以下 SQL 建立所需結構：
-
-```sql
--- 訂單資料表
-create table orders (
-  id               uuid primary key default gen_random_uuid(),
-  created_at       timestamptz default now(),
-  customer_name    text not null,
-  customer_email   text not null,
-  customer_phone   text not null,
-  payment_method   text not null,  -- 'online' | 'cod'
-  payment_status   text not null default 'pending',
-  shipping_address jsonb not null,
-  items            jsonb not null,
-  shipping_fee     integer not null,
-  total_amount     integer not null,
-  ecpay_trade_no   text,
-  note             text,
-  user_id          uuid references auth.users(id)
-);
-
--- 商品資料表
-create table products (
-  id             integer primary key,
-  stock_quantity integer not null default 0
-);
-
--- 庫存扣減函式
-create or replace function decrement_stock(p_id integer, qty integer)
-returns void language sql as $$
-  update products
-  set stock_quantity = greatest(stock_quantity - qty, 0)
-  where id = p_id;
-$$;
+# ── Cron Secret（Vercel Cron 驗證用） ─────────
+CRON_SECRET=
 ```
 
 ### 啟動開發伺服器
@@ -306,16 +304,30 @@ npx tsc --noEmit # TypeScript 型別檢查
 ## 部署至 Vercel
 
 ```bash
-# 安裝 Vercel CLI
 npm i -g vercel
-
-# 部署
 vercel --prod
 ```
 
-部署後請至 Vercel 後台 **Settings → Environment Variables** 填入所有 `.env.local` 中的鍵值。
+部署後至 Vercel 後台 **Settings → Environment Variables** 填入所有環境變數。
 
-> **注意**：ECPay 的 `ReturnURL` 與 `OrderResultURL` 需指向正式網域，綠界不接受 `localhost`。本地測試可使用 [ngrok](https://ngrok.com/) 或 [localtunnel](https://github.com/localtunnel/localtunnel) 建立臨時公開網址。
+**Cron Jobs** 設定請在 `vercel.json` 中定義（或直接使用 Vercel Dashboard 的 Cron 功能）：
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/complete-bookings",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/experience-reminders",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
+```
+
+> **注意**：ECPay 的 `ReturnURL` 與 `OrderResultURL` 需指向正式網域。本地測試可使用 [ngrok](https://ngrok.com/) 建立臨時公開網址。
 
 ---
 
