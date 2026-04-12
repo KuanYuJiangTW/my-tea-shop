@@ -16,6 +16,78 @@
 
 ---
 
+## 截圖
+
+### 前台 — 電商
+<table>
+  <tr>
+    <td align="center"><strong>首頁</strong></td>
+    <td align="center"><strong>商品頁</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/home.png" alt="首頁" width="100%"/></td>
+    <td><img src="docs/screenshots/products.png" alt="商品頁" width="100%"/></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>購物車</strong></td>
+    <td align="center"><strong>結帳頁</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/cart.png" alt="購物車" width="100%"/></td>
+    <td><img src="docs/screenshots/checkout.png" alt="結帳頁" width="100%"/></td>
+  </tr>
+</table>
+
+### 前台 — 茶藝體驗
+<table>
+  <tr>
+    <td align="center"><strong>體驗列表</strong></td>
+    <td align="center"><strong>體驗詳情</strong></td>
+    <td align="center"><strong>體驗詳情（評價）</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/experiences.png" alt="體驗列表" width="100%"/></td>
+    <td><img src="docs/screenshots/experience-detail.png" alt="體驗詳情" width="100%"/></td>
+    <td><img src="docs/screenshots/experience-detail-02.png" alt="體驗詳情評價" width="100%"/></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>預約流程 — 選擇場次</strong></td>
+    <td align="center"><strong>預約流程 — 填寫資料</strong></td>
+    <td align="center"><strong>預約流程 — 確認付款</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/booking.png" alt="預約選擇場次" width="100%"/></td>
+    <td><img src="docs/screenshots/booking-02.png" alt="預約填寫資料" width="100%"/></td>
+    <td><img src="docs/screenshots/booking-03.png" alt="預約確認付款" width="100%"/></td>
+  </tr>
+</table>
+
+### 前台 — 會員中心
+<table>
+  <tr>
+    <td align="center"><strong>預約記錄</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/account.png" alt="會員中心" width="50%"/></td>
+  </tr>
+</table>
+
+### 管理後台
+<table>
+  <tr>
+    <td align="center"><strong>儀表板</strong></td>
+    <td align="center"><strong>體驗場次管理</strong></td>
+    <td align="center"><strong>預約管理</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/admin-dashboard.png" alt="儀表板" width="100%"/></td>
+    <td><img src="docs/screenshots/admin-experiences.png" alt="體驗場次管理" width="100%"/></td>
+    <td><img src="docs/screenshots/admin-experiences-02.png" alt="預約管理" width="100%"/></td>
+  </tr>
+</table>
+
+---
+
 ## 專案簡介
 
 **霧抉茶**是為台灣嘉義梅山山區茶農家庭打造的全端平台，涵蓋兩大核心系統：
