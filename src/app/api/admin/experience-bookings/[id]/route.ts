@@ -42,7 +42,7 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
 
     if ((count ?? 0) === 0) {
       const pointsDiscount = prevBooking.points_discount ?? 0;
-      const earnPoints = Math.max(Math.floor(prevBooking.total_price - pointsDiscount), 0);
+      const earnPoints = Math.max(Math.floor((prevBooking.total_price - pointsDiscount) / 10), 0);
       if (earnPoints > 0) {
         await supabase.from("point_transactions").insert({
           user_id:    prevBooking.user_id,
