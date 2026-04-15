@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase as adminSupabase } from "@/lib/supabase";
 import AccountClient from "./AccountClient";
@@ -8,10 +9,14 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const [{ data: { user } }, locale] = await Promise.all([
+    supabase.auth.getUser(),
+    getLocale(),
+  ]);
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
 
   if (!user) {
-    redirect("/auth/login");
+    redirect(lp("/auth/login"));
   }
 
   // 確保 profile 存在

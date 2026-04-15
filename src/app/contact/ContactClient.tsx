@@ -2,17 +2,20 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ContactForm as FormState, ContactStatus as Status } from "@/types";
 
-const subjectOptions = [
-  { value: "product",   label: "產品詢問" },
-  { value: "order",     label: "訂單問題" },
-  { value: "wholesale", label: "批量採購" },
-  { value: "visit",     label: "茶園參訪" },
-  { value: "other",     label: "其他" },
-];
-
 export default function ContactClient() {
+  const t = useTranslations("contactPage");
+
+  const subjectOptions = [
+    { value: "product",   label: t("subjects.product") },
+    { value: "order",     label: t("subjects.order") },
+    { value: "wholesale", label: t("subjects.wholesale") },
+    { value: "visit",     label: t("subjects.visit") },
+    { value: "other",     label: t("subjects.other") },
+  ];
+
   const [form, setForm] = useState<FormState>({
     name: "",
     email: "",
@@ -58,6 +61,48 @@ export default function ContactClient() {
   const inputClass =
     "w-full border border-tea-green-pale bg-white rounded-xl px-4 py-3 text-tea-text placeholder-tea-text-light/50 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/40 focus:border-tea-green transition";
 
+  const infoItems = [
+    {
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      ),
+      label: t("info.addressLabel"),
+      value: t("info.addressValue"),
+    },
+    {
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 01.09 2.18 2 2 0 012.07 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z" />
+        </svg>
+      ),
+      label: t("info.phoneLabel"),
+      value: t("info.phoneValue"),
+    },
+    {
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+          <polyline points="22,6 12,13 2,6" />
+        </svg>
+      ),
+      label: t("info.emailLabel"),
+      value: t("info.emailValue"),
+    },
+    {
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      ),
+      label: t("info.responseLabel"),
+      value: t("info.responseValue"),
+    },
+  ];
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
@@ -65,49 +110,9 @@ export default function ContactClient() {
         {/* Left: Info */}
         <div className="lg:col-span-2 space-y-8">
           <div>
-            <h2 className="font-serif text-2xl font-bold text-tea-text mb-5">聯絡資訊</h2>
+            <h2 className="font-serif text-2xl font-bold text-tea-text mb-5">{t("info.title")}</h2>
             <div className="space-y-5">
-              {[
-                {
-                  icon: (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                  ),
-                  label: "地址",
-                  value: "嘉義縣梅山鄉太興村8鄰溪頭19號之2",
-                },
-                {
-                  icon: (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 01.09 2.18 2 2 0 012.07 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z" />
-                    </svg>
-                  ),
-                  label: "電話",
-                  value: "0972-619-391",
-                },
-                {
-                  icon: (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                      <polyline points="22,6 12,13 2,6" />
-                    </svg>
-                  ),
-                  label: "Email",
-                  value: "qdbzdt2846@gmail.com",
-                },
-                {
-                  icon: (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                      <circle cx="12" cy="12" r="10" />
-                      <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                  ),
-                  label: "回覆時間",
-                  value: "週一至週五 09:00 – 18:00",
-                },
-              ].map((item) => (
+              {infoItems.map((item) => (
                 <div key={item.label} className="flex gap-4">
                   <div className="flex-shrink-0 w-10 h-10 bg-tea-green-mist rounded-xl flex items-center justify-center text-tea-green">
                     {item.icon}
@@ -124,9 +129,9 @@ export default function ContactClient() {
           <div className="w-full h-px bg-tea-green-pale" />
 
           <div className="bg-tea-green-mist rounded-2xl p-6">
-            <p className="font-serif text-tea-text font-semibold mb-2">批量訂購</p>
+            <p className="font-serif text-tea-text font-semibold mb-2">{t("info.bulkTitle")}</p>
             <p className="text-tea-text-light text-sm leading-relaxed">
-              如有批量採購需求，請在訊息中說明品項與數量，我們將提供專屬報價。
+              {t("info.bulkDesc")}
             </p>
           </div>
         </div>
@@ -140,13 +145,13 @@ export default function ContactClient() {
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
-              <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">訊息已送出！</h3>
-              <p className="text-tea-text-light text-sm mb-8">感謝您的來信，我們會在 1–2 個工作天內回覆您。</p>
+              <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">{t("form.successTitle")}</h3>
+              <p className="text-tea-text-light text-sm mb-8">{t("form.successDesc")}</p>
               <button
                 onClick={() => { setStatus("idle"); setForm({ name: "", email: "", subject: "", message: "" }); }}
                 className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-full text-sm font-medium transition-colors"
               >
-                再次送出
+                {t("form.sendAgain")}
               </button>
             </div>
           ) : (
@@ -154,19 +159,19 @@ export default function ContactClient() {
               onSubmit={handleSubmit}
               className="bg-white rounded-2xl shadow-sm border border-tea-green-pale/40 p-8 space-y-5"
             >
-              <h2 className="font-serif text-2xl font-bold text-tea-text mb-1">傳送訊息</h2>
-              <p className="text-tea-text-light text-sm mb-4">填寫下方表單，我們會盡快與您聯繫</p>
+              <h2 className="font-serif text-2xl font-bold text-tea-text mb-1">{t("form.sendTitle")}</h2>
+              <p className="text-tea-text-light text-sm mb-4">{t("form.sendSubtitle")}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-tea-text mb-1.5">
-                    姓名 <span className="text-red-400">*</span>
+                    {t("form.name")} <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="text"
                     name="name"
                     required
-                    placeholder="王小明"
+                    placeholder={t("form.namePlaceholder")}
                     value={form.name}
                     onChange={handleChange}
                     className={inputClass}
@@ -174,13 +179,13 @@ export default function ContactClient() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-tea-text mb-1.5">
-                    Email <span className="text-red-400">*</span>
+                    {t("form.email")} <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="email"
                     name="email"
                     required
-                    placeholder="example@mail.com"
+                    placeholder={t("form.emailPlaceholder")}
                     value={form.email}
                     onChange={handleChange}
                     className={inputClass}
@@ -190,7 +195,7 @@ export default function ContactClient() {
 
               <div>
                 <label className="block text-xs font-medium text-tea-text mb-1.5">
-                  主旨 <span className="text-red-400">*</span>
+                  {t("form.subject")} <span className="text-red-400">*</span>
                 </label>
                 <div ref={subjectRef} className="relative">
                   <button
@@ -198,7 +203,7 @@ export default function ContactClient() {
                     onClick={() => setSubjectOpen(!subjectOpen)}
                     className={`${inputClass} flex items-center justify-between text-left ${!form.subject ? "text-tea-text-light/50" : "text-tea-text"}`}
                   >
-                    <span>{subjectOptions.find(o => o.value === form.subject)?.label ?? "請選擇主旨"}</span>
+                    <span>{subjectOptions.find(o => o.value === form.subject)?.label ?? t("form.subjectDefault")}</span>
                     <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${subjectOpen ? "rotate-180" : ""}`} />
                   </button>
                   {subjectOpen && (
@@ -227,13 +232,13 @@ export default function ContactClient() {
 
               <div>
                 <label className="block text-xs font-medium text-tea-text mb-1.5">
-                  訊息內容 <span className="text-red-400">*</span>
+                  {t("form.message")} <span className="text-red-400">*</span>
                 </label>
                 <textarea
                   name="message"
                   required
                   rows={6}
-                  placeholder="請輸入您想詢問的內容..."
+                  placeholder={t("form.messagePlaceholder")}
                   value={form.message}
                   onChange={handleChange}
                   className={`${inputClass} resize-none`}
@@ -241,7 +246,7 @@ export default function ContactClient() {
               </div>
 
               {status === "error" && (
-                <p className="text-red-500 text-sm text-center">寄送失敗，請稍後再試或直接來電聯繫我們。</p>
+                <p className="text-red-500 text-sm text-center">{t("form.error")}</p>
               )}
 
               <button
@@ -255,11 +260,11 @@ export default function ContactClient() {
                       <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
                       <path d="M12 2a10 10 0 0110 10" />
                     </svg>
-                    送出中...
+                    {t("form.submitting")}
                   </>
                 ) : (
                   <>
-                    送出訊息
+                    {t("form.submit")}
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <line x1="22" y1="2" x2="11" y2="13" />
                       <polygon points="22 2 15 22 11 13 2 9 22 2" />
@@ -269,7 +274,7 @@ export default function ContactClient() {
               </button>
 
               <p className="text-center text-xs text-tea-text-light">
-                送出即表示您同意我們的隱私政策，您的資料僅用於回覆本次詢問
+                {t("form.privacyNote")}
               </p>
             </form>
           )}

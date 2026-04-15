@@ -1,0 +1,1024 @@
+{
+  "common": {
+    "brand": "霧抉茶",
+    "nav": {
+      "home": "首頁",
+      "products": "產品",
+      "process": "製茶過程",
+      "experiences": "茶山體驗",
+      "about": "關於我們",
+      "contact": "聯絡我們"
+    },
+    "user": {
+      "account": "會員中心",
+      "orders": "我的訂單",
+      "logout": "登出",
+      "login": "登入",
+      "loginRegister": "登入 / 註冊",
+      "member": "會員",
+      "memberCenter": "會員中心（{name}）"
+    },
+    "cart": "購物車",
+    "menu": "選單",
+    "footer": {
+      "tagline": "源自嘉義阿里山梅山山區，\n一家三口40年的堅持，自產自銷好茶。",
+      "quickLinks": "快速連結",
+      "links": {
+        "products": "茶葉產品",
+        "process": "製茶過程",
+        "about": "關於我們",
+        "cart": "購物車"
+      },
+      "legal": "服務條款",
+      "legalLinks": {
+        "privacy": "隱私權政策",
+        "returnPolicy": "退換貨政策",
+        "faq": "常見問題"
+      },
+      "contactUs": "聯絡我們",
+      "address": "嘉義縣梅山鄉太興村8鄰溪頭19號之2",
+      "copyright": "© 2026 霧抉茶 Wu Jue Tea. All rights reserved."
+    },
+    "buttons": {
+      "viewAll": "查看全部",
+      "learnMore": "了解更多",
+      "backToHome": "回到首頁",
+      "continueShopping": "繼續購物",
+      "loading": "處理中…",
+      "close": "關閉"
+    },
+    "adultOnly": "18 歲以上"
+  },
+  "home": {
+    "hero": {
+      "subtitle": "Taiwan Premium Tea",
+      "title": "霧抉茶",
+      "tagline": "源自台灣高山",
+      "description": "嘉義梅山山區，一家三口40年的堅持與心意。從茶園到您手上，每一泡都是我們親手把關的好茶。",
+      "exploreBtn": "探索茶品",
+      "storyBtn": "我們的故事"
+    },
+    "philosophy": {
+      "sectionLabel": "Tea Philosophy",
+      "title": "品茶哲學",
+      "tagline": "我們相信，一杯好茶，是天、地、人三者的完美結合",
+      "items": {
+        "mountain": {
+          "title": "高山氣韻",
+          "desc": "茶園坐落於嘉義阿里山梅山山區，終年雲霧繚繞，高山冷涼氣候與晝夜溫差，造就茶葉清甜甘醇的獨特風味。"
+        },
+        "handcraft": {
+          "title": "手工製作",
+          "desc": "一家三口傳承超過40年的製茶經驗，焙火烘焙憑藉多年積累的手感掌控，每一批茶都是職人心血。"
+        },
+        "direct": {
+          "title": "自產自銷",
+          "desc": "從種植、製作、焙火、包裝到出貨，全程由我們親手把關，不假他人之手，讓每一泡茶安心送到您手上。"
+        }
+      }
+    },
+    "featured": {
+      "title": "本季精選",
+      "tagline": "嚴選當季最佳的台灣高山茶"
+    },
+    "experiences": {
+      "sectionLabel": "Experience",
+      "title": "茶山體驗",
+      "tagline": "走入嘉義梅山茶園，用雙手感受一片葉子的故事",
+      "viewAllCount": "查看全部 {count} 個體驗"
+    },
+    "brandStory": {
+      "sectionLabel": "Brand Story",
+      "title": "從一片葉子\n到一杯好茶",
+      "p1": "從爸爸媽媽年輕時踏入茶產業開始，我們在嘉義梅山的山區辛勤耕耘超過40年。因為熱愛，也因為責任，霧抉茶始終堅持自產自銷。",
+      "p2": "從茶園種植、茶葉製作、焙火烘焙、分裝包裝到出貨，每一道工序都由我們一家三口親手把關。你手上的每一泡茶，都是我們用時間和心意累積而成的風味。"
+    },
+    "stats": {
+      "years": "年製茶經驗",
+      "family": "家人親手把關",
+      "teas": "茶款系列",
+      "altitude": "茶園最高海拔"
+    },
+    "process": {
+      "title": "製茶工藝",
+      "tagline": "從採摘到成茶，每一個步驟都需要職人的專注與耐心",
+      "exploreBtn": "探索完整製茶過程",
+      "steps": {
+        "pick": {
+          "name": "採摘",
+          "desc": "清晨手工採摘嫩芽"
+        },
+        "wither": {
+          "name": "萎凋",
+          "desc": "日光與室內萎凋"
+        },
+        "roll": {
+          "name": "揉捻",
+          "desc": "成形展現茶韻"
+        },
+        "roast": {
+          "name": "焙火",
+          "desc": "精控火候鎖香"
+        }
+      }
+    }
+  },
+  "products": {
+    "pageTitle": "茶葉系列",
+    "pageTagline": "嚴選來自台灣各大茶區的頂級茶葉，每一款都有獨特的風味與故事",
+    "sectionLabel": "Our Collection",
+    "addToCart": "加入購物車",
+    "addedToCart": "已加入！",
+    "outOfStock": "已售完",
+    "origin": "產地",
+    "weight": "規格",
+    "filterAll": "全部",
+    "categoryOolong": "烏龍茶",
+    "categoryBlack": "紅茶",
+    "sortLabel": "排序",
+    "sortOptions": {
+      "default": "預設排序",
+      "priceAsc": "價格低到高",
+      "priceDesc": "價格高到低"
+    },
+    "noResults": "此分類暫無茶品",
+    "perPerson": "/ 人",
+    "countLabel": "共 {count} 款茶品",
+    "selectVariant": "選擇規格",
+    "quantity": "數量",
+    "stockCount": "庫存 {count} 包",
+    "stockLeft": "剩 {count} 包",
+    "addedWithCount": "已加入 ×{count}",
+    "variantLoose": "散茶",
+    "variantTeaBag": "茶包",
+    "teaBagHint": "15入 × 3g",
+    "unitServing": "份",
+    "unitBox": "盒",
+    "teaBagSet": "茶包組"
+  },
+  "experiences": {
+    "pageTitle": "茶山體驗",
+    "sectionLabel": "Experience",
+    "pageTagline": "走入嘉義梅山茶園，用雙手感受一片葉子的故事",
+    "bookNow": "立即預約",
+    "viewCalendar": "查看可預約場次",
+    "viewSessions": "查看場次",
+    "duration": "{hours}小時",
+    "participants": "{min}–{max}人",
+    "perPerson": "/ 人",
+    "perPersonLabel": "每人",
+    "adultOnly": "18 歲以上",
+    "noSessions": "目前無可預約場次",
+    "reviews": "評價",
+    "noReviews": "尚無評價",
+    "noticeTitle": "預約須知",
+    "notice1": "每場最低 4 人開課，未達人數將於活動前 3 天通知取消並全額退款",
+    "notice2": "付款完成後可在活動前 5 天內補填其他參加者資料",
+    "notice3": "活動前 7 天取消可全額退款，詳細退款政策請見各體驗頁面",
+    "notice4": "如有特殊需求（素食、過敏等），請於預約時填寫備註",
+    "hasQuestions": "還有其他疑問？",
+    "viewFAQ": "查看常見問題",
+    "perCostLabel": "每人費用",
+    "durationLabel": "體驗時長：{hours} 小時",
+    "participantsLabel": "每場人數：{min}–{max} 人",
+    "includes": "體驗包含",
+    "notes": "注意事項",
+    "selectSession": "選擇場次",
+    "gallery": "相簿",
+    "galleryAlt": "{name} 相簿 {index}",
+    "galleryAriaLabel": "查看第 {index} 張照片",
+    "reviewsTitle": "學員評價",
+    "reviewsCount": "（{count} 則）"
+  },
+  "cart": {
+    "title": "購物車",
+    "empty": {
+      "title": "購物車是空的",
+      "desc": "來挑選您喜愛的台灣好茶吧！",
+      "cta": "探索茶品"
+    },
+    "orderSummary": "訂單摘要",
+    "quantity": "商品數量",
+    "quantityUnit": "{count} 件",
+    "shipping": "運費",
+    "freeShipping": "免費",
+    "shippingOptions": "宅配 NT$250 / 超商 NT$60",
+    "freeShippingHint": "再買 NT${amount} 即享免運費",
+    "total": "總金額",
+    "checkout": "前往結帳",
+    "loginToCheckout": "登入後結帳",
+    "continueShopping": "繼續購物",
+    "stockAdjusted": "{name} 庫存剩 {count} 個，數量已調整",
+    "soldOut": "{name} 已售完，已自動從購物車移除"
+  },
+  "checkout": {
+    "title": "結帳",
+    "contactInfo": "聯絡資料",
+    "name": "姓名",
+    "namePlaceholder": "請輸入您的姓名",
+    "email": "電子郵件",
+    "phone": "手機號碼",
+    "phonePlaceholder": "0912345678",
+    "emailReadonlyHint": "訂單通知將寄至您的帳號信箱",
+    "emailHint": "請填寫 Email 以接收訂單通知",
+    "paymentMethod": "付款方式",
+    "onlinePayment": "線上付款",
+    "onlinePaymentDesc": "信用卡、ATM 轉帳、超商代碼（由綠界金流處理）",
+    "cashOnDelivery": "貨到付款",
+    "codDesc": "商品送達時以現金付款，適用宅配及超商店到店",
+    "deliveryMethod": "配送方式",
+    "homeDelivery": "宅配到府",
+    "homeDeliveryDesc": "黑貓宅急便，送達您指定的地址",
+    "cvsPickup": "超商店到店",
+    "cvsPickupDesc": "7-ELEVEN、全家、萊爾富、OK 超商取貨",
+    "city": "縣市",
+    "selectCityPlaceholder": "請選擇縣市",
+    "address": "詳細地址",
+    "addressPlaceholder": "鄉鎮市區、街道路、門牌號",
+    "cvsBrand": "超商品牌",
+    "cvsStore": "取貨門市",
+    "cvsStoreId": "店號：{id}",
+    "cvsReselect": "重新選擇",
+    "cvsMapOpening": "開啟地圖中...",
+    "cvsMapBtn": "選擇門市",
+    "cvsMapError": "無法開啟超商地圖，請稍後再試",
+    "cvsNotice": "請確認門市名稱正確，商品到店後將以簡訊通知取貨。",
+    "note": "備註（選填）",
+    "notePlaceholder": "如有特殊需求請在此說明",
+    "orderSummary": "訂單確認",
+    "coupon": "折價券",
+    "couponPlaceholder": "輸入折價券代碼",
+    "applyCoupon": "套用",
+    "couponNotFound": "折價券不存在或已使用",
+    "couponMinOrder": "未達最低消費 NT${min}",
+    "couponAppliedMsg": "已套用，折抵 -NT${amount}",
+    "couponDiscountInfo": "折抵 NT${amount}",
+    "couponMinRequired": "（需滿 NT${min}）",
+    "usePointsLabel": "使用 {points} 點 折抵 NT${discount}",
+    "pointsBalanceLabel": "（餘額 {balance} 點）",
+    "shippingFee": "運費",
+    "shippingFree": "免費",
+    "shippingThreshold": "滿 NT$1,000 即享免運費",
+    "couponDiscountLabel": "折價券折扣",
+    "pointsDiscountLabel": "點數折抵",
+    "paymentLabel": "付款",
+    "onlinePaymentShort": "線上付款",
+    "codShort": "貨到付款",
+    "totalAmount": "總金額",
+    "submitOnline": "前往綠界付款",
+    "submitCod": "確認訂單",
+    "processing": "處理中...",
+    "backToCart": "返回購物車",
+    "emptyCart": "購物車是空的，無法結帳",
+    "shopNow": "去選購茶品",
+    "codSuccess": {
+      "title": "訂單已成立！",
+      "desc": "感謝您的訂購，我們將盡快為您準備商品。",
+      "deliveryLabel": "配送方式：",
+      "homeDelivery": "宅配到府",
+      "cvsDelivery": "超商店到店（{name}）",
+      "paymentLabel": "付款方式：貨到付款",
+      "emailSent": "確認信將寄至 {email}，請耐心等候。",
+      "noEmailPrefix": "如需 Email 訂單通知，請前往",
+      "noEmailSuffix": "綁定並驗證信箱。",
+      "backHome": "回到首頁"
+    },
+    "errors": {
+      "nameRequired": "請輸入至少 2 個字的姓名",
+      "emailInvalid": "請輸入有效的電子郵件",
+      "phoneInvalid": "請輸入有效的手機號碼（例：0912345678）",
+      "cityRequired": "請選擇縣市",
+      "addressRequired": "請輸入完整的收件地址",
+      "storeRequired": "請點選「選擇門市」選擇取貨門市",
+      "orderFailed": "訂單建立失敗，請稍後再試",
+      "networkError": "連線失敗，請稍後再試"
+    }
+  },
+  "account": {
+    "title": "會員中心",
+    "tabs": {
+      "overview": "總覽",
+      "orders": "訂單記錄",
+      "bookings": "體驗預約",
+      "points": "積點記錄",
+      "coupons": "折價券",
+      "waitlist": "候補記錄",
+      "reviews": "我的評價",
+      "profile": "帳號設定",
+      "ordersCount": "訂單紀錄（{count}）",
+      "bookingsCount": "我的預約（{count}）",
+      "rewards": "點數 & 折價券"
+    },
+    "orderStatus": {
+      "pending": "待付款",
+      "paid": "已付款",
+      "paid2": "已付款",
+      "pending2": "待處理",
+      "preparing": "備貨中",
+      "processing": "處理中",
+      "shipped": "已出貨",
+      "completed": "已完成",
+      "delivered": "已送達",
+      "cancelled": "已取消",
+      "refunded": "已退款"
+    },
+    "bookingStatus": {
+      "pending_payment": "待付款",
+      "confirmed": "已確認",
+      "completed": "已完成",
+      "cancelled": "已取消"
+    },
+    "points": {
+      "balance": "可用點數",
+      "expiringSoon": "即將到期",
+      "earned": "獲得",
+      "redeemed": "折抵",
+      "expired": "已到期"
+    },
+    "cancelBooking": "取消預約",
+    "cancelOrder": "取消訂單",
+    "writeReview": "評價體驗",
+    "fillParticipants": "補填參加者資料",
+    "payNow": "立即付款",
+    "noOrders": "尚無訂單記錄",
+    "noBookings": "尚無體驗預約",
+    "noCoupons": "目前沒有可用的折價券",
+    "noPoints": "尚無積點記錄",
+    "profile": {
+      "title": "個人資料",
+      "subtitle": "儲存後，結帳時將自動帶入這些資料",
+      "name": "姓名",
+      "namePlaceholder": "請輸入您的姓名",
+      "email": "電子郵件",
+      "emailReadonly": "Email 無法修改",
+      "emailVerificationSent": "驗證信已寄出",
+      "emailVerificationDesc": "請前往 {email} 點擊確認連結，完成後 Email 即生效。",
+      "emailReenter": "重新填寫",
+      "emailBind": "綁定",
+      "emailBinding": "傳送中…",
+      "emailBindHint": "綁定後將寄送驗證信，點擊確認連結即完成",
+      "phone": "手機號碼",
+      "city": "縣市",
+      "selectCity": "請選擇",
+      "address": "常用地址",
+      "addressPlaceholder": "鄉鎮市區、街道路、門牌號",
+      "save": "儲存資料",
+      "saving": "儲存中…",
+      "saved": "已儲存",
+      "noEmail": "尚未綁定 Email"
+    },
+    "bookings": {
+      "defaultExperience": "茶藝體驗",
+      "personCount": "{count} 人",
+      "orderLabel": "訂單 #{id}",
+      "noBookingsTitle": "尚無預約紀錄",
+      "noBookingsDesc": "來體驗嘉義梅山的茶山之旅吧！",
+      "browse": "瀏覽茶山體驗",
+      "participantsDue": "補填截止：{date}",
+      "participantsDueExpired": "（已截止）",
+      "refundAmount": "退款金額：NT$ {amount}",
+      "fillInfo": "補填資料",
+      "retrying": "處理中…",
+      "retryPayment": "重新付款",
+      "cancelBooking": "取消預約",
+      "writeReview": "留下評價",
+      "reviewed": "已評價 ★"
+    },
+    "waitlist": {
+      "title": "候補記錄",
+      "waiting": "候補中",
+      "notified": "待確認",
+      "confirmBefore": "請於 {datetime} 前確認",
+      "confirm": "前往確認"
+    },
+    "rewards": {
+      "pointsTitle": "會員點數",
+      "pointsDesc": "每消費 NT$1 累積 1 點，100 點折抵 NT$1（單筆最高折抵 10%）",
+      "pointsUnit": "點",
+      "recentHistory": "近期記錄",
+      "earnDefault": "消費回饋",
+      "redeemDefault": "點數折抵",
+      "noPoints": "尚無點數記錄，完成第一筆訂單後即可開始累積！",
+      "couponsTitle": "我的折價券",
+      "couponsDesc": "結帳時輸入折價券代碼即可使用",
+      "couponUsed": "已使用",
+      "couponExpired": "已過期",
+      "couponDiscount": "折抵 NT${amount} · 滿 NT${min} 可用",
+      "couponUsedOn": " · 使用於 {date}",
+      "couponValidUntil": " · 有效至 {date}",
+      "noCoupons": "目前沒有折價券記錄。"
+    },
+    "orders": {
+      "noOrdersTitle": "尚無訂單紀錄",
+      "noOrdersDesc": "去探索我們的高山茶品吧！",
+      "items": "購買品項",
+      "itemCount": "{count} 件商品",
+      "changeHint": "如需變更商品或數量，請先取消訂單後重新下單。",
+      "shipping": "配送資訊",
+      "editAddress": "修改收件地址",
+      "cvsChangeHint": "如需變更超商門市，請聯絡客服：",
+      "cancelOrder": "取消訂單",
+      "cod": "貨到付款",
+      "online": "線上付款",
+      "homeDelivery": "宅配｜{city} {address}",
+      "cvsPickup": "超商｜{store} {storeName}"
+    },
+    "modal": {
+      "cancelOrderTitle": "確認取消訂單？",
+      "cancelOrderDesc": "取消後無法復原。若使用線上付款，退款事宜請聯絡客服處理。",
+      "back": "返回",
+      "confirmCancel": "確認取消",
+      "cancelling": "取消中…",
+      "cancelBookingTitle": "確認取消預約？",
+      "cancelBookingDone": "預約已取消",
+      "cancelBookingPendingDesc": "此預約尚未付款，已直接取消，不會產生任何費用。",
+      "cancelBookingPendingConfirmDesc": "此預約尚未付款，取消後無法復原，不會產生任何費用。",
+      "cancelBookingRefund": "退款金額：",
+      "cancelBookingNoRefund": " 不退款（距活動不足 24 小時）",
+      "cancelBookingRefundNote": "退款將於 5–7 個工作天內退回原付款帳號。",
+      "cancelBookingPolicyDesc": "取消後無法復原，退款依以下政策計算：",
+      "refund7days": "活動前 7 天以上",
+      "refund3to6days": "活動前 3–6 天",
+      "refund1to2days": "活動前 1–2 天",
+      "refundUnder24h": "24 小時內",
+      "refund100": "退款 100%",
+      "refund50": "退款 50%",
+      "refund20": "退款 20%",
+      "noRefund": "不退款",
+      "confirm": "確認",
+      "reviewTitle": "留下您的評價",
+      "reviewPlaceholder": "分享您的體驗心得（選填）",
+      "submitting": "送出中…",
+      "submitReview": "送出評價",
+      "cancel": "取消",
+      "editAddressTitle": "修改收件地址",
+      "editAddressCity": "縣市",
+      "editAddressSelectCity": "請選擇縣市",
+      "editAddressAddress": "地址",
+      "editAddressPlaceholder": "鄉鎮市區、街道路、門牌號",
+      "editAddressSave": "儲存地址",
+      "editAddressSaving": "儲存中…",
+      "or": "或",
+      "orderNumber": "訂單 #{id}"
+    },
+    "errors": {
+      "nameLength": "姓名至少 2 個字",
+      "phoneInvalid": "請輸入有效的手機號碼（例：0912345678）",
+      "cityInvalid": "請選擇有效縣市",
+      "addressLength": "地址請至少填入 4 個字",
+      "saveFailed": "儲存失敗，請稍後再試。",
+      "emailAlreadyUsed": "此 Email 已被其他帳號使用",
+      "emailBindFailed": "綁定失敗，請稍後再試",
+      "emailInvalid": "請輸入有效的電子郵件格式",
+      "cancelFailed": "取消失敗，請稍後再試",
+      "cityAddressRequired": "請填寫完整的縣市與地址",
+      "updateFailed": "更新失敗，請稍後再試",
+      "reviewFailed": "送出失敗，請稍後再試"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "歡迎回來",
+      "subtitle": "登入您的會員帳號",
+      "passwordMode": "密碼登入",
+      "magicMode": "Email 連結",
+      "email": "電子郵件",
+      "password": "密碼",
+      "loginBtn": "登入",
+      "loggingIn": "登入中…",
+      "sendLink": "發送登入連結",
+      "sending": "傳送中…",
+      "googleLogin": "使用 Google 帳號登入",
+      "lineLogin": "使用 LINE 帳號登入",
+      "facebookLogin": "使用 Facebook 帳號登入",
+      "connecting": "連線中…",
+      "noAccount": "還沒有帳號？",
+      "register": "立即註冊",
+      "or": "或",
+      "magicLinkHint": "我們將發送一次性登入連結到您的信箱",
+      "magicLinkSent": "連結已寄出！",
+      "magicLinkSentHint": "請前往 {email} 點擊登入連結",
+      "checkSpam": "沒有收到？請檢查垃圾信件夾",
+      "reenter": "重新輸入",
+      "errors": {
+        "emailInvalid": "請輸入有效的 Email 格式",
+        "passwordTooShort": "密碼長度至少 6 個字元",
+        "wrongCredentials": "Email 或密碼錯誤，請再試一次。",
+        "notRegistered": "此 Email 尚未註冊，請先建立帳號。",
+        "sendFailed": "傳送失敗，請稍後再試。"
+      },
+      "mobileLineWarning": {
+        "title": "行動裝置提醒",
+        "desc1": "使用 LINE 登入時，手機或平板裝置可能會跳轉到其他瀏覽器，導致登入失敗。",
+        "desc2": "建議改用 Google 帳號 或 Email 登入，或將常用瀏覽器設為裝置的預設瀏覽器後再試。",
+        "cancel": "取消",
+        "confirm": "仍要使用 LINE"
+      }
+    },
+    "register": {
+      "title": "建立帳號",
+      "subtitle": "加入霧抉茶，享受會員專屬服務",
+      "email": "電子郵件",
+      "password": "密碼",
+      "confirmPassword": "確認密碼",
+      "name": "姓名",
+      "namePlaceholder": "請輸入您的姓名",
+      "passwordPlaceholder": "至少 8 個字元，含英文字母及數字",
+      "confirmPlaceholder": "再輸入一次密碼",
+      "registerBtn": "建立帳號",
+      "registering": "處理中…",
+      "googleLogin": "使用 Google 帳號繼續",
+      "connecting": "連線中…",
+      "orEmail": "或用 Email 建立帳號",
+      "haveAccount": "已有帳號？",
+      "loginLink": "立即登入",
+      "success": {
+        "title": "驗證信已寄出！",
+        "checkEmail": "請前往 {email} 的信箱",
+        "clickLink": "點擊驗證連結後即可開始使用會員功能。",
+        "goLogin": "前往登入",
+        "checkSpam": "沒有收到？請檢查垃圾信件夾"
+      },
+      "errors": {
+        "nameTooShort": "請輸入至少 2 個字的姓名",
+        "nameOnlyNumbers": "姓名不能為純數字",
+        "emailInvalid": "請輸入有效的 Email 格式",
+        "passwordTooShort": "密碼至少 8 個字元",
+        "passwordNeedLetter": "密碼須包含至少一個英文字母",
+        "passwordNeedNumber": "密碼須包含至少一個數字",
+        "passwordMismatch": "兩次輸入的密碼不一致",
+        "alreadyRegistered": "此 Email 已被註冊，請直接登入。"
+      }
+    }
+  },
+  "experienceBooking": {
+    "title": "預約體驗",
+    "sessionDate": "日期",
+    "sessionTime": "時間",
+    "availableSpots": "剩餘名額",
+    "minParticipantsWarning": "目前 {current} 人，需滿 {min} 人才開課。人數不足時活動前 3 天通知取消並全額退款。",
+    "selectParticipants": "選擇參加人數",
+    "participantCount": "人",
+    "pricePerPerson": "NT$ {price} × {count} 人",
+    "pointsDiscount": "點數折抵（{points} 點）",
+    "finalAmount": "應付金額",
+    "usePointsLabel": "使用點數折抵",
+    "availablePoints": "可用：{balance} 點，上限 {max} 元",
+    "pointsPlaceholder": "輸入折抵點數（最少 200、100 的倍數）",
+    "pointsErrors": {
+      "min200": "最少需 200 點",
+      "multiple100": "須為 100 的倍數",
+      "exceeds": "超過可用點數",
+      "maxDiscount": "折抵上限為 NT${max}"
+    },
+    "adultConfirm": "我確認所有參加者均已年滿 18 歲（本體驗含酒精）",
+    "adultConfirmBasic": "我確認所有參加者均已年滿 18 歲",
+    "refundPolicy": {
+      "title": "取消退款政策",
+      "items": {
+        "7days": {
+          "label": "活動前 7 天以上",
+          "value": "全額退款"
+        },
+        "3to6days": {
+          "label": "活動前 3–6 天",
+          "value": "退款 50%"
+        },
+        "1to2days": {
+          "label": "活動前 1–2 天",
+          "value": "退款 20%"
+        },
+        "under24h": {
+          "label": "24 小時內",
+          "value": "不退款"
+        }
+      },
+      "changeNote": "如需改期請聯絡客服，由我們協助處理。"
+    },
+    "agreePolicy": "我已閱讀並同意上述取消退款政策",
+    "nextStep": "填寫訂購資料",
+    "back": "← 返回",
+    "bookerInfo": "訂購人資料",
+    "bookerName": "姓名",
+    "bookerPhone": "手機號碼",
+    "bookerEmail": "Email",
+    "dietaryNeeds": "特殊需求（選填）",
+    "dietaryOptions": {
+      "vegetarian": "素食",
+      "teaAllergy": "對茶類過敏"
+    },
+    "dietaryPlaceholder": "其他需求請直接輸入",
+    "payBtn": "前往付款 NT$ {amount}",
+    "participantNote": "付款後需填寫參加者詳細資料（含身分證、緊急聯絡人）",
+    "errors": {
+      "nameRequired": "請填寫姓名",
+      "phoneRequired": "請填寫手機號碼",
+      "agreeRequired": "請同意退款政策",
+      "adultRequired": "請確認所有參加者均已年滿 18 歲"
+    },
+    "waitlist": {
+      "fullNotice": "此場次已額滿，您可以加入候補候位。有人取消時我們會第一時間 Email 通知您。",
+      "title": "加入候補",
+      "joinBtn": "加入候補",
+      "successTitle": "已加入候補！",
+      "successDesc": "有名額釋出時，我們會立即寄 Email 通知您，請於 24 小時內確認。",
+      "viewWaitlist": "查看我的候補記錄"
+    },
+    "processing": "處理中…",
+    "bookerNamePlaceholder": "請輸入真實姓名",
+    "bookerPhonePlaceholder": "09XX-XXX-XXX",
+    "apiErrors": {
+      "waitlistFailed": "加入候補失敗，請稍後再試",
+      "networkError": "網路錯誤，請稍後再試",
+      "bookingFailed": "預約失敗，請稍後再試",
+      "paymentFailed": "無法建立付款，請稍後再試"
+    }
+  },
+  "process": {
+    "pageTitle": "製茶過程",
+    "pageTagline": "從山上的一片嫩葉，到杯中的一口好茶，每一步都承載著職人的心意與百年傳承",
+    "tableTitle": "The Craft",
+    "tableNote": "STEP",
+    "otherStyles": "不同茶款，不同工藝",
+    "otherStylesDesc": "以上流程以台灣烏龍茶為例。不同類別的茶葉有不同的製作方式——綠茶省略氧化步驟，紅茶則進行完全氧化，白茶僅經萎凋不揉捻。每一種工法都是對茶葉特性的最佳詮釋。",
+    "shopCta": "選購各式茶品",
+    "oxidationLabel": "氧化度 {value}",
+    "teas": {
+      "oolong": {
+        "name": "烏龍茶",
+        "oxidation": "15–85%"
+      },
+      "green": {
+        "name": "綠茶",
+        "oxidation": "0%"
+      },
+      "black": {
+        "name": "紅茶",
+        "oxidation": "100%"
+      },
+      "white": {
+        "name": "白茶",
+        "oxidation": "微氧化"
+      }
+    },
+    "steps": {
+      "pick": {
+        "name": "採摘",
+        "desc": "早上六點，採茶工們帶著工具攀上茶山。最好的茶葉在成熟度適中時採摘，此時採摘製茶最能激發出香氣滋味。手工採摘確保每一片葉子都是最嫩的一心二葉。",
+        "detail": "採摘季節：春（四月）、夏（六月）、秋（九月）、冬（十一月）"
+      },
+      "witherSun": {
+        "name": "日光萎凋",
+        "desc": "採摘後的茶葉攤放於乾淨的布上，在陽光下進行日光萎凋。這個步驟讓茶葉失去部分水分，細胞組織軟化，為後續的室內萎凋做準備，同時激發初始的香氣物質。",
+        "detail": "時間：1-2小時，視日照與溫度調整"
+      },
+      "witherIndoor": {
+        "name": "室內萎凋",
+        "desc": "將茶葉移至室內，攤放於通風良好的萎凋架上。在恆溫恆濕的環境中繼續萎凋，師傅每隔一段時間翻動茶葉，確保均勻失水，香氣持續醞釀發展。",
+        "detail": "時間：8-12小時，溫度控制在18-26°C"
+      },
+      "shake": {
+        "name": "浪菁",
+        "desc": "這是烏龍茶最關鍵的步驟之一。師傅以雙手或竹篩有節律地攪拌茶葉，使葉緣輕微破損，啟動酵素氧化反應，讓茶葉產生獨特的花果香氣。",
+        "detail": "次數：每1.5小時~2.5小時一次，共2-4次"
+      },
+      "fix": {
+        "name": "炒菁",
+        "desc": "在達到理想氧化程度後，茶葉被投入高溫鐵鍋中翻炒，讓葉片中的酵素失去活性，停止氧化，同時激發出炒香與固定香氣，去除青草味。",
+        "detail": "溫度：260-300°C，時間：約5-8分鐘"
+      },
+      "roll": {
+        "name": "揉捻",
+        "desc": "炒菁後的茶葉趁熱包布揉捻，使茶葉緊縮成球狀或條索狀。這個步驟使茶汁附著於葉表，沖泡時能快速展開，釋放完整的茶湯滋味。",
+        "detail": "反覆揉捻3-6次，每次20-30分鐘"
+      },
+      "roast": {
+        "name": "焙火",
+        "desc": "精控的焙火是茶葉的最後蛻變。師傅根據茶款特性決定焙火程度，輕焙保留花香，中焙增添熟果香，重焙則帶出濃郁的烘焙韻味。此步驟也去除多餘水分，延長保存期限。",
+        "detail": "溫度：70-120°C，時間：4-16小時不等"
+      },
+      "sort": {
+        "name": "揀選包裝",
+        "desc": "成茶後由師傅逐一手工揀除老葉、茶梗與雜質，確保每一批茶的品質一致。包裝採用真空鋁箔袋，保存茶葉香氣，讓您收到的每一包茶都如同剛出爐般新鮮。",
+        "detail": "每批茶均附品質認證標籤"
+      }
+    }
+  },
+  "about": {
+    "hero": {
+      "sectionLabel": "關於霧抉茶",
+      "title": "一杯茶的背後，是我們一家三口的真心與堅持"
+    },
+    "story": {
+      "yearsLabel": "年製茶經驗",
+      "title": "嘉義梅山，一家三口的茶園故事",
+      "p1": "從爸爸媽媽年輕時踏入茶產業開始，我們在嘉義梅山的山區辛勤耕耘超過40年。因為熱愛，也因為責任，霧抉茶始終堅持自產自銷。",
+      "p2": "從茶園種植、茶葉製作、焙火烘焙、分裝包裝到出貨，每一道工序都由我們親手把關。你手上的每一泡茶，都是我們用時間和心意累積而成的風味。",
+      "p3": "只為讓你安心喝下這一口溫潤甘甜。",
+      "shopCta": "探索我們的茶品"
+    },
+    "gallery": {
+      "sectionLabel": "茶園與製茶記錄",
+      "tagline": "從清晨採摘到夜晚焙火，記錄每一個讓茶葉蛻變的珍貴時刻"
+    },
+    "values": {
+      "sectionLabel": "我們的核心價值",
+      "selfGrown": {
+        "title": "自產自銷",
+        "desc": "從茶園種植到出貨配送，全程由我們一家三口親手把關，不假他人之手，確保每一包茶的品質與新鮮。"
+      },
+      "heritage": {
+        "title": "40年傳承工藝",
+        "desc": "從父母親踏入茶產業至今超過40年，焙火烘焙憑藉多年積累的經驗與手感掌控，每批茶都是職人心血。"
+      },
+      "region": {
+        "title": "嘉義梅山產區",
+        "desc": "茶園坐落於嘉義阿里山梅山山區，高山冷涼氣候、終年雲霧，造就茶葉清甜甘醇的獨特風味。"
+      },
+      "delivery": {
+        "title": "全台配送到府",
+        "desc": "全台配送，一包也出貨。歡迎來門市試喝，也歡迎線上下單，讓梅山好茶直接送到您手上。"
+      }
+    },
+    "teas": {
+      "sectionLabel": "Our Teas",
+      "title": "我們的茶，有故事，也有溫度",
+      "tagline": "無論你偏好哪一種風味，我們都用最熟悉的味道陪你過每一個日常",
+      "oolong": {
+        "name": "高山烏龍茶",
+        "flavor": "清香風味",
+        "desc": "嘉義梅山高山茶園孕育，雲霧繚繞，茶湯清澈金黃，清香甘醇，回甘悠長。"
+      },
+      "jinxuan": {
+        "name": "金萱茶",
+        "flavor": "柔滑奶香",
+        "desc": "天然奶香獨特迷人，口感柔滑細膩，茶湯淡黃清澈，入門台灣高山茶的最佳首選。"
+      },
+      "black": {
+        "name": "紅茶",
+        "flavor": "花果香迷人",
+        "desc": "全發酵製成，帶有迷人花果香氣，茶湯呈琥珀紅色，滋味醇厚甘甜，冷熱皆宜。"
+      },
+      "redOolong": {
+        "name": "紅烏龍茶",
+        "flavor": "焙火厚韻",
+        "desc": "重度發酵後精心焙火，融合烏龍香氣與紅茶甘醇，果香蜜韻交織，風味獨特耐人尋味。"
+      },
+      "sijichun": {
+        "name": "四季春",
+        "flavor": "野花香四溢",
+        "desc": "清新野花香著稱，茶湯翠綠明亮，滋味鮮爽甘甜，花香持久，是日常品飲的絕佳良伴。"
+      }
+    },
+    "galleryPhotos": {
+      "farm2":    { "alt": "嘉義梅山高山茶園全景", "caption": "嘉義梅山高山茶園", "desc": "終年雲霧環繞的高山茶園" },
+      "picking2": { "alt": "清晨手工採摘茶葉",     "caption": "清晨採摘嫩芽",     "desc": "一心二葉，品質的起點" },
+      "wilting":  { "alt": "日光萎凋製程",         "caption": "日光萎凋",         "desc": "讓茶葉在陽光中舒展" },
+      "wilting2": { "alt": "室內萎凋製程",         "caption": "室內萎凋",         "desc": "室內靜置，讓茶葉緩慢發酵" },
+      "rolling":  { "alt": "手工揉捻茶葉",         "caption": "揉捻成形",         "desc": "手工揉出茶葉的形與韻" },
+      "roasting": { "alt": "精控焙火烘焙",         "caption": "精控焙火烘焙",     "desc": "40年累積的火候手感" },
+      "teaCup":   { "alt": "沖泡完成的茶湯",       "caption": "一杯好茶",         "desc": "從茶園到您手中的完整旅程" },
+      "farm":     { "alt": "茶園景色",             "caption": "茶園景色",         "desc": "" },
+      "picking":  { "alt": "採摘過程",             "caption": "採摘過程",         "desc": "" },
+      "wilting3": { "alt": "室內萎凋細節",         "caption": "室內萎凋",         "desc": "" },
+      "rolling2": { "alt": "揉捻細節",             "caption": "揉捻細節",         "desc": "" },
+      "teaCup2":  { "alt": "茶湯特寫",             "caption": "茶湯特寫",         "desc": "" }
+    },
+    "contact": {
+      "sectionLabel": "門市資訊與聯絡方式",
+      "contactInfo": "聯絡資訊",
+      "address": {
+        "label": "門市地址",
+        "value": "嘉義縣梅山鄉太興村8鄰溪頭19號之2"
+      },
+      "phone": {
+        "label": "電話訂購",
+        "value": "0972-619-391"
+      },
+      "delivery": {
+        "label": "配送服務",
+        "value": "全台配送，一包也出貨"
+      },
+      "social": {
+        "label": "社群平台",
+        "searchLabel": "搜尋找到我們",
+        "socialHandle": "「霧抉茶」或「江寬育」",
+        "socialPlatforms": "IG・Threads・FB 同步更新中",
+        "socialCta": "想喝哪一款？歡迎私訊我們聊聊茶！"
+      }
+    },
+    "cta": {
+      "shopBtn": "選購好茶",
+      "processBtn": "了解製茶過程"
+    }
+  },
+  "experienceCalendar": {
+    "weekdays": [
+      "日",
+      "一",
+      "二",
+      "三",
+      "四",
+      "五",
+      "六"
+    ],
+    "yearMonth": "{year} 年 {month} 月",
+    "loading": "載入中…",
+    "sessionListTitle": "{month} 月 {day} 日　場次",
+    "duration": "（{hours} 小時）",
+    "remainingSpots": "剩餘 {count} 位",
+    "full": "額滿",
+    "cancelled": "已取消",
+    "bookBtn": "立即預約",
+    "unavailableBtn": "不可預約",
+    "legend": {
+      "available": "可預約",
+      "full": "額滿",
+      "cancelled": "取消"
+    },
+    "minParticipantsNotice": "每場需滿 {min} 人 才開課。",
+    "cancelNotice": "人數不足時，活動前 3 天會通知取消並全額退款。"
+  },
+  "orderResult": {
+    "bookingSuccess": "預約成功！",
+    "bookingSuccessDesc": "感謝您的預約，我們期待在茶山與您相見。",
+    "bookingRef": "預約編號：",
+    "emailSentBooking": "確認信已寄至 {email}，請記得查收。",
+    "noEmailBookingPrefix": "如需 Email 預約確認，請前往",
+    "noEmailBookingSuffix": "綁定並驗證信箱。",
+    "accountCenter": "會員中心",
+    "nextSteps": "接下來請記得：",
+    "nextStep1": "查收確認信，內含預約詳情與補填連結",
+    "nextStep2": "活動前 5 天內補填所有參加者的身分證、生日及緊急聯絡人",
+    "nextStep3": "活動當天請於開始前 15 分鐘到達茶園",
+    "orderSuccess": "付款成功！",
+    "orderSuccessDesc": "感謝您的訂購，我們將盡快為您備貨。",
+    "orderRef": "訂單編號：",
+    "emailSentOrder": "確認信將寄至 {email}，請耐心等候。",
+    "noEmailOrderPrefix": "如需 Email 訂單通知，請前往",
+    "noEmailOrderSuffix": "綁定並驗證信箱。",
+    "paymentFailed": "付款未完成",
+    "paymentFailedDefault": "付款流程未完成，請重新嘗試。",
+    "viewBookings": "查看我的預約",
+    "browseExperiences": "瀏覽更多體驗",
+    "backHome": "回到首頁",
+    "backToCart": "返回購物車"
+  },
+  "faq": {
+    "pageTitle": "常見問題",
+    "pageTagline": "有任何疑問？這裡可能有你需要的答案",
+    "loading": "內容準備中…",
+    "moreQuestions": "還有其他問題？",
+    "moreQuestionsDesc": "歡迎直接與我們聯繫，我們很樂意為您解答",
+    "contactBtn": "聯絡我們"
+  },
+  "contactPage": {
+    "hero": {
+      "sectionLabel": "聯絡我們",
+      "tagline": "有任何問題或想訂購批量茶葉，歡迎留言，我們會盡快回覆您"
+    },
+    "info": {
+      "title": "聯絡資訊",
+      "addressLabel": "地址",
+      "addressValue": "嘉義縣梅山鄉太興村8鄰溪頭19號之2",
+      "phoneLabel": "電話",
+      "phoneValue": "0972-619-391",
+      "emailLabel": "Email",
+      "emailValue": "qdbzdt2846@gmail.com",
+      "responseLabel": "回覆時間",
+      "responseValue": "週一至週五 09:00 – 18:00",
+      "bulkTitle": "批量訂購",
+      "bulkDesc": "如有批量採購需求，請在訊息中說明品項與數量，我們將提供專屬報價。"
+    },
+    "subjects": {
+      "product": "產品詢問",
+      "order": "訂單問題",
+      "wholesale": "批量採購",
+      "visit": "茶園參訪",
+      "other": "其他"
+    },
+    "form": {
+      "name": "姓名",
+      "namePlaceholder": "王小明",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "subject": "主旨",
+      "subjectDefault": "請選擇主旨",
+      "message": "訊息內容",
+      "messagePlaceholder": "請輸入您想詢問的內容...",
+      "submit": "送出訊息",
+      "submitting": "送出中...",
+      "sendTitle": "傳送訊息",
+      "sendSubtitle": "填寫下方表單，我們會盡快與您聯繫",
+      "privacyNote": "送出即表示您同意我們的隱私政策，您的資料僅用於回覆本次詢問",
+      "sendAgain": "再次送出",
+      "successTitle": "訊息已送出！",
+      "successDesc": "感謝您的來信，我們會在 1–2 個工作天內回覆您。",
+      "error": "寄送失敗，請稍後再試或直接來電聯繫我們。"
+    }
+  },
+  "privacyPolicy": {
+    "hero": {
+      "label": "Privacy Policy",
+      "title": "隱私權政策",
+      "tagline": "霧抉茶重視您的個人資料安全與隱私保護，\n請詳細閱讀以下說明。"
+    },
+    "sections": {
+      "s1": {
+        "title": "一、個人資料蒐集目的",
+        "content": "本網站（霧抉茶）依據《個人資料保護法》相關規定，於您使用本服務時蒐集必要的個人資料，蒐集目的如下：\n\n• 訂單處理與履行：包含姓名、電話、電子郵件、收件地址，用以確認訂單、安排出貨及寄送訂單確認通知。\n• 客戶服務：處理您的退換貨申請、問題諮詢及售後服務。\n• 電子報及行銷通知（限您主動同意者）：不定期提供新品上市、優惠活動等資訊。\n\n未經您同意，本網站不會將個人資料用於上述目的以外之用途。"
+      },
+      "s2": {
+        "title": "二、個人資料使用範圍",
+        "content": "本網站蒐集之個人資料，僅在以下範圍內使用：\n\n• 提供您所要求的商品或服務。\n• 寄送訂單相關通知（訂單確認、出貨通知）。\n• 處理您的付款（透過綠界科技金流平台，本網站不儲存您的信用卡資料）。\n• 配合法令規定或司法機關、行政機關依法定程序之要求。\n\n本網站不會將您的個人資料出售、出租或以其他方式提供給任何第三方，但配合訂單履行所必要之物流業者、金流服務提供商除外，且均以完成訂單為限。"
+      },
+      "s3": {
+        "title": "三、個人資料保護措施",
+        "content": "本網站採取適當之技術與管理措施，保護您的個人資料安全：\n\n• 網站使用 HTTPS 加密傳輸，確保資料在傳輸過程中的安全性。\n• 訂單資料儲存於具備安全防護機制的雲端資料庫（Supabase），並設有存取權限控管。\n• 付款流程透過綠界科技（ECPay）金流平台處理，本網站不儲存任何信用卡或金融帳戶資訊。\n• 本網站員工僅在履行職務所必要時，方可存取客戶個人資料。\n\n如發生個人資料外洩情事，本網站將依法通知受影響之當事人。"
+      },
+      "s4": {
+        "title": "四、Cookie 使用說明",
+        "content": "本網站使用 Cookie 及類似技術以改善使用者體驗：\n\n• 必要性 Cookie：維持購物車狀態、登入狀態等網站基本功能運作所必要。\n• 分析性 Cookie（若使用）：了解訪客如何使用網站，以協助改善網站內容與功能。\n\n您可透過瀏覽器設定拒絕或刪除 Cookie，但此舉可能影響部分網站功能的正常使用。"
+      },
+      "s5": {
+        "title": "五、當事人的權利",
+        "content": "依據《個人資料保護法》第 3 條，您對於本網站保有之您的個人資料，享有以下權利：\n\n• 查詢或請求閱覽：您可隨時查詢本網站持有您的個人資料內容。\n• 請求製給複製本：您可要求取得個人資料的複本。\n• 請求補充或更正：如您的個人資料有錯誤或不完整，您可要求補充或更正。\n• 請求停止蒐集、處理或利用：您可要求本網站停止蒐集、處理或利用您的個人資料。\n• 請求刪除：您可要求本網站刪除您的個人資料。\n\n如需行使上述權利，請透過電話（0972-619-391）或電子郵件（qdbzdt2846@gmail.com）聯繫我們。我們將於 15 個工作天內回覆處理。\n\n行使上述權利如有必要成本，本網站得酌收手續費；若您的請求係屬無理由、過度重複或顯有濫用情形，本網站得依法拒絕或收取合理費用。"
+      },
+      "s6": {
+        "title": "六、資料保存期間",
+        "content": "本網站保存個人資料之期間如下：\n\n• 訂單相關資料：自訂單完成日起保存 5 年（依消費者保護法及稅務相關規定）。\n• 客戶服務紀錄：自案件結案日起保存 2 年。\n• 行銷通訊名單：至您取消訂閱為止，或本網站停止行銷活動時刪除。\n\n超過保存期限後，本網站將依法銷毀或去識別化處理。"
+      },
+      "s7": {
+        "title": "七、第三方連結",
+        "content": "本網站可能包含連結至第三方網站。本網站對該等第三方網站之隱私保護政策及內容不負任何責任，建議您在進入第三方網站前，詳閱其隱私權政策。"
+      },
+      "s8": {
+        "title": "八、隱私權政策修訂",
+        "content": "本網站保留隨時修訂本隱私權政策之權利，修訂後之政策將公告於本頁面。如有重大變更，本網站將以顯著方式通知您（如於網站首頁公告或寄送電子郵件）。建議您定期查閱本政策，以掌握最新資訊。\n\n本隱私權政策最後更新日期：2026 年 1 月 1 日"
+      }
+    },
+    "contact": {
+      "prefix": "如您對本隱私權政策有任何疑問，歡迎透過以下方式聯繫我們：",
+      "phone": "電話：",
+      "email": "Email："
+    }
+  },
+  "returnPolicy": {
+    "hero": {
+      "label": "Return Policy",
+      "title": "退換貨政策",
+      "tagline": "我們希望您對每一次購買都感到滿意，\n如有任何問題請隨時聯繫我們。"
+    },
+    "section1": {
+      "title": "七天鑑賞期保障",
+      "content": "依據《消費者保護法》第 19 條，您享有收到商品後 <strong>7 天猶豫期（鑑賞期）</strong>，無須說明理由即可申請退貨。",
+      "strongText": "7 天猶豫期（鑑賞期）",
+      "noteLabel": "重要說明：",
+      "noteContent": "鑑賞期為「檢視商品的合理期間」，並非試用期。商品應保持全新未拆封狀態，請勿拆封或使用後再申請退貨，以免影響您的退貨權利。"
+    },
+    "section2": {
+      "title": "退貨流程",
+      "steps": {
+        "s1": { "step": "聯繫我們", "desc": "請於收到商品後 7 天內，致電 0972-619-391 或來信至 qdbzdt2846@gmail.com，告知訂單編號、退貨品項及退貨原因。" },
+        "s2": { "step": "確認退貨資格", "desc": "我們將於 2 個工作天內與您確認退貨資格及後續退貨方式。" },
+        "s3": { "step": "寄回商品", "desc": "請將商品連同原包裝、贈品（如有）及發票一同寄回。退貨運費由消費者負擔；若商品有瑕疵或寄送錯誤，則由本店負擔運費。" },
+        "s4": { "step": "確認收到退貨", "desc": "本店收到退貨商品並確認狀態後，將於 3 個工作天內安排退款。" }
+      }
+    },
+    "section3": {
+      "title": "退款方式",
+      "methods": {
+        "m1": { "label": "線上刷卡付款", "desc": "退款將退回原信用卡帳戶，依各發卡銀行作業時程，約需 7–14 個工作天入帳。" },
+        "m2": { "label": "貨到付款", "desc": "退款將以銀行轉帳方式退還，請提供您的銀行帳戶資訊（銀行名稱、分行、帳號、戶名）。退款將於確認退貨後 3 個工作天內匯出。" }
+      }
+    },
+    "section4": {
+      "title": "不接受退貨的例外情況",
+      "intro": "依《消費者保護法》第 19 條第 2 項及相關規定，下列情況不適用 7 天鑑賞期：",
+      "exceptions": {
+        "e1": "商品已拆封開封（茶葉、食品類因衛生安全考量，一經拆封即不接受退貨）",
+        "e2": "商品非因瑕疵而人為損壞、污損或缺少配件",
+        "e3": "超過收到商品後 7 天之鑑賞期限",
+        "e4": "商品因消費者不當使用、保存不當導致變質或損壞",
+        "e5": "已使用或試用之商品",
+        "e6": "訂製、客製化商品"
+      },
+      "noteLabel": "特別說明：",
+      "noteContent": "霧抉茶產品為農產食品，為維護食品安全與衛生，茶葉商品一經拆封即無法退換貨，敬請於購買前審慎評估。若收到商品時發現包裝損毀或明顯瑕疵，請於收貨後 48 小時內拍照記錄並聯繫我們，本店將依情況提供補寄或退款服務。",
+      "noteStrong": "茶葉商品一經拆封即無法退換貨"
+    },
+    "contact": {
+      "title": "有任何問題？",
+      "desc": "如對退換貨政策有任何疑問，歡迎隨時聯繫我們，\n我們將盡快為您處理。",
+      "emailBtn": "寄信給我們"
+    }
+  },
+  "faqCategories": {
+    "all": "全部",
+    "booking": "預約相關",
+    "payment": "付款退款",
+    "experience": "體驗內容",
+    "logistics": "交通住宿",
+    "other": "其他"
+  }
+}

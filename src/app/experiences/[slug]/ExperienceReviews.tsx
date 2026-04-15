@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { getLocale, getTranslations } from "next-intl/server";
 
 type ReviewRow = {
   id:         string;
@@ -21,26 +22,31 @@ function Stars({ rating }: { rating: number }) {
 }
 
 export default async function ExperienceReviews({ experienceTypeId }: { experienceTypeId: number }) {
-  const { data: reviews } = await supabase
-    .from("experience_reviews")
-    .select("id, rating, comment, created_at, user_id")
-    .eq("experience_type_id", experienceTypeId)
-    .eq("is_visible", true)
-    .order("created_at", { ascending: false })
-    .limit(20);
+  const [{ data: reviews }, t, locale] = await Promise.all([
+    supabase
+      .from("experience_reviews")
+      .select("id, rating, comment, created_at, user_id")
+      .eq("experience_type_id", experienceTypeId)
+      .eq("is_visible", true)
+      .order("created_at", { ascending: false })
+      .limit(20),
+    getTranslations("experiences"),
+    getLocale(),
+  ]);
 
   if (!reviews || reviews.length === 0) return null;
 
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
+  const dateFmt = locale === "en" ? "en-US" : "zh-TW";
 
   return (
     <div className="mt-12">
       <div className="flex items-center gap-3 mb-6">
-        <h2 className="font-serif text-xl font-bold text-tea-text">學員評價</h2>
+        <h2 className="font-serif text-xl font-bold text-tea-text">{t("reviewsTitle")}</h2>
         <div className="flex items-center gap-1.5">
           <Stars rating={Math.round(avg)} />
           <span className="text-sm font-medium text-tea-text">{avg.toFixed(1)}</span>
-          <span className="text-sm text-tea-text-light">（{reviews.length} 則）</span>
+          <span className="text-sm text-tea-text-light">{t("reviewsCount", { count: reviews.length })}</span>
         </div>
       </div>
 
@@ -50,7 +56,7 @@ export default async function ExperienceReviews({ experienceTypeId }: { experien
             <div className="flex items-center justify-between mb-2">
               <Stars rating={r.rating} />
               <span className="text-xs text-tea-text-light">
-                {new Date(r.created_at).toLocaleDateString("zh-TW")}
+                {new Date(r.created_at).toLocaleDateString(dateFmt)}
               </span>
             </div>
             {r.comment && (

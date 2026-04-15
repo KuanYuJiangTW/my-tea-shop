@@ -9,9 +9,11 @@ type Product = {
   name_en: string;
   category: string;
   origin: string;
+  origin_en: string;
   altitude: string;
   weight: string;
   description: string;
+  description_en: string;
   color: string;
   image_url: string;
   image_url2: string;
@@ -33,9 +35,11 @@ type EditState = {
   name_en: string;
   category: string;
   origin: string;
+  origin_en: string;
   altitude: string;
   weight: string;
   description: string;
+  description_en: string;
   color: string;
   image_url: string;
   image_url2: string;
@@ -55,9 +59,11 @@ type CreateForm = {
   name_en: string;
   category: string;
   origin: string;
+  origin_en: string;
   altitude: string;
   weight: string;
   description: string;
+  description_en: string;
   color: string;
   gallery: string[];
   price: string;
@@ -87,9 +93,11 @@ const EMPTY_CREATE_FORM: CreateForm = {
   name_en: "",
   category: "",
   origin: "",
+  origin_en: "",
   altitude: "",
   weight: "",
   description: "",
+  description_en: "",
   color: COLOR_OPTIONS[0].value,
   gallery: [],
   price: "",
@@ -212,13 +220,15 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     setEditing((prev) => ({
       ...prev,
       [product.id]: {
-        name:          product.name,
-        name_en:       product.name_en,
-        category:      product.category,
-        origin:        product.origin,
-        altitude:      product.altitude,
-        weight:        product.weight,
-        description:   product.description,
+        name:           product.name,
+        name_en:        product.name_en,
+        category:       product.category,
+        origin:         product.origin,
+        origin_en:      product.origin_en,
+        altitude:       product.altitude,
+        weight:         product.weight,
+        description:    product.description,
+        description_en: product.description_en,
         color:         product.color || COLOR_OPTIONS[0].value,
         image_url:     product.image_url,
         image_url2:    product.image_url2,
@@ -265,18 +275,20 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name:          draft.name,
-        name_en:       draft.name_en,
-        category:      draft.category,
-        origin:        draft.origin,
-        altitude:      draft.altitude,
-        weight:        draft.weight,
-        description:   draft.description,
-        color:         draft.color,
-        image_url:     draft.image_url,
-        image_url2:    draft.image_url2,
-        gallery:       draft.gallery,
-        is_active:     draft.is_active,
+        name:           draft.name,
+        name_en:        draft.name_en,
+        category:       draft.category,
+        origin:         draft.origin,
+        origin_en:      draft.origin_en,
+        altitude:       draft.altitude,
+        weight:         draft.weight,
+        description:    draft.description,
+        description_en: draft.description_en,
+        color:          draft.color,
+        image_url:      draft.image_url,
+        image_url2:     draft.image_url2,
+        gallery:        draft.gallery,
+        is_active:      draft.is_active,
         price,
         stock_quantity: draft.stock_quantity.trim() === "" ? null : stock,
         price_75g:     toNum(draft.price_75g),
@@ -294,14 +306,16 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
           p.id === id
             ? {
                 ...p,
-                name:          draft.name,
-                name_en:       draft.name_en,
-                category:      draft.category,
-                origin:        draft.origin,
-                altitude:      draft.altitude,
-                weight:        draft.weight,
-                description:   draft.description,
-                color:         draft.color,
+                name:           draft.name,
+                name_en:        draft.name_en,
+                category:       draft.category,
+                origin:         draft.origin,
+                origin_en:      draft.origin_en,
+                altitude:       draft.altitude,
+                weight:         draft.weight,
+                description:    draft.description,
+                description_en: draft.description_en,
+                color:          draft.color,
                 image_url:     draft.image_url,
                 image_url2:    draft.image_url2,
                 gallery:       draft.gallery,
@@ -389,9 +403,11 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         name_en:        createForm.name_en.trim() || undefined,
         category:       createForm.category.trim() || undefined,
         origin:         createForm.origin.trim() || undefined,
+        origin_en:      createForm.origin_en.trim() || undefined,
         altitude:       createForm.altitude.trim() || undefined,
         weight:         createForm.weight.trim() || undefined,
         description:    createForm.description.trim() || undefined,
+        description_en: createForm.description_en.trim() || undefined,
         color:          createForm.color.trim() || undefined,
         gallery:        createForm.gallery,
         price:          parseInt(createForm.price, 10),
@@ -514,12 +530,13 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
               <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">基本資料（選填）</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  { field: "name" as const,     label: "商品名稱（中文）", placeholder: "例如：東方美人" },
-                  { field: "name_en" as const,  label: "商品名稱（英文）", placeholder: "例如：Oriental Beauty" },
-                  { field: "category" as const, label: "分類",             placeholder: "例如：烏龍茶" },
-                  { field: "origin" as const,   label: "產地",             placeholder: "例如：新竹峨眉" },
-                  { field: "altitude" as const, label: "海拔",             placeholder: "例如：400m" },
-                  { field: "weight" as const,   label: "重量規格",         placeholder: "例如：150g / 75g" },
+                  { field: "name" as const,      label: "商品名稱（中文）", placeholder: "例如：東方美人" },
+                  { field: "name_en" as const,   label: "商品名稱（英文）", placeholder: "例如：Oriental Beauty" },
+                  { field: "category" as const,  label: "分類",             placeholder: "例如：烏龍茶" },
+                  { field: "origin" as const,    label: "產地",             placeholder: "例如：新竹峨眉" },
+                  { field: "origin_en" as const, label: "產地（英文）",     placeholder: "例如：Emei, Hsinchu" },
+                  { field: "altitude" as const,  label: "海拔",             placeholder: "例如：400m" },
+                  { field: "weight" as const,    label: "重量規格",         placeholder: "例如：150g / 75g" },
                 ].map(({ field, label, placeholder }) => (
                   <div key={field}>
                     <label className="block text-xs font-medium text-[#3D4A42] mb-1">{label}</label>
@@ -561,6 +578,16 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     placeholder="簡短描述商品特色…"
                     value={createForm.description}
                     onChange={(e) => updateCreateField("description", e.target.value)}
+                    className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">商品描述（英文）</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Brief description in English…"
+                    value={createForm.description_en}
+                    onChange={(e) => updateCreateField("description_en", e.target.value)}
                     className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
                   />
                 </div>
@@ -761,6 +788,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       { field: "name_en"  as const, label: "英文名稱", placeholder: "例如：Oriental Beauty" },
                       { field: "category" as const, label: "分類",     placeholder: "例如：烏龍茶" },
                       { field: "origin"   as const, label: "產地",     placeholder: "例如：新竹峨眉" },
+                      { field: "origin_en" as const, label: "產地（英文）", placeholder: "例如：Emei, Hsinchu" },
                       { field: "altitude" as const, label: "海拔",     placeholder: "例如：400m" },
                       { field: "weight"   as const, label: "重量規格", placeholder: "例如：150g / 75g" },
                     ] as { field: keyof EditState; label: string; placeholder: string }[]).map(({ field, label, placeholder }) => (
@@ -782,6 +810,16 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         placeholder="簡短描述商品特色…"
                         value={draft.description}
                         onChange={(e) => updateField(product.id, "description", e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs text-[#9CA89E] mb-1">商品描述（英文）</label>
+                      <textarea
+                        rows={2}
+                        placeholder="Brief description in English…"
+                        value={draft.description_en}
+                        onChange={(e) => updateField(product.id, "description_en", e.target.value)}
                         className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
                       />
                     </div>

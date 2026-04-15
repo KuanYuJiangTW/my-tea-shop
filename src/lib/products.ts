@@ -47,6 +47,8 @@ function mapRow(row: any): Product {
     price,
     weight:        row.weight,
     description:   row.description,
+    descriptionEn: row.description_en || "",
+    originEn:      row.origin_en || "",
     color:         row.color,
     featured:      row.featured,
     image:         (row.gallery?.[0]) || row.image_url  || undefined,

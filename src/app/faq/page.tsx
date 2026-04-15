@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import { sanityFetch } from "@/sanity/client";
 import { ALL_FAQS_QUERY } from "@/sanity/queries";
 import FaqClient from "./FaqClient";
@@ -13,15 +14,22 @@ export const metadata: Metadata = {
 };
 
 interface Faq {
-  _id:      string;
-  question: string;
-  answer:   unknown[];
-  category: string;
-  order:    number;
+  _id:         string;
+  question:    string;
+  question_en: string | null;
+  answer:      unknown[];
+  answer_en:   unknown[] | null;
+  category:    string;
+  order:       number;
 }
 
 export default async function FaqPage() {
-  const faqs = await sanityFetch<Faq[]>(ALL_FAQS_QUERY).catch(() => [] as Faq[]);
+  const [faqs, locale, t] = await Promise.all([
+    sanityFetch<Faq[]>(ALL_FAQS_QUERY).catch(() => [] as Faq[]),
+    getLocale(),
+    getTranslations("faq"),
+  ]);
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
 
   return (
     <div className="min-h-screen">
@@ -29,28 +37,28 @@ export default async function FaqPage() {
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-4">FAQ</p>
-          <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">常見問題</h1>
+          <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">{t("pageTitle")}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light">有任何疑問？這裡可能有你需要的答案</p>
+          <p className="text-tea-text-light">{t("pageTagline")}</p>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         {faqs.length === 0 ? (
-          <p className="text-center text-tea-text-light py-16">內容準備中…</p>
+          <p className="text-center text-tea-text-light py-16">{t("loading")}</p>
         ) : (
-          <FaqClient faqs={faqs} />
+          <FaqClient faqs={faqs} locale={locale} />
         )}
 
         {/* 聯絡我們 */}
         <div className="mt-12 bg-tea-cream rounded-2xl p-8 text-center border border-tea-green-pale">
-          <p className="font-serif text-xl font-bold text-tea-text mb-2">還有其他問題？</p>
-          <p className="text-tea-text-light text-sm mb-5">歡迎直接與我們聯繫，我們很樂意為您解答</p>
+          <p className="font-serif text-xl font-bold text-tea-text mb-2">{t("moreQuestions")}</p>
+          <p className="text-tea-text-light text-sm mb-5">{t("moreQuestionsDesc")}</p>
           <Link
-            href="/contact"
+            href={lp("/contact")}
             className="bg-tea-green hover:bg-tea-green-dark text-white px-7 py-2.5 rounded-full text-sm font-medium transition-colors inline-block"
           >
-            聯絡我們
+            {t("contactBtn")}
           </Link>
         </div>
       </div>

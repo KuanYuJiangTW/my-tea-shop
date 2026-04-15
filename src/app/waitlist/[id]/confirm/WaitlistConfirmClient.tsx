@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { AlertCircle } from "lucide-react";
 
 type Entry = {
@@ -19,6 +20,8 @@ type Entry = {
 
 export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
   const router = useRouter();
+  const locale = useLocale();
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
 
@@ -85,7 +88,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
               <p className="text-sm text-tea-text-light">您的候補資格已確認，請至會員中心查看預約狀態。</p>
             </div>
             <button
-              onClick={() => router.push("/account?tab=bookings")}
+              onClick={() => router.push(lp("/account?tab=bookings"))}
               className="w-full bg-tea-green hover:bg-tea-green-dark text-white py-3 rounded-full font-medium transition-colors"
             >
               查看我的預約
@@ -99,7 +102,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
               <p className="text-sm text-tea-text-light">此名額已釋出給下一位候補者。歡迎繼續關注後續場次。</p>
             </div>
             <button
-              onClick={() => router.push("/experiences")}
+              onClick={() => router.push(lp("/experiences"))}
               className="w-full bg-tea-green hover:bg-tea-green-dark text-white py-3 rounded-full font-medium transition-colors"
             >
               瀏覽其他場次

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 type Photo = {
   src: string;
@@ -10,23 +11,38 @@ type Photo = {
   desc: string;
 };
 
-// 全部照片依序排列（用於 lightbox 導覽）
-const PHOTOS: Photo[] = [
-  { src: "/images/gallery/farm2.jpg",    alt: "嘉義梅山高山茶園全景", caption: "嘉義梅山高山茶園",   desc: "終年雲霧環繞的高山茶園" },
-  { src: "/images/gallery/picking2.jpg", alt: "清晨手工採摘茶葉",     caption: "清晨採摘嫩芽",       desc: "一心二葉，品質的起點" },
-  { src: "/images/gallery/wilting.jpg",  alt: "日光萎凋製程",         caption: "日光萎凋",           desc: "讓茶葉在陽光中舒展" },
-  { src: "/images/gallery/wilting2.jpg", alt: "室內萎凋製程",         caption: "室內萎凋",           desc: "室內靜置，讓茶葉緩慢發酵" },
-  { src: "/images/gallery/rolling.jpg",  alt: "手工揉捻茶葉",         caption: "揉捻成形",           desc: "手工揉出茶葉的形與韻" },
-  { src: "/images/gallery/roasting.jpg", alt: "精控焙火烘焙",         caption: "精控焙火烘焙",       desc: "40年累積的火候手感" },
-  { src: "/images/gallery/tea-cup.jpg",  alt: "沖泡完成的茶湯",       caption: "一杯好茶",           desc: "從茶園到您手中的完整旅程" },
-  { src: "/images/gallery/farm.jpeg",    alt: "茶園景色",             caption: "茶園景色",           desc: "" },
-  { src: "/images/gallery/picking.jpeg", alt: "採摘過程",             caption: "採摘過程",           desc: "" },
-  { src: "/images/gallery/wilting3.jpg", alt: "室內萎凋細節",         caption: "室內萎凋",           desc: "" },
-  { src: "/images/gallery/rolling2.jpg", alt: "揉捻細節",             caption: "揉捻細節",           desc: "" },
-  { src: "/images/gallery/tea-cup2.jpg", alt: "茶湯特寫",             caption: "茶湯特寫",           desc: "" },
+const PHOTO_KEYS = [
+  "farm2", "picking2", "wilting", "wilting2", "rolling",
+  "roasting", "teaCup", "farm", "picking", "wilting3",
+  "rolling2", "teaCup2",
+] as const;
+
+const PHOTO_SRCS = [
+  "/images/gallery/farm2.jpg",
+  "/images/gallery/picking2.jpg",
+  "/images/gallery/wilting.jpg",
+  "/images/gallery/wilting2.jpg",
+  "/images/gallery/rolling.jpg",
+  "/images/gallery/roasting.jpg",
+  "/images/gallery/tea-cup.jpg",
+  "/images/gallery/farm.jpeg",
+  "/images/gallery/picking.jpeg",
+  "/images/gallery/wilting3.jpg",
+  "/images/gallery/rolling2.jpg",
+  "/images/gallery/tea-cup2.jpg",
 ];
 
-const TOTAL = PHOTOS.length;
+function usePhotos(): Photo[] {
+  const t = useTranslations("about.galleryPhotos");
+  return PHOTO_KEYS.map((key, i) => ({
+    src:     PHOTO_SRCS[i],
+    alt:     t(`${key}.alt`),
+    caption: t(`${key}.caption`),
+    desc:    t(`${key}.desc`),
+  }));
+}
+
+// TOTAL is constant (12 photos)
 
 // ── 縮圖格子 ────────────────────────────────────────────────────────────────
 function GalleryCell({
@@ -85,17 +101,20 @@ function GalleryCell({
 
 // ── Lightbox ─────────────────────────────────────────────────────────────────
 function Lightbox({
+  photos,
   index,
   onClose,
   onPrev,
   onNext,
 }: {
+  photos: Photo[];
   index: number;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
 }) {
-  const photo = PHOTOS[index];
+  const photo = photos[index];
+  const TOTAL = photos.length;
   const touchStartX = useRef<number | null>(null);
 
   // 鎖定 body 捲動
@@ -195,7 +214,7 @@ function Lightbox({
         )}
         {/* 縮圖導覽列（桌機顯示） */}
         <div className="hidden sm:flex justify-center gap-1.5 mt-3 overflow-x-auto pb-1">
-          {PHOTOS.map((p, i) => (
+          {photos.map((p, i) => (
             <button
               key={p.src + i}
               onClick={() => i !== index && (i < index ? onPrev() : onNext()) }
@@ -212,7 +231,7 @@ function Lightbox({
         </div>
         {/* 點狀導覽（手機顯示） */}
         <div className="flex sm:hidden justify-center gap-1.5 mt-3">
-          {PHOTOS.map((_, i) => (
+          {photos.map((_, i) => (
             <span
               key={i}
               className={`inline-block rounded-full transition-all ${
@@ -228,42 +247,44 @@ function Lightbox({
 
 // ── 主元件 ───────────────────────────────────────────────────────────────────
 export default function PhotoGallery() {
+  const photos = usePhotos();
+  const total = photos.length;
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const open  = useCallback((i: number) => setLightboxIndex(i), []);
   const close = useCallback(() => setLightboxIndex(null), []);
-  const prev  = useCallback(() => setLightboxIndex(i => i === null ? 0 : (i - 1 + TOTAL) % TOTAL), []);
-  const next  = useCallback(() => setLightboxIndex(i => i === null ? 0 : (i + 1) % TOTAL), []);
+  const prev  = useCallback(() => setLightboxIndex(i => i === null ? 0 : (i - 1 + total) % total), [total]);
+  const next  = useCallback(() => setLightboxIndex(i => i === null ? 0 : (i + 1) % total), [total]);
 
   return (
     <>
       {/* ── 主圖 + 兩格側欄 ─────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <GalleryCell
-          photo={PHOTOS[0]}
+          photo={photos[0]}
           index={0}
           onOpen={open}
           className="md:col-span-2 rounded-3xl aspect-[4/3] md:aspect-auto md:min-h-[400px]"
-          labelCaption={PHOTOS[0].caption}
-          labelDesc={PHOTOS[0].desc}
+          labelCaption={photos[0].caption}
+          labelDesc={photos[0].desc}
         />
         <div className="grid grid-cols-2 md:grid-cols-1 md:grid-rows-2 gap-4">
           <GalleryCell
-            photo={PHOTOS[1]}
+            photo={photos[1]}
             index={1}
             onOpen={open}
             className="rounded-3xl aspect-[4/3]"
-            labelCaption={PHOTOS[1].caption}
-            labelDesc={PHOTOS[1].desc}
+            labelCaption={photos[1].caption}
+            labelDesc={photos[1].desc}
             hideLabelDescOnMobile
           />
           <GalleryCell
-            photo={PHOTOS[2]}
+            photo={photos[2]}
             index={2}
             onOpen={open}
             className="rounded-3xl aspect-[4/3]"
-            labelCaption={PHOTOS[2].caption}
-            labelDesc={PHOTOS[2].desc}
+            labelCaption={photos[2].caption}
+            labelDesc={photos[2].desc}
             hideLabelDescOnMobile
           />
         </div>
@@ -273,13 +294,13 @@ export default function PhotoGallery() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         {([3, 4, 5, 6] as const).map((idx) => (
           <GalleryCell
-            key={PHOTOS[idx].src}
-            photo={PHOTOS[idx]}
+            key={photos[idx].src}
+            photo={photos[idx]}
             index={idx}
             onOpen={open}
             className="rounded-3xl aspect-square"
-            labelCaption={PHOTOS[idx].caption}
-            labelDesc={PHOTOS[idx].desc}
+            labelCaption={photos[idx].caption}
+            labelDesc={photos[idx].desc}
           />
         ))}
       </div>
@@ -289,7 +310,7 @@ export default function PhotoGallery() {
         {([7, 8, 9, 10, 11, 3] as const).map((idx, pos) => (
           <GalleryCell
             key={`six-${pos}`}
-            photo={PHOTOS[idx]}
+            photo={photos[idx]}
             index={idx}
             onOpen={open}
             className="rounded-2xl aspect-square"
@@ -300,6 +321,7 @@ export default function PhotoGallery() {
       {/* ── Lightbox ─────────────────────────────────── */}
       {lightboxIndex !== null && (
         <Lightbox
+          photos={photos}
           index={lightboxIndex}
           onClose={close}
           onPrev={prev}

@@ -3,28 +3,26 @@
 import { useState } from "react";
 import { PortableText } from "@portabletext/react";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Faq {
-  _id:      string;
-  question: string;
-  answer:   unknown[];
-  category: string;
-  order:    number;
+  _id:         string;
+  question:    string;
+  question_en: string | null;
+  answer:      unknown[];
+  answer_en:   unknown[] | null;
+  category:    string;
+  order:       number;
 }
-
-const CATEGORY_LABELS: Record<string, string> = {
-  booking:    "預約相關",
-  payment:    "付款退款",
-  experience: "體驗內容",
-  logistics:  "交通住宿",
-  other:      "其他",
-};
 
 const CATEGORY_ORDER = ["booking", "payment", "experience", "logistics", "other"];
 
-export default function FaqClient({ faqs }: { faqs: Faq[] }) {
+export default function FaqClient({ faqs, locale }: { faqs: Faq[]; locale: string }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const t = useTranslations("faqCategories");
+
+  const isEn = locale === "en";
 
   const categories = ["all", ...CATEGORY_ORDER.filter(c =>
     faqs.some(f => f.category === c)
@@ -49,7 +47,7 @@ export default function FaqClient({ faqs }: { faqs: Faq[] }) {
                   : "bg-tea-green-mist text-tea-text-light hover:text-tea-text"
               }`}
             >
-              {c === "all" ? "全部" : CATEGORY_LABELS[c] ?? c}
+              {t(c)}
             </button>
           ))}
         </div>
@@ -57,26 +55,31 @@ export default function FaqClient({ faqs }: { faqs: Faq[] }) {
 
       {/* FAQ 列表 */}
       <div className="divide-y divide-tea-green-pale border border-tea-green-pale rounded-2xl overflow-hidden">
-        {filtered.map(faq => (
-          <div key={faq._id}>
-            <button
-              onClick={() => setOpenId(openId === faq._id ? null : faq._id)}
-              className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-tea-green-mist/50 transition-colors"
-            >
-              <span className="font-medium text-tea-text">{faq.question}</span>
-              <ChevronDown
-                className={`w-5 h-5 text-tea-green shrink-0 transition-transform ${
-                  openId === faq._id ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {openId === faq._id && (
-              <div className="px-6 pb-5 text-tea-text-light text-sm leading-relaxed prose prose-sm max-w-none">
-                <PortableText value={faq.answer as Parameters<typeof PortableText>[0]["value"]} />
-              </div>
-            )}
-          </div>
-        ))}
+        {filtered.map(faq => {
+          const question = (isEn && faq.question_en) ? faq.question_en : faq.question;
+          const answer   = (isEn && faq.answer_en)   ? faq.answer_en   : faq.answer;
+
+          return (
+            <div key={faq._id}>
+              <button
+                onClick={() => setOpenId(openId === faq._id ? null : faq._id)}
+                className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-tea-green-mist/50 transition-colors"
+              >
+                <span className="font-medium text-tea-text">{question}</span>
+                <ChevronDown
+                  className={`w-5 h-5 text-tea-green shrink-0 transition-transform ${
+                    openId === faq._id ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {openId === faq._id && (
+                <div className="px-6 pb-5 text-tea-text-light text-sm leading-relaxed prose prose-sm max-w-none">
+                  <PortableText value={answer as Parameters<typeof PortableText>[0]["value"]} />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </>
   );

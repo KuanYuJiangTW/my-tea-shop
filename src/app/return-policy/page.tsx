@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "退換貨政策",
@@ -11,7 +12,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ReturnPolicyPage() {
+const STEP_KEYS = ["s1", "s2", "s3", "s4"] as const;
+const METHOD_KEYS = ["m1", "m2"] as const;
+const EXCEPTION_KEYS = ["e1", "e2", "e3", "e4", "e5", "e6"] as const;
+
+export default async function ReturnPolicyPage() {
+  const t = await getTranslations("returnPolicy");
+
   return (
     <div>
       {/* Hero */}
@@ -22,15 +29,14 @@ export default function ReturnPolicyPage() {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
-            Return Policy
+            {t("hero.label")}
           </p>
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-6">
-            退換貨政策
+            {t("hero.title")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
-          <p className="text-tea-green-pale text-base max-w-xl mx-auto leading-relaxed">
-            我們希望您對每一次購買都感到滿意，<br />
-            如有任何問題請隨時聯繫我們。
+          <p className="text-tea-green-pale text-base max-w-xl mx-auto leading-relaxed whitespace-pre-line">
+            {t("hero.tagline")}
           </p>
         </div>
       </section>
@@ -45,13 +51,15 @@ export default function ReturnPolicyPage() {
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-tea-green font-bold text-sm">1</span>
               </div>
-              <h2 className="font-serif text-lg font-bold text-tea-text">七天鑑賞期保障</h2>
+              <h2 className="font-serif text-lg font-bold text-tea-text">{t("section1.title")}</h2>
             </div>
             <p className="text-sm text-tea-text/70 leading-8">
-              依據《消費者保護法》第 19 條，您享有收到商品後 <strong className="text-tea-text">7 天猶豫期（鑑賞期）</strong>，無須說明理由即可申請退貨。
+              {t.rich("section1.content", {
+                strong: (chunks) => <strong className="text-tea-text">{chunks}</strong>,
+              })}
             </p>
             <div className="mt-4 p-4 bg-tea-cream rounded-xl border border-tea-cream-dark/30 text-sm text-tea-text/60 leading-7">
-              <strong className="text-tea-text/80">重要說明：</strong>鑑賞期為「檢視商品的合理期間」，並非試用期。商品應保持全新未拆封狀態，請勿拆封或使用後再申請退貨，以免影響您的退貨權利。
+              <strong className="text-tea-text/80">{t("section1.noteLabel")}</strong>{t("section1.noteContent")}
             </div>
           </div>
 
@@ -61,34 +69,17 @@ export default function ReturnPolicyPage() {
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-tea-green font-bold text-sm">2</span>
               </div>
-              <h2 className="font-serif text-lg font-bold text-tea-text">退貨流程</h2>
+              <h2 className="font-serif text-lg font-bold text-tea-text">{t("section2.title")}</h2>
             </div>
             <ol className="space-y-5">
-              {[
-                {
-                  step: "聯繫我們",
-                  desc: "請於收到商品後 7 天內，致電 0972-619-391 或來信至 qdbzdt2846@gmail.com，告知訂單編號、退貨品項及退貨原因。",
-                },
-                {
-                  step: "確認退貨資格",
-                  desc: "我們將於 2 個工作天內與您確認退貨資格及後續退貨方式。",
-                },
-                {
-                  step: "寄回商品",
-                  desc: "請將商品連同原包裝、贈品（如有）及發票一同寄回。退貨運費由消費者負擔；若商品有瑕疵或寄送錯誤，則由本店負擔運費。",
-                },
-                {
-                  step: "確認收到退貨",
-                  desc: "本店收到退貨商品並確認狀態後，將於 3 個工作天內安排退款。",
-                },
-              ].map(({ step, desc }, i) => (
-                <li key={i} className="flex gap-4">
+              {STEP_KEYS.map((key, i) => (
+                <li key={key} className="flex gap-4">
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-tea-green/15 flex items-center justify-center mt-0.5">
                     <span className="text-xs font-bold text-tea-green">{i + 1}</span>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-tea-text mb-1">{step}</p>
-                    <p className="text-sm text-tea-text/65 leading-7">{desc}</p>
+                    <p className="text-sm font-semibold text-tea-text mb-1">{t(`section2.steps.${key}.step`)}</p>
+                    <p className="text-sm text-tea-text/65 leading-7">{t(`section2.steps.${key}.desc`)}</p>
                   </div>
                 </li>
               ))}
@@ -101,23 +92,18 @@ export default function ReturnPolicyPage() {
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-tea-green font-bold text-sm">3</span>
               </div>
-              <h2 className="font-serif text-lg font-bold text-tea-text">退款方式</h2>
+              <h2 className="font-serif text-lg font-bold text-tea-text">{t("section3.title")}</h2>
             </div>
             <div className="space-y-4 text-sm text-tea-text/70 leading-8">
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-tea-cream/60 border border-tea-cream-dark/20">
-                <span className="text-tea-green font-bold flex-shrink-0 mt-0.5">●</span>
-                <div>
-                  <p className="font-semibold text-tea-text mb-1">線上刷卡付款</p>
-                  <p>退款將退回原信用卡帳戶，依各發卡銀行作業時程，約需 7–14 個工作天入帳。</p>
+              {METHOD_KEYS.map((key) => (
+                <div key={key} className="flex items-start gap-3 p-4 rounded-xl bg-tea-cream/60 border border-tea-cream-dark/20">
+                  <span className="text-tea-green font-bold flex-shrink-0 mt-0.5">●</span>
+                  <div>
+                    <p className="font-semibold text-tea-text mb-1">{t(`section3.methods.${key}.label`)}</p>
+                    <p>{t(`section3.methods.${key}.desc`)}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-tea-cream/60 border border-tea-cream-dark/20">
-                <span className="text-tea-green font-bold flex-shrink-0 mt-0.5">●</span>
-                <div>
-                  <p className="font-semibold text-tea-text mb-1">貨到付款</p>
-                  <p>退款將以銀行轉帳方式退還，請提供您的銀行帳戶資訊（銀行名稱、分行、帳號、戶名）。退款將於確認退貨後 3 個工作天內匯出。</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -127,39 +113,31 @@ export default function ReturnPolicyPage() {
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-tea-green font-bold text-sm">4</span>
               </div>
-              <h2 className="font-serif text-lg font-bold text-tea-text">不接受退貨的例外情況</h2>
+              <h2 className="font-serif text-lg font-bold text-tea-text">{t("section4.title")}</h2>
             </div>
             <p className="text-sm text-tea-text/65 leading-7 mb-5">
-              依《消費者保護法》第 19 條第 2 項及相關規定，下列情況不適用 7 天鑑賞期：
+              {t("section4.intro")}
             </p>
             <ul className="space-y-3">
-              {[
-                "商品已拆封開封（茶葉、食品類因衛生安全考量，一經拆封即不接受退貨）",
-                "商品非因瑕疵而人為損壞、污損或缺少配件",
-                "超過收到商品後 7 天之鑑賞期限",
-                "商品因消費者不當使用、保存不當導致變質或損壞",
-                "已使用或試用之商品",
-                "訂製、客製化商品",
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-tea-text/70 leading-7">
+              {EXCEPTION_KEYS.map((key) => (
+                <li key={key} className="flex items-start gap-3 text-sm text-tea-text/70 leading-7">
                   <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M12 3a9 9 0 110 18A9 9 0 0112 3z" />
                   </svg>
-                  {item}
+                  {t(`section4.exceptions.${key}`)}
                 </li>
               ))}
             </ul>
             <div className="mt-6 p-4 bg-amber-50 border border-amber-200/60 rounded-xl text-sm text-amber-800/80 leading-7">
-              <strong>特別說明：</strong>霧抉茶產品為農產食品，為維護食品安全與衛生，<strong>茶葉商品一經拆封即無法退換貨</strong>，敬請於購買前審慎評估。若收到商品時發現包裝損毀或明顯瑕疵，請於收貨後 48 小時內拍照記錄並聯繫我們，本店將依情況提供補寄或退款服務。
+              <strong>{t("section4.noteLabel")}</strong>{t("section4.noteContent")}
             </div>
           </div>
 
           {/* 聯絡我們 */}
           <div className="bg-tea-text rounded-2xl p-8 md:p-10 text-center">
-            <h3 className="font-serif text-xl font-bold text-tea-cream-light mb-3">有任何問題？</h3>
-            <p className="text-tea-green-pale text-sm leading-7 mb-6">
-              如對退換貨政策有任何疑問，歡迎隨時聯繫我們，<br />
-              我們將盡快為您處理。
+            <h3 className="font-serif text-xl font-bold text-tea-cream-light mb-3">{t("contact.title")}</h3>
+            <p className="text-tea-green-pale text-sm leading-7 mb-6 whitespace-pre-line">
+              {t("contact.desc")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a
@@ -179,7 +157,7 @@ export default function ReturnPolicyPage() {
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
-                寄信給我們
+                {t("contact.emailBtn")}
               </a>
             </div>
           </div>

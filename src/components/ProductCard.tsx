@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import ProductLightbox, { type LightboxPhoto } from "@/components/ProductLightbox";
+import { useTranslations, useLocale } from "next-intl";
 
 type VariantKey = "150g" | "75g" | "teabag";
 
@@ -14,7 +15,7 @@ interface Variant {
   key:      VariantKey;
   label:    string;
   hint:     string;
-  unit:     string;   // "份" | "盒"
+  unit:     string;
   price:    number;
   weight:   string;
   cartId:   number;
@@ -22,13 +23,22 @@ interface Variant {
   stock?:   number;   // undefined = 不限；0 = 售完
 }
 
-function buildVariants(p: Product): Variant[] {
+interface VariantLabels {
+  loose: string;
+  teaBag: string;
+  teaBagHint: string;
+  unitServing: string;
+  unitBox: string;
+  teaBagSet: string;
+}
+
+function buildVariants(p: Product, labels: VariantLabels): Variant[] {
   const variants: Variant[] = [
     {
       key:      "150g",
       label:    "150g",
-      hint:     "散茶",
-      unit:     "份",
+      hint:     labels.loose,
+      unit:     labels.unitServing,
       price:    p.price,
       weight:   "150g",
       cartId:   p.id,
@@ -40,8 +50,8 @@ function buildVariants(p: Product): Variant[] {
     variants.push({
       key:      "75g",
       label:    "75g",
-      hint:     "散茶",
-      unit:     "份",
+      hint:     labels.loose,
+      unit:     labels.unitServing,
       price:    p.price75g,
       weight:   "75g",
       cartId:   p.id + 10000,
@@ -52,13 +62,13 @@ function buildVariants(p: Product): Variant[] {
   if (p.priceTeaBag) {
     variants.push({
       key:      "teabag",
-      label:    "茶包",
-      hint:     "15入 × 3g",
-      unit:     "盒",
+      label:    labels.teaBag,
+      hint:     labels.teaBagHint,
+      unit:     labels.unitBox,
       price:    p.priceTeaBag,
       weight:   "15包 × 3g",
       cartId:   p.id + 20000,
-      cartName: `${p.name} 茶包組`,
+      cartName: `${p.name} ${labels.teaBagSet}`,
       stock:    p.stockTeaBag,
     });
   }
@@ -66,6 +76,9 @@ function buildVariants(p: Product): Variant[] {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
+  const t             = useTranslations("products");
+  const locale        = useLocale();
+  const isEn          = locale === "en";
   const { addToCart } = useCart();
   const { user }      = useAuth();
   const router        = useRouter();
@@ -74,7 +87,14 @@ export default function ProductCard({ product }: { product: Product }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [quantity,      setQuantity]      = useState(1);
 
-  const variants    = buildVariants(product);
+  const variants    = buildVariants(product, {
+    loose:       t("variantLoose"),
+    teaBag:      t("variantTeaBag"),
+    teaBagHint:  t("teaBagHint"),
+    unitServing: t("unitServing"),
+    unitBox:     t("unitBox"),
+    teaBagSet:   t("teaBagSet"),
+  });
   const [selectedKey, setSelectedKey] = useState<VariantKey>(variants[0].key);
   const selected    = variants.find((v) => v.key === selectedKey) ?? variants[0];
 
@@ -166,14 +186,14 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* 類別標籤 */}
           <div className="absolute top-3 left-3">
             <span className="bg-white/75 backdrop-blur-sm text-tea-text text-xs px-3 py-1 rounded-full font-medium shadow-sm">
-              {product.category}
+              {product.category === "烏龍茶" ? t("categoryOolong") : t("categoryBlack")}
             </span>
           </div>
 
           {/* 海拔 / 售完 */}
           <div className="absolute top-3 right-3">
             {allSoldOut ? (
-              <span className="bg-gray-800/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm">售完</span>
+              <span className="bg-gray-800/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm">{t("outOfStock")}</span>
             ) : (
               <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-xs px-3 py-1 rounded-full shadow-sm">{product.altitude}</span>
             )}
@@ -191,24 +211,24 @@ export default function ProductCard({ product }: { product: Product }) {
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/>
               <circle cx="12" cy="9" r="2.5" fill="white"/>
             </svg>
-            <p className="text-xs text-tea-green font-medium tracking-wide">{product.origin}</p>
+            <p className="text-xs text-tea-green font-medium tracking-wide">{isEn ? (product.originEn || product.origin) : product.origin}</p>
           </div>
 
           {/* 茶名 */}
           <h3 className={`font-serif text-xl font-bold mb-1 group-hover:text-tea-green transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
-            {product.name}
+            {isEn ? product.nameEn : product.name}
           </h3>
-          <p className="text-xs text-tea-text-light italic mb-3">{product.nameEn}</p>
+          <p className="text-xs text-tea-text-light italic mb-3">{isEn ? product.name : product.nameEn}</p>
 
           {/* 描述 */}
           <p className="text-sm text-tea-text-light leading-relaxed line-clamp-2 flex-1 mb-4">
-            {product.description}
+            {isEn ? (product.descriptionEn || product.description) : product.description}
           </p>
 
           {/* 規格選擇 */}
           {variants.length > 1 && (
             <div className="mb-4">
-              <p className="text-xs text-tea-text-light mb-2">選擇規格</p>
+              <p className="text-xs text-tea-text-light mb-2">{t("selectVariant")}</p>
               <div className="flex gap-2 flex-wrap">
                 {variants.map((v) => {
                   const variantSoldOut = v.stock === 0;
@@ -227,11 +247,11 @@ export default function ProductCard({ product }: { product: Product }) {
                     >
                       <span className="font-bold text-sm leading-tight">{v.label}</span>
                       <span className="text-[10px] opacity-70 leading-tight">
-                        {variantSoldOut ? "售完" : v.hint}
+                        {variantSoldOut ? t("outOfStock") : v.hint}
                       </span>
                       {!variantSoldOut && v.stock !== undefined && (
                         <span className={`text-[10px] leading-tight mt-0.5 ${v.stock <= 10 ? "text-amber-500 font-semibold" : "opacity-50"}`}>
-                          剩 {v.stock} 包
+                          {t("stockLeft", { count: v.stock })}
                         </span>
                       )}
                     </button>
@@ -244,10 +264,10 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* 數量選擇 */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex flex-col">
-              <span className="text-xs text-tea-text-light font-medium">數量</span>
+              <span className="text-xs text-tea-text-light font-medium">{t("quantity")}</span>
               {!selectedSoldOut && selected.stock !== undefined && (
                 <span className={`text-[10px] mt-0.5 ${selected.stock <= 10 ? "text-amber-500 font-semibold" : "text-tea-text-light"}`}>
-                  庫存 {selected.stock} 包
+                  {t("stockCount", { count: selected.stock })}
                 </span>
               )}
             </div>
@@ -291,7 +311,7 @@ export default function ProductCard({ product }: { product: Product }) {
                   <line x1="8" y1="8" x2="16" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   <line x1="16" y1="8" x2="8" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                暫時售完
+                {t("outOfStock")}
               </button>
             ) : (
               <button
@@ -307,7 +327,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    已加入{quantity > 1 ? ` ×${quantity}` : ""}
+                    {quantity > 1 ? t("addedWithCount", { count: quantity }) : t("addedToCart")}
                   </>
                 ) : (
                   <>
@@ -316,7 +336,7 @@ export default function ProductCard({ product }: { product: Product }) {
                       <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                       <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
-                    加入購物車
+                    {t("addToCart")}
                   </>
                 )}
               </button>

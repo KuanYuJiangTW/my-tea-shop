@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
@@ -32,6 +33,10 @@ export default function CheckoutClient() {
   const { items, totalPrice, clearCart } = useCart();
   const { user, loading: authLoading }   = useAuth();
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("checkout");
+  const tCommon = useTranslations("common");
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
   const [submitting, setSubmitting]     = useState(false);
   const [selectingStore, setSelectingStore] = useState(false);
   const [error, setError]           = useState("");
@@ -82,7 +87,6 @@ export default function CheckoutClient() {
   const pointsDiscount  = usePoints && maxPointsToUse >= 200 ? maxPointsToUse / 100 : 0;
   const grandTotal      = Math.max(afterCoupon - pointsDiscount, 0);
 
-  // 載入折價券 + 點數
   useEffect(() => {
     fetch("/api/user/coupons").then(r => r.json()).then(data => {
       if (Array.isArray(data)) setAvailableCoupons(data);
@@ -92,7 +96,6 @@ export default function CheckoutClient() {
     }).catch(() => {});
   }, []);
 
-  // 折價券載入後自動填入最優惠（只執行一次，不覆蓋使用者之後的手動選擇）
   useEffect(() => {
     if (availableCoupons.length === 0 || autoAppliedRef.current) return;
     autoAppliedRef.current = true;
@@ -109,9 +112,9 @@ export default function CheckoutClient() {
     const code = couponInput.trim().toUpperCase();
     if (!code) { setAppliedCoupon(null); setCouponError(""); return; }
     const match = availableCoupons.find(c => c.code.toUpperCase() === code);
-    if (!match) { setCouponError("折價券不存在或已使用"); setAppliedCoupon(null); return; }
+    if (!match) { setCouponError(t("couponNotFound")); setAppliedCoupon(null); return; }
     if (totalPrice + shippingFee < match.min_order_amount) {
-      setCouponError(`未達最低消費 NT$${match.min_order_amount}`);
+      setCouponError(t("couponMinOrder", { min: match.min_order_amount }));
       setAppliedCoupon(null);
       return;
     }
@@ -133,7 +136,6 @@ export default function CheckoutClient() {
     note: "",
   });
 
-  // 已登入時自動帶入會員資料
   useEffect(() => {
     if (!user) return;
     const supabase = getSupabaseBrowserClient();
@@ -159,10 +161,9 @@ export default function CheckoutClient() {
       });
   }, [user]);
 
-  // 未登入時導向登入頁
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/auth/login?redirect=/checkout");
+      router.push(lp("/auth/login?redirect=" + lp("/checkout")));
     }
   }, [user, authLoading, router]);
 
@@ -172,7 +173,6 @@ export default function CheckoutClient() {
     }
   }, [ecpayData]);
 
-  // 接收綠界超商地圖選擇結果
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       if (e.origin !== window.location.origin) return;
@@ -220,7 +220,7 @@ export default function CheckoutClient() {
       mapForm.submit();
       document.body.removeChild(mapForm);
     } catch {
-      setError("無法開啟超商地圖，請稍後再試");
+      setError(t("cvsMapError"));
     } finally {
       setSelectingStore(false);
     }
@@ -260,7 +260,6 @@ export default function CheckoutClient() {
     setSubmitting(true);
     setError("");
 
-    // 貨到付款：寫入訂單後顯示成立畫面
     if (payment === "cod") {
       try {
         const res = await fetch("/api/orders", {
@@ -270,18 +269,17 @@ export default function CheckoutClient() {
         });
         if (!res.ok) {
           const json = await res.json().catch(() => ({}));
-          throw new Error(json.error ?? "訂單建立失敗，請稍後再試");
+          throw new Error(json.error ?? t("errors.orderFailed"));
         }
         clearCart();
         setCodSuccess(true);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "訂單建立失敗，請稍後再試。");
+        setError(e instanceof Error ? e.message : t("errors.orderFailed"));
       }
       setSubmitting(false);
       return;
     }
 
-    // 線上付款：建立訂單並轉至綠界
     try {
       const res = await fetch("/api/ecpay/checkout", {
         method:  "POST",
@@ -290,11 +288,11 @@ export default function CheckoutClient() {
       });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        throw new Error(json.error ?? "連線失敗，請稍後再試");
+        throw new Error(json.error ?? t("errors.networkError"));
       }
       setEcpayData(await res.json());
     } catch (e) {
-      setError(e instanceof Error ? e.message : "連線失敗，請稍後再試。");
+      setError(e instanceof Error ? e.message : t("errors.networkError"));
       setSubmitting(false);
     }
   };
@@ -302,15 +300,15 @@ export default function CheckoutClient() {
   function validate(): boolean {
     const e: FormErrors = {};
     const phone = form.phone.replace(/[-\s]/g, "");
-    if (form.name.trim().length < 2)                       e.name  = "請輸入至少 2 個字的姓名";
-    if (!user?.email && !emailRegex.test(form.email.trim())) e.email = "請輸入有效的電子郵件";
-    if (!phoneRegex.test(phone))                           e.phone = "請輸入有效的手機號碼（例：0912345678）";
+    if (form.name.trim().length < 2)                       e.name  = t("errors.nameRequired");
+    if (!user?.email && !emailRegex.test(form.email.trim())) e.email = t("errors.emailInvalid");
+    if (!phoneRegex.test(phone))                           e.phone = t("errors.phoneInvalid");
     if (delivery === "home") {
-      if (!CITIES.includes(form.city))        e.city    = "請選擇縣市";
-      if (form.address.trim().length < 4)     e.address = "請輸入完整的收件地址";
+      if (!CITIES.includes(form.city))        e.city    = t("errors.cityRequired");
+      if (form.address.trim().length < 4)     e.address = t("errors.addressRequired");
     }
     if (delivery === "cvs") {
-      if (!form.cvsStoreId || !form.cvsStoreName) e.cvsStoreName = "請點選「選擇門市」選擇取貨門市";
+      if (!form.cvsStoreId || !form.cvsStoreName) e.cvsStoreName = t("errors.storeRequired");
     }
     setFormErrors(e);
     return Object.keys(e).length === 0;
@@ -321,8 +319,15 @@ export default function CheckoutClient() {
       hasError ? "border-rose-300" : "border-tea-green-pale"
     }`;
 
-  // 貨到付款成功畫面
+  const cvsOptions = [
+    { value: "seven",  label: "7-ELEVEN" },
+    { value: "family", label: "全家 FamilyMart" },
+    { value: "hilife", label: "萊爾富 Hi-Life" },
+    { value: "ok",     label: "OK 超商" },
+  ];
+
   if (codSuccess) {
+    const cvsName = cvsOptions.find(o => o.value === form.cvsCompany)?.label ?? form.cvsCompany;
     return (
       <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
         <div className="text-center max-w-md">
@@ -331,25 +336,23 @@ export default function CheckoutClient() {
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">訂單已成立！</h2>
-          <p className="text-tea-text-light mb-2">
-            感謝您的訂購，我們將盡快為您準備商品。
-          </p>
+          <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("codSuccess.title")}</h2>
+          <p className="text-tea-text-light mb-2">{t("codSuccess.desc")}</p>
           <p className="text-tea-text-light text-sm mb-2">
-            配送方式：{delivery === "home" ? "宅配到府" : `超商店到店（${form.cvsCompany === "seven" ? "7-ELEVEN" : form.cvsCompany === "family" ? "全家" : form.cvsCompany === "hilife" ? "萊爾富" : "OK 超商"}）`}
+            {t("codSuccess.deliveryLabel")}{delivery === "home" ? t("codSuccess.homeDelivery") : t("codSuccess.cvsDelivery", { name: cvsName })}
           </p>
-          <p className="text-tea-text-light text-sm mb-2">付款方式：貨到付款</p>
+          <p className="text-tea-text-light text-sm mb-2">{t("codSuccess.paymentLabel")}</p>
           {user?.email ? (
-            <p className="text-tea-text-light text-sm mb-10">確認信將寄至 {user.email}，請耐心等候。</p>
+            <p className="text-tea-text-light text-sm mb-10">{t("codSuccess.emailSent", { email: user.email })}</p>
           ) : (
             <p className="text-sm text-amber-600 mb-10">
-              如需 Email 訂單通知，請前往{" "}
-              <Link href="/account" className="underline font-medium">會員中心</Link>
-              {" "}綁定並驗證信箱。
+              {t("codSuccess.noEmailPrefix")}{" "}
+              <Link href={lp("/account")} className="underline font-medium">{tCommon("user.account")}</Link>
+              {" "}{t("codSuccess.noEmailSuffix")}
             </p>
           )}
-          <Link href="/" className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors">
-            回到首頁
+          <Link href={lp("/")} className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+            {t("codSuccess.backHome")}
           </Link>
         </div>
       </div>
@@ -360,9 +363,9 @@ export default function CheckoutClient() {
     return (
       <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-tea-text-light mb-6">購物車是空的，無法結帳</p>
-          <Link href="/products" className="bg-tea-green text-white px-8 py-3.5 rounded-full font-medium">
-            去選購茶品
+          <p className="text-tea-text-light mb-6">{t("emptyCart")}</p>
+          <Link href={lp("/products")} className="bg-tea-green text-white px-8 py-3.5 rounded-full font-medium">
+            {t("shopNow")}
           </Link>
         </div>
       </div>
@@ -372,52 +375,52 @@ export default function CheckoutClient() {
   return (
     <div className="min-h-screen bg-tea-cream-light">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
-        <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-8 md:mb-10">結帳</h1>
+        <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-8 md:mb-10">{t("title")}</h1>
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
 
-              {/* 聯絡資料 */}
+              {/* Contact Info */}
               <div className="bg-white rounded-2xl p-7 shadow-sm">
-                <h2 className="font-serif text-xl font-bold text-tea-text mb-6">聯絡資料</h2>
+                <h2 className="font-serif text-xl font-bold text-tea-text mb-6">{t("contactInfo")}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-tea-text mb-2">姓名 *</label>
-                    <input type="text" name="name" value={form.name} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, name: undefined })); }} placeholder="請輸入您的姓名" className={inputCls(!!formErrors.name)} />
+                    <label className="block text-sm font-medium text-tea-text mb-2">{t("name")} *</label>
+                    <input type="text" name="name" value={form.name} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, name: undefined })); }} placeholder={t("namePlaceholder")} className={inputCls(!!formErrors.name)} />
                     {formErrors.name && <p className="mt-1 text-xs text-rose-500">{formErrors.name}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-tea-text mb-2">手機號碼 *</label>
-                    <input type="tel" name="phone" value={form.phone} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, phone: undefined })); }} placeholder="0912345678" className={inputCls(!!formErrors.phone)} />
+                    <label className="block text-sm font-medium text-tea-text mb-2">{t("phone")} *</label>
+                    <input type="tel" name="phone" value={form.phone} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, phone: undefined })); }} placeholder={t("phonePlaceholder")} className={inputCls(!!formErrors.phone)} />
                     {formErrors.phone && <p className="mt-1 text-xs text-rose-500">{formErrors.phone}</p>}
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-tea-text mb-2">電子郵件 *</label>
+                    <label className="block text-sm font-medium text-tea-text mb-2">{t("email")} *</label>
                     {user?.email ? (
                       <>
                         <input type="email" name="email" value={form.email} readOnly placeholder="your@email.com" className={inputCls() + " cursor-not-allowed opacity-70"} />
-                        <p className="mt-1 text-xs text-tea-text-light">訂單通知將寄至您的帳號信箱</p>
+                        <p className="mt-1 text-xs text-tea-text-light">{t("emailReadonlyHint")}</p>
                       </>
                     ) : (
                       <>
                         <input type="email" name="email" value={form.email} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, email: undefined })); }} placeholder="your@email.com" className={inputCls(!!formErrors.email)} />
                         {formErrors.email && <p className="mt-1 text-xs text-rose-500">{formErrors.email}</p>}
-                        <p className="mt-1 text-xs text-tea-text-light">請填寫 Email 以接收訂單通知</p>
+                        <p className="mt-1 text-xs text-tea-text-light">{t("emailHint")}</p>
                       </>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* 付款方式 */}
+              {/* Payment Method */}
               <div className="bg-white rounded-2xl p-7 shadow-sm">
-                <h2 className="font-serif text-xl font-bold text-tea-text mb-5">付款方式</h2>
+                <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("paymentMethod")}</h2>
                 <div className="space-y-3">
                   {([
-                    { value: "online" as PaymentMethod, label: "線上付款", desc: "信用卡、ATM 轉帳、超商代碼（由綠界金流處理）",
+                    { value: "online" as PaymentMethod, label: t("onlinePayment"), desc: t("onlinePaymentDesc"),
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> },
-                    { value: "cod" as PaymentMethod, label: "貨到付款", desc: "商品送達時以現金付款，適用宅配及超商店到店",
+                    { value: "cod" as PaymentMethod, label: t("cashOnDelivery"), desc: t("codDesc"),
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><path d="M3 8h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><path d="M6 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> },
                   ]).map(opt => (
                     <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}>
@@ -433,14 +436,14 @@ export default function CheckoutClient() {
                 </div>
               </div>
 
-              {/* 配送方式 */}
+              {/* Delivery Method */}
               <div className="bg-white rounded-2xl p-7 shadow-sm">
-                <h2 className="font-serif text-xl font-bold text-tea-text mb-5">配送方式</h2>
+                <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("deliveryMethod")}</h2>
                 <div className="space-y-3 mb-6">
                   {([
-                    { value: "home" as DeliveryType, label: "宅配到府", desc: "黑貓宅急便，送達您指定的地址",
+                    { value: "home" as DeliveryType, label: t("homeDelivery"), desc: t("homeDeliveryDesc"),
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
-                    { value: "cvs" as DeliveryType, label: "超商店到店", desc: "7-ELEVEN、全家、萊爾富、OK 超商取貨付款",
+                    { value: "cvs" as DeliveryType, label: t("cvsPickup"), desc: t("cvsPickupDesc"),
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 3h18v4H3z"/><path d="M3 7v13h18V7"/><path d="M9 7v13M15 7v13"/></svg> },
                   ]).map(opt => (
                     <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${delivery === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}>
@@ -455,18 +458,18 @@ export default function CheckoutClient() {
                   ))}
                 </div>
 
-                {/* 宅配地址 */}
+                {/* Home Delivery Address */}
                 {delivery === "home" && (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-tea-text mb-2">縣市 *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("city")} *</label>
                       <div ref={cityRef} className="relative">
                         <button
                           type="button"
                           onClick={() => setCityOpen(!cityOpen)}
                           className={`${inputCls(!!formErrors.city)} flex items-center justify-between text-left ${!form.city ? "text-tea-text-light/60" : "text-tea-text"}`}
                         >
-                          <span>{form.city || "請選擇縣市"}</span>
+                          <span>{form.city || t("selectCityPlaceholder")}</span>
                           <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${cityOpen ? "rotate-180" : ""}`} />
                         </button>
                         {cityOpen && (
@@ -495,27 +498,21 @@ export default function CheckoutClient() {
                       {formErrors.city && <p className="mt-1 text-xs text-rose-500">{formErrors.city}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-tea-text mb-2">詳細地址 *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("address")} *</label>
                       <input type="text" name="address" value={form.address} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, address: undefined })); }}
-                        placeholder="鄉鎮市區、街道路、門牌號" className={inputCls(!!formErrors.address)} />
+                        placeholder={t("addressPlaceholder")} className={inputCls(!!formErrors.address)} />
                       {formErrors.address && <p className="mt-1 text-xs text-rose-500">{formErrors.address}</p>}
                     </div>
                   </div>
                 )}
 
-                {/* 超商店到店 */}
+                {/* CVS Pickup */}
                 {delivery === "cvs" && (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-tea-text mb-2">超商品牌 *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("cvsBrand")} *</label>
                       <div ref={cvsRef} className="relative">
                         {(() => {
-                          const cvsOptions = [
-                            { value: "seven",  label: "7-ELEVEN" },
-                            { value: "family", label: "全家 FamilyMart" },
-                            { value: "hilife", label: "萊爾富 Hi-Life" },
-                            { value: "ok",     label: "OK 超商" },
-                          ];
                           const selected = cvsOptions.find(o => o.value === form.cvsCompany);
                           return (
                             <>
@@ -554,16 +551,16 @@ export default function CheckoutClient() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-tea-text mb-2">取貨門市 *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("cvsStore")} *</label>
                       {form.cvsStoreName ? (
                         <div className={`flex items-center justify-between rounded-xl px-4 py-3 border ${formErrors.cvsStoreName ? "border-rose-300" : "border-tea-green"} bg-tea-green-mist/40`}>
                           <div>
                             <p className="text-sm font-medium text-tea-text">{form.cvsStoreName}</p>
-                            <p className="text-xs text-tea-text-light mt-0.5">店號：{form.cvsStoreId}</p>
+                            <p className="text-xs text-tea-text-light mt-0.5">{t("cvsStoreId", { id: form.cvsStoreId })}</p>
                           </div>
                           <button type="button" onClick={handleSelectStore}
                             className="text-xs text-tea-green hover:text-tea-green-dark font-medium whitespace-nowrap ml-4 transition-colors">
-                            重新選擇
+                            {t("cvsReselect")}
                           </button>
                         </div>
                       ) : (
@@ -576,14 +573,14 @@ export default function CheckoutClient() {
                               <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M12 2a10 10 0 0110 10"/>
                               </svg>
-                              開啟地圖中...
+                              {t("cvsMapOpening")}
                             </>
                           ) : (
                             <>
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
                               </svg>
-                              選擇門市
+                              {t("cvsMapBtn")}
                             </>
                           )}
                         </button>
@@ -594,25 +591,25 @@ export default function CheckoutClient() {
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0 mt-0.5">
                         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                       </svg>
-                      <p className="text-xs text-amber-700">請確認門市名稱正確，商品到店後將以簡訊通知取貨。</p>
+                      <p className="text-xs text-amber-700">{t("cvsNotice")}</p>
                     </div>
                   </div>
                 )}
 
-                {/* 備註 */}
+                {/* Note */}
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-tea-text mb-2">備註（選填）</label>
+                  <label className="block text-sm font-medium text-tea-text mb-2">{t("note")}</label>
                   <textarea name="note" value={form.note} onChange={handleChange} rows={3}
-                    placeholder="如有特殊需求請在此說明" className={`${inputCls()} resize-none`} />
+                    placeholder={t("notePlaceholder")} className={`${inputCls()} resize-none`} />
                 </div>
               </div>
 
             </div>
 
-            {/* 訂單摘要 */}
+            {/* Order Summary */}
             <div>
               <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-24">
-                <h2 className="font-serif text-xl font-bold text-tea-text mb-5">訂單確認</h2>
+                <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("orderSummary")}</h2>
                 <div className="space-y-3 mb-5">
                   {items.map(item => (
                     <div key={item.product.id} className="flex justify-between text-sm">
@@ -621,9 +618,10 @@ export default function CheckoutClient() {
                     </div>
                   ))}
                 </div>
-                {/* 折價券 */}
+
+                {/* Coupon */}
                 <div className="border-t border-tea-green-pale pt-4 mb-3">
-                  <p className="text-xs font-medium text-tea-text mb-2">折價券</p>
+                  <p className="text-xs font-medium text-tea-text mb-2">{t("coupon")}</p>
                   <div className="relative">
                     <div className="flex gap-1.5">
                       <input
@@ -636,13 +634,13 @@ export default function CheckoutClient() {
                           if (appliedCoupon && val !== appliedCoupon.code) setAppliedCoupon(null);
                         }}
                         onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
-                        placeholder="輸入折價券代碼"
+                        placeholder={t("couponPlaceholder")}
                         className="flex-1 border border-tea-green-pale rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-tea-green bg-tea-cream-light/50 font-mono"
                       />
                       {availableCoupons.length > 0 && (
                         <button type="button" onClick={() => setShowCouponDropdown(v => !v)}
                           className="px-2.5 border border-tea-green-pale rounded-lg hover:bg-tea-cream-light transition-colors text-tea-text-light"
-                          title="選擇折價券">
+                          title={t("coupon")}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M6 9l6 6 6-6"/>
                           </svg>
@@ -650,11 +648,10 @@ export default function CheckoutClient() {
                       )}
                       <button type="button" onClick={handleApplyCoupon}
                         className="px-3 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-xs rounded-lg transition-colors whitespace-nowrap">
-                        套用
+                        {t("applyCoupon")}
                       </button>
                     </div>
 
-                    {/* 下拉選單 */}
                     {showCouponDropdown && availableCoupons.length > 0 && (
                       <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-hidden">
                         {availableCoupons.map(c => {
@@ -672,8 +669,8 @@ export default function CheckoutClient() {
                             >
                               <div>
                                 <span className="font-mono text-xs font-bold text-tea-green">{c.code}</span>
-                                <span className="ml-2 text-xs text-tea-text-light">折抵 NT${c.discount_amount}</span>
-                                {!eligible && <span className="ml-1 text-xs text-rose-400">（需滿 NT${c.min_order_amount}）</span>}
+                                <span className="ml-2 text-xs text-tea-text-light">{t("couponDiscountInfo", { amount: c.discount_amount })}</span>
+                                {!eligible && <span className="ml-1 text-xs text-rose-400">{t("couponMinRequired", { min: c.min_order_amount })}</span>}
                               </div>
                               {isApplied && (
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7D9B84" strokeWidth="2.5">
@@ -688,19 +685,19 @@ export default function CheckoutClient() {
                   </div>
                   {couponError && <p className="mt-1 text-xs text-rose-500">{couponError}</p>}
                   {appliedCoupon && !couponError && (
-                    <p className="mt-1 text-xs text-tea-green">已套用，折抵 -NT${appliedCoupon.discount_amount}</p>
+                    <p className="mt-1 text-xs text-tea-green">{t("couponAppliedMsg", { amount: appliedCoupon.discount_amount })}</p>
                   )}
                 </div>
 
-                {/* 點數折抵 */}
+                {/* Points */}
                 {pointsBalance >= 200 && maxPointsToUse >= 200 && (
                   <div className="mb-3 pb-3 border-b border-tea-green-pale">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input type="checkbox" checked={usePoints} onChange={e => setUsePoints(e.target.checked)}
                         className="accent-tea-green" />
                       <span className="text-xs text-tea-text">
-                        使用 {maxPointsToUse.toLocaleString()} 點 折抵 NT${(maxPointsToUse / 100).toLocaleString()}
-                        <span className="text-tea-text-light ml-1">（餘額 {pointsBalance.toLocaleString()} 點）</span>
+                        {t("usePointsLabel", { points: maxPointsToUse.toLocaleString(), discount: (maxPointsToUse / 100).toLocaleString() })}
+                        <span className="text-tea-text-light ml-1">{t("pointsBalanceLabel", { balance: pointsBalance.toLocaleString() })}</span>
                       </span>
                     </label>
                   </div>
@@ -708,34 +705,34 @@ export default function CheckoutClient() {
 
                 <div className="mb-6 space-y-2">
                   <div className="flex justify-between text-sm text-tea-text-light">
-                    <span>運費</span>
+                    <span>{t("shippingFee")}</span>
                     {shippingFee === 0 ? (
-                      <span className="text-tea-green">免費</span>
+                      <span className="text-tea-green">{t("shippingFree")}</span>
                     ) : (
                       <span className="text-tea-text">NT${shippingFee.toLocaleString()}</span>
                     )}
                   </div>
                   {shippingFee > 0 && (
-                    <p className="text-xs text-amber-600">滿 NT$1,000 即享免運費</p>
+                    <p className="text-xs text-amber-600">{t("shippingThreshold")}</p>
                   )}
                   {couponDiscount > 0 && (
                     <div className="flex justify-between text-sm text-tea-green">
-                      <span>折價券折扣</span>
+                      <span>{t("couponDiscountLabel")}</span>
                       <span>-NT${couponDiscount.toLocaleString()}</span>
                     </div>
                   )}
                   {pointsDiscount > 0 && (
                     <div className="flex justify-between text-sm text-tea-green">
-                      <span>點數折抵</span>
+                      <span>{t("pointsDiscountLabel")}</span>
                       <span>-NT${pointsDiscount.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm text-tea-text-light">
-                    <span>付款</span>
-                    <span>{payment === "online" ? "線上付款" : "貨到付款"}</span>
+                    <span>{t("paymentLabel")}</span>
+                    <span>{payment === "online" ? t("onlinePaymentShort") : t("codShort")}</span>
                   </div>
                   <div className="flex justify-between font-bold text-tea-text pt-1">
-                    <span>總金額</span>
+                    <span>{t("totalAmount")}</span>
                     <span className="text-tea-green text-lg">NT${grandTotal.toLocaleString()}</span>
                   </div>
                 </div>
@@ -747,26 +744,26 @@ export default function CheckoutClient() {
                       <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M12 2a10 10 0 0110 10"/>
                       </svg>
-                      處理中...
+                      {t("processing")}
                     </>
                   ) : payment === "online" ? (
                     <>
-                      前往綠界付款
+                      {t("submitOnline")}
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
                       </svg>
                     </>
                   ) : (
                     <>
-                      確認訂單
+                      {t("submitCod")}
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     </>
                   )}
                 </button>
-                <Link href="/cart" className="block text-center text-tea-text-light hover:text-tea-green text-sm mt-4 transition-colors">
-                  返回購物車
+                <Link href={lp("/cart")} className="block text-center text-tea-text-light hover:text-tea-green text-sm mt-4 transition-colors">
+                  {t("backToCart")}
                 </Link>
               </div>
             </div>
@@ -775,7 +772,6 @@ export default function CheckoutClient() {
         </form>
       </div>
 
-      {/* 綠界自動提交隱藏表單 */}
       {ecpayData && (
         <form ref={ecpayFormRef} method="POST" action={ecpayData.ecpayUrl} style={{ display: "none" }}>
           {Object.entries(ecpayData.params).map(([k, v]) => (

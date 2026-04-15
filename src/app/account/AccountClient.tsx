@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
 type Profile = {
@@ -87,19 +88,19 @@ type Props = {
 const CITIES = ["台北市","新北市","桃園市","台中市","台南市","高雄市","基隆市","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","屏東縣","宜蘭縣","花蓮縣","台東縣","澎湖縣","金門縣","連江縣"];
 
 // 會員端依 order_status + payment_status 組合顯示
-function getMemberStatusLabel(orderStatus: string, paymentStatus: string): { label: string; cls: string } {
+function getMemberStatusCls(orderStatus: string, paymentStatus: string): { labelKey: string; cls: string } {
   if (orderStatus === "new") {
     return paymentStatus === "paid"
-      ? { label: "已付款", cls: "bg-[#C8DDD0] text-[#3D6B46]" }
-      : { label: "待處理", cls: "bg-[#EDE8DC] text-[#7A6855]" };
+      ? { labelKey: "orderStatus.paid2", cls: "bg-[#C8DDD0] text-[#3D6B46]" }
+      : { labelKey: "orderStatus.pending2", cls: "bg-[#EDE8DC] text-[#7A6855]" };
   }
-  const map: Record<string, { label: string; cls: string }> = {
-    preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-    shipped:   { label: "已出貨", cls: "bg-tea-green text-white" },
-    completed: { label: "已完成", cls: "bg-tea-green-dark text-white" },
-    cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+  const map: Record<string, { labelKey: string; cls: string }> = {
+    preparing: { labelKey: "orderStatus.preparing", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
+    shipped:   { labelKey: "orderStatus.shipped",   cls: "bg-tea-green text-white" },
+    completed: { labelKey: "orderStatus.completed", cls: "bg-tea-green-dark text-white" },
+    cancelled: { labelKey: "orderStatus.cancelled", cls: "bg-[#E0D5D5] text-[#7A4545]" },
   };
-  return map[orderStatus] ?? { label: "待處理", cls: "bg-[#EDE8DC] text-[#7A6855]" };
+  return map[orderStatus] ?? { labelKey: "orderStatus.pending2", cls: "bg-[#EDE8DC] text-[#7A6855]" };
 }
 
 const CVS_NAME: Record<string, string> = {
@@ -120,17 +121,20 @@ type ProfileErrors = {
 const phoneRegex = /^09\d{8}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function bookingStatusLabel(status: BookingRow["status"]): { label: string; cls: string } {
-  const map = {
-    pending_payment: { label: "待付款",  cls: "bg-yellow-100 text-yellow-800" },
-    confirmed:       { label: "已確認",  cls: "bg-[#C8DDD0] text-[#3D6B46]" },
-    completed:       { label: "已完成",  cls: "bg-emerald-100 text-emerald-700" },
-    cancelled:       { label: "已取消",  cls: "bg-[#E0D5D5] text-[#7A4545]" },
+function bookingStatusCls(status: BookingRow["status"]): string {
+  const map: Record<string, string> = {
+    pending_payment: "bg-yellow-100 text-yellow-800",
+    confirmed:       "bg-[#C8DDD0] text-[#3D6B46]",
+    completed:       "bg-emerald-100 text-emerald-700",
+    cancelled:       "bg-[#E0D5D5] text-[#7A4545]",
   };
-  return map[status] ?? { label: status, cls: "bg-gray-100 text-gray-600" };
+  return map[status] ?? "bg-gray-100 text-gray-600";
 }
 
 export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, pointTransactions, coupons, bookings, waitlist }: Props) {
+  const t = useTranslations("account");
+  const locale = useLocale();
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
   const searchParams = useSearchParams();
   const rawTab = searchParams.get("tab");
   const defaultTab = rawTab === "orders" ? "orders" : rawTab === "rewards" ? "rewards" : rawTab === "bookings" ? "bookings" : "profile";
@@ -198,16 +202,16 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   function validateProfile(): boolean {
     const e: ProfileErrors = {};
     if (!form.name.trim() || form.name.trim().length < 2) {
-      e.name = "姓名至少 2 個字";
+      e.name = t("errors.nameLength");
     }
     if (form.phone && !phoneRegex.test(form.phone.replace(/-/g, ""))) {
-      e.phone = "請輸入有效的手機號碼（例：0912345678）";
+      e.phone = t("errors.phoneInvalid");
     }
     if (form.city && !CITIES.includes(form.city)) {
-      e.city = "請選擇有效縣市";
+      e.city = t("errors.cityInvalid");
     }
     if (form.address.trim() && form.address.trim().length < 4) {
-      e.address = "地址請至少填入 4 個字";
+      e.address = t("errors.addressLength");
     }
     setProfileErrors(e);
     return Object.keys(e).length === 0;
@@ -233,7 +237,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
     setSaving(false);
     if (error) {
-      setSaveError("儲存失敗，請稍後再試。");
+      setSaveError(t("errors.saveFailed"));
     } else {
       setSaveSuccess(true);
     }
@@ -242,7 +246,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   async function handleBindEmail(ev?: React.FormEvent | React.MouseEvent) {
     ev?.preventDefault();
     if (!emailRegex.test(emailInput.trim())) {
-      setEmailError("請輸入有效的電子郵件格式");
+      setEmailError(t("errors.emailInvalid"));
       return;
     }
     setEmailSaving(true);
@@ -254,7 +258,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     );
     setEmailSaving(false);
     if (error) {
-      setEmailError(error.message.includes("already") ? "此 Email 已被其他帳號使用" : "綁定失敗，請稍後再試");
+      setEmailError(error.message.includes("already") ? t("errors.emailAlreadyUsed") : t("errors.emailBindFailed"));
     } else {
       setEmailSent(true);
     }
@@ -270,7 +274,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
     setCancelling(false);
     if (!res.ok) {
-      setCancelError(json.error ?? "取消失敗，請稍後再試");
+      setCancelError(json.error ?? t("errors.cancelFailed"));
       return;
     }
 
@@ -317,7 +321,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     setCancellingBooking(false);
 
     if (!res.ok) {
-      setCancelBookingError(json.error ?? "取消失敗，請稍後再試");
+      setCancelBookingError(json.error ?? t("errors.cancelFailed"));
       return;
     }
 
@@ -340,7 +344,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     const json = await res.json();
     if (!res.ok) {
       setReviewSubmitting(false);
-      setReviewError(json.error ?? "送出失敗，請稍後再試");
+      setReviewError(json.error ?? t("errors.reviewFailed"));
       return;
     }
     setBookingList(prev => prev.map(b => b.id === bookingId ? { ...b, has_review: true } : b));
@@ -364,7 +368,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     if (!editAddressOrder) return;
 
     if (!addressForm.city || !addressForm.address.trim()) {
-      setAddressError("請填寫完整的縣市與地址");
+      setAddressError(t("errors.cityAddressRequired"));
       return;
     }
 
@@ -380,7 +384,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
     setSavingAddress(false);
     if (!res.ok) {
-      setAddressError(json.error ?? "更新失敗，請稍後再試");
+      setAddressError(json.error ?? t("errors.updateFailed"));
       return;
     }
 
@@ -408,17 +412,17 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-serif text-3xl font-bold text-tea-text mb-1">會員中心</h1>
-          <p className="text-sm text-tea-text-light">{user.email || "尚未綁定 Email"}</p>
+          <h1 className="font-serif text-3xl font-bold text-tea-text mb-1">{t("title")}</h1>
+          <p className="text-sm text-tea-text-light">{user.email || t("profile.noEmail")}</p>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 bg-white rounded-xl border border-tea-green-pale p-1 w-fit flex-wrap">
           {([
-            { key: "profile",  label: "個人資料" },
-            { key: "orders",   label: `訂單紀錄（${orderList.length}）` },
-            { key: "bookings", label: `我的預約（${bookings.length}）` },
-            { key: "rewards",  label: `點數 & 折價券` },
+            { key: "profile",  label: t("profile.title") },
+            { key: "orders",   label: t("tabs.ordersCount", { count: orderList.length }) },
+            { key: "bookings", label: t("tabs.bookingsCount", { count: bookings.length }) },
+            { key: "rewards",  label: t("tabs.rewards") },
           ] as const).map(({ key, label }) => (
             <button
               key={key}
@@ -438,21 +442,21 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         {tab === "profile" && (
           <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale">
             <div className="px-7 py-5 border-b border-tea-green-pale">
-              <h2 className="font-semibold text-tea-text">個人資料</h2>
-              <p className="text-xs text-tea-text-light mt-0.5">儲存後，結帳時將自動帶入這些資料</p>
+              <h2 className="font-semibold text-tea-text">{t("profile.title")}</h2>
+              <p className="text-xs text-tea-text-light mt-0.5">{t("profile.subtitle")}</p>
             </div>
 
             <form onSubmit={handleSaveProfile} className="p-7 space-y-5">
               {/* Name */}
               <div>
                 <label className="block text-sm font-medium text-tea-text mb-1.5">
-                  姓名 <span className="text-rose-400">*</span>
+                  {t("profile.name")} <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => { setForm(p => ({ ...p, name: e.target.value })); setProfileErrors(p => ({ ...p, name: undefined })); }}
-                  placeholder="請輸入您的姓名"
+                  placeholder={t("profile.namePlaceholder")}
                   className={inputCls(profileErrors.name)}
                 />
                 {profileErrors.name && <p className="mt-1 text-xs text-rose-500">{profileErrors.name}</p>}
@@ -460,7 +464,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-tea-text mb-1.5">電子郵件</label>
+                <label className="block text-sm font-medium text-tea-text mb-1.5">{t("profile.email")}</label>
                 {user.email ? (
                   <>
                     <input
@@ -469,7 +473,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                       disabled
                       className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text-light bg-gray-50 cursor-not-allowed"
                     />
-                    <p className="mt-1 text-xs text-tea-text-light">Email 無法修改</p>
+                    <p className="mt-1 text-xs text-tea-text-light">{t("profile.emailReadonly")}</p>
                   </>
                 ) : emailSent ? (
                   <div className="flex items-start gap-2 bg-tea-green-mist/50 border border-tea-green-pale rounded-xl px-4 py-3">
@@ -477,16 +481,16 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
                     </svg>
                     <div>
-                      <p className="text-sm text-tea-text font-medium">驗證信已寄出</p>
+                      <p className="text-sm text-tea-text font-medium">{t("profile.emailVerificationSent")}</p>
                       <p className="text-xs text-tea-text-light mt-0.5">
-                        請前往 <strong>{emailInput}</strong> 點擊確認連結，完成後 Email 即生效。
+                        {t("profile.emailVerificationDesc", { email: emailInput })}
                       </p>
                       <button
                         type="button"
                         onClick={() => { setEmailSent(false); setEmailInput(""); }}
                         className="mt-1.5 text-xs text-tea-green hover:text-tea-green-dark underline"
                       >
-                        重新填寫
+                        {t("profile.emailReenter")}
                       </button>
                     </div>
                   </div>
@@ -507,18 +511,18 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         disabled={emailSaving}
                         className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
                       >
-                        {emailSaving ? "傳送中…" : "綁定"}
+                        {emailSaving ? t("profile.emailBinding") : t("profile.emailBind")}
                       </button>
                     </div>
                     {emailError && <p className="text-xs text-rose-500">{emailError}</p>}
-                    <p className="text-xs text-tea-text-light">綁定後將寄送驗證信，點擊確認連結即完成</p>
+                    <p className="text-xs text-tea-text-light">{t("profile.emailBindHint")}</p>
                   </div>
                 )}
               </div>
 
               {/* Phone */}
               <div>
-                <label className="block text-sm font-medium text-tea-text mb-1.5">手機號碼</label>
+                <label className="block text-sm font-medium text-tea-text mb-1.5">{t("profile.phone")}</label>
                 <input
                   type="tel"
                   value={form.phone}
@@ -532,24 +536,24 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               {/* City + Address */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-tea-text mb-1.5">縣市</label>
+                  <label className="block text-sm font-medium text-tea-text mb-1.5">{t("profile.city")}</label>
                   <select
                     value={form.city}
                     onChange={(e) => { setForm(p => ({ ...p, city: e.target.value })); setProfileErrors(p => ({ ...p, city: undefined })); }}
                     className={inputCls(profileErrors.city)}
                   >
-                    <option value="">請選擇</option>
+                    <option value="">{t("profile.selectCity")}</option>
                     {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                   {profileErrors.city && <p className="mt-1 text-xs text-rose-500">{profileErrors.city}</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-tea-text mb-1.5">常用地址</label>
+                  <label className="block text-sm font-medium text-tea-text mb-1.5">{t("profile.address")}</label>
                   <input
                     type="text"
                     value={form.address}
                     onChange={(e) => { setForm(p => ({ ...p, address: e.target.value })); setProfileErrors(p => ({ ...p, address: undefined })); }}
-                    placeholder="鄉鎮市區、街道路、門牌號"
+                    placeholder={t("profile.addressPlaceholder")}
                     className={inputCls(profileErrors.address)}
                   />
                   {profileErrors.address && <p className="mt-1 text-xs text-rose-500">{profileErrors.address}</p>}
@@ -563,12 +567,12 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   disabled={saving}
                   className="px-7 py-2.5 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-full text-sm font-medium transition-colors"
                 >
-                  {saving ? "儲存中…" : "儲存資料"}
+                  {saving ? t("profile.saving") : t("profile.save")}
                 </button>
                 {saveSuccess && (
                   <span className="text-sm text-tea-green font-medium flex items-center gap-1">
                     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                    已儲存
+                    {t("profile.saved")}
                   </span>
                 )}
                 {saveError && <span className="text-sm text-rose-500">{saveError}</span>}
@@ -587,21 +591,21 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
                   </svg>
                 </div>
-                <p className="text-tea-text font-medium mb-1">尚無預約紀錄</p>
-                <p className="text-sm text-tea-text-light mb-4">來體驗嘉義梅山的茶山之旅吧！</p>
-                <Link href="/experiences" className="text-sm text-tea-green hover:text-tea-green-dark font-medium underline underline-offset-2">
-                  瀏覽茶山體驗
+                <p className="text-tea-text font-medium mb-1">{t("bookings.noBookingsTitle")}</p>
+                <p className="text-sm text-tea-text-light mb-4">{t("bookings.noBookingsDesc")}</p>
+                <Link href={lp("/experiences")} className="text-sm text-tea-green hover:text-tea-green-dark font-medium underline underline-offset-2">
+                  {t("bookings.browse")}
                 </Link>
               </div>
             ) : (
               bookingList.map((booking) => {
                 const session  = booking.session;
-                const expName  = (session?.experience_types as { name: string } | null)?.name ?? "茶藝體驗";
+                const expName  = (session?.experience_types as { name: string } | null)?.name ?? t("bookings.defaultExperience");
                 const dateLabel = session?.session_date
                   ? new Date(`${session.session_date}T00:00:00`).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric", weekday: "short" })
                   : "—";
                 const timeLabel   = session?.start_time?.slice(0, 5) ?? "—";
-                const st             = bookingStatusLabel(booking.status);
+                const stCls         = bookingStatusCls(booking.status);
                 const isDue          = booking.participants_due_at && new Date() < new Date(booking.participants_due_at);
                 const isConfirmed    = booking.status === "confirmed";
                 const isCompleted    = booking.status === "completed";
@@ -629,32 +633,32 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1">
                             <span className="font-medium text-tea-text">{expName}</span>
-                            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.cls}`}>
-                              {st.label}
+                            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${stCls}`}>
+                              {t(`bookingStatus.${booking.status}`)}
                             </span>
                           </div>
                           <div className="text-sm text-tea-text-light">
-                            {dateLabel} {timeLabel} · {booking.participant_count} 人 · NT${(booking.total_price - (booking.points_discount || 0)).toLocaleString()}
+                            {dateLabel} {timeLabel} · {t("bookings.personCount", { count: booking.participant_count })} · NT${(booking.total_price - (booking.points_discount || 0)).toLocaleString()}
                           </div>
                           {isConfirmed && booking.participants_due_at && (
                             <div className={`mt-1 text-xs ${isDue ? "text-amber-600" : "text-rose-500"}`}>
-                              補填截止：{new Date(booking.participants_due_at).toLocaleDateString("zh-TW")}
-                              {!isDue && "（已截止）"}
+                              {t("bookings.participantsDue", { date: new Date(booking.participants_due_at).toLocaleDateString("zh-TW") })}
+                              {!isDue && t("bookings.participantsDueExpired")}
                             </div>
                           )}
                           {isCancelled && booking.refund_amount != null && (
                             <div className="mt-1 text-xs text-tea-text-light">
-                              退款金額：NT$ {booking.refund_amount.toLocaleString()}
+                              {t("bookings.refundAmount", { amount: booking.refund_amount.toLocaleString() })}
                             </div>
                           )}
                         </div>
                         <div className="flex flex-col gap-2 flex-shrink-0">
                           {isConfirmed && (
                             <Link
-                              href={`/account/bookings/${booking.id}/participants`}
+                              href={lp(`/account/bookings/${booking.id}/participants`)}
                               className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium rounded-full transition-colors text-center"
                             >
-                              補填資料
+                              {t("bookings.fillInfo")}
                             </Link>
                           )}
                           {isPending && (
@@ -663,7 +667,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                               disabled={retryingId === booking.id}
                               className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white text-sm font-medium rounded-full transition-colors"
                             >
-                              {retryingId === booking.id ? "處理中…" : "重新付款"}
+                              {retryingId === booking.id ? t("bookings.retrying") : t("bookings.retryPayment")}
                             </button>
                           )}
                           {canCancel && (
@@ -671,7 +675,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                               onClick={() => { setCancelBookingId(booking.id); setCancelBookingError(""); setCancelBookingResult(null); setCancelBookingWasPending(booking.status === "pending_payment"); }}
                               className="px-4 py-2 border border-rose-300 text-rose-500 hover:bg-rose-50 text-sm font-medium rounded-full transition-colors"
                             >
-                              取消預約
+                              {t("bookings.cancelBooking")}
                             </button>
                           )}
                           {canReview && (
@@ -679,11 +683,11 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                               onClick={() => { setReviewBookingId(booking.id); setReviewRating(5); setReviewHover(0); setReviewComment(""); setReviewError(""); }}
                               className="px-4 py-2 border border-amber-300 text-amber-600 hover:bg-amber-50 text-sm font-medium rounded-full transition-colors"
                             >
-                              留下評價
+                              {t("bookings.writeReview")}
                             </button>
                           )}
                           {isPast && booking.has_review && (
-                            <span className="text-xs text-tea-text-light px-2">已評價 ★</span>
+                            <span className="text-xs text-tea-text-light px-2">{t("bookings.reviewed")}</span>
                           )}
                         </div>
                       </div>
@@ -698,39 +702,40 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         {/* ─── Waitlist Section（我的預約 tab 下方）─── */}
         {tab === "bookings" && waitlist.length > 0 && (
           <div className="mt-6">
-            <h3 className="font-semibold text-tea-text mb-3">候補記錄</h3>
+            <h3 className="font-semibold text-tea-text mb-3">{t("waitlist.title")}</h3>
             <div className="space-y-3">
               {waitlist.map(w => {
-                const expName   = (w.session?.experience_types as { name: string } | null)?.name ?? "茶藝體驗";
+                const expName   = (w.session?.experience_types as { name: string } | null)?.name ?? t("bookings.defaultExperience");
                 const dateLabel = w.session?.session_date
                   ? new Date(`${w.session.session_date}T00:00:00`).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric" })
                   : "—";
-                const statusMap: Record<string, { label: string; cls: string }> = {
-                  waiting:  { label: "候補中", cls: "bg-amber-100 text-amber-700" },
-                  notified: { label: "待確認", cls: "bg-blue-100 text-blue-700" },
+                const waitlistStatusCls: Record<string, string> = {
+                  waiting:  "bg-amber-100 text-amber-700",
+                  notified: "bg-blue-100 text-blue-700",
                 };
-                const st = statusMap[w.status] ?? { label: w.status, cls: "bg-gray-100 text-gray-600" };
+                const wCls = waitlistStatusCls[w.status] ?? "bg-gray-100 text-gray-600";
+                const wLabel = w.status === "waiting" ? t("waitlist.waiting") : w.status === "notified" ? t("waitlist.notified") : w.status;
                 return (
                   <div key={w.id} className="bg-white rounded-2xl border border-tea-green-pale px-6 py-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium text-tea-text">{expName}</span>
-                          <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${st.cls}`}>{st.label}</span>
+                          <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${wCls}`}>{wLabel}</span>
                         </div>
-                        <div className="text-sm text-tea-text-light">{dateLabel} · {w.participant_count} 人</div>
+                        <div className="text-sm text-tea-text-light">{dateLabel} · {t("bookings.personCount", { count: w.participant_count })}</div>
                         {w.status === "notified" && w.confirm_deadline && (
                           <div className="text-xs text-blue-600 mt-1">
-                            請於 {new Date(w.confirm_deadline).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })} 前確認
+                            {t("waitlist.confirmBefore", { datetime: new Date(w.confirm_deadline).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }) })}
                           </div>
                         )}
                       </div>
                       {w.status === "notified" && (
                         <a
-                          href={`/waitlist/${w.id}/confirm`}
+                          href={lp(`/waitlist/${w.id}/confirm`)}
                           className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium rounded-full transition-colors"
                         >
-                          前往確認
+                          {t("waitlist.confirm")}
                         </a>
                       )}
                     </div>
@@ -746,36 +751,36 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
           <div className="space-y-6">
             {/* 點數餘額 */}
             <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-7">
-              <h2 className="font-semibold text-tea-text mb-1">會員點數</h2>
-              <p className="text-xs text-tea-text-light mb-5">每消費 NT$1 累積 1 點，100 點折抵 NT$1（單筆最高折抵 10%）</p>
+              <h2 className="font-semibold text-tea-text mb-1">{t("rewards.pointsTitle")}</h2>
+              <p className="text-xs text-tea-text-light mb-5">{t("rewards.pointsDesc")}</p>
               <div className="flex items-end gap-2 mb-6">
                 <span className="font-serif text-5xl font-bold text-tea-green">{pointsBalance.toLocaleString()}</span>
-                <span className="text-tea-text-light mb-1">點</span>
+                <span className="text-tea-text-light mb-1">{t("rewards.pointsUnit")}</span>
               </div>
               {pointTransactions.length > 0 ? (
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-3">近期記錄</p>
+                  <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-3">{t("rewards.recentHistory")}</p>
                   {pointTransactions.map(tx => (
                     <div key={tx.id} className="flex justify-between items-center py-2 border-b border-tea-green-pale/60 last:border-0">
                       <div>
-                        <p className="text-sm text-tea-text">{tx.description ?? (tx.type === "earn" ? "消費回饋" : "點數折抵")}</p>
+                        <p className="text-sm text-tea-text">{tx.description ?? (tx.type === "earn" ? t("rewards.earnDefault") : t("rewards.redeemDefault"))}</p>
                         <p className="text-xs text-tea-text-light">{new Date(tx.created_at).toLocaleDateString("zh-TW")}</p>
                       </div>
                       <span className={`text-sm font-semibold ${tx.points > 0 ? "text-tea-green" : "text-rose-500"}`}>
-                        {tx.points > 0 ? "+" : ""}{tx.points.toLocaleString()} 點
+                        {tx.points > 0 ? "+" : ""}{tx.points.toLocaleString()} {t("rewards.pointsUnit")}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-tea-text-light">尚無點數記錄，完成第一筆訂單後即可開始累積！</p>
+                <p className="text-sm text-tea-text-light">{t("rewards.noPoints")}</p>
               )}
             </div>
 
             {/* 折價券 */}
             <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-7">
-              <h2 className="font-semibold text-tea-text mb-1">我的折價券</h2>
-              <p className="text-xs text-tea-text-light mb-5">結帳時輸入折價券代碼即可使用</p>
+              <h2 className="font-semibold text-tea-text mb-1">{t("rewards.couponsTitle")}</h2>
+              <p className="text-xs text-tea-text-light mb-5">{t("rewards.couponsDesc")}</p>
               {coupons.length > 0 ? (
                 <div className="space-y-3">
                   {coupons.map(c => {
@@ -787,12 +792,12 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         <div>
                           <div className="flex items-center gap-2">
                             <p className={`font-mono text-base font-bold tracking-widest ${isActive ? "text-tea-green" : "text-tea-text-light"}`}>{c.code}</p>
-                            {isUsed    && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500">已使用</span>}
-                            {isExpired && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500">已過期</span>}
+                            {isUsed    && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500">{t("rewards.couponUsed")}</span>}
+                            {isExpired && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500">{t("rewards.couponExpired")}</span>}
                           </div>
                           <p className="text-xs text-tea-text-light mt-0.5">
-                            折抵 NT${c.discount_amount} · 滿 NT${c.min_order_amount} 可用
-                            {isUsed ? ` · 使用於 ${new Date(c.used_at!).toLocaleDateString("zh-TW")}` : ` · 有效至 ${new Date(c.expires_at).toLocaleDateString("zh-TW")}`}
+                            {t("rewards.couponDiscount", { amount: c.discount_amount, min: c.min_order_amount })}
+                            {isUsed ? t("rewards.couponUsedOn", { date: new Date(c.used_at!).toLocaleDateString("zh-TW") }) : t("rewards.couponValidUntil", { date: new Date(c.expires_at).toLocaleDateString("zh-TW") })}
                           </p>
                         </div>
                         <span className={`text-xl font-bold ${isActive ? "text-tea-green" : "text-tea-text-light"}`}>-${c.discount_amount}</span>
@@ -801,7 +806,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-tea-text-light">目前沒有折價券記錄。</p>
+                <p className="text-sm text-tea-text-light">{t("rewards.noCoupons")}</p>
               )}
             </div>
           </div>
@@ -817,19 +822,19 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
                   </svg>
                 </div>
-                <p className="text-tea-text font-medium mb-1">尚無訂單紀錄</p>
-                <p className="text-sm text-tea-text-light">去探索我們的高山茶品吧！</p>
+                <p className="text-tea-text font-medium mb-1">{t("orders.noOrdersTitle")}</p>
+                <p className="text-sm text-tea-text-light">{t("orders.noOrdersDesc")}</p>
               </div>
             ) : (
               orderList.map((order) => {
-                const status = getMemberStatusLabel(order.order_status, order.payment_status);
+                const status = getMemberStatusCls(order.order_status, order.payment_status);
                 const isExpanded = expandedOrder === order.id;
                 const itemCount = Array.isArray(order.items) ? order.items.reduce((s, i) => s + i.quantity, 0) : 0;
                 const addr = order.shipping_address;
                 const isHomeDelivery = addr?.type === "home";
                 const shippingText = isHomeDelivery
-                  ? `宅配｜${addr.city ?? ""} ${addr.address ?? ""}`
-                  : `超商｜${CVS_NAME[addr?.company ?? ""] ?? addr?.company} ${addr?.storeName ?? ""}`;
+                  ? t("orders.homeDelivery", { city: addr.city ?? "", address: addr.address ?? "" })
+                  : t("orders.cvsPickup", { store: CVS_NAME[addr?.company ?? ""] ?? addr?.company ?? "", storeName: addr?.storeName ?? "" });
 
                 const canCancel = order.order_status === "new";
                 const canEditAddress = isHomeDelivery && ["new", "preparing"].includes(order.order_status);
@@ -846,11 +851,11 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         <div className="flex flex-wrap items-center gap-2 mb-0.5">
                           <span className="font-mono text-xs text-tea-text-light">#{shortId(order.id)}</span>
                           <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status.cls}`}>
-                            {status.label}
+                            {t(status.labelKey)}
                           </span>
                         </div>
                         <div className="text-sm text-tea-text-light">
-                          {new Date(order.created_at).toLocaleDateString("zh-TW")} · {itemCount} 件商品 · {order.payment_method === "cod" ? "貨到付款" : "線上付款"}
+                          {new Date(order.created_at).toLocaleDateString("zh-TW")} · {t("orders.itemCount", { count: itemCount })} · {order.payment_method === "cod" ? t("orders.cod") : t("orders.online")}
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
@@ -866,7 +871,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                       <div className="border-t border-tea-green-pale px-6 py-4 bg-tea-cream-light/30 space-y-4">
                         {/* Items */}
                         <div>
-                          <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">購買品項</p>
+                          <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">{t("orders.items")}</p>
                           <div className="space-y-1.5">
                             {order.items.map((item, i) => (
                               <div key={i} className="flex justify-between text-sm">
@@ -877,14 +882,14 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           </div>
                           {(canCancel) && (
                             <p className="mt-2 text-xs text-tea-text-light">
-                              如需變更商品或數量，請先取消訂單後重新下單。
+                              {t("orders.changeHint")}
                             </p>
                           )}
                         </div>
 
                         {/* Shipping */}
                         <div>
-                          <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-1">配送資訊</p>
+                          <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-1">{t("orders.shipping")}</p>
                           <p className="text-sm text-tea-text-light">{shippingText}</p>
                           {/* Edit address button (home delivery only, before shipped) */}
                           {canEditAddress && (
@@ -892,15 +897,15 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                               onClick={() => openEditAddress(order)}
                               className="mt-2 text-xs text-tea-green hover:text-tea-green-dark font-medium underline underline-offset-2"
                             >
-                              修改收件地址
+                              {t("orders.editAddress")}
                             </button>
                           )}
                           {/* CVS: show contact info */}
                           {isCvsPending && (
                             <p className="mt-2 text-xs text-tea-text-light">
-                              如需變更超商門市，請聯絡客服：
+                              {t("orders.cvsChangeHint")}
                               <a href="tel:0972619391" className="text-tea-green hover:underline mx-1">0972-619-391</a>
-                              或
+                              {t("modal.or")}
                               <a href="mailto:qdbzdt2846@gmail.com" className="text-tea-green hover:underline ml-1">qdbzdt2846@gmail.com</a>
                             </p>
                           )}
@@ -913,7 +918,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                               onClick={() => { setCancelConfirmId(order.id); setCancelError(""); }}
                               className="text-sm text-rose-500 hover:text-rose-700 font-medium transition-colors"
                             >
-                              取消訂單
+                              {t("orders.cancelOrder")}
                             </button>
                           </div>
                         )}
@@ -932,9 +937,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => { if (!cancelling) setCancelConfirmId(null); }} />
           <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <h3 className="font-semibold text-tea-text text-lg mb-2">確認取消訂單？</h3>
+            <h3 className="font-semibold text-tea-text text-lg mb-2">{t("modal.cancelOrderTitle")}</h3>
             <p className="text-sm text-tea-text-light mb-5">
-              取消後無法復原。若使用線上付款，退款事宜請聯絡客服處理。
+              {t("modal.cancelOrderDesc")}
             </p>
             {cancelError && (
               <p className="mb-3 text-sm text-rose-500 bg-rose-50 rounded-lg px-3 py-2">{cancelError}</p>
@@ -945,14 +950,14 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 disabled={cancelling}
                 className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
               >
-                返回
+                {t("modal.back")}
               </button>
               <button
                 onClick={handleCancelOrder}
                 disabled={cancelling}
                 className="flex-1 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition disabled:opacity-60"
               >
-                {cancelling ? "取消中…" : "確認取消"}
+                {cancelling ? t("modal.cancelling") : t("modal.confirmCancel")}
               </button>
             </div>
           </div>
@@ -966,41 +971,41 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
             <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
               {cancelBookingResult ? (
                 <>
-                  <h3 className="font-semibold text-tea-text text-lg mb-2">預約已取消</h3>
+                  <h3 className="font-semibold text-tea-text text-lg mb-2">{t("modal.cancelBookingDone")}</h3>
                   {cancelBookingWasPending ? (
-                    <p className="text-sm text-tea-text-light mb-5">此預約尚未付款，已直接取消，不會產生任何費用。</p>
+                    <p className="text-sm text-tea-text-light mb-5">{t("modal.cancelBookingPendingDesc")}</p>
                   ) : (
                     <p className="text-sm text-tea-text-light mb-2">
-                      退款金額：
+                      {t("modal.cancelBookingRefund")}
                       {cancelBookingResult.refundAmount > 0
                         ? <strong className="text-tea-text"> NT$ {cancelBookingResult.refundAmount.toLocaleString()}</strong>
-                        : <span> 不退款（距活動不足 24 小時）</span>
+                        : <span>{t("modal.cancelBookingNoRefund")}</span>
                       }
                     </p>
                   )}
                   {cancelBookingResult.refundAmount > 0 && (
-                    <p className="text-xs text-tea-text-light mb-5">退款將於 5–7 個工作天內退回原付款帳號。</p>
+                    <p className="text-xs text-tea-text-light mb-5">{t("modal.cancelBookingRefundNote")}</p>
                   )}
                   <button
                     onClick={() => { setCancelBookingId(null); setCancelBookingResult(null); }}
                     className="w-full px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition"
                   >
-                    確認
+                    {t("modal.confirm")}
                   </button>
                 </>
               ) : (
                 <>
-                  <h3 className="font-semibold text-tea-text text-lg mb-2">確認取消預約？</h3>
+                  <h3 className="font-semibold text-tea-text text-lg mb-2">{t("modal.cancelBookingTitle")}</h3>
                   {cancelBookingWasPending ? (
-                    <p className="text-sm text-tea-text-light mb-4">此預約尚未付款，取消後無法復原，不會產生任何費用。</p>
+                    <p className="text-sm text-tea-text-light mb-4">{t("modal.cancelBookingPendingConfirmDesc")}</p>
                   ) : (
                     <>
-                      <p className="text-sm text-tea-text-light mb-1">取消後無法復原，退款依以下政策計算：</p>
+                      <p className="text-sm text-tea-text-light mb-1">{t("modal.cancelBookingPolicyDesc")}</p>
                       <div className="bg-tea-cream-light rounded-xl px-4 py-3 mb-4 text-xs space-y-1">
-                        <div className="flex justify-between"><span className="text-tea-text-light">活動前 7 天以上</span><span className="text-tea-green font-medium">退款 100%</span></div>
-                        <div className="flex justify-between"><span className="text-tea-text-light">活動前 3–6 天</span><span className="text-amber-600 font-medium">退款 50%</span></div>
-                        <div className="flex justify-between"><span className="text-tea-text-light">活動前 1–2 天</span><span className="text-amber-600 font-medium">退款 20%</span></div>
-                        <div className="flex justify-between"><span className="text-tea-text-light">24 小時內</span><span className="text-rose-500 font-medium">不退款</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refund7days")}</span><span className="text-tea-green font-medium">{t("modal.refund100")}</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refund3to6days")}</span><span className="text-amber-600 font-medium">{t("modal.refund50")}</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refund1to2days")}</span><span className="text-amber-600 font-medium">{t("modal.refund20")}</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refundUnder24h")}</span><span className="text-rose-500 font-medium">{t("modal.noRefund")}</span></div>
                       </div>
                     </>
                   )}
@@ -1013,14 +1018,14 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                       disabled={cancellingBooking}
                       className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
                     >
-                      返回
+                      {t("modal.back")}
                     </button>
                     <button
                       onClick={handleCancelBooking}
                       disabled={cancellingBooking}
                       className="flex-1 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition disabled:opacity-60"
                     >
-                      {cancellingBooking ? "取消中…" : "確認取消"}
+                      {cancellingBooking ? t("modal.cancelling") : t("modal.confirmCancel")}
                     </button>
                   </div>
                 </>
@@ -1034,7 +1039,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => { if (!reviewSubmitting) setReviewBookingId(null); }} />
           <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <h3 className="font-semibold text-tea-text text-lg mb-4">留下您的評價</h3>
+            <h3 className="font-semibold text-tea-text text-lg mb-4">{t("modal.reviewTitle")}</h3>
 
             {/* 星星評分 */}
             <div className="flex gap-1.5 mb-5 justify-center">
@@ -1058,7 +1063,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
             <textarea
               value={reviewComment}
               onChange={e => setReviewComment(e.target.value)}
-              placeholder="分享您的體驗心得（選填）"
+              placeholder={t("modal.reviewPlaceholder")}
               rows={4}
               className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 focus:ring-tea-green bg-tea-cream-light/50 resize-none mb-4"
             />
@@ -1073,14 +1078,14 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 disabled={reviewSubmitting}
                 className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
               >
-                取消
+                {t("modal.cancel")}
               </button>
               <button
                 onClick={handleSubmitReview}
                 disabled={reviewSubmitting}
                 className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition disabled:opacity-60"
               >
-                {reviewSubmitting ? "送出中…" : "送出評價"}
+                {reviewSubmitting ? t("modal.submitting") : t("modal.submitReview")}
               </button>
             </div>
           </div>
@@ -1092,27 +1097,27 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => { if (!savingAddress) setEditAddressOrder(null); }} />
           <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <h3 className="font-semibold text-tea-text text-lg mb-1">修改收件地址</h3>
-            <p className="text-xs text-tea-text-light mb-4">訂單 #{shortId(editAddressOrder.id)}</p>
+            <h3 className="font-semibold text-tea-text text-lg mb-1">{t("modal.editAddressTitle")}</h3>
+            <p className="text-xs text-tea-text-light mb-4">{t("modal.orderNumber", { id: shortId(editAddressOrder.id) })}</p>
             <form onSubmit={handleSaveAddress} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-tea-text mb-1.5">縣市</label>
+                <label className="block text-sm font-medium text-tea-text mb-1.5">{t("modal.editAddressCity")}</label>
                 <select
                   value={addressForm.city}
                   onChange={(e) => setAddressForm(p => ({ ...p, city: e.target.value }))}
                   className={inputCls(addressError && !addressForm.city ? addressError : undefined)}
                 >
-                  <option value="">請選擇縣市</option>
+                  <option value="">{t("modal.editAddressSelectCity")}</option>
                   {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-tea-text mb-1.5">地址</label>
+                <label className="block text-sm font-medium text-tea-text mb-1.5">{t("modal.editAddressAddress")}</label>
                 <input
                   type="text"
                   value={addressForm.address}
                   onChange={(e) => setAddressForm(p => ({ ...p, address: e.target.value }))}
-                  placeholder="鄉鎮市區、街道路、門牌號"
+                  placeholder={t("modal.editAddressPlaceholder")}
                   className={inputCls(addressError && !addressForm.address ? addressError : undefined)}
                 />
               </div>
@@ -1126,14 +1131,14 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   disabled={savingAddress}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
                 >
-                  取消
+                  {t("modal.cancel")}
                 </button>
                 <button
                   type="submit"
                   disabled={savingAddress}
                   className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition disabled:opacity-60"
                 >
-                  {savingAddress ? "儲存中…" : "儲存地址"}
+                  {savingAddress ? t("modal.editAddressSaving") : t("modal.editAddressSave")}
                 </button>
               </div>
             </form>

@@ -1,6 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function Footer() {
+  const t = useTranslations("common.footer");
+  const locale = useLocale();
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
+
   return (
     <footer className="bg-tea-text text-tea-cream-light mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
@@ -22,28 +29,27 @@ export default function Footer() {
               </svg>
               <h3 className="font-serif text-xl font-bold text-tea-green-light">霧抉茶</h3>
             </div>
-            <p className="text-sm text-tea-green-pale leading-relaxed">
-              源自嘉義阿里山梅山山區，<br />
-              一家三口40年的堅持，自產自銷好茶。
+            <p className="text-sm text-tea-green-pale leading-relaxed whitespace-pre-line">
+              {t("tagline")}
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h4 className="font-medium mb-5 text-tea-green-light tracking-wide">快速連結</h4>
+            <h4 className="font-medium mb-5 text-tea-green-light tracking-wide">{t("quickLinks")}</h4>
             <ul className="space-y-3">
               {[
-                { href: "/products", label: "茶葉產品" },
-                { href: "/process", label: "製茶過程" },
-                { href: "/about", label: "關於我們" },
-                { href: "/cart", label: "購物車" },
+                { href: lp("/products"), key: "products" },
+                { href: lp("/process"),  key: "process" },
+                { href: lp("/about"),    key: "about" },
+                { href: lp("/cart"),     key: "cart" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     className="text-sm text-tea-green-pale hover:text-tea-green-light transition-colors"
                   >
-                    {link.label}
+                    {t(`links.${link.key}`)}
                   </Link>
                 </li>
               ))}
@@ -52,19 +58,19 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-medium mb-5 text-tea-green-light tracking-wide">服務條款</h4>
+            <h4 className="font-medium mb-5 text-tea-green-light tracking-wide">{t("legal")}</h4>
             <ul className="space-y-3">
               {[
-                { href: "/privacy", label: "隱私權政策" },
-                { href: "/return-policy", label: "退換貨政策" },
-                { href: "/faq", label: "常見問題" },
+                { href: lp("/privacy"),       key: "privacy" },
+                { href: lp("/return-policy"), key: "returnPolicy" },
+                { href: lp("/faq"),           key: "faq" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     className="text-sm text-tea-green-pale hover:text-tea-green-light transition-colors"
                   >
-                    {link.label}
+                    {t(`legalLinks.${link.key}`)}
                   </Link>
                 </li>
               ))}
@@ -73,14 +79,14 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-medium mb-5 text-tea-green-light tracking-wide">聯絡我們</h4>
+            <h4 className="font-medium mb-5 text-tea-green-light tracking-wide">{t("contactUs")}</h4>
             <ul className="space-y-3 text-sm text-tea-green-pale">
               <li className="flex items-start gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="mt-0.5 flex-shrink-0 text-tea-green">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-                嘉義縣梅山鄉太興村8鄰溪頭19號之2
+                {t("address")}
               </li>
               <li className="flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="flex-shrink-0 text-tea-green">
@@ -100,7 +106,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-10 pt-8 text-center text-xs text-tea-green-pale">
-          © 2026 霧抉茶 Wu Jue Tea. All rights reserved.
+          {t("copyright")}
         </div>
       </div>
     </footer>

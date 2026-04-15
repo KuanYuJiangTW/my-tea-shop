@@ -10,6 +10,8 @@ export interface Product {
   price: number;
   weight: string;
   description: string;
+  descriptionEn: string;
+  originEn: string;
   color: string;
   featured: boolean;
   image?: string;

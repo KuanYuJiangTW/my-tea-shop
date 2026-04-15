@@ -6,29 +6,35 @@ import FeaturedSection from "./FeaturedSection";
 import BrandStats from "./BrandStats";
 import { getFeaturedProducts } from "@/lib/products";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "霧抉茶 | 台灣嘉義梅山高山茶",
-  description: "嘉義梅山一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。從茶園到您手上，每一泡都由我們親手把關。",
+  description: "嘉義梅山一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。從茶園到您手上，每一泡都是我們親手把關的好茶。",
   alternates: {
     canonical: "/",
   },
 };
 
 export default async function HomePage() {
-  const [featuredProducts, experiences, contents] = await Promise.all([
+  const [featuredProducts, experiences, contents, t, locale] = await Promise.all([
     getFeaturedProducts(),
     getExperienceTypes(),
     getExperienceContents(),
+    getTranslations("home"),
+    getLocale(),
   ]);
+  const tc = await getTranslations("common");
+  const isEn = locale === "en";
+  const lp = (path: string) => isEn ? `/en${path}` : path;
   const contentMap = Object.fromEntries(contents.map(c => [c.slug, c]));
+
   return (
     <div>
       {/* Hero */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
-        {/* 背景照片 */}
         <Image
           src="/images/gallery/picking2.jpg"
           alt="嘉義梅山採茶實景"
@@ -36,36 +42,35 @@ export default async function HomePage() {
           priority
           className="object-cover"
         />
-        {/* 深色遮罩 */}
         <div className="absolute inset-0 bg-tea-text/55" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10 w-full">
           <div className="max-w-2xl">
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
-              Taiwan Premium Tea
+              {t("hero.subtitle")}
             </p>
             <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-6 leading-none">
-              霧抉茶
+              {t("hero.title")}
             </h1>
             <div className="w-16 h-0.5 bg-tea-green-pale mb-7" />
             <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
-              源自台灣高山
+              {t("hero.tagline")}
             </p>
             <p className="text-tea-cream text-sm md:text-lg leading-relaxed mb-10 max-w-lg">
-              嘉義梅山山區，一家三口40年的堅持與心意。從茶園到您手上，每一泡都是我們親手把關的好茶。
+              {t("hero.description")}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="/products"
+                href={lp("/products")}
                 className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors shadow-sm"
               >
-                探索茶品
+                {t("hero.exploreBtn")}
               </Link>
               <Link
-                href="/about"
+                href={lp("/about")}
                 className="border-2 border-tea-cream/70 text-tea-cream hover:bg-tea-cream hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors"
               >
-                我們的故事
+                {t("hero.storyBtn")}
               </Link>
             </div>
           </div>
@@ -76,40 +81,23 @@ export default async function HomePage() {
       <section className="py-16 md:py-24 bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-
-            {/* 左側文字列表 */}
             <div className="flex flex-col justify-center">
               <p className="text-tea-green font-medium tracking-[0.3em] text-xs uppercase mb-4">
-                Tea Philosophy
+                {t("philosophy.sectionLabel")}
               </p>
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
-                品茶哲學
+                {t("philosophy.title")}
               </h2>
               <p className="text-tea-text-light mb-10 max-w-md">
-                我們相信，一杯好茶，是天、地、人三者的完美結合
+                {t("philosophy.tagline")}
               </p>
 
               <div className="divide-y divide-tea-green-pale">
                 {[
-                  {
-                    number: "01",
-                    Icon: Mountain,
-                    title: "高山氣韻",
-                    desc: "茶園坐落於嘉義阿里山梅山山區，終年雲霧繚繞，高山冷涼氣候與晝夜溫差，造就茶葉清甜甘醇的獨特風味。",
-                  },
-                  {
-                    number: "02",
-                    Icon: Flame,
-                    title: "手工製作",
-                    desc: "一家三口傳承超過40年的製茶經驗，焙火烘焙憑藉多年積累的手感掌控，每一批茶都是職人心血。",
-                  },
-                  {
-                    number: "03",
-                    Icon: Sprout,
-                    title: "自產自銷",
-                    desc: "從種植、製作、焙火、包裝到出貨，全程由我們親手把關，不假他人之手，讓每一泡茶安心送到您手上。",
-                  },
-                ].map(({ number, Icon, title, desc }) => (
+                  { number: "01", Icon: Mountain, key: "mountain" },
+                  { number: "02", Icon: Flame,    key: "handcraft" },
+                  { number: "03", Icon: Sprout,   key: "direct" },
+                ].map(({ number, Icon, key }) => (
                   <div key={number} className="flex items-start gap-6 py-8 group">
                     <div className="flex-shrink-0 flex flex-col items-center gap-2 w-8">
                       <span className="text-xs font-medium text-tea-green tracking-widest">{number}</span>
@@ -117,10 +105,10 @@ export default async function HomePage() {
                     </div>
                     <div>
                       <h3 className="font-serif text-xl font-bold text-tea-text mb-2 group-hover:text-tea-green transition-colors">
-                        {title}
+                        {t(`philosophy.items.${key}.title`)}
                       </h3>
                       <p className="text-tea-text-light text-sm leading-relaxed">
-                        {desc}
+                        {t(`philosophy.items.${key}.desc`)}
                       </p>
                     </div>
                   </div>
@@ -128,7 +116,6 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* 右側照片 */}
             <div>
               <div className="relative h-64 sm:h-80 md:h-[420px] lg:h-full lg:min-h-[480px] rounded-2xl overflow-hidden">
                 <Image
@@ -139,7 +126,6 @@ export default async function HomePage() {
                 />
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -150,15 +136,15 @@ export default async function HomePage() {
           <div className="flex items-end justify-between mb-12">
             <div>
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">
-                本季精選
+                {t("featured.title")}
               </h2>
-              <p className="text-tea-text-light">嚴選當季最佳的台灣高山茶</p>
+              <p className="text-tea-text-light">{t("featured.tagline")}</p>
             </div>
             <Link
-              href="/products"
+              href={lp("/products")}
               className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 transition-colors"
             >
-              查看全部
+              {tc("buttons.viewAll")}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
@@ -174,15 +160,15 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">Experience</p>
-                <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">茶山體驗</h2>
-                <p className="text-tea-text-light">走入嘉義梅山茶園，用雙手感受一片葉子的故事</p>
+                <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">{t("experiences.sectionLabel")}</p>
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">{t("experiences.title")}</h2>
+                <p className="text-tea-text-light">{t("experiences.tagline")}</p>
               </div>
               <Link
-                href="/experiences"
+                href={lp("/experiences")}
                 className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 transition-colors"
               >
-                查看全部
+                {tc("buttons.viewAll")}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
@@ -197,28 +183,28 @@ export default async function HomePage() {
                 return (
                   <Link
                     key={exp.id}
-                    href={`/experiences/${exp.slug}`}
+                    href={lp(`/experiences/${exp.slug}`)}
                     className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-tea-green-pale/50"
                   >
                     <div className="relative h-48 overflow-hidden">
                       <Image
                         src={imgSrc}
-                        alt={exp.name}
+                        alt={isEn ? exp.nameEn : exp.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       {exp.requiresAdult && (
                         <span className="absolute top-3 right-3 bg-tea-text text-tea-cream text-xs px-3 py-1 rounded-full">
-                          18 歲以上
+                          {tc("adultOnly")}
                         </span>
                       )}
                     </div>
                     <div className="p-5">
                       <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">
-                        {exp.name}
+                        {isEn ? (exp.nameEn || exp.name) : exp.name}
                       </h3>
                       <p className="text-tea-text-light text-sm leading-relaxed mb-4 line-clamp-2">
-                        {content.tagline}
+                        {isEn ? (content.taglineEn || content.tagline) : content.tagline}
                       </p>
                       <div className="flex items-center justify-between text-sm text-tea-text-light">
                         <div className="flex items-center gap-3">
@@ -228,7 +214,7 @@ export default async function HomePage() {
                           </span>
                           <span className="flex items-center gap-1">
                             <Users className="w-3.5 h-3.5 text-tea-green" />
-                            {exp.minParticipants}–{exp.maxParticipants}人
+                            {exp.minParticipants}–{exp.maxParticipants}{isEn ? "" : "人"}
                           </span>
                         </div>
                         <span className="font-semibold text-tea-text">NT$ {exp.price.toLocaleString()}</span>
@@ -242,10 +228,10 @@ export default async function HomePage() {
             {experiences.length > 3 && (
               <div className="text-center mt-8">
                 <Link
-                  href="/experiences"
+                  href={lp("/experiences")}
                   className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-full font-medium transition-colors inline-block"
                 >
-                  查看全部 {experiences.length} 個體驗
+                  {t("experiences.viewAllCount", { count: experiences.length })}
                 </Link>
               </div>
             )}
@@ -256,32 +242,28 @@ export default async function HomePage() {
       {/* Brand Story */}
       <section className="py-16 md:py-24 bg-tea-text">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          {/* 故事文字 */}
           <div className="max-w-2xl mb-14">
             <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
-              Brand Story
+              {t("brandStory.sectionLabel")}
             </p>
-            <h2 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-7 leading-snug">
-              從一片葉子<br />到一杯好茶
+            <h2 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-7 leading-snug whitespace-pre-line">
+              {t("brandStory.title")}
             </h2>
             <p className="text-tea-green-pale leading-relaxed mb-4 text-sm">
-              從爸爸媽媽年輕時踏入茶產業開始，我們在嘉義梅山的山區辛勤耕耘超過40年。因為熱愛，也因為責任，霧抉茶始終堅持自產自銷。
+              {t("brandStory.p1")}
             </p>
             <p className="text-tea-green-pale leading-relaxed mb-10 text-sm">
-              從茶園種植、茶葉製作、焙火烘焙、分裝包裝到出貨，每一道工序都由我們一家三口親手把關。你手上的每一泡茶，都是我們用時間和心意累積而成的風味。
+              {t("brandStory.p2")}
             </p>
             <Link
-              href="/about"
+              href={lp("/about")}
               className="border border-tea-green-light text-tea-green-light hover:bg-tea-green-light hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors inline-block"
             >
-              了解更多
+              {tc("buttons.learnMore")}
             </Link>
           </div>
 
-          {/* 統計數字 */}
           <BrandStats />
-
         </div>
       </section>
 
@@ -289,38 +271,33 @@ export default async function HomePage() {
       <section className="py-16 md:py-24 bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
-            製茶工藝
+            {t("process.title")}
           </h2>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
           <p className="text-tea-text-light mb-14 max-w-lg mx-auto">
-            從採摘到成茶，每一個步驟都需要職人的專注與耐心
+            {t("process.tagline")}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-14">
-            {[
-              { step: "01", name: "採摘", desc: "清晨手工採摘嫩芽" },
-              { step: "02", name: "萎凋", desc: "日光與室內萎凋" },
-              { step: "03", name: "揉捻", desc: "成形展現茶韻" },
-              { step: "04", name: "焙火", desc: "精控火候鎖香" },
-            ].map((item) => (
+            {(["pick", "wither", "roll", "roast"] as const).map((key, i) => (
               <div
-                key={item.step}
+                key={key}
                 className="bg-white rounded-2xl p-5 md:p-7 text-center shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="text-xs text-tea-green font-medium tracking-widest mb-3">
-                  {item.step}
+                  {String(i + 1).padStart(2, "0")}
                 </div>
                 <div className="font-serif text-xl font-bold text-tea-text mb-2">
-                  {item.name}
+                  {t(`process.steps.${key}.name`)}
                 </div>
-                <div className="text-xs text-tea-text-light">{item.desc}</div>
+                <div className="text-xs text-tea-text-light">{t(`process.steps.${key}.desc`)}</div>
               </div>
             ))}
           </div>
           <Link
-            href="/process"
+            href={lp("/process")}
             className="bg-tea-green hover:bg-tea-green-dark text-white px-9 py-3.5 rounded-full font-medium transition-colors shadow-sm"
           >
-            探索完整製茶過程
+            {t("process.exploreBtn")}
           </Link>
         </div>
       </section>

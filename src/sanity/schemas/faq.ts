@@ -7,16 +7,27 @@ export const faqSchema = defineType({
   fields: [
     defineField({
       name:       "question",
-      title:      "問題",
+      title:      "問題（中文）",
       type:       "string",
       validation: (r) => r.required(),
     }),
     defineField({
+      name:       "question_en",
+      title:      "Question (EN)",
+      type:       "string",
+    }),
+    defineField({
       name:       "answer",
-      title:      "回答",
+      title:      "回答（中文）",
       type:       "array",
       of:         [{ type: "block" }],
       validation: (r) => r.required(),
+    }),
+    defineField({
+      name:       "answer_en",
+      title:      "Answer (EN)",
+      type:       "array",
+      of:         [{ type: "block" }],
     }),
     defineField({
       name:    "category",

@@ -5,15 +5,19 @@ import { ExperienceType, ExperienceSession } from "@/types";
 
 // Sanity 回傳的體驗內容型別
 export interface ExperienceContent {
-  slug:         string;
-  name:         string;
-  nameEn:       string;
-  tagline:      string;
-  description?: unknown[];   // Portable Text blocks
-  coverImage:   string | null;
-  gallery?:     string[];
-  includes:     string[];
-  notes:        string[];
+  slug:            string;
+  name:            string;
+  nameEn:          string;
+  tagline:         string;
+  taglineEn?:      string;
+  description?:    unknown[];   // Portable Text blocks
+  descriptionEn?:  unknown[];
+  coverImage:      string | null;
+  gallery?:        string[];
+  includes:        string[];
+  includesEn?:     string[];
+  notes:           string[];
+  notesEn?:        string[];
   seoDescription?: string;
 }
 

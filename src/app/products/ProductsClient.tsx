@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ProductCard from "@/components/ProductCard";
 import { categories } from "@/data/products";
 import type { Product } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface StockRow {
   id:            number;
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export default function ProductsClient({ products }: Props) {
+  const t = useTranslations("products");
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
   const [liveProducts, setLiveProducts] = useState<Product[]>(products);
 
@@ -54,14 +56,14 @@ export default function ProductsClient({ products }: Props) {
                 : "bg-white text-tea-text-light hover:bg-tea-green-mist border border-tea-green-pale"
             }`}
           >
-            {cat}
+            {cat === "全部" ? t("filterAll") : cat === "烏龍茶" ? t("categoryOolong") : t("categoryBlack")}
           </button>
         ))}
       </div>
 
       {/* Count */}
       <p className="text-tea-text-light text-sm mb-8 text-center">
-        共 {filtered.length} 款茶品
+        {t("countLabel", { count: filtered.length })}
       </p>
 
       {/* Grid */}
@@ -73,7 +75,7 @@ export default function ProductsClient({ products }: Props) {
 
       {filtered.length === 0 && (
         <div className="text-center py-24">
-          <p className="text-tea-text-light text-lg">此分類暫無茶品</p>
+          <p className="text-tea-text-light text-lg">{t("noResults")}</p>
         </div>
       )}
     </div>

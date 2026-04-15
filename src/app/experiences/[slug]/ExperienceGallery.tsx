@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import ProductLightbox, { type LightboxPhoto } from "@/components/ProductLightbox";
 
 export default function ExperienceGallery({
@@ -14,6 +15,7 @@ export default function ExperienceGallery({
   gallery: string[];
 }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const t = useTranslations("experiences");
 
   const photos: LightboxPhoto[] = gallery.map((src) => ({
     src,
@@ -32,7 +34,7 @@ export default function ExperienceGallery({
   return (
     <>
       <div>
-        <h2 className="font-serif text-xl font-bold text-tea-text mb-4">相簿</h2>
+        <h2 className="font-serif text-xl font-bold text-tea-text mb-4">{t("gallery")}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {gallery.map((url, idx) => (
             <button
@@ -40,11 +42,11 @@ export default function ExperienceGallery({
               type="button"
               onClick={() => open(idx)}
               className="relative aspect-square rounded-xl overflow-hidden cursor-zoom-in hover:opacity-90 transition-opacity"
-              aria-label={`查看第 ${idx + 1} 張照片`}
+              aria-label={t("galleryAriaLabel", { index: idx + 1 })}
             >
               <Image
                 src={url}
-                alt={`${name} 相簿 ${idx + 1}`}
+                alt={t("galleryAlt", { name, index: idx + 1 })}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 160px"
                 className="object-cover"

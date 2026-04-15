@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,11 +50,15 @@ export default function LoginForm() {
   const [magicSent, setMagicSent]       = useState(false);
   const [showAndroidWarning, setShowAndroidWarning] = useState(false);
   const router      = useRouter();
+  const locale      = useLocale();
+  const t           = useTranslations("auth.login");
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
   const searchParams = useSearchParams();
-  const redirectTo  = searchParams.get("redirect") ?? "/account";
+  const redirectTo  = searchParams.get("redirect") ?? lp("/account");
 
   function callbackUrl() {
-    const next = redirectTo !== "/account" ? `?next=${encodeURIComponent(redirectTo)}` : "";
+    const defaultRedirect = lp("/account");
+    const next = redirectTo !== defaultRedirect ? `?next=${encodeURIComponent(redirectTo)}` : "";
     return `${window.location.origin}/auth/callback${next}`;
   }
 
@@ -61,8 +66,8 @@ export default function LoginForm() {
   async function handlePasswordLogin(ev: React.FormEvent) {
     ev.preventDefault();
     const e: { email?: string; password?: string } = {};
-    if (!emailRegex.test(email)) e.email = "請輸入有效的 Email 格式";
-    if (password.length < 6)    e.password = "密碼長度至少 6 個字元";
+    if (!emailRegex.test(email)) e.email = t("errors.emailInvalid");
+    if (password.length < 6)    e.password = t("errors.passwordTooShort");
     setErrors(e);
     if (Object.keys(e).length) return;
 
@@ -71,7 +76,7 @@ export default function LoginForm() {
     const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      setGeneralError("Email 或密碼錯誤，請再試一次。");
+      setGeneralError(t("errors.wrongCredentials"));
       setLoading(false);
     } else {
       router.push(redirectTo);
@@ -83,7 +88,7 @@ export default function LoginForm() {
   async function handleMagicLink(ev: React.FormEvent) {
     ev.preventDefault();
     if (!emailRegex.test(email)) {
-      setErrors({ email: "請輸入有效的 Email 格式" });
+      setErrors({ email: t("errors.emailInvalid") });
       return;
     }
     setLoading(true);
@@ -96,9 +101,9 @@ export default function LoginForm() {
     setLoading(false);
     if (error) {
       if (error.message.toLowerCase().includes("not found") || error.message.toLowerCase().includes("not registered")) {
-        setGeneralError("此 Email 尚未註冊，請先建立帳號。");
+        setGeneralError(t("errors.notRegistered"));
       } else {
-        setGeneralError("傳送失敗，請稍後再試。");
+        setGeneralError(t("errors.sendFailed"));
       }
     } else {
       setMagicSent(true);
@@ -174,8 +179,8 @@ export default function LoginForm() {
             </svg>
             <span className="font-serif text-xl font-bold text-tea-text block">霧抉茶</span>
           </Link>
-          <h1 className="text-2xl font-bold text-tea-text mt-4 mb-1">歡迎回來</h1>
-          <p className="text-sm text-tea-text-light">登入您的會員帳號</p>
+          <h1 className="text-2xl font-bold text-tea-text mt-4 mb-1">{t("title")}</h1>
+          <p className="text-sm text-tea-text-light">{t("subtitle")}</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-8">
@@ -188,7 +193,7 @@ export default function LoginForm() {
               className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors disabled:opacity-60"
             >
               <GoogleIcon />
-              {googleLoading ? "連線中…" : "使用 Google 帳號登入"}
+              {googleLoading ? t("connecting") : t("googleLogin")}
             </button>
             <button
               type="button"
@@ -197,7 +202,7 @@ export default function LoginForm() {
               className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-[#06C755] hover:bg-[#f0fdf4] text-sm font-medium text-[#06C755] transition-colors disabled:opacity-60"
             >
               <LineIcon />
-              {lineLoading ? "連線中…" : "使用 LINE 帳號登入"}
+              {lineLoading ? t("connecting") : t("lineLogin")}
             </button>
             <button
               type="button"
@@ -206,14 +211,14 @@ export default function LoginForm() {
               className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-[#1877F2] hover:bg-[#eff6ff] text-sm font-medium text-[#1877F2] transition-colors disabled:opacity-60"
             >
               <FacebookIcon />
-              {facebookLoading ? "連線中…" : "使用 Facebook 帳號登入"}
+              {facebookLoading ? t("connecting") : t("facebookLogin")}
             </button>
           </div>
 
           {/* 分隔線 */}
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-tea-green-pale" />
-            <span className="text-xs text-tea-text-light">或</span>
+            <span className="text-xs text-tea-text-light">{t("or")}</span>
             <div className="flex-1 h-px bg-tea-green-pale" />
           </div>
 
@@ -228,7 +233,7 @@ export default function LoginForm() {
                   mode === m ? "bg-white text-tea-text shadow-sm" : "text-tea-text-light hover:text-tea-text"
                 }`}
               >
-                {m === "password" ? "密碼登入" : "Email 連結"}
+                {m === "password" ? t("passwordMode") : t("magicMode")}
               </button>
             ))}
           </div>
@@ -243,7 +248,7 @@ export default function LoginForm() {
           {mode === "password" && (
             <form onSubmit={handlePasswordLogin} className="space-y-4" noValidate>
               <div>
-                <label className="block text-sm font-medium text-tea-text mb-1.5">電子郵件</label>
+                <label className="block text-sm font-medium text-tea-text mb-1.5">{t("email")}</label>
                 <input
                   type="email"
                   value={email}
@@ -255,7 +260,7 @@ export default function LoginForm() {
                 {errors.email && <p className="mt-1 text-xs text-rose-500">{errors.email}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-tea-text mb-1.5">密碼</label>
+                <label className="block text-sm font-medium text-tea-text mb-1.5">{t("password")}</label>
                 <input
                   type="password"
                   value={password}
@@ -271,7 +276,7 @@ export default function LoginForm() {
                 disabled={loading}
                 className="w-full py-3 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
               >
-                {loading ? "登入中…" : "登入"}
+                {loading ? t("loggingIn") : t("loginBtn")}
               </button>
             </form>
           )}
@@ -286,23 +291,23 @@ export default function LoginForm() {
                     <polyline points="22,6 12,13 2,6"/>
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-tea-text mb-1">連結已寄出！</p>
+                <p className="text-sm font-medium text-tea-text mb-1">{t("magicLinkSent")}</p>
                 <p className="text-xs text-tea-text-light">
-                  請前往 <strong className="text-tea-text">{email}</strong> 點擊登入連結
+                  {t("magicLinkSentHint", { email })}
                 </p>
-                <p className="text-xs text-tea-text-light mt-1">沒有收到？請檢查垃圾信件夾</p>
+                <p className="text-xs text-tea-text-light mt-1">{t("checkSpam")}</p>
                 <button
                   type="button"
                   onClick={() => setMagicSent(false)}
                   className="mt-4 text-xs text-tea-green hover:text-tea-green-dark underline"
                 >
-                  重新輸入
+                  {t("reenter")}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleMagicLink} className="space-y-4" noValidate>
                 <div>
-                  <label className="block text-sm font-medium text-tea-text mb-1.5">電子郵件</label>
+                  <label className="block text-sm font-medium text-tea-text mb-1.5">{t("email")}</label>
                   <input
                     type="email"
                     value={email}
@@ -312,14 +317,14 @@ export default function LoginForm() {
                     className={inputCls(!!errors.email)}
                   />
                   {errors.email && <p className="mt-1 text-xs text-rose-500">{errors.email}</p>}
-                  <p className="mt-1.5 text-xs text-tea-text-light">我們將發送一次性登入連結到您的信箱</p>
+                  <p className="mt-1.5 text-xs text-tea-text-light">{t("magicLinkHint")}</p>
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full py-3 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors"
                 >
-                  {loading ? "傳送中…" : "發送登入連結"}
+                  {loading ? t("sending") : t("sendLink")}
                 </button>
               </form>
             )
@@ -327,12 +332,12 @@ export default function LoginForm() {
         </div>
 
         <p className="text-center text-sm text-tea-text-light mt-6">
-          還沒有帳號？{" "}
+          {t("noAccount")}{" "}
           <Link
-            href={`/auth/register${redirectTo !== "/account" ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`}
+            href={lp(`/auth/register${redirectTo !== lp("/account") ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`)}
             className="text-tea-green hover:text-tea-green-dark font-medium transition-colors"
           >
-            立即註冊
+            {t("register")}
           </Link>
         </p>
       </div>
@@ -346,13 +351,13 @@ export default function LoginForm() {
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" className="flex-shrink-0">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
-              <h3 className="font-semibold text-tea-text">行動裝置提醒</h3>
+              <h3 className="font-semibold text-tea-text">{t("mobileLineWarning.title")}</h3>
             </div>
             <p className="text-sm text-tea-text-light mb-2">
-              使用 LINE 登入時，手機或平板裝置可能會跳轉到其他瀏覽器，導致登入失敗。
+              {t("mobileLineWarning.desc1")}
             </p>
             <p className="text-sm text-tea-text-light mb-5">
-              建議改用 <strong className="text-tea-text">Google 帳號</strong> 或 <strong className="text-tea-text">Email 登入</strong>，或將常用瀏覽器設為裝置的預設瀏覽器後再試。
+              {t("mobileLineWarning.desc2")}
             </p>
             <div className="flex gap-3">
               <button
@@ -360,14 +365,14 @@ export default function LoginForm() {
                 onClick={() => setShowAndroidWarning(false)}
                 className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition"
               >
-                取消
+                {t("mobileLineWarning.cancel")}
               </button>
               <button
                 type="button"
                 onClick={handleLineLoginConfirm}
                 className="flex-1 px-4 py-2.5 rounded-xl border border-[#06C755] text-sm font-medium text-[#06C755] hover:bg-[#f0fdf4] transition"
               >
-                仍要使用 LINE
+                {t("mobileLineWarning.confirm")}
               </button>
             </div>
           </div>

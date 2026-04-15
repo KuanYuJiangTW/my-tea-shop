@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useLocale } from "next-intl";
 
 type Participant = {
   id: string;
@@ -38,6 +39,8 @@ const phoneReg = /^09\d{8}$/;
 export default function ParticipantsPage() {
   const { id } = useParams<{ id: string }>();
   const router  = useRouter();
+  const locale  = useLocale();
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
 
   const [info, setInfo]       = useState<ParticipantInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -125,7 +128,7 @@ export default function ParticipantsPage() {
     return (
       <div className="min-h-screen bg-tea-cream-light flex flex-col items-center justify-center gap-4 px-4">
         <p className="text-rose-500 text-sm">{error}</p>
-        <Link href="/account?tab=bookings" className="text-tea-green hover:underline text-sm">返回我的預約</Link>
+        <Link href={lp("/account?tab=bookings")} className="text-tea-green hover:underline text-sm">返回我的預約</Link>
       </div>
     );
   }
@@ -139,7 +142,7 @@ export default function ParticipantsPage() {
 
         {/* Back */}
         <Link
-          href="/account?tab=bookings"
+          href={lp("/account?tab=bookings")}
           className="inline-flex items-center gap-1.5 text-sm text-tea-text-light hover:text-tea-green mb-6 transition-colors"
         >
           <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>

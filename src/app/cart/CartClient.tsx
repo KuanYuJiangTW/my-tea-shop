@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslations, useLocale } from "next-intl";
 import type { Product } from "@/types";
 
 function getItemStock(product: Product): number | undefined {
@@ -27,11 +28,14 @@ interface StockEntry {
 
 interface Adjustment {
   id: number;
-  message: string;
-  soldOut: boolean;
+  name: string;
+  count: number;  // 0 = 售完
 }
 
 export default function CartClient() {
+  const t = useTranslations("cart");
+  const locale = useLocale();
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
   const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
   const { user } = useAuth();
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
@@ -68,11 +72,8 @@ export default function CartClient() {
 
             newAdjustments.push({
               id: item.product.id,
-              message:
-                freshStock === 0
-                  ? `${label} 已售完，已自動從購物車移除`
-                  : `${label} 庫存剩 ${freshStock} 個，數量已調整`,
-              soldOut: freshStock === 0,
+              name: label,
+              count: freshStock,
             });
           }
         }
@@ -100,16 +101,16 @@ export default function CartClient() {
             <path d="M16 10a4 4 0 01-8 0" />
           </svg>
           <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">
-            購物車是空的
+            {t("empty.title")}
           </h2>
           <p className="text-tea-text-light mb-8">
-            來挑選您喜愛的台灣好茶吧！
+            {t("empty.desc")}
           </p>
           <Link
-            href="/products"
+            href={lp("/products")}
             className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors"
           >
-            探索茶品
+            {t("empty.cta")}
           </Link>
         </div>
       </div>
@@ -120,7 +121,7 @@ export default function CartClient() {
     <div className="min-h-screen bg-tea-cream-light">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
         <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-8 md:mb-10">
-          購物車
+          {t("title")}
         </h1>
 
         {/* 庫存調整提示 */}
@@ -137,7 +138,7 @@ export default function CartClient() {
                     <line x1="12" y1="9" x2="12" y2="13" />
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
-                  <span>{adj.message}</span>
+                  <span>{adj.count === 0 ? t("soldOut", { name: adj.name }) : t("stockAdjusted", { name: adj.name, count: adj.count })}</span>
                 </div>
                 <button
                   onClick={() => setAdjustments((prev) => prev.filter((a) => a.id !== adj.id))}
@@ -251,28 +252,28 @@ export default function CartClient() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-24">
               <h2 className="font-serif text-xl font-bold text-tea-text mb-6">
-                訂單摘要
+                {t("orderSummary")}
               </h2>
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm text-tea-text-light">
-                  <span>商品數量</span>
-                  <span>{totalItems} 件</span>
+                  <span>{t("quantity")}</span>
+                  <span>{t("quantityUnit", { count: totalItems })}</span>
                 </div>
                 <div className="flex justify-between text-sm text-tea-text-light">
-                  <span>運費</span>
+                  <span>{t("shipping")}</span>
                   {totalPrice >= 1000 ? (
-                    <span className="text-tea-green">免費</span>
+                    <span className="text-tea-green">{t("freeShipping")}</span>
                   ) : (
-                    <span>宅配 NT$250 / 超商 NT$60</span>
+                    <span>{t("shippingOptions")}</span>
                   )}
                 </div>
                 {totalPrice < 1000 && (
                   <div className="text-xs text-amber-600">
-                    再買 NT${(1000 - totalPrice).toLocaleString()} 即享免運費
+                    {t("freeShippingHint", { amount: (1000 - totalPrice).toLocaleString() })}
                   </div>
                 )}
                 <div className="border-t border-tea-green-pale pt-3 flex justify-between font-bold text-tea-text">
-                  <span>總金額</span>
+                  <span>{t("total")}</span>
                   <span className="text-tea-green text-lg">
                     NT${totalPrice.toLocaleString()}
                   </span>
@@ -280,24 +281,24 @@ export default function CartClient() {
               </div>
               {user ? (
                 <Link
-                  href="/checkout"
+                  href={lp("/checkout")}
                   className="block w-full bg-tea-green hover:bg-tea-green-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
                 >
-                  前往結帳
+                  {t("checkout")}
                 </Link>
               ) : (
                 <Link
-                  href="/auth/login?redirect=/checkout"
+                  href={lp("/auth/login?redirect=" + lp("/checkout"))}
                   className="block w-full bg-tea-green hover:bg-tea-green-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
                 >
-                  登入後結帳
+                  {t("loginToCheckout")}
                 </Link>
               )}
               <Link
-                href="/products"
+                href={lp("/products")}
                 className="block w-full text-center text-tea-text-light hover:text-tea-green text-sm mt-4 transition-colors"
               >
-                繼續購物
+                {t("continueShopping")}
               </Link>
             </div>
           </div>

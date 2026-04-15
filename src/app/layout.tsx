@@ -7,6 +7,8 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SiteChrome from "@/components/SiteChrome";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -63,16 +65,20 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const locale = await getLocale();
+  const messages = await getMessages();
 
   return (
-    <html lang="zh-TW" className={cn("font-sans", geist.variable)}>
+    <html lang={locale === "en" ? "en" : "zh-TW"} className={cn("font-sans", geist.variable)}>
       <body>
         <GoogleAnalytics nonce={nonce} />
-        <AuthProvider>
-          <CartProvider>
-            <SiteChrome>{children}</SiteChrome>
-          </CartProvider>
-        </AuthProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <AuthProvider>
+            <CartProvider>
+              <SiteChrome>{children}</SiteChrome>
+            </CartProvider>
+          </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

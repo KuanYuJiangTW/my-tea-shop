@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, Users, Clock } from "lucide-react";
 import { ExperienceSession, ExperienceType } from "@/types";
 
 interface Props {
   experience: ExperienceType;
 }
-
-const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
 const DOT_COLOR: Record<string, string> = {
   open:      "bg-tea-green",
@@ -19,6 +18,10 @@ const DOT_COLOR: Record<string, string> = {
 
 export default function ExperienceCalendar({ experience }: Props) {
   const router  = useRouter();
+  const locale  = useLocale();
+  const t = useTranslations("experienceCalendar");
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
+  const weekdays = t.raw("weekdays") as string[];
   const today   = new Date();
   const [year,  setYear]       = useState(today.getFullYear());
   const [month, setMonth]      = useState(today.getMonth() + 1);
@@ -85,7 +88,7 @@ export default function ExperienceCalendar({ experience }: Props) {
           <ChevronLeft className="w-5 h-5 text-tea-text" />
         </button>
         <h3 className="font-serif text-lg font-bold text-tea-text">
-          {year} 年 {month} 月
+          {t("yearMonth", { year, month })}
         </h3>
         <button
           onClick={nextMonth}
@@ -97,7 +100,7 @@ export default function ExperienceCalendar({ experience }: Props) {
 
       {/* 星期標題 */}
       <div className="grid grid-cols-7 mb-2">
-        {WEEKDAYS.map(d => (
+        {weekdays.map(d => (
           <div key={d} className="text-center text-xs text-tea-text-light py-2 font-medium">
             {d}
           </div>
@@ -107,7 +110,7 @@ export default function ExperienceCalendar({ experience }: Props) {
       {/* 日曆格子 */}
       {loading ? (
         <div className="h-48 flex items-center justify-center text-tea-text-light text-sm">
-          載入中…
+          {t("loading")}
         </div>
       ) : (
         <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
@@ -169,7 +172,7 @@ export default function ExperienceCalendar({ experience }: Props) {
       {selectedDay !== null && (
         <div className="mt-4 border-t border-tea-green-pale pt-4">
           <h4 className="text-sm font-semibold text-tea-text mb-3">
-            {month} 月 {selectedDay} 日　場次
+            {t("sessionListTitle", { month, day: selectedDay })}
           </h4>
           <div className="space-y-2">
             {selectedSessions.map(s => {
@@ -187,35 +190,35 @@ export default function ExperienceCalendar({ experience }: Props) {
                         {s.startTime.slice(0, 5)}
                       </span>
                       <span className="text-xs text-tea-text-light">
-                        （{experience.durationHours} 小時）
+                        {t("duration", { hours: experience.durationHours })}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 pl-5">
                       {open ? (
                         <span className="text-xs text-tea-green font-medium">
-                          剩餘 {remaining} 位
+                          {t("remainingSpots", { count: remaining })}
                         </span>
                       ) : s.status === "full" ? (
                         <span className="text-xs text-tea-text-light bg-tea-text-light/10 px-2 py-0.5 rounded-full">
-                          額滿
+                          {t("full")}
                         </span>
                       ) : (
                         <span className="text-xs text-red-400 bg-red-50 px-2 py-0.5 rounded-full">
-                          已取消
+                          {t("cancelled")}
                         </span>
                       )}
                     </div>
                   </div>
                   <button
                     disabled={!open}
-                    onClick={() => router.push(`/experiences/booking/${s.id}`)}
+                    onClick={() => router.push(lp(`/experiences/booking/${s.id}`))}
                     className={`text-sm font-medium px-4 py-2 rounded-xl transition-colors ${
                       open
                         ? "bg-tea-green text-white hover:bg-tea-green-dark cursor-pointer"
                         : "bg-tea-text-light/10 text-tea-text-light cursor-not-allowed"
                     }`}
                   >
-                    {open ? "立即預約" : "不可預約"}
+                    {open ? t("bookBtn") : t("unavailableBtn")}
                   </button>
                 </div>
               );
@@ -228,15 +231,15 @@ export default function ExperienceCalendar({ experience }: Props) {
       <div className="flex flex-wrap gap-3 sm:gap-4 mt-5 text-xs text-tea-text-light">
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-tea-green inline-block" />
-          可預約
+          {t("legend.available")}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-tea-text-light/40 inline-block" />
-          額滿
+          {t("legend.full")}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-red-300 inline-block" />
-          取消
+          {t("legend.cancelled")}
         </span>
       </div>
 
@@ -244,8 +247,8 @@ export default function ExperienceCalendar({ experience }: Props) {
       <div className="mt-5 flex items-start gap-2 bg-tea-cream rounded-xl p-4 text-sm text-tea-text-light">
         <Users className="w-4 h-4 text-tea-green mt-0.5 shrink-0" />
         <span>
-          每場需滿 <strong className="text-tea-text">{experience.minParticipants} 人</strong> 才開課。
-          人數不足時，活動前 3 天會通知取消並全額退款。
+          {t("minParticipantsNotice", { min: experience.minParticipants })}
+          {" "}{t("cancelNotice")}
         </span>
       </div>
     </div>

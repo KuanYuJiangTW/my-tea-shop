@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -27,7 +28,10 @@ function GoogleIcon() {
 
 function RegisterForm() {
   const searchParams  = useSearchParams();
-  const redirectTo    = searchParams.get("redirect") ?? "/account";
+  const locale        = useLocale();
+  const t             = useTranslations("auth.register");
+  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
+  const redirectTo    = searchParams.get("redirect") ?? lp("/account");
 
   const [name, setName]         = useState("");
   const [email, setEmail]       = useState("");
@@ -42,13 +46,13 @@ function RegisterForm() {
   function validate(): boolean {
     const e: FieldErrors = {};
     const trimmedName = name.trim();
-    if (trimmedName.length < 2)                     e.name = "請輸入至少 2 個字的姓名";
-    else if (/^\d+$/.test(trimmedName))             e.name = "姓名不能為純數字";
-    if (!emailRegex.test(email))                    e.email = "請輸入有效的 Email 格式";
-    if (password.length < 8)                        e.password = "密碼至少 8 個字元";
-    else if (!/[A-Za-z]/.test(password))            e.password = "密碼須包含至少一個英文字母";
-    else if (!/\d/.test(password))                  e.password = "密碼須包含至少一個數字";
-    if (password !== confirm)                       e.confirm = "兩次輸入的密碼不一致";
+    if (trimmedName.length < 2)                     e.name = t("errors.nameTooShort");
+    else if (/^\d+$/.test(trimmedName))             e.name = t("errors.nameOnlyNumbers");
+    if (!emailRegex.test(email))                    e.email = t("errors.emailInvalid");
+    if (password.length < 8)                        e.password = t("errors.passwordTooShort");
+    else if (!/[A-Za-z]/.test(password))            e.password = t("errors.passwordNeedLetter");
+    else if (!/\d/.test(password))                  e.password = t("errors.passwordNeedNumber");
+    if (password !== confirm)                       e.confirm = t("errors.passwordMismatch");
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -77,7 +81,7 @@ function RegisterForm() {
     setLoading(false);
     if (error) {
       if (error.message.includes("already registered") || error.message.includes("User already registered")) {
-        setGeneralError("此 Email 已被註冊，請直接登入。");
+        setGeneralError(t("errors.alreadyRegistered"));
       } else {
         setGeneralError(error.message);
       }
@@ -112,20 +116,20 @@ function RegisterForm() {
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">驗證信已寄出！</h2>
+          <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">{t("success.title")}</h2>
           <p className="text-tea-text-light text-sm leading-relaxed mb-2">
-            請前往 <strong className="text-tea-text">{email}</strong> 的信箱
+            {t.rich("success.checkEmail", { email, strong: (chunks) => <strong className="text-tea-text">{chunks}</strong> })}
           </p>
           <p className="text-tea-text-light text-sm leading-relaxed mb-8">
-            點擊驗證連結後即可開始使用會員功能。
+            {t("success.clickLink")}
           </p>
           <Link
-            href="/auth/login"
+            href={lp("/auth/login")}
             className="inline-block px-8 py-3 bg-tea-green hover:bg-tea-green-dark text-white rounded-full font-medium text-sm transition-colors"
           >
-            前往登入
+            {t("success.goLogin")}
           </Link>
-          <p className="text-xs text-tea-text-light mt-4">沒有收到？請檢查垃圾信件夾</p>
+          <p className="text-xs text-tea-text-light mt-4">{t("success.checkSpam")}</p>
         </div>
       </div>
     );
@@ -144,8 +148,8 @@ function RegisterForm() {
             </svg>
             <span className="font-serif text-xl font-bold text-tea-text block">霧抉茶</span>
           </Link>
-          <h1 className="text-2xl font-bold text-tea-text mt-4 mb-1">建立帳號</h1>
-          <p className="text-sm text-tea-text-light">加入霧抉茶，享受會員專屬服務</p>
+          <h1 className="text-2xl font-bold text-tea-text mt-4 mb-1">{t("title")}</h1>
+          <p className="text-sm text-tea-text-light">{t("subtitle")}</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-8">
@@ -157,13 +161,13 @@ function RegisterForm() {
             className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors disabled:opacity-60"
           >
             <GoogleIcon />
-            {googleLoading ? "連線中…" : "使用 Google 帳號繼續"}
+            {googleLoading ? t("connecting") : t("googleLogin")}
           </button>
 
           {/* 分隔線 */}
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-tea-green-pale" />
-            <span className="text-xs text-tea-text-light">或用 Email 建立帳號</span>
+            <span className="text-xs text-tea-text-light">{t("orEmail")}</span>
             <div className="flex-1 h-px bg-tea-green-pale" />
           </div>
 
@@ -176,12 +180,12 @@ function RegisterForm() {
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             {/* 姓名 */}
             <div>
-              <label className="block text-sm font-medium text-tea-text mb-1.5">姓名</label>
+              <label className="block text-sm font-medium text-tea-text mb-1.5">{t("name")}</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => { setName(e.target.value); clearError("name"); }}
-                placeholder="請輸入您的姓名"
+                placeholder={t("namePlaceholder")}
                 autoComplete="name"
                 className={inputCls(errors.name)}
               />
@@ -190,7 +194,7 @@ function RegisterForm() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-tea-text mb-1.5">電子郵件</label>
+              <label className="block text-sm font-medium text-tea-text mb-1.5">{t("email")}</label>
               <input
                 type="email"
                 value={email}
@@ -204,12 +208,12 @@ function RegisterForm() {
 
             {/* 密碼 */}
             <div>
-              <label className="block text-sm font-medium text-tea-text mb-1.5">密碼</label>
+              <label className="block text-sm font-medium text-tea-text mb-1.5">{t("password")}</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); clearError("password"); clearError("confirm"); }}
-                placeholder="至少 8 個字元，含英文字母及數字"
+                placeholder={t("passwordPlaceholder")}
                 autoComplete="new-password"
                 className={inputCls(errors.password)}
               />
@@ -229,12 +233,12 @@ function RegisterForm() {
 
             {/* 確認密碼 */}
             <div>
-              <label className="block text-sm font-medium text-tea-text mb-1.5">確認密碼</label>
+              <label className="block text-sm font-medium text-tea-text mb-1.5">{t("confirmPassword")}</label>
               <input
                 type="password"
                 value={confirm}
                 onChange={(e) => { setConfirm(e.target.value); clearError("confirm"); }}
-                placeholder="再輸入一次密碼"
+                placeholder={t("confirmPlaceholder")}
                 autoComplete="new-password"
                 className={inputCls(errors.confirm)}
               />
@@ -246,18 +250,18 @@ function RegisterForm() {
               disabled={loading}
               className="w-full py-3 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
             >
-              {loading ? "處理中…" : "建立帳號"}
+              {loading ? t("registering") : t("registerBtn")}
             </button>
           </form>
         </div>
 
         <p className="text-center text-sm text-tea-text-light mt-6">
-          已有帳號？{" "}
+          {t("haveAccount")}{" "}
           <Link
-            href={`/auth/login${redirectTo !== "/account" ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`}
+            href={`${lp("/auth/login")}${redirectTo !== lp("/account") ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`}
             className="text-tea-green hover:text-tea-green-dark font-medium transition-colors"
           >
-            立即登入
+            {t("loginLink")}
           </Link>
         </p>
       </div>

@@ -1,0 +1,1024 @@
+{
+  "common": {
+    "brand": "Wu Jue Tea",
+    "nav": {
+      "home": "Home",
+      "products": "Products",
+      "process": "Tea Process",
+      "experiences": "Tea Experiences",
+      "about": "About Us",
+      "contact": "Contact"
+    },
+    "user": {
+      "account": "My Account",
+      "orders": "My Orders",
+      "logout": "Log Out",
+      "login": "Log In",
+      "loginRegister": "Log In / Register",
+      "member": "Member",
+      "memberCenter": "My Account ({name})"
+    },
+    "cart": "Cart",
+    "menu": "Menu",
+    "footer": {
+      "tagline": "From the mountains of Meishan, Chiayi,\na family's 40-year dedication to growing and selling fine tea.",
+      "quickLinks": "Quick Links",
+      "links": {
+        "products": "Tea Products",
+        "process": "Tea Process",
+        "about": "About Us",
+        "cart": "Cart"
+      },
+      "legal": "Policies",
+      "legalLinks": {
+        "privacy": "Privacy Policy",
+        "returnPolicy": "Return Policy",
+        "faq": "FAQ"
+      },
+      "contactUs": "Contact Us",
+      "address": "No. 19-2, Lane 8, Taixing Village, Meishan Township, Chiayi County",
+      "copyright": "© 2026 霧抉茶 Wu Jue Tea. All rights reserved."
+    },
+    "buttons": {
+      "viewAll": "View All",
+      "learnMore": "Learn More",
+      "backToHome": "Back to Home",
+      "continueShopping": "Continue Shopping",
+      "loading": "Processing…",
+      "close": "Close"
+    },
+    "adultOnly": "18+"
+  },
+  "home": {
+    "hero": {
+      "subtitle": "Taiwan Premium Tea",
+      "title": "Wu Jue Tea",
+      "tagline": "From the Highlands of Taiwan",
+      "description": "In the mountains of Meishan, Chiayi, a family of three has devoted 40 years to their craft. Every cup that reaches your hands is personally overseen by us.",
+      "exploreBtn": "Explore Our Teas",
+      "storyBtn": "Our Story"
+    },
+    "philosophy": {
+      "sectionLabel": "Tea Philosophy",
+      "title": "Tea Philosophy",
+      "tagline": "We believe a great cup of tea is the perfect union of sky, earth, and people.",
+      "items": {
+        "mountain": {
+          "title": "Highland Character",
+          "desc": "Our tea gardens nestle in the misty Meishan mountains of Alishan, Chiayi. The cool altitude and dramatic day-night temperature swings give our leaves their sweet, mellow character."
+        },
+        "handcraft": {
+          "title": "Handcrafted",
+          "desc": "Three generations, over 40 years of tea-making tradition. The roasting is guided by decades of trained intuition — every batch bears the mark of true craftsmanship."
+        },
+        "direct": {
+          "title": "Farm to Cup",
+          "desc": "From planting and processing to roasting, packing, and shipping — every step is personally overseen by our family. No middlemen. Just our care in every cup."
+        }
+      }
+    },
+    "featured": {
+      "title": "Seasonal Picks",
+      "tagline": "Our finest Taiwan highland teas, carefully selected this season"
+    },
+    "experiences": {
+      "sectionLabel": "Experience",
+      "title": "Tea Mountain Experiences",
+      "tagline": "Step into the Meishan tea gardens and feel a leaf's story with your own hands",
+      "viewAllCount": "View all {count} experiences"
+    },
+    "brandStory": {
+      "sectionLabel": "Brand Story",
+      "title": "From a Single Leaf\nto a Perfect Cup",
+      "p1": "Our parents entered the tea industry when they were young, and for over 40 years we have tended our gardens in the Meishan mountains with love and dedication. Wu Jue Tea has always stood for growing and selling our own tea.",
+      "p2": "From growing and processing to roasting, packing, and shipping — every step is handled by our family of three. Every cup you hold is the result of time and heart."
+    },
+    "stats": {
+      "years": "years of tea expertise",
+      "family": "family members, every step",
+      "teas": "tea varieties",
+      "altitude": "m max garden altitude"
+    },
+    "process": {
+      "title": "The Art of Tea Making",
+      "tagline": "From harvest to finished tea, every step demands a craftsman's focus and patience",
+      "exploreBtn": "Explore the Full Process",
+      "steps": {
+        "pick": {
+          "name": "Harvest",
+          "desc": "Hand-picked at dawn"
+        },
+        "wither": {
+          "name": "Wither",
+          "desc": "Sun & indoor withering"
+        },
+        "roll": {
+          "name": "Roll",
+          "desc": "Shaping the flavor"
+        },
+        "roast": {
+          "name": "Roast",
+          "desc": "Precision fire to lock in aroma"
+        }
+      }
+    }
+  },
+  "products": {
+    "pageTitle": "Tea Collection",
+    "pageTagline": "Premium teas from Taiwan's finest growing regions — each with its own distinct flavor and story",
+    "sectionLabel": "Our Collection",
+    "addToCart": "Add to Cart",
+    "addedToCart": "Added!",
+    "outOfStock": "Sold Out",
+    "origin": "Origin",
+    "weight": "Size",
+    "filterAll": "All",
+    "categoryOolong": "Oolong",
+    "categoryBlack": "Black Tea",
+    "sortLabel": "Sort",
+    "sortOptions": {
+      "default": "Default",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low"
+    },
+    "noResults": "No products in this category",
+    "perPerson": "/ person",
+    "countLabel": "{count} teas",
+    "selectVariant": "Select Size",
+    "quantity": "Qty",
+    "stockCount": "{count} in stock",
+    "stockLeft": "{count} left",
+    "addedWithCount": "Added ×{count}",
+    "variantLoose": "Loose",
+    "variantTeaBag": "Tea Bags",
+    "teaBagHint": "15 bags × 3g",
+    "unitServing": "pack",
+    "unitBox": "box",
+    "teaBagSet": "Tea Bag Set"
+  },
+  "experiences": {
+    "pageTitle": "Tea Experiences",
+    "sectionLabel": "Experience",
+    "pageTagline": "Step into the Meishan tea gardens and feel a leaf's story with your own hands",
+    "bookNow": "Book Now",
+    "viewCalendar": "View Available Sessions",
+    "viewSessions": "View Sessions",
+    "duration": "{hours} hrs",
+    "participants": "{min}–{max} guests",
+    "perPerson": "/ person",
+    "perPersonLabel": "per person",
+    "adultOnly": "18+",
+    "noSessions": "No sessions available",
+    "reviews": "Reviews",
+    "noReviews": "No reviews yet",
+    "noticeTitle": "Booking Notes",
+    "notice1": "Minimum 4 participants per session. If not met, cancellation notice will be sent 3 days before with a full refund",
+    "notice2": "After payment, participant details can be filled in up to 5 days before the experience",
+    "notice3": "Cancellations 7+ days before are fully refunded. See each experience page for full policy",
+    "notice4": "For special needs (vegetarian, allergies, etc.), please note them when booking",
+    "hasQuestions": "Have more questions?",
+    "viewFAQ": "View FAQ",
+    "perCostLabel": "Per person",
+    "durationLabel": "Duration: {hours} hrs",
+    "participantsLabel": "Group size: {min}–{max} guests",
+    "includes": "What's Included",
+    "notes": "Important Notes",
+    "selectSession": "Choose a Session",
+    "gallery": "Gallery",
+    "galleryAlt": "{name} Gallery {index}",
+    "galleryAriaLabel": "View photo {index}",
+    "reviewsTitle": "Reviews",
+    "reviewsCount": "({count} reviews)"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": {
+      "title": "Your cart is empty",
+      "desc": "Discover our selection of Taiwan's finest teas!",
+      "cta": "Explore Teas"
+    },
+    "orderSummary": "Order Summary",
+    "quantity": "Items",
+    "quantityUnit": "{count} items",
+    "shipping": "Shipping",
+    "freeShipping": "Free",
+    "shippingOptions": "Home delivery NT$250 / Convenience store NT$60",
+    "freeShippingHint": "Add NT${amount} more for free shipping",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "loginToCheckout": "Log in to Checkout",
+    "continueShopping": "Continue Shopping",
+    "stockAdjusted": "{name} only has {count} left — quantity adjusted",
+    "soldOut": "{name} is sold out and has been removed from your cart"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "contactInfo": "Contact Info",
+    "name": "Full Name",
+    "namePlaceholder": "Your full name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "phonePlaceholder": "09XX-XXX-XXX",
+    "emailReadonlyHint": "Order notifications will be sent to your account email",
+    "emailHint": "Enter your email to receive order updates",
+    "paymentMethod": "Payment Method",
+    "onlinePayment": "Online Payment",
+    "onlinePaymentDesc": "Credit card, ATM, or convenience store payment (via ECPay)",
+    "cashOnDelivery": "Cash on Delivery",
+    "codDesc": "Pay with cash when your order arrives. Available for home and CVS pickup.",
+    "deliveryMethod": "Delivery Method",
+    "homeDelivery": "Home Delivery",
+    "homeDeliveryDesc": "Black Cat delivery to your address",
+    "cvsPickup": "Convenience Store Pickup",
+    "cvsPickupDesc": "Pick up at 7-ELEVEN, FamilyMart, Hi-Life, or OK Mart",
+    "city": "City / County",
+    "selectCityPlaceholder": "Select a city",
+    "address": "Street Address",
+    "addressPlaceholder": "District, street, and number",
+    "cvsBrand": "Store Brand",
+    "cvsStore": "Pickup Store",
+    "cvsStoreId": "Store No.: {id}",
+    "cvsReselect": "Change",
+    "cvsMapOpening": "Opening map…",
+    "cvsMapBtn": "Select Store",
+    "cvsMapError": "Unable to open the store map. Please try again.",
+    "cvsNotice": "Please confirm the store name. You'll be notified by SMS when your order arrives.",
+    "note": "Notes (optional)",
+    "notePlaceholder": "Any special requests?",
+    "orderSummary": "Order Summary",
+    "coupon": "Coupon",
+    "couponPlaceholder": "Enter coupon code",
+    "applyCoupon": "Apply",
+    "couponNotFound": "Coupon not found or already used",
+    "couponMinOrder": "Minimum order NT${min} required",
+    "couponAppliedMsg": "Applied — saving NT${amount}",
+    "couponDiscountInfo": "Discount: NT${amount}",
+    "couponMinRequired": "(min. order NT${min})",
+    "usePointsLabel": "Use {points} pts (save NT${discount})",
+    "pointsBalanceLabel": "({balance} pts remaining)",
+    "shippingFee": "Shipping",
+    "shippingFree": "Free",
+    "shippingThreshold": "Free shipping on orders over NT$1,000",
+    "couponDiscountLabel": "Coupon discount",
+    "pointsDiscountLabel": "Points discount",
+    "paymentLabel": "Payment",
+    "onlinePaymentShort": "Online payment",
+    "codShort": "Cash on delivery",
+    "totalAmount": "Total",
+    "submitOnline": "Pay with ECPay",
+    "submitCod": "Place Order",
+    "processing": "Processing…",
+    "backToCart": "Back to Cart",
+    "emptyCart": "Your cart is empty",
+    "shopNow": "Browse Tea Products",
+    "codSuccess": {
+      "title": "Order Placed!",
+      "desc": "Thank you for your order. We'll start preparing it right away.",
+      "deliveryLabel": "Delivery: ",
+      "homeDelivery": "Home Delivery",
+      "cvsDelivery": "CVS Pickup ({name})",
+      "paymentLabel": "Payment: Cash on Delivery",
+      "emailSent": "A confirmation email will be sent to {email}.",
+      "noEmailPrefix": "For order updates by email, go to",
+      "noEmailSuffix": "and add your email.",
+      "backHome": "Back to Home"
+    },
+    "errors": {
+      "nameRequired": "Please enter at least 2 characters for your name",
+      "emailInvalid": "Please enter a valid email address",
+      "phoneInvalid": "Please enter a valid phone number (e.g. 0912345678)",
+      "cityRequired": "Please select a city",
+      "addressRequired": "Please enter your full shipping address",
+      "storeRequired": "Please click 'Select Store' to choose a pickup location",
+      "orderFailed": "Failed to place order. Please try again.",
+      "networkError": "Connection failed. Please try again."
+    }
+  },
+  "account": {
+    "title": "My Account",
+    "tabs": {
+      "overview": "Overview",
+      "orders": "Orders",
+      "bookings": "Bookings",
+      "points": "Points",
+      "coupons": "Coupons",
+      "waitlist": "Waitlist",
+      "reviews": "Reviews",
+      "profile": "Profile",
+      "ordersCount": "Orders ({count})",
+      "bookingsCount": "Bookings ({count})",
+      "rewards": "Points & Coupons"
+    },
+    "orderStatus": {
+      "pending": "Pending Payment",
+      "paid": "Paid",
+      "paid2": "Paid",
+      "pending2": "Pending",
+      "preparing": "Preparing",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "completed": "Completed",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+    "bookingStatus": {
+      "pending_payment": "Pending Payment",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "points": {
+      "balance": "Available Points",
+      "expiringSoon": "Expiring Soon",
+      "earned": "Earned",
+      "redeemed": "Redeemed",
+      "expired": "Expired"
+    },
+    "cancelBooking": "Cancel Booking",
+    "cancelOrder": "Cancel Order",
+    "writeReview": "Write a Review",
+    "fillParticipants": "Fill in Participant Details",
+    "payNow": "Pay Now",
+    "noOrders": "No orders yet",
+    "noBookings": "No bookings yet",
+    "noCoupons": "No coupons available",
+    "noPoints": "No points history",
+    "profile": {
+      "title": "Profile",
+      "subtitle": "This information will be pre-filled at checkout after saving",
+      "name": "Name",
+      "namePlaceholder": "Enter your name",
+      "email": "Email",
+      "emailReadonly": "Email cannot be changed",
+      "emailVerificationSent": "Verification email sent",
+      "emailVerificationDesc": "Please check {email} and click the confirmation link to activate.",
+      "emailReenter": "Re-enter email",
+      "emailBind": "Bind",
+      "emailBinding": "Sending…",
+      "emailBindHint": "A verification email will be sent. Click the link to confirm.",
+      "phone": "Phone Number",
+      "city": "City",
+      "selectCity": "Select",
+      "address": "Address",
+      "addressPlaceholder": "District, street, number",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "noEmail": "No email linked"
+    },
+    "bookings": {
+      "defaultExperience": "Tea Experience",
+      "personCount": "{count} guests",
+      "orderLabel": "Order #{id}",
+      "noBookingsTitle": "No bookings yet",
+      "noBookingsDesc": "Come experience the tea mountains of Meishan, Chiayi!",
+      "browse": "Browse Tea Experiences",
+      "participantsDue": "Details due: {date}",
+      "participantsDueExpired": "(Overdue)",
+      "refundAmount": "Refund: NT$ {amount}",
+      "fillInfo": "Fill in Details",
+      "retrying": "Processing…",
+      "retryPayment": "Retry Payment",
+      "cancelBooking": "Cancel Booking",
+      "writeReview": "Write a Review",
+      "reviewed": "Reviewed ★"
+    },
+    "waitlist": {
+      "title": "Waitlist",
+      "waiting": "Waiting",
+      "notified": "Pending Confirmation",
+      "confirmBefore": "Please confirm by {datetime}",
+      "confirm": "Confirm"
+    },
+    "rewards": {
+      "pointsTitle": "Member Points",
+      "pointsDesc": "Earn 1 point per NT$1 spent. 100 points = NT$1 discount (max 10% per order)",
+      "pointsUnit": "pts",
+      "recentHistory": "Recent History",
+      "earnDefault": "Purchase reward",
+      "redeemDefault": "Points redeemed",
+      "noPoints": "No points yet. Complete your first order to start earning!",
+      "couponsTitle": "My Coupons",
+      "couponsDesc": "Enter the coupon code at checkout to apply",
+      "couponUsed": "Used",
+      "couponExpired": "Expired",
+      "couponDiscount": "NT${amount} off · Min. NT${min}",
+      "couponUsedOn": " · Used on {date}",
+      "couponValidUntil": " · Valid until {date}",
+      "noCoupons": "No coupons yet."
+    },
+    "orders": {
+      "noOrdersTitle": "No orders yet",
+      "noOrdersDesc": "Explore our highland tea collection!",
+      "items": "Items",
+      "itemCount": "{count} items",
+      "changeHint": "To change items or quantities, please cancel and reorder.",
+      "shipping": "Shipping",
+      "editAddress": "Edit delivery address",
+      "cvsChangeHint": "To change your pickup store, please contact us:",
+      "cancelOrder": "Cancel Order",
+      "cod": "Cash on Delivery",
+      "online": "Online Payment",
+      "homeDelivery": "Home Delivery | {city} {address}",
+      "cvsPickup": "Pickup | {store} {storeName}"
+    },
+    "modal": {
+      "cancelOrderTitle": "Cancel this order?",
+      "cancelOrderDesc": "This cannot be undone. For online payments, please contact us regarding your refund.",
+      "back": "Back",
+      "confirmCancel": "Yes, Cancel",
+      "cancelling": "Cancelling…",
+      "cancelBookingTitle": "Cancel this booking?",
+      "cancelBookingDone": "Booking Cancelled",
+      "cancelBookingPendingDesc": "This booking was unpaid and has been cancelled. No charges were made.",
+      "cancelBookingPendingConfirmDesc": "This booking is unpaid. Cancelling cannot be undone. No charges will be made.",
+      "cancelBookingRefund": "Refund amount:",
+      "cancelBookingNoRefund": " No refund (within 24 hours of session)",
+      "cancelBookingRefundNote": "Refund will be processed within 5–7 business days.",
+      "cancelBookingPolicyDesc": "This cannot be undone. Refunds are calculated as follows:",
+      "refund7days": "7+ days before",
+      "refund3to6days": "3–6 days before",
+      "refund1to2days": "1–2 days before",
+      "refundUnder24h": "Within 24 hours",
+      "refund100": "100% refund",
+      "refund50": "50% refund",
+      "refund20": "20% refund",
+      "noRefund": "No refund",
+      "confirm": "OK",
+      "reviewTitle": "Write a Review",
+      "reviewPlaceholder": "Share your experience (optional)",
+      "submitting": "Submitting…",
+      "submitReview": "Submit Review",
+      "cancel": "Cancel",
+      "editAddressTitle": "Edit Delivery Address",
+      "editAddressCity": "City",
+      "editAddressSelectCity": "Select city",
+      "editAddressAddress": "Address",
+      "editAddressPlaceholder": "District, street, number",
+      "editAddressSave": "Save Address",
+      "editAddressSaving": "Saving…",
+      "or": "or",
+      "orderNumber": "Order #{id}"
+    },
+    "errors": {
+      "nameLength": "Name must be at least 2 characters",
+      "phoneInvalid": "Please enter a valid phone number (e.g. 0912345678)",
+      "cityInvalid": "Please select a valid city",
+      "addressLength": "Address must be at least 4 characters",
+      "saveFailed": "Save failed. Please try again later.",
+      "emailAlreadyUsed": "This email is already linked to another account",
+      "emailBindFailed": "Binding failed. Please try again later.",
+      "emailInvalid": "Please enter a valid email address",
+      "cancelFailed": "Cancellation failed. Please try again later.",
+      "cityAddressRequired": "Please fill in both city and address",
+      "updateFailed": "Update failed. Please try again later.",
+      "reviewFailed": "Submission failed. Please try again later."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Log in to your account",
+      "passwordMode": "Password",
+      "magicMode": "Email Link",
+      "email": "Email",
+      "password": "Password",
+      "loginBtn": "Log In",
+      "loggingIn": "Logging in…",
+      "sendLink": "Send Login Link",
+      "sending": "Sending…",
+      "googleLogin": "Continue with Google",
+      "lineLogin": "Continue with LINE",
+      "facebookLogin": "Continue with Facebook",
+      "connecting": "Connecting…",
+      "noAccount": "Don't have an account?",
+      "register": "Sign Up",
+      "or": "or",
+      "magicLinkHint": "We'll send a one-time login link to your email",
+      "magicLinkSent": "Link sent!",
+      "magicLinkSentHint": "Please check {email} for your login link",
+      "checkSpam": "Didn't receive it? Check your spam folder",
+      "reenter": "Try again",
+      "errors": {
+        "emailInvalid": "Please enter a valid email address",
+        "passwordTooShort": "Password must be at least 6 characters",
+        "wrongCredentials": "Incorrect email or password. Please try again.",
+        "notRegistered": "This email is not registered. Please create an account first.",
+        "sendFailed": "Failed to send. Please try again later."
+      },
+      "mobileLineWarning": {
+        "title": "Mobile Device Notice",
+        "desc1": "Using LINE login on a mobile or tablet may redirect to another browser, causing the login to fail.",
+        "desc2": "We recommend using Google or Email login instead, or set your preferred browser as the default on your device.",
+        "cancel": "Cancel",
+        "confirm": "Continue with LINE"
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join Wu Jue Tea and enjoy member-exclusive services",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "name": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "passwordPlaceholder": "At least 8 characters with letters and numbers",
+      "confirmPlaceholder": "Enter your password again",
+      "registerBtn": "Create Account",
+      "registering": "Processing…",
+      "googleLogin": "Continue with Google",
+      "connecting": "Connecting…",
+      "orEmail": "or sign up with Email",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log In",
+      "success": {
+        "title": "Verification email sent!",
+        "checkEmail": "Please check your inbox at {email}",
+        "clickLink": "Click the verification link to start using member features.",
+        "goLogin": "Go to Login",
+        "checkSpam": "Didn't receive it? Check your spam folder"
+      },
+      "errors": {
+        "nameTooShort": "Name must be at least 2 characters",
+        "nameOnlyNumbers": "Name cannot be only numbers",
+        "emailInvalid": "Please enter a valid email address",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "passwordNeedLetter": "Password must contain at least one letter",
+        "passwordNeedNumber": "Password must contain at least one number",
+        "passwordMismatch": "Passwords do not match",
+        "alreadyRegistered": "This email is already registered. Please log in instead."
+      }
+    }
+  },
+  "experienceBooking": {
+    "title": "Book an Experience",
+    "sessionDate": "Date",
+    "sessionTime": "Time",
+    "availableSpots": "Spots Available",
+    "minParticipantsWarning": "Currently {current} registered. Minimum {min} required to run. You'll be notified 3 days before if cancelled due to low enrollment — full refund given.",
+    "selectParticipants": "Select Number of Guests",
+    "participantCount": "guests",
+    "pricePerPerson": "NT$ {price} × {count} guests",
+    "pointsDiscount": "Points discount ({points} pts)",
+    "finalAmount": "Total Due",
+    "usePointsLabel": "Redeem Points",
+    "availablePoints": "Available: {balance} pts, max NT${max}",
+    "pointsPlaceholder": "Enter points to redeem (min 200, multiples of 100)",
+    "pointsErrors": {
+      "min200": "Minimum 200 points required",
+      "multiple100": "Must be a multiple of 100",
+      "exceeds": "Exceeds available points",
+      "maxDiscount": "Maximum discount is NT${max}"
+    },
+    "adultConfirm": "I confirm all participants are 18 years of age or older (this experience involves alcohol)",
+    "adultConfirmBasic": "I confirm all participants are 18 years of age or older",
+    "refundPolicy": {
+      "title": "Cancellation Policy",
+      "items": {
+        "7days": {
+          "label": "7+ days before",
+          "value": "Full refund"
+        },
+        "3to6days": {
+          "label": "3–6 days before",
+          "value": "50% refund"
+        },
+        "1to2days": {
+          "label": "1–2 days before",
+          "value": "20% refund"
+        },
+        "under24h": {
+          "label": "Within 24 hours",
+          "value": "No refund"
+        }
+      },
+      "changeNote": "To reschedule, please contact our customer service team."
+    },
+    "agreePolicy": "I have read and agree to the cancellation policy above",
+    "nextStep": "Continue to Booking Details",
+    "back": "← Back",
+    "bookerInfo": "Booking Details",
+    "bookerName": "Full Name",
+    "bookerPhone": "Phone Number",
+    "bookerEmail": "Email",
+    "dietaryNeeds": "Special Requests (optional)",
+    "dietaryOptions": {
+      "vegetarian": "Vegetarian",
+      "teaAllergy": "Tea allergy"
+    },
+    "dietaryPlaceholder": "Other requests",
+    "payBtn": "Pay NT$ {amount}",
+    "participantNote": "After payment, you'll need to fill in participant details (ID & emergency contact).",
+    "errors": {
+      "nameRequired": "Please enter your name",
+      "phoneRequired": "Please enter your phone number",
+      "agreeRequired": "Please agree to the cancellation policy",
+      "adultRequired": "Please confirm all participants are 18 or older"
+    },
+    "waitlist": {
+      "fullNotice": "This session is fully booked. Join the waitlist and we'll email you immediately if a spot opens.",
+      "title": "Join Waitlist",
+      "joinBtn": "Join Waitlist",
+      "successTitle": "You're on the waitlist!",
+      "successDesc": "We'll email you immediately when a spot opens. Please confirm within 24 hours.",
+      "viewWaitlist": "View my waitlist"
+    },
+    "processing": "Processing…",
+    "bookerNamePlaceholder": "Enter your full name",
+    "bookerPhonePlaceholder": "09XX-XXX-XXX",
+    "apiErrors": {
+      "waitlistFailed": "Failed to join waitlist. Please try again.",
+      "networkError": "Network error. Please try again.",
+      "bookingFailed": "Booking failed. Please try again.",
+      "paymentFailed": "Unable to create payment. Please try again."
+    }
+  },
+  "process": {
+    "pageTitle": "Tea Making Process",
+    "pageTagline": "From a tender leaf on the mountain to a perfect cup of tea, every step carries the craftsman's devotion and centuries of tradition",
+    "tableTitle": "The Craft",
+    "tableNote": "STEP",
+    "otherStyles": "Different Teas, Different Craft",
+    "otherStylesDesc": "The process above uses Taiwan oolong as the example. Different tea types follow different methods — green tea skips oxidation entirely, black tea undergoes full oxidation, and white tea is only withered without rolling. Each technique is the finest expression of that tea's character.",
+    "shopCta": "Shop Our Teas",
+    "oxidationLabel": "Oxidation: {value}",
+    "teas": {
+      "oolong": {
+        "name": "Oolong",
+        "oxidation": "15–85%"
+      },
+      "green": {
+        "name": "Green Tea",
+        "oxidation": "0%"
+      },
+      "black": {
+        "name": "Black Tea",
+        "oxidation": "100%"
+      },
+      "white": {
+        "name": "White Tea",
+        "oxidation": "Minimal"
+      }
+    },
+    "steps": {
+      "pick": {
+        "name": "Harvesting",
+        "desc": "At six in the morning, tea pickers climb the mountain with their tools. The best leaves are harvested at just the right maturity to bring out the fullest aroma and flavor. Hand-picking ensures only the most tender two leaves and a bud are selected.",
+        "detail": "Harvest seasons: Spring (April), Summer (June), Autumn (September), Winter (November)"
+      },
+      "witherSun": {
+        "name": "Sun Withering",
+        "desc": "Freshly picked leaves are spread on clean cloth and exposed to sunlight for sun withering. This step removes some moisture, softens the cell structure, prepares the leaves for indoor withering, and begins to awaken the initial aromatic compounds.",
+        "detail": "Duration: 1–2 hours, adjusted according to sunlight and temperature"
+      },
+      "witherIndoor": {
+        "name": "Indoor Withering",
+        "desc": "The leaves are moved indoors and spread on well-ventilated withering racks. In a temperature- and humidity-controlled environment, the master periodically turns the leaves to ensure even moisture loss while aromas continue to develop.",
+        "detail": "Duration: 8–12 hours, temperature maintained at 18–26°C"
+      },
+      "shake": {
+        "name": "Shaking",
+        "desc": "This is one of the most critical steps in oolong production. The master rhythmically tosses the leaves by hand or in a bamboo sieve, causing slight bruising at the leaf edges that triggers enzymatic oxidation and develops the tea's characteristic floral and fruity fragrance.",
+        "detail": "Frequency: once every 1.5–2.5 hours, repeated 2–4 times"
+      },
+      "fix": {
+        "name": "Kill Green",
+        "desc": "Once the ideal level of oxidation is reached, the leaves are tossed in a high-temperature iron wok to deactivate the enzymes and halt oxidation. This step also develops a toasted aroma, locks in the fragrance, and removes the raw grassy notes.",
+        "detail": "Temperature: 260–300°C, duration: approximately 5–8 minutes"
+      },
+      "roll": {
+        "name": "Rolling",
+        "desc": "While still warm from the wok, the leaves are wrapped in cloth and rolled, compressing them into tight balls or twisted strips. This bonds the tea juices to the leaf surface so that when brewed, the leaves unfurl quickly and release their full, rounded flavor.",
+        "detail": "Repeated rolling 3–6 times, 20–30 minutes per session"
+      },
+      "roast": {
+        "name": "Roasting",
+        "desc": "Precision roasting is the tea's final transformation. The master determines the roast level based on the tea's character: light roasting preserves floral notes, medium roasting adds ripe fruit tones, and heavy roasting brings out deep, rich roasted complexity. This step also reduces residual moisture to extend shelf life.",
+        "detail": "Temperature: 70–120°C, duration: 4–16 hours depending on style"
+      },
+      "sort": {
+        "name": "Sorting & Packaging",
+        "desc": "Once the tea is finished, the master hand-sorts each batch to remove old leaves, stems, and any impurities, ensuring consistent quality across every lot. The tea is vacuum-sealed in foil bags to preserve its aroma, so every pack you receive is as fresh as the day it was made.",
+        "detail": "Every batch comes with a quality certification label"
+      }
+    }
+  },
+  "about": {
+    "hero": {
+      "sectionLabel": "About Wu Jue Tea",
+      "title": "Behind every cup is the sincerity and dedication of our family of three"
+    },
+    "story": {
+      "yearsLabel": "years of tea expertise",
+      "title": "Meishan, Chiayi — A Family Tea Garden Story",
+      "p1": "Our parents entered the tea industry when they were young, and for over 40 years we have tended our gardens in the Meishan mountains with love and dedication. Wu Jue Tea has always stood for growing and selling our own tea.",
+      "p2": "From growing and processing to roasting, packing, and shipping — every step is handled by our family of three. Every cup you hold is the result of time and heart.",
+      "p3": "All so you can enjoy that smooth, sweet sip with complete peace of mind.",
+      "shopCta": "Explore Our Teas"
+    },
+    "gallery": {
+      "sectionLabel": "Our Farm & Craft",
+      "tagline": "From the early morning harvest to the late-night roast — capturing every precious moment in a tea leaf's transformation"
+    },
+    "values": {
+      "sectionLabel": "Our Core Values",
+      "selfGrown": {
+        "title": "Farm to Cup",
+        "desc": "From growing to shipping, every step is personally overseen by our family of three. No middlemen — just our guarantee of quality and freshness in every pack."
+      },
+      "heritage": {
+        "title": "40 Years of Craft",
+        "desc": "Over 40 years since our parents first entered the tea industry. Our roasting is guided by decades of accumulated experience and trained intuition — every batch is a labor of love."
+      },
+      "region": {
+        "title": "Meishan, Chiayi",
+        "desc": "Our gardens sit in the Meishan mountains of Alishan, Chiayi. The cool highland climate and year-round mist give our teas their distinctively sweet, mellow flavor."
+      },
+      "delivery": {
+        "title": "Nationwide Delivery",
+        "desc": "We ship anywhere in Taiwan, even a single pack. Visit us in person for a tasting, or order online and let the taste of Meishan come straight to your door."
+      }
+    },
+    "teas": {
+      "sectionLabel": "Our Teas",
+      "title": "Our teas have stories — and warmth",
+      "tagline": "Whatever flavor you prefer, we have a familiar taste to accompany your every day",
+      "oolong": {
+        "name": "Highland Oolong",
+        "flavor": "Fresh & Floral",
+        "desc": "Grown in the misty highland gardens of Meishan, Chiayi. The liquor is clear gold, with a clean fragrance, gentle sweetness, and a long lingering finish."
+      },
+      "jinxuan": {
+        "name": "Jin Xuan Tea",
+        "flavor": "Creamy & Smooth",
+        "desc": "Naturally milky aroma, uniquely captivating. Silky smooth texture with a pale yellow, translucent liquor — the perfect first taste of Taiwan highland tea."
+      },
+      "black": {
+        "name": "Black Tea",
+        "flavor": "Floral & Fruity",
+        "desc": "Fully oxidized for a rich amber-red liquor with captivating floral and fruity notes. Full-bodied, sweet, and equally enjoyable hot or cold."
+      },
+      "redOolong": {
+        "name": "Red Oolong",
+        "flavor": "Deep & Roasted",
+        "desc": "Heavily oxidized then carefully roasted, blending oolong fragrance with the richness of black tea. Fruit and honey intertwine in a complex, memorable character."
+      },
+      "sijichun": {
+        "name": "Four Seasons Spring",
+        "flavor": "Wild Floral",
+        "desc": "Known for its lively wild floral aroma. Bright green liquor with a fresh, sweet taste and long-lasting fragrance — an ideal everyday tea companion."
+      }
+    },
+    "galleryPhotos": {
+      "farm2":    { "alt": "Panoramic view of Meishan high-mountain tea garden", "caption": "Meishan Tea Garden",      "desc": "Year-round misty high-mountain tea fields" },
+      "picking2": { "alt": "Hand-picking tea leaves at dawn",                    "caption": "Dawn Harvest",             "desc": "One bud, two leaves — where quality begins" },
+      "wilting":  { "alt": "Sun withering process",                              "caption": "Sun Withering",            "desc": "Letting the leaves unfurl under sunlight" },
+      "wilting2": { "alt": "Indoor withering process",                           "caption": "Indoor Withering",         "desc": "Resting indoors for slow, gentle oxidation" },
+      "rolling":  { "alt": "Hand-rolling tea leaves",                            "caption": "Rolling & Shaping",        "desc": "Shaping each leaf by hand to release its character" },
+      "roasting": { "alt": "Precision roasting",                                "caption": "Precision Roasting",       "desc": "40 years of mastery in controlling the flame" },
+      "teaCup":   { "alt": "A freshly brewed cup of tea",                        "caption": "A Perfect Cup",            "desc": "The complete journey from garden to your hands" },
+      "farm":     { "alt": "Tea garden scenery",                                "caption": "Tea Garden",               "desc": "" },
+      "picking":  { "alt": "Tea picking process",                               "caption": "Picking",                  "desc": "" },
+      "wilting3": { "alt": "Indoor withering detail",                            "caption": "Indoor Withering",         "desc": "" },
+      "rolling2": { "alt": "Rolling detail",                                    "caption": "Rolling Detail",           "desc": "" },
+      "teaCup2":  { "alt": "Tea liquor close-up",                               "caption": "Tea Liquor",               "desc": "" }
+    },
+    "contact": {
+      "sectionLabel": "Visit & Contact Us",
+      "contactInfo": "Contact Information",
+      "address": {
+        "label": "Store Address",
+        "value": "No. 19-2, Neighborhood 8, Taixing Village, Meishan Township, Chiayi County"
+      },
+      "phone": {
+        "label": "Order by Phone",
+        "value": "0972-619-391"
+      },
+      "delivery": {
+        "label": "Delivery",
+        "value": "Nationwide shipping, even a single pack"
+      },
+      "social": {
+        "label": "Social Media",
+        "searchLabel": "Find us by searching",
+        "socialHandle": "\"霧抉茶\" or \"江寬育\"",
+        "socialPlatforms": "IG · Threads · FB — all updated regularly",
+        "socialCta": "Curious about a particular tea? Feel free to DM us!"
+      }
+    },
+    "cta": {
+      "shopBtn": "Shop Our Teas",
+      "processBtn": "Learn About Our Process"
+    }
+  },
+  "experienceCalendar": {
+    "weekdays": [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ],
+    "yearMonth": "{month}/{year}",
+    "loading": "Loading…",
+    "sessionListTitle": "{month}/{day} — Sessions",
+    "duration": "({hours} hrs)",
+    "remainingSpots": "{count} left",
+    "full": "Full",
+    "cancelled": "Cancelled",
+    "bookBtn": "Book Now",
+    "unavailableBtn": "Unavailable",
+    "legend": {
+      "available": "Available",
+      "full": "Full",
+      "cancelled": "Cancelled"
+    },
+    "minParticipantsNotice": "Min. {min} participants required.",
+    "cancelNotice": "If enrollment is insufficient, the session will be cancelled 3 days before with a full refund."
+  },
+  "orderResult": {
+    "bookingSuccess": "Booking Confirmed!",
+    "bookingSuccessDesc": "Thank you for your booking. We look forward to welcoming you at the tea farm.",
+    "bookingRef": "Booking Ref:",
+    "emailSentBooking": "A confirmation email has been sent to {email}. Please check your inbox.",
+    "noEmailBookingPrefix": "To receive an email confirmation, please go to",
+    "noEmailBookingSuffix": "and add your email.",
+    "accountCenter": "Account Center",
+    "nextSteps": "Next Steps",
+    "nextStep1": "Check your email for booking details and a participant info link",
+    "nextStep2": "Fill in all participants' ID, birthday, and emergency contact within 5 days before the event",
+    "nextStep3": "Please arrive at the tea farm 15 minutes before the event starts",
+    "orderSuccess": "Payment Successful!",
+    "orderSuccessDesc": "Thank you for your order. We'll start preparing it right away.",
+    "orderRef": "Order No.:",
+    "emailSentOrder": "A confirmation email will be sent to {email}.",
+    "noEmailOrderPrefix": "To receive order updates by email, please go to",
+    "noEmailOrderSuffix": "and add your email.",
+    "paymentFailed": "Payment Incomplete",
+    "paymentFailedDefault": "The payment process was not completed. Please try again.",
+    "viewBookings": "View My Bookings",
+    "browseExperiences": "Browse More Experiences",
+    "backHome": "Back to Home",
+    "backToCart": "Back to Cart"
+  },
+  "faq": {
+    "pageTitle": "FAQ",
+    "pageTagline": "Have a question? You might find the answer here.",
+    "loading": "Content coming soon…",
+    "moreQuestions": "Still have questions?",
+    "moreQuestionsDesc": "Feel free to reach out — we're happy to help.",
+    "contactBtn": "Contact Us"
+  },
+  "contactPage": {
+    "hero": {
+      "sectionLabel": "Contact Us",
+      "tagline": "Have a question or interested in bulk orders? Leave us a message and we'll get back to you soon."
+    },
+    "info": {
+      "title": "Contact Info",
+      "addressLabel": "Address",
+      "addressValue": "No. 19-2, Lane 8, Taixing Village, Meishan Township, Chiayi County",
+      "phoneLabel": "Phone",
+      "phoneValue": "0972-619-391",
+      "emailLabel": "Email",
+      "emailValue": "qdbzdt2846@gmail.com",
+      "responseLabel": "Response Hours",
+      "responseValue": "Mon–Fri 09:00–18:00",
+      "bulkTitle": "Bulk Orders",
+      "bulkDesc": "For bulk purchases, please describe the items and quantity in your message and we'll provide a custom quote."
+    },
+    "subjects": {
+      "product": "Product Inquiry",
+      "order": "Order Issue",
+      "wholesale": "Bulk Purchase",
+      "visit": "Farm Visit",
+      "other": "Other"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "subject": "Subject",
+      "subjectDefault": "Select a subject",
+      "message": "Message",
+      "messagePlaceholder": "Write your message here…",
+      "submit": "Send Message",
+      "submitting": "Sending…",
+      "sendTitle": "Send a Message",
+      "sendSubtitle": "Fill in the form below and we'll get back to you soon.",
+      "privacyNote": "By submitting, you agree to our privacy policy. Your data will only be used to respond to this inquiry.",
+      "sendAgain": "Send Again",
+      "successTitle": "Message sent!",
+      "successDesc": "Thank you for reaching out. We'll reply within 1–2 business days.",
+      "error": "Failed to send. Please try again or call us directly."
+    }
+  },
+  "privacyPolicy": {
+    "hero": {
+      "label": "Privacy Policy",
+      "title": "Privacy Policy",
+      "tagline": "Wu Jue Tea values your personal data security and privacy.\nPlease read the following carefully."
+    },
+    "sections": {
+      "s1": {
+        "title": "1. Purpose of Personal Data Collection",
+        "content": "This website (Wu Jue Tea), in accordance with the Personal Data Protection Act, collects necessary personal data when you use our services for the following purposes:\n\n• Order processing and fulfillment: including name, phone number, email, and shipping address, used for order confirmation, shipment arrangement, and order notifications.\n• Customer service: handling return/exchange requests, inquiries, and after-sales service.\n• Newsletter and marketing communications (with your explicit consent only): occasional notifications about new products and promotional offers.\n\nWe will not use your personal data for purposes beyond those stated above without your consent."
+      },
+      "s2": {
+        "title": "2. Scope of Personal Data Usage",
+        "content": "Personal data collected by this website is used only within the following scope:\n\n• Providing the products or services you requested.\n• Sending order-related notifications (order confirmation, shipping updates).\n• Processing your payments (through ECPay payment platform; we do not store your credit card information).\n• Complying with legal requirements or requests from judicial/administrative authorities through legal procedures.\n\nWe will not sell, rent, or otherwise provide your personal data to any third party, except for logistics providers and payment service providers necessary for order fulfillment, and only to the extent required to complete the order."
+      },
+      "s3": {
+        "title": "3. Personal Data Protection Measures",
+        "content": "This website employs appropriate technical and administrative measures to protect your personal data:\n\n• The website uses HTTPS encryption to ensure data security during transmission.\n• Order data is stored in a cloud database (Supabase) with security protections and access controls.\n• Payment processing is handled through the ECPay payment platform; we do not store any credit card or financial account information.\n• Our staff may only access customer personal data when necessary for their duties.\n\nIn the event of a personal data breach, we will notify affected individuals in accordance with the law."
+      },
+      "s4": {
+        "title": "4. Cookie Policy",
+        "content": "This website uses cookies and similar technologies to improve user experience:\n\n• Essential cookies: necessary for basic website functions such as shopping cart and login status.\n• Analytics cookies (if applicable): to understand how visitors use the website and help improve content and features.\n\nYou may refuse or delete cookies through your browser settings, but this may affect the normal operation of certain website features."
+      },
+      "s5": {
+        "title": "5. Your Rights",
+        "content": "Under Article 3 of the Personal Data Protection Act, you have the following rights regarding your personal data held by this website:\n\n• Right to inquire or request access: You may inquire about the personal data we hold about you at any time.\n• Right to request copies: You may request copies of your personal data.\n• Right to supplement or correct: You may request corrections if your personal data is inaccurate or incomplete.\n• Right to request cessation: You may request that we stop collecting, processing, or using your personal data.\n• Right to request deletion: You may request that we delete your personal data.\n\nTo exercise these rights, please contact us by phone (0972-619-391) or email (qdbzdt2846@gmail.com). We will respond within 15 business days.\n\nIf exercising these rights incurs necessary costs, we may charge a reasonable fee. If your request is unreasonable, excessively repetitive, or abusive, we may refuse or charge a reasonable fee in accordance with the law."
+      },
+      "s6": {
+        "title": "6. Data Retention Period",
+        "content": "This website retains personal data for the following periods:\n\n• Order-related data: 5 years from order completion (per Consumer Protection Act and tax regulations).\n• Customer service records: 2 years from case closure.\n• Marketing mailing lists: until you unsubscribe, or when we cease marketing activities.\n\nAfter the retention period expires, we will destroy or de-identify the data in accordance with the law."
+      },
+      "s7": {
+        "title": "7. Third-Party Links",
+        "content": "This website may contain links to third-party websites. We are not responsible for the privacy policies or content of those websites. We recommend reviewing their privacy policies before visiting."
+      },
+      "s8": {
+        "title": "8. Privacy Policy Amendments",
+        "content": "This website reserves the right to amend this privacy policy at any time. Updated policies will be posted on this page. For significant changes, we will notify you prominently (such as posting on the homepage or sending an email). We recommend reviewing this policy periodically.\n\nThis privacy policy was last updated on January 1, 2026."
+      }
+    },
+    "contact": {
+      "prefix": "If you have any questions about this privacy policy, please contact us:",
+      "phone": "Phone: ",
+      "email": "Email: "
+    }
+  },
+  "returnPolicy": {
+    "hero": {
+      "label": "Return Policy",
+      "title": "Return & Exchange Policy",
+      "tagline": "We want you to be satisfied with every purchase.\nPlease contact us if you have any questions."
+    },
+    "section1": {
+      "title": "7-Day Inspection Period",
+      "content": "Under Article 19 of the Consumer Protection Act, you have a <strong>7-day cooling-off period</strong> after receiving your product, during which you may request a return without stating a reason.",
+      "strongText": "7-day cooling-off period",
+      "noteLabel": "Important: ",
+      "noteContent": "The inspection period is a \"reasonable period for examining the product,\" not a trial period. Products should remain in new, unopened condition. Please do not open or use the product before requesting a return, as this may affect your return rights."
+    },
+    "section2": {
+      "title": "Return Process",
+      "steps": {
+        "s1": { "step": "Contact Us", "desc": "Within 7 days of receiving your product, call 0972-619-391 or email qdbzdt2846@gmail.com with your order number, return items, and reason." },
+        "s2": { "step": "Return Eligibility Confirmation", "desc": "We will confirm your return eligibility and arrange the return process within 2 business days." },
+        "s3": { "step": "Ship the Product Back", "desc": "Please return the product with its original packaging, any gifts, and the invoice. Return shipping is paid by the customer; if the product is defective or was shipped incorrectly, we will cover the shipping cost." },
+        "s4": { "step": "Return Confirmation", "desc": "After we receive and verify the returned product, we will arrange a refund within 3 business days." }
+      }
+    },
+    "section3": {
+      "title": "Refund Methods",
+      "methods": {
+        "m1": { "label": "Credit Card Payment", "desc": "Refunds will be returned to the original credit card account. Processing takes approximately 7–14 business days depending on your bank." },
+        "m2": { "label": "Cash on Delivery", "desc": "Refunds will be issued via bank transfer. Please provide your bank details (bank name, branch, account number, account holder). Refunds will be processed within 3 business days after return confirmation." }
+      }
+    },
+    "section4": {
+      "title": "Return Exceptions",
+      "intro": "Under Article 19, Paragraph 2 of the Consumer Protection Act, the 7-day inspection period does not apply in the following cases:",
+      "exceptions": {
+        "e1": "Product has been opened (tea and food products cannot be returned once opened due to hygiene and safety concerns)",
+        "e2": "Product is damaged, soiled, or missing parts due to non-defect-related causes",
+        "e3": "The 7-day inspection period has expired",
+        "e4": "Product has deteriorated or been damaged due to improper use or storage",
+        "e5": "Product has been used or tried",
+        "e6": "Custom or personalized products"
+      },
+      "noteLabel": "Special Note: ",
+      "noteContent": "Wu Jue Tea products are agricultural food products. To maintain food safety and hygiene, tea products cannot be returned or exchanged once opened. Please evaluate carefully before purchasing. If you notice packaging damage or obvious defects upon delivery, please take photos and contact us within 48 hours. We will arrange a replacement or refund as appropriate.",
+      "noteStrong": "tea products cannot be returned or exchanged once opened"
+    },
+    "contact": {
+      "title": "Have Questions?",
+      "desc": "If you have any questions about our return policy,\nplease don't hesitate to contact us.",
+      "emailBtn": "Email Us"
+    }
+  },
+  "faqCategories": {
+    "all": "All",
+    "booking": "Booking",
+    "payment": "Payment & Refunds",
+    "experience": "Experiences",
+    "logistics": "Travel & Accommodation",
+    "other": "Other"
+  }
+}

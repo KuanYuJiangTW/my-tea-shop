@@ -7,9 +7,12 @@ export const ALL_EXPERIENCES_QUERY = `
     name,
     nameEn,
     tagline,
+    taglineEn,
     "coverImage": coverImage.asset->url,
     includes,
+    includesEn,
     notes,
+    notesEn,
     seoDescription
   }
 `;
@@ -19,7 +22,9 @@ export const ALL_FAQS_QUERY = `
   *[_type == "faq"] | order(order asc) {
     _id,
     question,
+    question_en,
     answer,
+    answer_en,
     category,
     order
   }
@@ -32,11 +37,15 @@ export const EXPERIENCE_BY_SLUG_QUERY = `
     name,
     nameEn,
     tagline,
+    taglineEn,
     description,
+    descriptionEn,
     "coverImage": coverImage.asset->url,
     "gallery": gallery[].asset->url,
     includes,
+    includesEn,
     notes,
+    notesEn,
     seoDescription
   }
 `;

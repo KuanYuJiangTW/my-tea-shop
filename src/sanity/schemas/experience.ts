@@ -26,16 +26,27 @@ export const experienceSchema = defineType({
     }),
     defineField({
       name:  "tagline",
-      title: "一句話介紹",
+      title: "一句話介紹（中文）",
       type:  "string",
       description: "顯示在列表頁卡片上的簡短說明",
     }),
     defineField({
+      name:  "taglineEn",
+      title: "Tagline (EN)",
+      type:  "string",
+    }),
+    defineField({
       name:   "description",
-      title:  "詳細介紹",
+      title:  "詳細介紹（中文）",
       type:   "array",
       of:     [{ type: "block" }],
       description: "顯示在體驗詳情頁的完整說明（支援粗體、段落）",
+    }),
+    defineField({
+      name:   "descriptionEn",
+      title:  "Description (EN)",
+      type:   "array",
+      of:     [{ type: "block" }],
     }),
     defineField({
       name:    "coverImage",
@@ -51,14 +62,26 @@ export const experienceSchema = defineType({
     }),
     defineField({
       name:  "includes",
-      title: "體驗包含項目",
+      title: "體驗包含項目（中文）",
       type:  "array",
       of:    [{ type: "string" }],
       description: "例如：「專業茶藝師全程帶領」",
     }),
     defineField({
+      name:  "includesEn",
+      title: "What's Included (EN)",
+      type:  "array",
+      of:    [{ type: "string" }],
+    }),
+    defineField({
       name:  "notes",
-      title: "注意事項",
+      title: "注意事項（中文）",
+      type:  "array",
+      of:    [{ type: "string" }],
+    }),
+    defineField({
+      name:  "notesEn",
+      title: "Important Notes (EN)",
       type:  "array",
       of:    [{ type: "string" }],
     }),

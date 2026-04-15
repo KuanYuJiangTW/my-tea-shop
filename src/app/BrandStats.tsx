@@ -1,15 +1,18 @@
 "use client";
 
 import NumberTicker from "@/components/ui/number-ticker";
-
-const stats = [
-  { number: 40,   suffix: "+",  label: "年製茶經驗" },
-  { number: 3,    suffix: "",   label: "家人親手把關" },
-  { number: 10,   suffix: "+",  label: "茶款系列" },
-  { number: 1300, suffix: "m",  label: "茶園最高海拔" },
-];
+import { useTranslations } from "next-intl";
 
 export default function BrandStats() {
+  const t = useTranslations("home.stats");
+
+  const stats = [
+    { number: 40,   suffix: "+",  label: t("years") },
+    { number: 3,    suffix: "",   label: t("family") },
+    { number: 10,   suffix: "+",  label: t("teas") },
+    { number: 1300, suffix: "m",  label: t("altitude") },
+  ];
+
   return (
     <div className="border-t border-white/10 pt-10">
       {/* 桌機：四欄橫排 */}
