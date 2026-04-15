@@ -36,6 +36,8 @@
 - [x] 5.7 翻譯購物車頁（`src/app/cart/page.tsx`）：小計、結帳按鈕、空購物車提示
 - [x] 5.8 翻譯帳戶頁（`src/app/account/AccountClient.tsx`）：訂單狀態標籤、預約狀態標籤、操作按鈕
 - [x] 5.9 翻譯關於我們頁的茶園與製茶記錄相簿（`PhotoGallery.tsx`）：12 張照片的標題、描述、alt 改用翻譯 key
+- [x] 5.10 翻譯登入頁（`LoginForm.tsx`）：標題、表單標籤、按鈕、錯誤訊息、Magic Link、LINE 提醒改用 `t("auth.login.xxx")`
+- [x] 5.11 翻譯註冊頁（`register/page.tsx`）：標題、表單標籤、驗證錯誤、成功畫面改用 `t("auth.register.xxx")`
 
 ## 6. 驗證測試
 
