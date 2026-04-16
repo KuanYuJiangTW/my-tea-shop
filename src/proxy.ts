@@ -19,18 +19,43 @@ function buildCSP(nonce: string): string {
   ].join("; ");
 }
 
+// ─── i18n Locale 偵測 ──────────────────────────────────────────────────────────
+const NON_DEFAULT_LOCALES = ["en"] as const;
+const DEFAULT_LOCALE = "zh";
+const LOCALE_HEADER = "X-NEXT-INTL-LOCALE";
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ─── i18n：偵測 /en/... 前綴，設定 locale header ─────────────────────────────
+  let locale = DEFAULT_LOCALE;
+  let rewritePath: string | null = null;
+
+  for (const loc of NON_DEFAULT_LOCALES) {
+    if (pathname === `/${loc}` || pathname.startsWith(`/${loc}/`)) {
+      locale = loc;
+      rewritePath = pathname.slice(loc.length + 1) || "/";
+      break;
+    }
+  }
 
   // ─── Nonce 生成（Web Crypto API，相容 Edge Runtime）──────────────────────────
   const nonce = btoa(crypto.randomUUID());
 
-  // 將 nonce 注入 request headers，供 Server Component layout 讀取
+  // 將 nonce 與 locale 注入 request headers
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set(LOCALE_HEADER, locale);
 
-  // ─── Supabase Session Refresh ────────────────────────────────────────────────
-  let response = NextResponse.next({ request: { headers: requestHeaders } });
+  // ─── 初始 Response（含 i18n rewrite）────────────────────────────────────────
+  let response: NextResponse;
+  if (rewritePath !== null) {
+    const url = request.nextUrl.clone();
+    url.pathname = rewritePath;
+    response = NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+  } else {
+    response = NextResponse.next({ request: { headers: requestHeaders } });
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,7 +67,13 @@ export async function proxy(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => requestHeaders.set(name, value));
-          response = NextResponse.next({ request: { headers: requestHeaders } });
+          if (rewritePath !== null) {
+            const url = request.nextUrl.clone();
+            url.pathname = rewritePath;
+            response = NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+          } else {
+            response = NextResponse.next({ request: { headers: requestHeaders } });
+          }
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
