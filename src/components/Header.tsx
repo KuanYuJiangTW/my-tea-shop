@@ -94,7 +94,7 @@ export default function Header() {
           </nav>
 
           {/* Right: Language + User + Cart + Mobile toggle */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <div className="hidden md:flex items-center mr-1">
               <LanguageSwitcher />
             </div>
@@ -244,8 +244,8 @@ export default function Header() {
                   {t("user.loginRegister")}
                 </Link>
               )}
-              <div className="py-2.5 px-2">
-                <LanguageSwitcher />
+              <div className="py-2 px-2">
+                <LanguageSwitcher size="large" />
               </div>
             </div>
           </div>

@@ -4,7 +4,11 @@ import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
 
-export default function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+  size?: "compact" | "large";
+}
+
+export default function LanguageSwitcher({ size = "compact" }: LanguageSwitcherProps) {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
@@ -29,29 +33,35 @@ export default function LanguageSwitcher() {
     });
   }
 
+  const isLarge = size === "large";
+
+  const btnBase = isLarge
+    ? "min-w-[44px] min-h-[44px] px-4 py-2 rounded-lg text-sm transition-colors"
+    : "px-2 py-1 rounded-lg transition-colors";
+
   return (
-    <div className="flex items-center gap-1 text-xs font-medium">
+    <div className={`flex items-center font-medium ${isLarge ? "gap-2 text-sm" : "gap-1 text-xs"}`}>
       <button
         onClick={() => switchLocale("zh")}
         disabled={isPending}
-        className={`px-2 py-1 rounded-lg transition-colors ${
+        className={`${btnBase} ${
           locale === "zh"
             ? "text-tea-green font-bold"
             : "text-tea-text-light hover:text-tea-green"
-        }`}
+        }${isLarge && locale === "zh" ? " bg-tea-green-mist" : ""}`}
         aria-label="切換為中文"
       >
-        中
+        中文
       </button>
-      <span className="text-tea-text-light/40">/</span>
+      <span className="text-tea-text-light/40" aria-hidden="true">/</span>
       <button
         onClick={() => switchLocale("en")}
         disabled={isPending}
-        className={`px-2 py-1 rounded-lg transition-colors ${
+        className={`${btnBase} ${
           locale === "en"
             ? "text-tea-green font-bold"
             : "text-tea-text-light hover:text-tea-green"
-        }`}
+        }${isLarge && locale === "en" ? " bg-tea-green-mist" : ""}`}
         aria-label="Switch to English"
       >
         EN
