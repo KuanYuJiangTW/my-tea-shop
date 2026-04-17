@@ -14,6 +14,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-2-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Stripe](https://img.shields.io/badge/Stripe-008CDD?logo=stripe&logoColor=white)](https://stripe.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [Live Demo](https://taiwantea.store) · [Admin Panel](https://taiwantea.store/admin)
@@ -131,7 +132,7 @@
 | **Database / Auth** | [Supabase](https://supabase.com/) (PostgreSQL + Auth + RLS) |
 | **CMS** | [Sanity CMS](https://www.sanity.io/) (experience content + embedded Studio) |
 | **i18n** | [next-intl](https://next-intl.dev/) (Traditional Chinese / English) |
-| **Payment / Logistics** | [ECPay](https://www.ecpay.com.tw/) (credit card / ATM / CVS code + CVS pickup logistics) |
+| **Payment / Logistics** | [ECPay](https://www.ecpay.com.tw/) (credit card / ATM / CVS code + CVS pickup logistics) + [Stripe](https://stripe.com/) (international credit card / Apple Pay / Google Pay) |
 | **Email** | [Resend](https://resend.com/) (order / booking / waitlist notifications) |
 | **Charts** | [Recharts](https://recharts.org/) (admin revenue charts) |
 | **Deployment** | [Vercel](https://vercel.com/) |
@@ -145,7 +146,7 @@
 - **Product Browsing**: Multiple specs (150g / 75g / tea bags), real-time stock display, auto-lock when sold out
 - **Shopping Cart**: React Context state management, localStorage cache, Supabase cloud sync
 - **Checkout**: Home delivery / CVS pickup (7-ELEVEN, FamilyMart, Hi-Life, OK Mart), free shipping on qualifying orders
-- **Payment Methods**: Online payment (ECPay: credit card / ATM / CVS code), cash on delivery
+- **Payment Methods**: Online payment (ECPay: credit card / ATM / CVS code), Stripe (international credit card / Apple Pay / Google Pay), cash on delivery
 - **Order Tracking**: View order history and status after login, supports cancellation
 - **Coupons / Points**: Coupon code validation, auto-earn points after completing experiences, points redemption
 - **Email Notifications**: Order confirmation, shipping notification (both customer & merchant copies)
@@ -244,6 +245,7 @@ src/
 │       ├── user/coupons|points/          # Coupon validation, points query
 │       ├── products/stock/               # Product stock
 │       ├── ecpay/                        # ECPay payment + logistics (products + experiences + CVS map)
+│       ├── stripe/                      # Stripe checkout + webhook (international payments)
 │       ├── cron/                         # Scheduled tasks
 │       ├── admin/                        # Admin API (including 2FA setup)
 │       ├── contact/                      # Contact form
@@ -388,6 +390,11 @@ ADMIN_EMAIL=
 ECPAY_MERCHANT_ID=
 ECPAY_HASH_KEY=
 ECPAY_HASH_IV=
+
+# ── Stripe (optional, for international payments) ──
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
 
 # ── ECPay Logistics (CVS pickup) ─────────────
 ECPAY_LOGISTICS_HASH_KEY=

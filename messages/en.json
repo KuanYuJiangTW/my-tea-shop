@@ -292,7 +292,11 @@
       "storeRequired": "Please click 'Select Store' to choose a pickup location",
       "orderFailed": "Failed to place order. Please try again.",
       "networkError": "Connection failed. Please try again."
-    }
+    },
+    "stripePayment": "Stripe (International)",
+    "stripePaymentDesc": "Credit card, Apple Pay, Google Pay (international cards accepted)",
+    "stripeShort": "Stripe",
+    "submitStripe": "Pay with Stripe"
   },
   "account": {
     "title": "My Account",
@@ -771,18 +775,66 @@
       }
     },
     "galleryPhotos": {
-      "farm2":    { "alt": "Panoramic view of Meishan high-mountain tea garden", "caption": "Meishan Tea Garden",      "desc": "Year-round misty high-mountain tea fields" },
-      "picking2": { "alt": "Hand-picking tea leaves at dawn",                    "caption": "Dawn Harvest",             "desc": "One bud, two leaves — where quality begins" },
-      "wilting":  { "alt": "Sun withering process",                              "caption": "Sun Withering",            "desc": "Letting the leaves unfurl under sunlight" },
-      "wilting2": { "alt": "Indoor withering process",                           "caption": "Indoor Withering",         "desc": "Resting indoors for slow, gentle oxidation" },
-      "rolling":  { "alt": "Hand-rolling tea leaves",                            "caption": "Rolling & Shaping",        "desc": "Shaping each leaf by hand to release its character" },
-      "roasting": { "alt": "Precision roasting",                                "caption": "Precision Roasting",       "desc": "40 years of mastery in controlling the flame" },
-      "teaCup":   { "alt": "A freshly brewed cup of tea",                        "caption": "A Perfect Cup",            "desc": "The complete journey from garden to your hands" },
-      "farm":     { "alt": "Tea garden scenery",                                "caption": "Tea Garden",               "desc": "" },
-      "picking":  { "alt": "Tea picking process",                               "caption": "Picking",                  "desc": "" },
-      "wilting3": { "alt": "Indoor withering detail",                            "caption": "Indoor Withering",         "desc": "" },
-      "rolling2": { "alt": "Rolling detail",                                    "caption": "Rolling Detail",           "desc": "" },
-      "teaCup2":  { "alt": "Tea liquor close-up",                               "caption": "Tea Liquor",               "desc": "" }
+      "farm2": {
+        "alt": "Panoramic view of Meishan high-mountain tea garden",
+        "caption": "Meishan Tea Garden",
+        "desc": "Year-round misty high-mountain tea fields"
+      },
+      "picking2": {
+        "alt": "Hand-picking tea leaves at dawn",
+        "caption": "Dawn Harvest",
+        "desc": "One bud, two leaves — where quality begins"
+      },
+      "wilting": {
+        "alt": "Sun withering process",
+        "caption": "Sun Withering",
+        "desc": "Letting the leaves unfurl under sunlight"
+      },
+      "wilting2": {
+        "alt": "Indoor withering process",
+        "caption": "Indoor Withering",
+        "desc": "Resting indoors for slow, gentle oxidation"
+      },
+      "rolling": {
+        "alt": "Hand-rolling tea leaves",
+        "caption": "Rolling & Shaping",
+        "desc": "Shaping each leaf by hand to release its character"
+      },
+      "roasting": {
+        "alt": "Precision roasting",
+        "caption": "Precision Roasting",
+        "desc": "40 years of mastery in controlling the flame"
+      },
+      "teaCup": {
+        "alt": "A freshly brewed cup of tea",
+        "caption": "A Perfect Cup",
+        "desc": "The complete journey from garden to your hands"
+      },
+      "farm": {
+        "alt": "Tea garden scenery",
+        "caption": "Tea Garden",
+        "desc": ""
+      },
+      "picking": {
+        "alt": "Tea picking process",
+        "caption": "Picking",
+        "desc": ""
+      },
+      "wilting3": {
+        "alt": "Indoor withering detail",
+        "caption": "Indoor Withering",
+        "desc": ""
+      },
+      "rolling2": {
+        "alt": "Rolling detail",
+        "caption": "Rolling Detail",
+        "desc": ""
+      },
+      "teaCup2": {
+        "alt": "Tea liquor close-up",
+        "caption": "Tea Liquor",
+        "desc": ""
+      }
     },
     "contact": {
       "sectionLabel": "Visit & Contact Us",
@@ -979,17 +1031,35 @@
     "section2": {
       "title": "Return Process",
       "steps": {
-        "s1": { "step": "Contact Us", "desc": "Within 7 days of receiving your product, call 0972-619-391 or email qdbzdt2846@gmail.com with your order number, return items, and reason." },
-        "s2": { "step": "Return Eligibility Confirmation", "desc": "We will confirm your return eligibility and arrange the return process within 2 business days." },
-        "s3": { "step": "Ship the Product Back", "desc": "Please return the product with its original packaging, any gifts, and the invoice. Return shipping is paid by the customer; if the product is defective or was shipped incorrectly, we will cover the shipping cost." },
-        "s4": { "step": "Return Confirmation", "desc": "After we receive and verify the returned product, we will arrange a refund within 3 business days." }
+        "s1": {
+          "step": "Contact Us",
+          "desc": "Within 7 days of receiving your product, call 0972-619-391 or email qdbzdt2846@gmail.com with your order number, return items, and reason."
+        },
+        "s2": {
+          "step": "Return Eligibility Confirmation",
+          "desc": "We will confirm your return eligibility and arrange the return process within 2 business days."
+        },
+        "s3": {
+          "step": "Ship the Product Back",
+          "desc": "Please return the product with its original packaging, any gifts, and the invoice. Return shipping is paid by the customer; if the product is defective or was shipped incorrectly, we will cover the shipping cost."
+        },
+        "s4": {
+          "step": "Return Confirmation",
+          "desc": "After we receive and verify the returned product, we will arrange a refund within 3 business days."
+        }
       }
     },
     "section3": {
       "title": "Refund Methods",
       "methods": {
-        "m1": { "label": "Credit Card Payment", "desc": "Refunds will be returned to the original credit card account. Processing takes approximately 7–14 business days depending on your bank." },
-        "m2": { "label": "Cash on Delivery", "desc": "Refunds will be issued via bank transfer. Please provide your bank details (bank name, branch, account number, account holder). Refunds will be processed within 3 business days after return confirmation." }
+        "m1": {
+          "label": "Credit Card Payment",
+          "desc": "Refunds will be returned to the original credit card account. Processing takes approximately 7–14 business days depending on your bank."
+        },
+        "m2": {
+          "label": "Cash on Delivery",
+          "desc": "Refunds will be issued via bank transfer. Please provide your bank details (bank name, branch, account number, account holder). Refunds will be processed within 3 business days after return confirmation."
+        }
       }
     },
     "section4": {

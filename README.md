@@ -14,6 +14,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-2-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Stripe](https://img.shields.io/badge/Stripe-008CDD?logo=stripe&logoColor=white)](https://stripe.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [線上預覽](https://taiwantea.store) · [管理後台](https://taiwantea.store/admin)
@@ -131,7 +132,7 @@
 | **資料庫 / 認證** | [Supabase](https://supabase.com/)（PostgreSQL + Auth + RLS） |
 | **內容管理** | [Sanity CMS](https://www.sanity.io/)（體驗頁面內容 + 內嵌 Studio） |
 | **國際化** | [next-intl](https://next-intl.dev/)（繁體中文 / English） |
-| **金流 / 物流** | [ECPay 綠界](https://www.ecpay.com.tw/)（信用卡 / ATM / 超商代碼 + 超商店到店物流） |
+| **金流 / 物流** | [ECPay 綠界](https://www.ecpay.com.tw/)（信用卡 / ATM / 超商代碼 + 超商店到店物流）+ [Stripe](https://stripe.com/)（國際信用卡 / Apple Pay / Google Pay） |
 | **Email** | [Resend](https://resend.com/)（訂單 / 預約 / 候補通知） |
 | **圖表** | [Recharts](https://recharts.org/)（後台收益圖表） |
 | **部署** | [Vercel](https://vercel.com/) |
@@ -145,7 +146,7 @@
 - **商品瀏覽**：多規格選擇（150g / 75g / 茶包），即時庫存顯示，售完自動鎖定
 - **購物車**：Context 狀態管理，localStorage 本地快取，Supabase 雲端同步
 - **結帳流程**：宅配到府 / 超商店到店（7-11、全家、萊爾富、OK），滿額免運
-- **付款方式**：線上付款（ECPay：信用卡 / ATM / 超商代碼）、貨到付款
+- **付款方式**：線上付款（ECPay：信用卡 / ATM / 超商代碼）、Stripe 國際付款（信用卡 / Apple Pay / Google Pay）、貨到付款
 - **訂單追蹤**：登入後查看歷史訂單與最新狀態，支援取消
 - **優惠券 / 積點**：優惠碼驗證，完課後自動累積積點，積點折抵消費
 - **Email 通知**：下單確認、出貨通知（顧客 + 商家雙份）
@@ -244,6 +245,7 @@ src/
 │       ├── user/coupons|points/          # 優惠券驗證、積點查詢
 │       ├── products/stock/               # 商品庫存
 │       ├── ecpay/                        # 綠界金流 + 物流（商品 + 體驗 + 超商地圖）
+│       ├── stripe/                      # Stripe 國際金流（結帳 + Webhook）
 │       ├── cron/                         # 排程任務
 │       ├── admin/                        # 後台管理 API（含 2FA 設定）
 │       ├── contact/                      # 聯絡表單
@@ -387,6 +389,11 @@ ADMIN_EMAIL=
 ECPAY_MERCHANT_ID=
 ECPAY_HASH_KEY=
 ECPAY_HASH_IV=
+
+# ── Stripe 國際金流（可選） ──────────────────
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
 
 # ── 綠界物流（超商店到店） ───────────────────
 ECPAY_LOGISTICS_HASH_KEY=

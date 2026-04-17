@@ -8,13 +8,15 @@ import { useLocale, useTranslations } from "next-intl";
 
 function ResultContent() {
   const params      = useSearchParams();
-  const success     = params.get("RtnCode") === "1";
+  const stripeParam = params.get("stripe");
+  const isStripe    = stripeParam === "success" || stripeParam === "cancel";
+  const success     = isStripe ? stripeParam === "success" : params.get("RtnCode") === "1";
   const { user }    = useAuth();
   const locale      = useLocale();
   const t           = useTranslations("orderResult");
   const lp = (path: string) => locale === "en" ? `/en${path}` : path;
-  const tradeNo     = params.get("MerchantTradeNo");
-  const rtnMsg      = params.get("RtnMsg");
+  const tradeNo     = isStripe ? null : params.get("MerchantTradeNo");
+  const rtnMsg      = isStripe ? null : params.get("RtnMsg");
   const isBooking   = tradeNo?.startsWith("B") ?? false;
 
 
