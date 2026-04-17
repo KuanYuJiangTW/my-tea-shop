@@ -22,6 +22,18 @@
 
 ---
 
+## 專案亮點
+
+- **正式營運中的產品** — 非教學範例或 Demo 專案
+- **完整電商流程**：商品目錄 → 購物車 → 綠界金流結帳 → 訂單追蹤 → Email 通知
+- **完整預約系統**：場次日曆 → 候補自動順延 → 完課留評
+- **管理後台**：營收圖表、訂單 / 預約 / 商品管理、評價審核
+- **安全優先**：2FA（TOTP）、CSP nonce、RLS、HMAC 簽章 Session、API 限流、後端價格驗證
+- **中英雙語（zh-TW / EN）**：含所有交易信件，使用 next-intl
+- **自動化排程**：Vercel Cron 處理完課標記、活動提醒、候補過期清理
+
+---
+
 ## 截圖
 
 ### 前台 — 電商
@@ -81,12 +93,18 @@
 ### 管理後台
 <table>
   <tr>
+    <td align="center"><strong>登入（2FA）</strong></td>
     <td align="center"><strong>儀表板</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/admin.png" alt="後台登入" width="100%"/></td>
+    <td><img src="docs/screenshots/admin-dashboard.png" alt="儀表板" width="100%"/></td>
+  </tr>
+  <tr>
     <td align="center"><strong>體驗場次管理</strong></td>
     <td align="center"><strong>預約管理</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/admin-dashboard.png" alt="儀表板" width="100%"/></td>
     <td><img src="docs/screenshots/admin-experiences.png" alt="體驗場次管理" width="100%"/></td>
     <td><img src="docs/screenshots/admin-experiences-02.png" alt="預約管理" width="100%"/></td>
   </tr>

@@ -22,6 +22,18 @@
 
 ---
 
+## Highlights
+
+- **Production app serving real customers** — not a tutorial clone or demo project
+- **End-to-end e-commerce**: product catalog → cart → ECPay checkout → order tracking → email notifications
+- **Complete booking system**: session calendar → waitlist with auto-cascade → post-experience reviews
+- **Admin dashboard**: revenue charts, order/booking/product management, review moderation
+- **Security-first**: 2FA (TOTP), CSP nonce, RLS, HMAC-signed sessions, rate limiting, server-side price validation
+- **Bilingual (zh-TW / EN)** with next-intl, including all transactional emails
+- **Automation**: Vercel Cron jobs for booking completion, reminders, and waitlist expiry
+
+---
+
 ## Screenshots
 
 ### Storefront — E-Commerce
@@ -81,12 +93,18 @@
 ### Admin Panel
 <table>
   <tr>
+    <td align="center"><strong>Login (2FA)</strong></td>
     <td align="center"><strong>Dashboard</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/admin.png" alt="Admin Login" width="100%"/></td>
+    <td><img src="docs/screenshots/admin-dashboard.png" alt="Dashboard" width="100%"/></td>
+  </tr>
+  <tr>
     <td align="center"><strong>Session Management</strong></td>
     <td align="center"><strong>Booking Management</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/admin-dashboard.png" alt="Dashboard" width="100%"/></td>
     <td><img src="docs/screenshots/admin-experiences.png" alt="Session Management" width="100%"/></td>
     <td><img src="docs/screenshots/admin-experiences-02.png" alt="Booking Management" width="100%"/></td>
   </tr>
