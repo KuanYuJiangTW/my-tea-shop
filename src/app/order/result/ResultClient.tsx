@@ -27,7 +27,7 @@ function ResultContent() {
     if (success && !isBooking && !clearedRef.current) {
       clearedRef.current = true;
       clearCart();
-      try { localStorage.removeItem("cart"); } catch {}
+      try { localStorage.removeItem("wujuetea_cart"); } catch {}
     }
   }, [success, isBooking, clearCart]);
 

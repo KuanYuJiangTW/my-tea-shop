@@ -294,8 +294,11 @@ export default function CheckoutClient() {
         const { url } = await res.json();
         if (url) {
           clearCart();
-          // Ensure localStorage is cleared before redirect
-          try { localStorage.removeItem("cart"); } catch {}
+          try { localStorage.removeItem("wujuetea_cart"); } catch {}
+          // Clear Supabase cart before redirect (debounce won't fire in time)
+          if (user) {
+            try { await getSupabaseBrowserClient().from("cart_items").delete().eq("user_id", user.id); } catch {}
+          }
           window.location.href = url;
         } else {
           throw new Error(t("errors.networkError"));
