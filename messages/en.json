@@ -687,12 +687,12 @@
         "detail": "Frequency: once every 1.5–2.5 hours, repeated 2–4 times"
       },
       "fix": {
-        "name": "Kill Green",
+        "name": "Stir Fixation",
         "desc": "Once the ideal level of oxidation is reached, the leaves are tossed in a high-temperature iron wok to deactivate the enzymes and halt oxidation. This step also develops a toasted aroma, locks in the fragrance, and removes the raw grassy notes.",
         "detail": "Temperature: 260–300°C, duration: approximately 5–8 minutes"
       },
       "roll": {
-        "name": "Rolling",
+        "name": "Cloth Rolling",
         "desc": "While still warm from the wok, the leaves are wrapped in cloth and rolled, compressing them into tight balls or twisted strips. This bonds the tea juices to the leaf surface so that when brewed, the leaves unfurl quickly and release their full, rounded flavor.",
         "detail": "Repeated rolling 3–6 times, 20–30 minutes per session"
       },
