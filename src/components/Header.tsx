@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+import LanguageSwitcher, { QuickLocaleSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslations, useLocale } from "next-intl";
 
 export default function Header() {
@@ -165,6 +165,11 @@ export default function Header() {
                 )}
               </div>
             )}
+
+            {/* Mobile Quick Locale Switch */}
+            <div className="md:hidden">
+              <QuickLocaleSwitcher />
+            </div>
 
             {/* Cart */}
             <Link href={lp("/cart")} className="relative p-2 group">

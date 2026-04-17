@@ -8,6 +8,41 @@ interface LanguageSwitcherProps {
   size?: "compact" | "large";
 }
 
+/** 手機版 header 用：只顯示「非當前語言」的單一按鈕 */
+export function QuickLocaleSwitcher() {
+  const locale = useLocale();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const targetLocale = locale === "zh" ? "en" : "zh";
+  const label = locale === "zh" ? "EN" : "中";
+
+  function handleSwitch() {
+    let newPath: string;
+    if (locale === "en") {
+      newPath = pathname.replace(/^\/en/, "") || "/";
+    } else {
+      newPath = `/en${pathname}`;
+    }
+    startTransition(() => {
+      router.push(newPath);
+      router.refresh();
+    });
+  }
+
+  return (
+    <button
+      onClick={handleSwitch}
+      disabled={isPending}
+      className="min-w-[36px] min-h-[36px] px-2 py-1 rounded-lg border border-tea-green/30 text-xs font-bold text-tea-green hover:bg-tea-green-mist transition-colors"
+      aria-label={targetLocale === "en" ? "Switch to English" : "切換為中文"}
+    >
+      {label}
+    </button>
+  );
+}
+
 export default function LanguageSwitcher({ size = "compact" }: LanguageSwitcherProps) {
   const locale = useLocale();
   const pathname = usePathname();
