@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 import { useLocale, useTranslations } from "next-intl";
 
 function ResultContent() {
@@ -18,7 +19,15 @@ function ResultContent() {
   const tradeNo     = isStripe ? null : params.get("MerchantTradeNo");
   const rtnMsg      = isStripe ? null : params.get("RtnMsg");
   const isBooking   = tradeNo?.startsWith("B") ?? false;
+  const { clearCart } = useCart();
 
+  // Clear cart on successful payment (safety net for Stripe redirect)
+  useEffect(() => {
+    if (success && !isBooking) {
+      clearCart();
+      try { localStorage.removeItem("cart"); } catch {}
+    }
+  }, [success, isBooking, clearCart]);
 
   return (
     <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
