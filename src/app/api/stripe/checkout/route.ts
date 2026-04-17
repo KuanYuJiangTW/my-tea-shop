@@ -5,9 +5,7 @@ import { supabase } from "@/lib/supabase";
 import Stripe from "stripe";
 import type { CreateOrderRequest } from "@/types";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-03-25.dahlia",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
@@ -305,7 +303,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
-    console.error("Stripe session creation failed:", err);
-    return NextResponse.json({ error: "Failed to create payment session" }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Stripe session creation failed:", message);
+    return NextResponse.json({ error: `Failed to create payment session: ${message}` }, { status: 500 });
   }
 }

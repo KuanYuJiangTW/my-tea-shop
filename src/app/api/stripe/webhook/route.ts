@@ -3,9 +3,7 @@ import Stripe from "stripe";
 import { supabase } from "@/lib/supabase";
 import { sendOrderEmails, type EmailOrderData } from "@/lib/email";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-03-25.dahlia",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!;
 
