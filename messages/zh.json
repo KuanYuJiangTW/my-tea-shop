@@ -296,7 +296,8 @@
     "stripePayment": "Stripe 國際付款",
     "stripePaymentDesc": "信用卡、Apple Pay、Google Pay（適用國際信用卡）",
     "stripeShort": "Stripe 國際付款",
-    "submitStripe": "前往 Stripe 付款"
+    "submitStripe": "前往 Stripe 付款",
+    "comingSoon": "即將推出"
   },
   "account": {
     "title": "會員中心",

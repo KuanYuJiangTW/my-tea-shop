@@ -296,7 +296,8 @@
     "stripePayment": "Stripe (International)",
     "stripePaymentDesc": "Credit card, Apple Pay, Google Pay (international cards accepted)",
     "stripeShort": "Stripe",
-    "submitStripe": "Pay with Stripe"
+    "submitStripe": "Pay with Stripe",
+    "comingSoon": "Coming Soon"
   },
   "account": {
     "title": "My Account",

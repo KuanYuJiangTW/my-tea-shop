@@ -448,20 +448,23 @@ export default function CheckoutClient() {
                 <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("paymentMethod")}</h2>
                 <div className="space-y-3">
                   {([
-                    { value: "online" as PaymentMethod, label: t("onlinePayment"), desc: t("onlinePaymentDesc"),
+                    { value: "online" as PaymentMethod, label: t("onlinePayment"), desc: t("onlinePaymentDesc"), disabled: false,
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> },
-                    { value: "stripe" as PaymentMethod, label: t("stripePayment"), desc: t("stripePaymentDesc"),
+                    { value: "stripe" as PaymentMethod, label: t("stripePayment"), desc: t("stripePaymentDesc"), disabled: true,
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 7a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V7z"/><path d="M12 11c-1.5-1.5-4 .5-2 2s3.5-.5 2-2z"/><circle cx="7" cy="12" r="1"/><circle cx="17" cy="12" r="1"/></svg> },
-                    { value: "cod" as PaymentMethod, label: t("cashOnDelivery"), desc: t("codDesc"),
+                    { value: "cod" as PaymentMethod, label: t("cashOnDelivery"), desc: t("codDesc"), disabled: false,
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><path d="M3 8h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><path d="M6 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> },
                   ]).map(opt => (
-                    <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}>
+                    <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${opt.disabled ? "cursor-not-allowed opacity-50 border-tea-green-pale bg-gray-50" : `cursor-pointer ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}`}>
                       <input type="radio" name="payment" value={opt.value} checked={payment === opt.value}
-                        onChange={() => setPayment(opt.value)} className="accent-tea-green mt-0.5" />
-                      <div className={`mt-0.5 ${payment === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
-                      <div>
-                        <div className="text-sm font-medium text-tea-text">{opt.label}</div>
-                        <div className="text-xs text-tea-text-light mt-0.5">{opt.desc}</div>
+                        onChange={() => !opt.disabled && setPayment(opt.value)} disabled={opt.disabled} className="accent-tea-green mt-0.5" />
+                      <div className={`mt-0.5 ${opt.disabled ? "text-gray-300" : payment === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm font-medium ${opt.disabled ? "text-gray-400" : "text-tea-text"}`}>{opt.label}</span>
+                          {opt.disabled && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-tea-green/10 text-tea-green">{t("comingSoon")}</span>}
+                        </div>
+                        <div className={`text-xs mt-0.5 ${opt.disabled ? "text-gray-300" : "text-tea-text-light"}`}>{opt.desc}</div>
                       </div>
                     </label>
                   ))}
