@@ -14,7 +14,7 @@ const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.st
 type ProductRow = {
   id:              number;
   name:            string;
-  name_en:         string;
+  name_en:         string | null;
   price:           number;
   price_75g:       number | null;
   price_tea_bag:   number | null;
@@ -62,13 +62,27 @@ export async function POST(req: NextRequest) {
 
   // ── 1. Server-side price lookup ────────────────────────────────────────────
   const productIds = body.items.map(i => i.productId);
-  const { data: products, error: productError } = await supabase
+
+  // Try with name_en first, fallback without it
+  let products: ProductRow[] | null = null;
+  const { data: productsData, error: productError } = await supabase
     .from("products")
     .select("id, name, name_en, price, price_75g, price_tea_bag, stock_quantity, stock_75g, stock_tea_bag")
     .in("id", productIds) as { data: ProductRow[] | null; error: unknown };
 
-  if (productError || !products) {
-    return NextResponse.json({ error: "Failed to query products" }, { status: 500 });
+  if (productError || !productsData) {
+    // Fallback: query without name_en
+    const { data: fallback, error: fallbackError } = await supabase
+      .from("products")
+      .select("id, name, price, price_75g, price_tea_bag, stock_quantity, stock_75g, stock_tea_bag")
+      .in("id", productIds) as { data: Omit<ProductRow, "name_en">[] | null; error: unknown };
+
+    if (fallbackError || !fallback) {
+      return NextResponse.json({ error: "Failed to query products" }, { status: 500 });
+    }
+    products = fallback.map(p => ({ ...p, name_en: null }));
+  } else {
+    products = productsData;
   }
 
   // ── 2. Validate each item ──────────────────────────────────────────────────
@@ -110,7 +124,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Insufficient stock: ${product.name}` }, { status: 400 });
     }
 
-    validatedItems.push({ productId: product.id, name: product.name, nameEn: product.name_en, quantity: qty, unitPrice, subtotal: unitPrice * qty, spec });
+    validatedItems.push({ productId: product.id, name: product.name, nameEn: product.name_en ?? product.name, quantity: qty, unitPrice, subtotal: unitPrice * qty, spec });
   }
 
   // ── 3. Shipping fee ────────────────────────────────────────────────────────
@@ -206,7 +220,7 @@ export async function POST(req: NextRequest) {
     customer_name:    body.customer.name,
     customer_email:   verifiedEmail,
     customer_phone:   body.customer.phone,
-    payment_method:   "stripe",
+    payment_method:   "online",
     shipping_address: shippingAddress,
     items:            validatedItems.map(({ nameEn, ...rest }) => rest),
     shipping_fee:     shippingFee,
@@ -263,21 +277,24 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  if (couponDiscount + pointsDiscount > 0) {
-    lineItems.push({
-      price_data: {
-        currency: "twd",
-        product_data: { name: "Discount" },
-        unit_amount: -(couponDiscount + pointsDiscount),
-      },
-      quantity: 1,
+  const discounts: { coupon: string }[] = [];
+  const totalDiscount = couponDiscount + pointsDiscount;
+
+  if (totalDiscount > 0) {
+    const stripeCoupon = await stripe.coupons.create({
+      amount_off: totalDiscount,
+      currency: "twd",
+      duration: "once",
+      name: "Discount",
     });
+    discounts.push({ coupon: stripeCoupon.id });
   }
 
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: lineItems,
+      ...(discounts.length > 0 ? { discounts } : {}),
       metadata: {
         orderId: orderData.id,
         tradeNo,
