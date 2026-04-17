@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 
 interface LanguageSwitcherProps {
@@ -12,6 +12,7 @@ interface LanguageSwitcherProps {
 export function QuickLocaleSwitcher() {
   const locale = useLocale();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -25,6 +26,8 @@ export function QuickLocaleSwitcher() {
     } else {
       newPath = `/en${pathname}`;
     }
+    const qs = searchParams.toString();
+    if (qs) newPath += `?${qs}`;
     startTransition(() => {
       router.push(newPath);
       router.refresh();
@@ -46,21 +49,21 @@ export function QuickLocaleSwitcher() {
 export default function LanguageSwitcher({ size = "compact" }: LanguageSwitcherProps) {
   const locale = useLocale();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   function switchLocale(next: "zh" | "en") {
     if (next === locale) return;
 
-    // 計算目標路徑：移除現有 locale 前綴（如 /en/...），再加新的
     let newPath: string;
     if (locale === "en") {
-      // 目前是英文，移除 /en 前綴
       newPath = pathname.replace(/^\/en/, "") || "/";
     } else {
-      // 目前是中文（無前綴），加上 /en
       newPath = `/en${pathname}`;
     }
+    const qs = searchParams.toString();
+    if (qs) newPath += `?${qs}`;
 
     startTransition(() => {
       router.push(newPath);
