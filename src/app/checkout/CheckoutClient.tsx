@@ -285,7 +285,7 @@ export default function CheckoutClient() {
         const res = await fetch("/api/stripe/checkout", {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
-          body:    JSON.stringify(buildOrderPayload()),
+          body:    JSON.stringify({ ...buildOrderPayload(), locale }),
         });
         if (!res.ok) {
           const json = await res.json().catch(() => ({}));

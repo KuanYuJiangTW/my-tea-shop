@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const body = await req.json() as CreateOrderRequest;
+  const body = await req.json() as CreateOrderRequest & { locale?: string };
 
   // ── 0. Basic validation ────────────────────────────────────────────────────
   if (!body || !Array.isArray(body.items) || body.items.length === 0) {
@@ -305,8 +305,8 @@ export async function POST(req: NextRequest) {
         orderId: orderData.id,
         tradeNo,
       },
-      success_url: `${base}/order/result?stripe=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${base}/order/result?stripe=cancel`,
+      success_url: `${base}${body.locale === "en" ? "/en" : ""}/order/result?stripe=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${base}${body.locale === "en" ? "/en" : ""}/order/result?stripe=cancel`,
     });
 
     return NextResponse.json({ url: session.url });
