@@ -1,3 +1,9 @@
+<div align="right">
+
+**繁體中文** | [English](README-en.md)
+
+</div>
+
 <div align="center">
 
 # 霧抉茶 Wu Jue Tea
@@ -103,10 +109,11 @@
 |---|---|
 | **框架** | [Next.js 15](https://nextjs.org/)（App Router）+ [React 19](https://react.dev/) |
 | **語言** | [TypeScript 5](https://www.typescriptlang.org/)（strict mode） |
-| **樣式** | [Tailwind CSS 3](https://tailwindcss.com/) |
+| **樣式** | [Tailwind CSS 3](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/) |
 | **資料庫 / 認證** | [Supabase](https://supabase.com/)（PostgreSQL + Auth + RLS） |
-| **內容管理** | [Sanity CMS](https://www.sanity.io/)（體驗頁面內容） |
-| **金流** | [ECPay 綠界金流](https://www.ecpay.com.tw/)（信用卡 / ATM / 超商代碼） |
+| **內容管理** | [Sanity CMS](https://www.sanity.io/)（體驗頁面內容 + 內嵌 Studio） |
+| **國際化** | [next-intl](https://next-intl.dev/)（繁體中文 / English） |
+| **金流 / 物流** | [ECPay 綠界](https://www.ecpay.com.tw/)（信用卡 / ATM / 超商代碼 + 超商店到店物流） |
 | **Email** | [Resend](https://resend.com/)（訂單 / 預約 / 候補通知） |
 | **圖表** | [Recharts](https://recharts.org/)（後台收益圖表） |
 | **部署** | [Vercel](https://vercel.com/) |
@@ -119,11 +126,12 @@
 
 - **商品瀏覽**：多規格選擇（150g / 75g / 茶包），即時庫存顯示，售完自動鎖定
 - **購物車**：Context 狀態管理，localStorage 本地快取，Supabase 雲端同步
-- **結帳流程**：宅配到府 / 超商店到店，滿額免運
+- **結帳流程**：宅配到府 / 超商店到店（7-11、全家、萊爾富、OK），滿額免運
 - **付款方式**：線上付款（ECPay：信用卡 / ATM / 超商代碼）、貨到付款
 - **訂單追蹤**：登入後查看歷史訂單與最新狀態，支援取消
-- **優惠券 / 積點**：優惠碼驗證，完課後自動累積積點
+- **優惠券 / 積點**：優惠碼驗證，完課後自動累積積點，積點折抵消費
 - **Email 通知**：下單確認、出貨通知（顧客 + 商家雙份）
+- **中英雙語**：全站支援繁體中文 / English 切換（next-intl）
 
 ### 前台 — 茶藝體驗預約
 
@@ -133,6 +141,11 @@
 - **候補系統**：場次滿額可加入候補；有人取消時按先進先出自動通知，24 小時內確認否則順延下一位
 - **完課留評**：體驗完成後可針對該場次留下評價與星等
 - **帳戶中心**：查看所有預約紀錄、參加者名單、取消申請
+
+### 前台 — 會員認證
+
+- **登入 / 註冊**：Email 註冊、Supabase Auth 驗證
+- **受保護路由**：會員中心、訂單紀錄、預約管理需登入後才可存取
 
 ### 後台（Admin）
 
@@ -149,20 +162,26 @@
 | 任務 | 排程 | 說明 |
 |---|---|---|
 | `complete-bookings` | 每日 02:00 UTC | 自動標記已結束的體驗為「完成」，發放積點 |
-| `experience-reminders` | 定期觸發 | 寄送預約提醒；清理過期候補並通知下一位 |
+| `experience-reminders` | 每日 01:00 UTC | 參加者補填提醒（活動前 5 天）、活動前日提醒、場次確認/取消、候補過期清理與順延通知 |
 
 ### 安全機制
 
-- ECPay 回調 `CheckMacValue` SHA256 簽章驗證
-- Supabase RLS 確保顧客只能存取自己的資料
-- Admin 使用 HMAC 簽章 Cookie，全站 `/admin/*` 由 Middleware 守門
-- API 路由 IP 限流（rate limiter），防暴力攻擊與候補濫用
+- **CSP 安全標頭**：動態 nonce 防 XSS，搭配 `X-Frame-Options`、`HSTS`、`Permissions-Policy` 等完整 HTTP 安全標頭
+- **ECPay 簽章驗證**：回調 `CheckMacValue` SHA256 驗證 + timing-safe 比對
+- **Supabase RLS**：行級安全確保顧客只能存取自己的資料
+- **Admin 認證**：HMAC 簽章 Cookie + 2FA（TOTP），全站 `/admin/*` 由 Middleware 守門
+- **API 限流**：IP rate limiter（20 req/min），登入失敗 15 分鐘限 5 次
+- **後端價格驗證**：結帳時後端重新計算金額，完全不信任前端數據
 
 ---
 
 ## 專案架構
 
 ```
+├── messages/                             # i18n 翻譯檔
+│   ├── zh.json                           # 繁體中文
+│   └── en.json                           # English
+│
 src/
 ├── app/                                  # Next.js 15 App Router
 │   ├── layout.tsx                        # 根版面（GA、Auth、Cart Provider）
@@ -180,10 +199,13 @@ src/
 │   ├── account/                          # 會員中心（受保護）
 │   │   └── bookings/[id]/participants/   # 預約參加者
 │   ├── auth/                             # 登入 / 註冊 / OAuth callback
+│   │   ├── login/                        # 登入頁
+│   │   └── register/                     # 註冊頁
 │   ├── contact/                          # 聯絡表單
 │   ├── faq/                              # 常見問題
 │   ├── privacy/                          # 隱私權政策
 │   ├── return-policy/                    # 退換貨政策
+│   ├── studio/                           # Sanity CMS Studio（內嵌編輯介面）
 │   ├── admin/                            # 管理後台
 │   │   ├── page.tsx                      # 後台登入
 │   │   ├── verify-2fa/                   # 2FA 驗證
@@ -203,9 +225,9 @@ src/
 │       ├── reviews/                      # 建立評價
 │       ├── user/coupons|points/          # 優惠券驗證、積點查詢
 │       ├── products/stock/               # 商品庫存
-│       ├── ecpay/                        # 綠界金流（商品 + 體驗）
+│       ├── ecpay/                        # 綠界金流 + 物流（商品 + 體驗 + 超商地圖）
 │       ├── cron/                         # 排程任務
-│       ├── admin/                        # 後台管理 API
+│       ├── admin/                        # 後台管理 API（含 2FA 設定）
 │       ├── contact/                      # 聯絡表單
 │       ├── revalidate/                   # ISR 快取更新
 │       └── sanity-webhook/              # Sanity CMS Webhook
@@ -215,13 +237,18 @@ src/
 │   ├── Footer.tsx
 │   ├── ProductCard.tsx                   # 商品卡片（多規格、庫存狀態）
 │   ├── ProductLightbox.tsx               # 商品圖片燈箱
+│   ├── LanguageSwitcher.tsx              # 中英語言切換
 │   ├── SiteChrome.tsx                    # 自動隱藏 Header/Footer（後台路由）
 │   ├── GoogleAnalytics.tsx               # GA4 整合
-│   └── ui/                              # UI 元件（button、select 等）
+│   └── ui/                              # Shadcn UI 元件（button、select 等）
 │
 ├── context/
 │   ├── CartContext.tsx                   # 購物車全域狀態（localStorage + Supabase）
 │   └── AuthContext.tsx                   # Supabase 認證狀態
+│
+├── i18n/
+│   ├── routing.ts                        # Locale 路由配置（zh 預設 / en）
+│   └── request.ts                        # 動態載入翻譯檔
 │
 ├── lib/
 │   ├── supabase.ts / supabase-client.ts / supabase-server.ts
@@ -234,13 +261,17 @@ src/
 │   ├── rate-limit.ts                     # IP 限流
 │   └── utils.ts
 │
+├── sanity/
+│   ├── schemas/                          # Sanity CMS 內容模型（體驗、商品、FAQ）
+│   └── client.ts                         # Sanity Client 配置
+│
 ├── data/
 │   └── products.ts                       # 靜態商品資料（備援）
 │
 ├── types/
 │   └── index.ts                          # 全域 TypeScript 介面定義
 │
-└── middleware.ts                         # Supabase session 刷新 + Admin 路由保護
+└── proxy.ts                              # Middleware：i18n 偵測 + CSP nonce + Admin 路由保護
 ```
 
 ---
@@ -339,6 +370,10 @@ ECPAY_MERCHANT_ID=
 ECPAY_HASH_KEY=
 ECPAY_HASH_IV=
 
+# ── 綠界物流（超商店到店） ───────────────────
+ECPAY_LOGISTICS_HASH_KEY=
+ECPAY_LOGISTICS_HASH_IV=
+
 # ── 管理後台 ───────────────────────────────────
 ADMIN_PASSWORD=
 ADMIN_TOKEN_SECRET=        # 任意隨機字串，用於 HMAC 簽章
@@ -347,12 +382,16 @@ ADMIN_TOKEN_SECRET=        # 任意隨機字串，用於 HMAC 簽章
 NEXT_PUBLIC_SANITY_PROJECT_ID=
 NEXT_PUBLIC_SANITY_DATASET=production
 SANITY_API_TOKEN=
+SANITY_WEBHOOK_SECRET=     # Sanity Webhook 驗證
 
 # ── Google Analytics（可選） ──────────────────
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 
 # ── Cron Secret（Vercel Cron 驗證用） ─────────
 CRON_SECRET=
+
+# ── ISR 快取更新 ─────────────────────────────
+REVALIDATE_SECRET=
 ```
 
 ### 啟動開發伺服器
