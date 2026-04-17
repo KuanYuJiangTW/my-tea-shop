@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useLocale, useTranslations } from "next-intl";
@@ -20,10 +20,12 @@ function ResultContent() {
   const rtnMsg      = isStripe ? null : params.get("RtnMsg");
   const isBooking   = tradeNo?.startsWith("B") ?? false;
   const { clearCart } = useCart();
+  const clearedRef = useRef(false);
 
   // Clear cart on successful payment (safety net for Stripe redirect)
   useEffect(() => {
-    if (success && !isBooking) {
+    if (success && !isBooking && !clearedRef.current) {
+      clearedRef.current = true;
       clearCart();
       try { localStorage.removeItem("cart"); } catch {}
     }
