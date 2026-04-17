@@ -275,6 +275,11 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // Stripe minimum: ~US$0.50 ≈ NT$16
+  if (totalAmount < 16) {
+    return NextResponse.json({ error: "Stripe 最低付款金額為 NT$16" }, { status: 400 });
+  }
+
   const discounts: { coupon: string }[] = [];
   const totalDiscount = couponDiscount + pointsDiscount;
 
