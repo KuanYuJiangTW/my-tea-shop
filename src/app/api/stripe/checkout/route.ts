@@ -253,13 +253,16 @@ export async function POST(req: NextRequest) {
 
   const specLabel = (spec: string) => spec === "75g" ? "75g" : spec === "teabag" ? "Tea Bags" : "150g";
 
+  // Stripe TWD: unit_amount is in cents (1/100), so multiply by 100
+  const toStripeAmount = (ntd: number) => Math.round(ntd * 100);
+
   const lineItems = validatedItems.map(item => ({
     price_data: {
       currency: "twd",
       product_data: {
         name: `${item.nameEn || item.name} (${specLabel(item.spec)})`,
       },
-      unit_amount: item.unitPrice,
+      unit_amount: toStripeAmount(item.unitPrice),
     },
     quantity: item.quantity,
   }));
@@ -269,7 +272,7 @@ export async function POST(req: NextRequest) {
       price_data: {
         currency: "twd",
         product_data: { name: body.deliveryType === "home" ? "Shipping (Home Delivery)" : "Shipping (CVS Pickup)" },
-        unit_amount: shippingFee,
+        unit_amount: toStripeAmount(shippingFee),
       },
       quantity: 1,
     });
@@ -285,7 +288,7 @@ export async function POST(req: NextRequest) {
 
   if (totalDiscount > 0) {
     const stripeCoupon = await stripe.coupons.create({
-      amount_off: totalDiscount,
+      amount_off: toStripeAmount(totalDiscount),
       currency: "twd",
       duration: "once",
       name: "Discount",
