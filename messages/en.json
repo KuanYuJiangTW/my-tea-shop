@@ -113,8 +113,8 @@
           "desc": "Sun & indoor withering"
         },
         "roll": {
-          "name": "Roll",
-          "desc": "Shaping the flavor"
+          "name": "Cloth Rolling",
+          "desc": "Shaping through cloth-wrapped rolling"
         },
         "roast": {
           "name": "Roast",
