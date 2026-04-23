@@ -8,8 +8,9 @@ export const maxDuration = 30;
 export async function GET() {
   const checks: Record<string, unknown> = { ok: true };
 
-  // 1. API Key
+  // 1. API Key & LINE URL
   checks.hasGeminiKey = !!process.env.GEMINI_API_KEY;
+  checks.lineUrl = process.env.NEXT_PUBLIC_LINE_OFFICIAL_URL || "(empty)";
 
   // 2. Supabase 知識庫
   try {
