@@ -140,6 +140,7 @@ export default function ChatWidget() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [lastSentAt, setLastSentAt] = useState(0);
   const [initialized, setInitialized] = useState(false);
+  const [showLabel, setShowLabel] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -188,7 +189,15 @@ export default function ChatWidget() {
     }
   }, [isOpen, isMobile]);
 
-  // 監聽從漢堡選單開啟聊天的事件
+  // 浮動按鈕文字標籤 4 秒後收起
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (!showLabel) return;
+    const timer = setTimeout(() => setShowLabel(false), 4000);
+    return () => clearTimeout(timer);
+  }, [showLabel]);
+
+  // 監聯從漢堡選單開啟聊天的事件
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const handler = () => setIsOpen(true);
@@ -273,7 +282,7 @@ export default function ChatWidget() {
     t(`quickQuestions.${group}.q3`),
   ];
 
-  const showQuickQuestions = messages.length === 0;
+  const isFirstOpen = messages.length === 0;
 
   // ── Keyboard ──────────────────────────────────────────────────────────────
 
@@ -292,14 +301,22 @@ export default function ChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className={`fixed right-4 z-50 bg-tea-green hover:bg-tea-green-dark text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 w-11 h-11 bottom-20 md:w-14 md:h-14 md:bottom-6 ${
+          className={`fixed right-4 z-50 bg-tea-green hover:bg-tea-green-dark text-white shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 bottom-20 md:bottom-6 ${
+            showLabel ? "rounded-full px-4 py-2.5 md:px-5 md:py-3" : "rounded-full w-11 h-11 md:w-14 md:h-14 justify-center"
+          } ${
             mobileFabVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"
           } md:!translate-y-0 md:!opacity-100 md:!pointer-events-auto`}
-          aria-label="Open chat"
+          aria-label={t("title")}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+          {/* 茶葉 + 對話氣泡組合圖示 */}
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="none" className="flex-shrink-0 md:w-6 md:h-6">
+            <path d="M22 10a2 2 0 01-2 2H8l-4 4V4a2 2 0 012-2h14a2 2 0 012 2z" fill="white" opacity="0.9"/>
+            <path d="M17 8C17 8 13 12 13 17C13 19.76 15.24 22 18 22C20.76 22 23 19.76 23 17C23 12 19 8 19 8" fill="white" opacity="0.7" stroke="white" strokeWidth="0.5"/>
+            <path d="M18 12C18 12 15.5 15 15.5 18C15.5 19.38 16.62 20.5 18 20.5C19.38 20.5 20.5 19.38 20.5 18C20.5 15 18 12 18 12Z" fill="rgba(125,155,132,0.4)"/>
           </svg>
+          {showLabel && (
+            <span className="text-sm font-medium whitespace-nowrap">{t("fabLabel")}</span>
+          )}
         </button>
       )}
 
@@ -333,7 +350,7 @@ export default function ChatWidget() {
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-tea-cream-light/30">
             {/* 歡迎訊息 */}
-            {showQuickQuestions && (
+            {isFirstOpen && (
               <div className="flex gap-2">
                 <div className="w-7 h-7 rounded-full bg-tea-green-mist flex items-center justify-center flex-shrink-0 mt-0.5">
                   <svg width="14" height="14" viewBox="0 0 34 34" fill="none">
@@ -392,14 +409,14 @@ export default function ChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* 快捷問題 */}
-          {showQuickQuestions && (
-            <div className="px-4 py-2 flex flex-wrap gap-1.5 border-t border-tea-green-pale bg-white flex-shrink-0">
+          {/* 快捷問題（常駐） */}
+          {!isStreaming && (
+            <div className="px-3 py-1.5 flex gap-1.5 overflow-x-auto border-t border-tea-green-pale bg-white flex-shrink-0 no-scrollbar">
               {quickQuestions.map((q, i) => (
                 <button
                   key={i}
                   onClick={() => sendMessage(q)}
-                  className="px-3 py-1.5 text-xs bg-tea-cream-light hover:bg-tea-green-mist text-tea-text rounded-full border border-tea-green-pale transition-colors"
+                  className="px-3 py-1.5 text-xs bg-tea-cream-light hover:bg-tea-green-mist text-tea-text rounded-full border border-tea-green-pale transition-colors whitespace-nowrap flex-shrink-0"
                 >
                   {q}
                 </button>

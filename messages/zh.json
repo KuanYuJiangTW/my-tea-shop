@@ -1111,6 +1111,7 @@
     "errorGeneral": "抱歉，回覆時發生錯誤，請稍後再試。",
     "errorRateLimit": "訊息太頻繁了，請稍後再試。",
     "contactLine": "聯繫真人客服",
+    "fabLabel": "茶葉顧問",
     "quickQuestions": {
       "home": {
         "q1": "推薦送禮茶葉",

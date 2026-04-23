@@ -1111,6 +1111,7 @@
     "errorGeneral": "Sorry, something went wrong. Please try again later.",
     "errorRateLimit": "Too many messages. Please wait a moment.",
     "contactLine": "Contact Us on LINE",
+    "fabLabel": "Tea Consultant",
     "quickQuestions": {
       "home": {
         "q1": "Recommend a tea for gifting",
