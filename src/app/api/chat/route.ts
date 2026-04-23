@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { buildKnowledgeBase } from "@/lib/chat-knowledge";
 
+export const runtime = "nodejs";
+export const maxDuration = 30;
+
 // ── 速率限制（記憶體內，每分鐘 10 則/IP）──────────────────────────────────────
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -9,6 +12,13 @@ const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
+
+  // 清理已過期的項目（順便清理，不用 setInterval）
+  if (rateLimitMap.size > 100) {
+    for (const [key, val] of rateLimitMap) {
+      if (now > val.resetAt) rateLimitMap.delete(key);
+    }
+  }
 
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + 60_000 });
@@ -19,14 +29,6 @@ function checkRateLimit(ip: string): boolean {
   entry.count++;
   return true;
 }
-
-// 定期清理過期項目
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, entry] of rateLimitMap) {
-    if (now > entry.resetAt) rateLimitMap.delete(ip);
-  }
-}, 60_000);
 
 // ── System Prompt ─────────────────────────────────────────────────────────────
 
