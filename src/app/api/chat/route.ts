@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import { buildKnowledgeBase } from "@/lib/chat-knowledge";
 
 export const maxDuration = 30;
 
 // 健康檢查端點
 export async function GET() {
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, provider: "groq" });
 }
 
 // ── 速率限制（記憶體內，每分鐘 10 則/IP）──────────────────────────────────────
@@ -17,7 +17,6 @@ function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
 
-  // 清理已過期的項目（順便清理，不用 setInterval）
   if (rateLimitMap.size > 100) {
     for (const [key, val] of rateLimitMap) {
       if (now > val.resetAt) rateLimitMap.delete(key);
@@ -89,9 +88,9 @@ export async function POST(req: NextRequest) {
   }
 
   // 檢查 API Key
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    console.error("[chat] GEMINI_API_KEY not configured");
+    console.error("[chat] GROQ_API_KEY not configured");
     return NextResponse.json(
       { error: "服務暫時無法使用，請稍後再試。" },
       { status: 503 }
@@ -121,31 +120,33 @@ export async function POST(req: NextRequest) {
     const knowledge = await buildKnowledgeBase(locale);
     const systemPrompt = buildSystemPrompt(knowledge, locale);
 
-    // 建立 Gemini client
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      systemInstruction: systemPrompt,
+    // 建立 Groq client
+    const groq = new Groq({ apiKey });
+
+    // 組合對話歷史（Groq 用 OpenAI 格式：system / user / assistant）
+    const groqMessages: { role: "system" | "user" | "assistant"; content: string }[] = [
+      { role: "system", content: systemPrompt },
+      ...recentMessages.map((m) => ({
+        role: (m.role === "user" ? "user" : "assistant") as "user" | "assistant",
+        content: m.content,
+      })),
+    ];
+
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: groqMessages,
+      stream: true,
+      max_tokens: 1024,
+      temperature: 0.7,
     });
-
-    // 組合對話歷史
-    const history = recentMessages.slice(0, -1).map((m) => ({
-      role: m.role === "user" ? "user" as const : "model" as const,
-      parts: [{ text: m.content }],
-    }));
-
-    const lastMessage = recentMessages[recentMessages.length - 1].content;
-
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessageStream(lastMessage);
 
     // 串流回應
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
         try {
-          for await (const chunk of result.stream) {
-            const text = chunk.text();
+          for await (const chunk of completion) {
+            const text = chunk.choices[0]?.delta?.content;
             if (text) {
               controller.enqueue(encoder.encode(text));
             }
@@ -177,6 +178,6 @@ export async function POST(req: NextRequest) {
       ? "Sorry, the service is temporarily unavailable. Please try again later or contact us via LINE."
       : "抱歉，服務暫時無法使用，請稍後再試或透過 LINE 聯繫我們。";
 
-    return NextResponse.json({ error: errorMsg, _debug: String(err) }, { status: 503 });
+    return NextResponse.json({ error: errorMsg }, { status: 503 });
   }
 }
