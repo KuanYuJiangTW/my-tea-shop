@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { buildKnowledgeBase } from "@/lib/chat-knowledge";
 
-export const runtime = "nodejs";
 export const maxDuration = 30;
+
+// 測試端點：GET /api/chat 檢查模組是否正常載入
+export async function GET() {
+  try {
+    const hasKey = !!process.env.GEMINI_API_KEY;
+    return NextResponse.json({ ok: true, hasGeminiKey: hasKey });
+  } catch (err) {
+    return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
+  }
+}
 
 // ── 速率限制（記憶體內，每分鐘 10 則/IP）──────────────────────────────────────
 
