@@ -148,6 +148,7 @@ export default function ChatWidget() {
   const [lastSentAt, setLastSentAt] = useState(0);
   const [initialized, setInitialized] = useState(false);
   const [showLabel, setShowLabel] = useState(true);
+  const [fabIdle, setFabIdle] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -252,7 +253,32 @@ export default function ChatWidget() {
     return () => clearTimeout(timer);
   }, [showLabel]);
 
-  // 監聽從漢堡選單開啟聊天的事件
+  // 手機 FAB 呼吸式存在感：3 秒無互動後縮小降透明度
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (isOpen || !mobileFabVisible) {
+      setFabIdle(false);
+      return;
+    }
+
+    let timer = setTimeout(() => setFabIdle(true), 3000);
+
+    const resetIdle = () => {
+      setFabIdle(false);
+      clearTimeout(timer);
+      timer = setTimeout(() => setFabIdle(true), 3000);
+    };
+
+    window.addEventListener("scroll", resetIdle, { passive: true });
+    window.addEventListener("touchstart", resetIdle, { passive: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", resetIdle);
+      window.removeEventListener("touchstart", resetIdle);
+    };
+  }, [isOpen, mobileFabVisible]);
+
+  // 監聯從漢堡選單開啟聊天的事件
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const handler = () => handleOpen();
@@ -354,27 +380,37 @@ export default function ChatWidget() {
   return (
     <>
       {/* 浮動按鈕 */}
-      {!isOpen && (
-        <button
-          onClick={handleOpen}
-          className={`fixed right-4 z-50 bg-tea-green hover:bg-tea-green-dark text-white shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 bottom-20 md:bottom-6 ${
-            showLabel ? "rounded-full px-4 py-2.5 md:px-5 md:py-3" : "rounded-full w-11 h-11 md:w-14 md:h-14 justify-center"
-          } ${
-            mobileFabVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"
-          } md:!translate-y-0 md:!opacity-100 md:!pointer-events-auto`}
-          aria-label={t("title")}
-        >
-          {/* 茶葉 + 對話氣泡組合圖示 */}
-          <svg width="22" height="22" viewBox="0 0 32 32" fill="none" className="flex-shrink-0 md:w-6 md:h-6">
-            <path d="M22 10a2 2 0 01-2 2H8l-4 4V4a2 2 0 012-2h14a2 2 0 012 2z" fill="white" opacity="0.9"/>
-            <path d="M17 8C17 8 13 12 13 17C13 19.76 15.24 22 18 22C20.76 22 23 19.76 23 17C23 12 19 8 19 8" fill="white" opacity="0.7" stroke="white" strokeWidth="0.5"/>
-            <path d="M18 12C18 12 15.5 15 15.5 18C15.5 19.38 16.62 20.5 18 20.5C19.38 20.5 20.5 19.38 20.5 18C20.5 15 18 12 18 12Z" fill="rgba(125,155,132,0.4)"/>
-          </svg>
-          {showLabel && (
-            <span className="text-sm font-medium whitespace-nowrap">{t("fabLabel")}</span>
-          )}
-        </button>
-      )}
+      {!isOpen && (() => {
+        const isIdle = isMobile && fabIdle && !showLabel;
+        return (
+          <button
+            onClick={() => { if (isIdle) { setFabIdle(false); } else { handleOpen(); } }}
+            className={`fixed right-4 z-50 bg-tea-green text-white rounded-full flex items-center transition-all duration-500 ease-in-out bottom-20 md:bottom-6 ${
+              showLabel
+                ? "px-4 py-2.5 md:px-5 md:py-3 gap-2 shadow-lg hover:bg-tea-green-dark hover:scale-105"
+                : isIdle
+                  ? "w-7 h-7 shadow-sm opacity-40 justify-center"
+                  : "w-11 h-11 md:w-14 md:h-14 shadow-lg hover:bg-tea-green-dark hover:scale-105 justify-center"
+            } ${
+              mobileFabVisible ? "translate-y-0" : "translate-y-24 pointer-events-none"
+            } md:!translate-y-0 md:!opacity-100 md:!pointer-events-auto md:!shadow-lg`}
+            aria-label={t("title")}
+          >
+            {!isIdle && (
+              <>
+                <svg width="22" height="22" viewBox="0 0 32 32" fill="none" className="flex-shrink-0 md:w-6 md:h-6">
+                  <path d="M22 10a2 2 0 01-2 2H8l-4 4V4a2 2 0 012-2h14a2 2 0 012 2z" fill="white" opacity="0.9"/>
+                  <path d="M17 8C17 8 13 12 13 17C13 19.76 15.24 22 18 22C20.76 22 23 19.76 23 17C23 12 19 8 19 8" fill="white" opacity="0.7" stroke="white" strokeWidth="0.5"/>
+                  <path d="M18 12C18 12 15.5 15 15.5 18C15.5 19.38 16.62 20.5 18 20.5C19.38 20.5 20.5 19.38 20.5 18C20.5 15 18 12 18 12Z" fill="rgba(125,155,132,0.4)"/>
+                </svg>
+                {showLabel && (
+                  <span className="text-sm font-medium whitespace-nowrap">{t("fabLabel")}</span>
+                )}
+              </>
+            )}
+          </button>
+        );
+      })()}
 
       {/* 對話視窗 */}
       {isOpen && (
