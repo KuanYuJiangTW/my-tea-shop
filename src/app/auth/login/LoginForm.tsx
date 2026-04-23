@@ -1,10 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
+
+function isLineInAppBrowser() {
+  if (typeof navigator === "undefined") return false;
+  return /Line\//i.test(navigator.userAgent) || /LIFF/i.test(navigator.userAgent);
+}
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -49,12 +54,28 @@ export default function LoginForm() {
   const [facebookLoading, setFacebookLoading] = useState(false);
   const [magicSent, setMagicSent]       = useState(false);
   const [showAndroidWarning, setShowAndroidWarning] = useState(false);
+  const [showLineFallback, setShowLineFallback] = useState(false);
   const router      = useRouter();
   const locale      = useLocale();
   const t           = useTranslations("auth.login");
   const lp = (path: string) => locale === "en" ? `/en${path}` : path;
   const searchParams = useSearchParams();
   const redirectTo  = searchParams.get("redirect") ?? lp("/account");
+
+  useEffect(() => {
+    if (!isLineInAppBrowser()) return;
+    // 嘗試跳轉外部瀏覽器
+    const url = window.location.href;
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    if (isAndroid) {
+      window.location.href = `intent://${url.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+    } else {
+      window.location.href = url;
+    }
+    // 1.5 秒後若仍在此頁（跳轉失敗），顯示 fallback 提示
+    const timer = setTimeout(() => setShowLineFallback(true), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   function callbackUrl() {
     const defaultRedirect = lp("/account");
@@ -184,11 +205,44 @@ export default function LoginForm() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-8">
+          {/* LINE 內建瀏覽器 fallback 提示（跳轉失敗才顯示） */}
+          {showLineFallback && (
+            <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800">
+              <p className="mb-2">{t("inAppBrowser.banner")}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = window.location.href;
+                  const isAndroid = /Android/i.test(navigator.userAgent);
+                  if (isAndroid) {
+                    window.location.href = `intent://${url.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+                  } else {
+                    window.location.href = url;
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 hover:bg-amber-200 rounded-lg text-xs font-medium transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+                {t("inAppBrowser.openExternal")}
+              </button>
+            </div>
+          )}
+
           {/* 第三方一鍵登入 */}
           <div className="space-y-2.5">
             <button
               type="button"
-              onClick={handleGoogleLogin}
+              onClick={() => {
+                if (showLineFallback) {
+                  setGeneralError(t("inAppBrowser.googleDisabled"));
+                  return;
+                }
+                handleGoogleLogin();
+              }}
               disabled={googleLoading || lineLoading || facebookLoading}
               className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors disabled:opacity-60"
             >

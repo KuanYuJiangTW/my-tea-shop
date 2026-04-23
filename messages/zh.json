@@ -512,6 +512,11 @@
         "notRegistered": "此 Email 尚未註冊，請先建立帳號。",
         "sendFailed": "傳送失敗，請稍後再試。"
       },
+      "inAppBrowser": {
+        "banner": "您正在 LINE 內開啟，Google 登入將無法使用。",
+        "openExternal": "用瀏覽器開啟",
+        "googleDisabled": "請用外部瀏覽器開啟本網頁以使用 Google 登入"
+      },
       "mobileLineWarning": {
         "title": "行動裝置提醒",
         "desc1": "使用 LINE 登入時，手機或平板裝置可能會跳轉到其他瀏覽器，導致登入失敗。",
@@ -523,6 +528,11 @@
     "register": {
       "title": "建立帳號",
       "subtitle": "加入霧抉茶，享受會員專屬服務",
+      "inAppBrowser": {
+        "banner": "您正在 LINE 內開啟，Google 註冊將無法使用。",
+        "openExternal": "用瀏覽器開啟",
+        "googleDisabled": "請用外部瀏覽器開啟本網頁以使用 Google 註冊"
+      },
       "email": "電子郵件",
       "password": "密碼",
       "confirmPassword": "確認密碼",

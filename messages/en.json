@@ -512,6 +512,11 @@
         "notRegistered": "This email is not registered. Please create an account first.",
         "sendFailed": "Failed to send. Please try again later."
       },
+      "inAppBrowser": {
+        "banner": "You're browsing inside LINE. Google login is not available here.",
+        "openExternal": "Open in Browser",
+        "googleDisabled": "Please open this page in an external browser to use Google login"
+      },
       "mobileLineWarning": {
         "title": "Mobile Device Notice",
         "desc1": "Using LINE login on a mobile or tablet may redirect to another browser, causing the login to fail.",
@@ -523,6 +528,11 @@
     "register": {
       "title": "Create Account",
       "subtitle": "Join Wu Jue Tea and enjoy member-exclusive services",
+      "inAppBrowser": {
+        "banner": "You're browsing inside LINE. Google sign-up is not available here.",
+        "openExternal": "Open in Browser",
+        "googleDisabled": "Please open this page in an external browser to use Google sign-up"
+      },
       "email": "Email",
       "password": "Password",
       "confirmPassword": "Confirm Password",

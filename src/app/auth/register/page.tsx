@@ -1,10 +1,15 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
+
+function isLineInAppBrowser() {
+  if (typeof navigator === "undefined") return false;
+  return /Line\//i.test(navigator.userAgent) || /LIFF/i.test(navigator.userAgent);
+}
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -42,6 +47,20 @@ function RegisterForm() {
   const [loading, setLoading]   = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [success, setSuccess]   = useState(false);
+  const [showLineFallback, setShowLineFallback] = useState(false);
+
+  useEffect(() => {
+    if (!isLineInAppBrowser()) return;
+    const url = window.location.href;
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    if (isAndroid) {
+      window.location.href = `intent://${url.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+    } else {
+      window.location.href = url;
+    }
+    const timer = setTimeout(() => setShowLineFallback(true), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   function validate(): boolean {
     const e: FieldErrors = {};
@@ -153,10 +172,43 @@ function RegisterForm() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-8">
+          {/* LINE 內建瀏覽器 fallback 提示（跳轉失敗才顯示） */}
+          {showLineFallback && (
+            <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800">
+              <p className="mb-2">{t("inAppBrowser.banner")}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = window.location.href;
+                  const isAndroid = /Android/i.test(navigator.userAgent);
+                  if (isAndroid) {
+                    window.location.href = `intent://${url.replace(/^https?:\/\//, "")}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+                  } else {
+                    window.location.href = url;
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 hover:bg-amber-200 rounded-lg text-xs font-medium transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+                {t("inAppBrowser.openExternal")}
+              </button>
+            </div>
+          )}
+
           {/* Google 一鍵註冊/登入 */}
           <button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={() => {
+              if (showLineFallback) {
+                setGeneralError(t("inAppBrowser.googleDisabled"));
+                return;
+              }
+              handleGoogleLogin();
+            }}
             disabled={googleLoading}
             className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors disabled:opacity-60"
           >
