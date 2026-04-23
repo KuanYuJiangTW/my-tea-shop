@@ -293,8 +293,8 @@ export default function ChatWidget() {
         <button
           onClick={() => setIsOpen(true)}
           className={`fixed right-4 z-50 bg-tea-green hover:bg-tea-green-dark text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 w-11 h-11 bottom-20 md:w-14 md:h-14 md:bottom-6 ${
-            isMobile && !mobileFabVisible ? "translate-y-24 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
-          }`}
+            mobileFabVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"
+          } md:!translate-y-0 md:!opacity-100 md:!pointer-events-auto`}
           aria-label="Open chat"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
