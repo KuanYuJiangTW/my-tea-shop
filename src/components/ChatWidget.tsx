@@ -243,12 +243,7 @@ export default function ChatWidget() {
       }
 
       if (!res.ok || !res.body) {
-        let debugInfo = `HTTP ${res.status}`;
-        try {
-          const text = await res.text();
-          debugInfo += ` | ${text.slice(0, 500)}`;
-        } catch { /* ignore */ }
-        aiMsg.content = `${t("errorGeneral")}\n\n[${debugInfo}]`;
+        aiMsg.content = t("errorGeneral");
         setMessages([...newMessages, aiMsg]);
         setIsStreaming(false);
         return;
@@ -269,7 +264,7 @@ export default function ChatWidget() {
       setMessages([...newMessages, aiMsg]);
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
-        aiMsg.content = `${t("errorGeneral")}\n\n[CATCH: ${(err as Error).message}]`;
+        aiMsg.content = t("errorGeneral");
         setMessages([...newMessages, aiMsg]);
       }
     } finally {
