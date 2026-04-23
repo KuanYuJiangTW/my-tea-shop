@@ -4,15 +4,15 @@ import { buildKnowledgeBase } from "@/lib/chat-knowledge";
 
 export const maxDuration = 30;
 
-// 診斷端點：GET /api/chat 逐步測試各環節
+// 診斷端點：GET /api/chat（不呼叫 Gemini，避免浪費額度）
 export async function GET() {
-  const checks: Record<string, unknown> = { ok: true };
+  const checks: Record<string, unknown> = {
+    ok: true,
+    hasGeminiKey: !!process.env.GEMINI_API_KEY,
+    lineUrl: process.env.NEXT_PUBLIC_LINE_OFFICIAL_URL || "(empty)",
+    model: "gemini-1.5-flash",
+  };
 
-  // 1. API Key & LINE URL
-  checks.hasGeminiKey = !!process.env.GEMINI_API_KEY;
-  checks.lineUrl = process.env.NEXT_PUBLIC_LINE_OFFICIAL_URL || "(empty)";
-
-  // 2. Supabase 知識庫
   try {
     const knowledge = await buildKnowledgeBase("zh");
     checks.knowledgeLength = knowledge.length;
@@ -20,25 +20,6 @@ export async function GET() {
   } catch (err) {
     checks.knowledgeOk = false;
     checks.knowledgeError = String(err);
-  }
-
-  // 3. Gemini API 連線
-  try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (apiKey) {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-      const result = await model.generateContent("Say hi in 5 words");
-      const text = result.response.text();
-      checks.geminiOk = true;
-      checks.geminiResponse = text.slice(0, 100);
-    } else {
-      checks.geminiOk = false;
-      checks.geminiError = "No API key";
-    }
-  } catch (err) {
-    checks.geminiOk = false;
-    checks.geminiError = String(err);
   }
 
   return NextResponse.json(checks);
@@ -159,7 +140,7 @@ export async function POST(req: NextRequest) {
     // 建立 Gemini client
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash-lite",
+      model: "gemini-1.5-flash",
       systemInstruction: systemPrompt,
     });
 
@@ -212,6 +193,6 @@ export async function POST(req: NextRequest) {
       ? "Sorry, the service is temporarily unavailable. Please try again later or contact us via LINE."
       : "抱歉，服務暫時無法使用，請稍後再試或透過 LINE 聯繫我們。";
 
-    return NextResponse.json({ error: errorMsg, debug: String(err) }, { status: 503 });
+    return NextResponse.json({ error: errorMsg }, { status: 503 });
   }
 }
