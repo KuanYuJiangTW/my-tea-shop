@@ -223,6 +223,19 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            {/* AI 茶葉顧問 */}
+            <button
+              className="flex items-center gap-2 w-full py-2.5 px-2 text-tea-text-light hover:text-tea-green hover:bg-tea-green-mist rounded-lg transition-colors"
+              onClick={() => {
+                setIsMenuOpen(false);
+                window.dispatchEvent(new Event("open-chat-widget"));
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+              </svg>
+              {t("nav.chatAssistant")}
+            </button>
             <div className="border-t border-tea-green-pale pt-2 mt-2">
               {user ? (
                 <>

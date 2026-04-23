@@ -25,6 +25,34 @@ function useKeyboardHeight() {
   return keyboardHeight;
 }
 
+// ── 手機滾動方向偵測 ─────────────────────────────────────────────────────────
+
+function useScrollDirection() {
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        if (y > lastY && y > 80) setHidden(true);   // 往下滾 → 隱藏
+        else if (y < lastY) setHidden(false);         // 往上滾 → 顯示
+        lastY = y;
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return hidden;
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ChatMessage {
@@ -110,6 +138,8 @@ export default function ChatWidget() {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const keyboardHeight = useKeyboardHeight();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const scrollHidden = useScrollDirection();
 
   // 隱藏在 admin 頁面
   if (pathname.startsWith("/admin")) return null;
@@ -147,6 +177,14 @@ export default function ChatWidget() {
       return () => { document.body.style.overflow = ""; };
     }
   }, [isOpen, isMobile]);
+
+  // 監聽從漢堡選單開啟聊天的事件
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    const handler = () => setIsOpen(true);
+    window.addEventListener("open-chat-widget", handler);
+    return () => window.removeEventListener("open-chat-widget", handler);
+  }, []);
 
   // ── 送出訊息 ──────────────────────────────────────────────────────────────
 
@@ -244,10 +282,12 @@ export default function ChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed right-4 z-50 w-14 h-14 bg-tea-green hover:bg-tea-green-dark text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 bottom-20 md:bottom-6"
+          className={`fixed right-4 z-50 bg-tea-green hover:bg-tea-green-dark text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 w-11 h-11 bottom-20 md:w-14 md:h-14 md:bottom-6 ${
+            isMobile && scrollHidden ? "translate-y-24 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+          }`}
           aria-label="Open chat"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
           </svg>
         </button>
