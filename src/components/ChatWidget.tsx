@@ -243,7 +243,12 @@ export default function ChatWidget() {
       }
 
       if (!res.ok || !res.body) {
-        aiMsg.content = t("errorGeneral");
+        try {
+          const errBody = await res.json();
+          aiMsg.content = `${t("errorGeneral")}\n\n[DEBUG] ${errBody.debug || res.status}`;
+        } catch {
+          aiMsg.content = `${t("errorGeneral")}\n\n[DEBUG] HTTP ${res.status}`;
+        }
         setMessages([...newMessages, aiMsg]);
         setIsStreaming(false);
         return;
