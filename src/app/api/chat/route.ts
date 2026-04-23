@@ -4,25 +4,22 @@ import { buildKnowledgeBase } from "@/lib/chat-knowledge";
 
 export const maxDuration = 30;
 
-// 診斷端點：GET /api/chat（不呼叫 Gemini，避免浪費額度）
+// 診斷端點：GET /api/chat — 列出可用模型
 export async function GET() {
-  const checks: Record<string, unknown> = {
-    ok: true,
-    hasGeminiKey: !!process.env.GEMINI_API_KEY,
-    lineUrl: process.env.NEXT_PUBLIC_LINE_OFFICIAL_URL || "(empty)",
-    model: "gemini-1.5-flash",
-  };
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return NextResponse.json({ error: "No API key" }, { status: 500 });
 
   try {
-    const knowledge = await buildKnowledgeBase("zh");
-    checks.knowledgeLength = knowledge.length;
-    checks.knowledgeOk = knowledge.length > 0;
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const data = await res.json();
+    const models = (data.models || [])
+      .filter((m: { supportedGenerationMethods?: string[] }) => m.supportedGenerationMethods?.includes("generateContent"))
+      .map((m: { name: string }) => m.name)
+      .filter((n: string) => n.includes("flash"));
+    return NextResponse.json({ availableFlashModels: models });
   } catch (err) {
-    checks.knowledgeOk = false;
-    checks.knowledgeError = String(err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
-
-  return NextResponse.json(checks);
 }
 
 // ── 速率限制（記憶體內，每分鐘 10 則/IP）──────────────────────────────────────
