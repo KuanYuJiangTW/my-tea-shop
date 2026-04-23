@@ -4,14 +4,43 @@ import { buildKnowledgeBase } from "@/lib/chat-knowledge";
 
 export const maxDuration = 30;
 
-// 測試端點：GET /api/chat 檢查模組是否正常載入
+// 診斷端點：GET /api/chat 逐步測試各環節
 export async function GET() {
+  const checks: Record<string, unknown> = { ok: true };
+
+  // 1. API Key
+  checks.hasGeminiKey = !!process.env.GEMINI_API_KEY;
+
+  // 2. Supabase 知識庫
   try {
-    const hasKey = !!process.env.GEMINI_API_KEY;
-    return NextResponse.json({ ok: true, hasGeminiKey: hasKey });
+    const knowledge = await buildKnowledgeBase("zh");
+    checks.knowledgeLength = knowledge.length;
+    checks.knowledgeOk = knowledge.length > 0;
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
+    checks.knowledgeOk = false;
+    checks.knowledgeError = String(err);
   }
+
+  // 3. Gemini API 連線
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const result = await model.generateContent("Say hi in 5 words");
+      const text = result.response.text();
+      checks.geminiOk = true;
+      checks.geminiResponse = text.slice(0, 100);
+    } else {
+      checks.geminiOk = false;
+      checks.geminiError = "No API key";
+    }
+  } catch (err) {
+    checks.geminiOk = false;
+    checks.geminiError = String(err);
+  }
+
+  return NextResponse.json(checks);
 }
 
 // ── 速率限制（記憶體內，每分鐘 10 則/IP）──────────────────────────────────────
