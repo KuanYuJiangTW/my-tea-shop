@@ -25,35 +25,18 @@ function useKeyboardHeight() {
   return keyboardHeight;
 }
 
-// ── 手機滾動方向偵測 ─────────────────────────────────────────────────────────
+// ── 手機 FAB 顯示控制（滾過 hero 後常駐顯示）────────────────────────────────
 
 function useMobileFabVisibility() {
-  // 手機版：預設隱藏，滾過一個螢幕高度後才出現，之後往下滾隱藏、往上滾顯示
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    let lastY = window.scrollY;
-    let ticking = false;
-    const threshold = window.innerHeight * 0.85; // 約一個螢幕高度（hero 區域）
+    const threshold = window.innerHeight * 0.85;
 
     const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const y = window.scrollY;
-        if (y < threshold) {
-          setVisible(false);              // 還在 hero 區域 → 隱藏
-        } else if (y < lastY) {
-          setVisible(true);               // 已過 hero，往上滾 → 顯示
-        } else if (y > lastY) {
-          setVisible(false);              // 已過 hero，往下滾 → 隱藏
-        }
-        lastY = y;
-        ticking = false;
-      });
+      setVisible(window.scrollY >= threshold);
     };
 
-    // 初始檢查（頁面可能已滾動過 hero）
     if (window.scrollY >= threshold) setVisible(true);
 
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -63,11 +46,28 @@ function useMobileFabVisibility() {
   return visible;
 }
 
+// ── 響應式裝置偵測 ───────────────────────────────────────────────────────────
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  return isMobile;
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ChatMessage {
   role: "user" | "model";
   content: string;
+  timestamp?: number;
 }
 
 const STORAGE_KEY = "wujuetea_chat";
@@ -94,6 +94,12 @@ function saveMessages(messages: ChatMessage[]) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
   } catch { /* quota exceeded — ignore */ }
+}
+
+function formatTime(ts?: number): string {
+  if (!ts) return "";
+  const d = new Date(ts);
+  return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
 }
 
 // ── LINE contact button renderer ──────────────────────────────────────────────
@@ -135,6 +141,7 @@ export default function ChatWidget() {
   const t = useTranslations("chat");
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -145,15 +152,63 @@ export default function ChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const touchStartY = useRef(0);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const keyboardHeight = useKeyboardHeight();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const mobileFabVisible = useMobileFabVisibility();
+  const isMobile = useIsMobile();
 
   // 隱藏在 admin 頁面
   if (pathname.startsWith("/admin")) return null;
+
+  // ── 開啟 / 關閉動畫 ────────────────────────────────────────────────────────
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const handleOpen = useCallback(() => {
+    setIsOpen(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setIsVisible(true));
+    });
+  }, []);
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const handleClose = useCallback(() => {
+    setIsVisible(false);
+    setTimeout(() => setIsOpen(false), 200);
+  }, []);
+
+  // ── 清除對話 ───────────────────────────────────────────────────────────────
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const handleClearChat = useCallback(() => {
+    if (window.confirm(t("clearConfirm"))) {
+      setMessages([]);
+      sessionStorage.removeItem(STORAGE_KEY);
+    }
+  }, [t]);
+
+  // ── 下滑關閉（手機）────────────────────────────────────────────────────────
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const diff = e.changedTouches[0].clientY - touchStartY.current;
+    if (diff > 80) handleClose();
+  }, [handleClose]);
+
+  // ── textarea 自動增高 ──────────────────────────────────────────────────────
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    const el = e.target;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 80) + "px";
+  }, []);
 
   // 初始化：從 sessionStorage 載入
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -197,13 +252,13 @@ export default function ChatWidget() {
     return () => clearTimeout(timer);
   }, [showLabel]);
 
-  // 監聯從漢堡選單開啟聊天的事件
+  // 監聽從漢堡選單開啟聊天的事件
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    const handler = () => setIsOpen(true);
+    const handler = () => handleOpen();
     window.addEventListener("open-chat-widget", handler);
     return () => window.removeEventListener("open-chat-widget", handler);
-  }, []);
+  }, [handleOpen]);
 
   // ── 送出訊息 ──────────────────────────────────────────────────────────────
 
@@ -215,13 +270,14 @@ export default function ChatWidget() {
     if (now - lastSentAt < THROTTLE_MS) return;
     setLastSentAt(now);
 
-    const userMsg: ChatMessage = { role: "user", content: text.trim() };
+    const userMsg: ChatMessage = { role: "user", content: text.trim(), timestamp: now };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
     setIsStreaming(true);
 
-    const aiMsg: ChatMessage = { role: "model", content: "" };
+    const aiMsg: ChatMessage = { role: "model", content: "", timestamp: Date.now() };
 
     try {
       abortRef.current = new AbortController();
@@ -300,7 +356,7 @@ export default function ChatWidget() {
       {/* 浮動按鈕 */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={handleOpen}
           className={`fixed right-4 z-50 bg-tea-green hover:bg-tea-green-dark text-white shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 bottom-20 md:bottom-6 ${
             showLabel ? "rounded-full px-4 py-2.5 md:px-5 md:py-3" : "rounded-full w-11 h-11 md:w-14 md:h-14 justify-center"
           } ${
@@ -323,44 +379,95 @@ export default function ChatWidget() {
       {/* 對話視窗 */}
       {isOpen && (
         <div
-          className="fixed z-50 right-0 bottom-0 md:right-4 md:bottom-4 w-full md:w-[380px] h-[100dvh] md:h-[520px] bg-white md:rounded-2xl shadow-2xl border border-tea-green-pale flex flex-col overflow-hidden"
+          className={`fixed z-50 right-0 bottom-0 md:right-4 md:bottom-4 w-full md:w-[420px] h-[100dvh] md:h-[580px] bg-white md:rounded-2xl shadow-2xl border border-tea-green-pale flex flex-col overflow-hidden md:origin-bottom-right transition-all duration-200 ease-out ${
+            isVisible
+              ? "opacity-100 translate-y-0 md:scale-100"
+              : "opacity-0 translate-y-full md:translate-y-4 md:scale-95"
+          }`}
           style={isMobile && keyboardHeight > 0 ? { height: `calc(100dvh - ${keyboardHeight}px)` } : undefined}
         >
+          {/* Drag handle — 手機版下滑關閉 */}
+          <div
+            className="md:hidden flex justify-center pt-2 pb-0 bg-tea-green cursor-grab active:cursor-grabbing"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <div className="w-10 h-1 rounded-full bg-white/40" />
+          </div>
+
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-tea-green text-white rounded-t-none md:rounded-t-2xl flex-shrink-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <svg width="20" height="20" viewBox="0 0 34 34" fill="none">
                 <path d="M17 4C17 4 8 11 8 20C8 24.97 12.03 29 17 29C21.97 29 26 24.97 26 20C26 11 17 4 17 4Z" fill="white" opacity="0.85"/>
                 <path d="M17 9C17 9 12 15 12 20C12 22.76 14.24 25 17 25C19.76 25 22 22.76 22 20C22 15 17 9 17 9Z" fill="white" opacity="0.5"/>
               </svg>
-              <span className="font-medium text-sm">{t("title")}</span>
+              <div className="flex flex-col">
+                <span className="font-medium text-sm leading-tight">{t("title")}</span>
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-300" />
+                  <span className="text-[10px] text-white/70 leading-tight">{t("statusOnline")}</span>
+                </div>
+              </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
-              aria-label="Close chat"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-0.5">
+              {/* 清除對話按鈕 */}
+              {messages.length > 0 && (
+                <button
+                  onClick={handleClearChat}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+                  aria-label={t("clearChat")}
+                  title={t("clearChat")}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                  </svg>
+                </button>
+              )}
+              {/* 關閉按鈕 */}
+              <button
+                onClick={handleClose}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+                aria-label="Close chat"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-tea-cream-light/30">
-            {/* 歡迎訊息 */}
+            {/* 歡迎訊息 + 引導卡片 */}
             {isFirstOpen && (
-              <div className="flex gap-2">
-                <div className="w-7 h-7 rounded-full bg-tea-green-mist flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 34 34" fill="none">
-                    <path d="M17 4C17 4 8 11 8 20C8 24.97 12.03 29 17 29C21.97 29 26 24.97 26 20C26 11 17 4 17 4Z" fill="#7D9B84" opacity="0.85"/>
-                  </svg>
+              <>
+                <div className="flex gap-2">
+                  <div className="w-7 h-7 rounded-full bg-tea-green-mist flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg width="14" height="14" viewBox="0 0 34 34" fill="none">
+                      <path d="M17 4C17 4 8 11 8 20C8 24.97 12.03 29 17 29C21.97 29 26 24.97 26 20C26 11 17 4 17 4Z" fill="#7D9B84" opacity="0.85"/>
+                    </svg>
+                  </div>
+                  <div className="max-w-[80%] px-3 py-2 rounded-2xl rounded-tl-md bg-white border border-tea-green-pale text-sm text-tea-text leading-relaxed">
+                    <span className="whitespace-pre-wrap">{t("welcome")}</span>
+                  </div>
                 </div>
-                <div className="max-w-[80%] px-3 py-2 rounded-2xl rounded-tl-md bg-white border border-tea-green-pale text-sm text-tea-text leading-relaxed">
-                  <span className="whitespace-pre-wrap">{t("welcome")}</span>
+                {/* 引導卡片式快捷問題 */}
+                <div className="flex flex-col gap-2 mt-2 px-1">
+                  {quickQuestions.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => sendMessage(q)}
+                      className="w-full text-left px-4 py-3 text-sm bg-white hover:bg-tea-green-mist text-tea-text rounded-xl border border-tea-green-pale transition-colors"
+                    >
+                      {q}
+                    </button>
+                  ))}
                 </div>
-              </div>
+              </>
             )}
 
             {/* 對話紀錄 */}
@@ -373,17 +480,24 @@ export default function ChatWidget() {
                     </svg>
                   </div>
                 )}
-                <div
-                  className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-tea-green text-white rounded-tr-md"
-                      : "bg-white border border-tea-green-pale text-tea-text rounded-tl-md"
-                  }`}
-                >
-                  {msg.role === "model"
-                    ? renderMessageContent(msg.content, t("contactLine"))
-                    : <span className="whitespace-pre-wrap">{msg.content}</span>
-                  }
+                <div className={`max-w-[80%] flex flex-col gap-0.5 ${msg.role === "user" ? "items-end" : "items-start"}`}>
+                  <div
+                    className={`px-3 py-2 md:px-3 md:py-2 rounded-2xl text-sm leading-relaxed ${
+                      msg.role === "user"
+                        ? "bg-tea-green text-white rounded-tr-md"
+                        : "bg-white border border-tea-green-pale text-tea-text rounded-tl-md"
+                    }`}
+                  >
+                    {msg.role === "model"
+                      ? renderMessageContent(msg.content, t("contactLine"))
+                      : <span className="whitespace-pre-wrap">{msg.content}</span>
+                    }
+                  </div>
+                  {msg.timestamp && (
+                    <span className="text-[10px] text-tea-text-light/40 px-1">
+                      {formatTime(msg.timestamp)}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
@@ -409,18 +523,22 @@ export default function ChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* 快捷問題（常駐） */}
-          {!isStreaming && (
-            <div className="px-3 py-1.5 flex gap-1.5 overflow-x-auto border-t border-tea-green-pale bg-white flex-shrink-0 no-scrollbar">
-              {quickQuestions.map((q, i) => (
-                <button
-                  key={i}
-                  onClick={() => sendMessage(q)}
-                  className="px-3 py-1.5 text-xs bg-tea-cream-light hover:bg-tea-green-mist text-tea-text rounded-full border border-tea-green-pale transition-colors whitespace-nowrap flex-shrink-0"
-                >
-                  {q}
-                </button>
-              ))}
+          {/* 快捷問題（對話進行中常駐） */}
+          {!isStreaming && !isFirstOpen && (
+            <div className="relative flex-shrink-0">
+              <div className="px-3 py-1.5 flex gap-1.5 overflow-x-auto border-t border-tea-green-pale bg-white no-scrollbar">
+                {quickQuestions.map((q, i) => (
+                  <button
+                    key={i}
+                    onClick={() => sendMessage(q)}
+                    className="px-3 py-1.5 text-xs bg-tea-cream-light hover:bg-tea-green-mist text-tea-text rounded-full border border-tea-green-pale transition-colors whitespace-nowrap flex-shrink-0"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+              {/* 右側漸層提示：暗示可橫向捲動 */}
+              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
             </div>
           )}
 
@@ -430,7 +548,7 @@ export default function ChatWidget() {
               <textarea
                 ref={inputRef}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder={t("placeholder")}
                 rows={1}
@@ -440,7 +558,7 @@ export default function ChatWidget() {
               <button
                 onClick={() => sendMessage(input)}
                 disabled={isStreaming || !input.trim()}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-40 text-white transition-colors flex-shrink-0"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-40 text-white transition-all active:scale-90 flex-shrink-0"
                 aria-label={t("send")}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

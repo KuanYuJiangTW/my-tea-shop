@@ -1112,6 +1112,9 @@
     "errorRateLimit": "訊息太頻繁了，請稍後再試。",
     "contactLine": "聯繫真人客服",
     "fabLabel": "茶葉顧問",
+    "statusOnline": "線上",
+    "clearChat": "清除對話",
+    "clearConfirm": "確定要清除對話紀錄嗎？",
     "quickQuestions": {
       "home": {
         "q1": "推薦送禮茶葉",
