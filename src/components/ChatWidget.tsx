@@ -392,7 +392,7 @@ export default function ChatWidget() {
                   ? "w-7 h-7 shadow-sm opacity-40 justify-center"
                   : "w-11 h-11 md:w-14 md:h-14 shadow-lg hover:bg-tea-green-dark hover:scale-105 justify-center"
             } ${
-              mobileFabVisible ? "translate-y-0" : "translate-y-24 pointer-events-none"
+              mobileFabVisible ? "translate-y-0" : "translate-y-24 opacity-0 pointer-events-none"
             } md:!translate-y-0 md:!opacity-100 md:!pointer-events-auto md:!shadow-lg`}
             aria-label={t("title")}
           >
