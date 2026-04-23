@@ -27,30 +27,40 @@ function useKeyboardHeight() {
 
 // ── 手機滾動方向偵測 ─────────────────────────────────────────────────────────
 
-function useScrollDirection() {
-  const [hidden, setHidden] = useState(false);
+function useMobileFabVisibility() {
+  // 手機版：預設隱藏，滾過一個螢幕高度後才出現，之後往下滾隱藏、往上滾顯示
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     let lastY = window.scrollY;
     let ticking = false;
+    const threshold = window.innerHeight * 0.85; // 約一個螢幕高度（hero 區域）
 
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
         const y = window.scrollY;
-        if (y > lastY && y > 80) setHidden(true);   // 往下滾 → 隱藏
-        else if (y < lastY) setHidden(false);         // 往上滾 → 顯示
+        if (y < threshold) {
+          setVisible(false);              // 還在 hero 區域 → 隱藏
+        } else if (y < lastY) {
+          setVisible(true);               // 已過 hero，往上滾 → 顯示
+        } else if (y > lastY) {
+          setVisible(false);              // 已過 hero，往下滾 → 隱藏
+        }
         lastY = y;
         ticking = false;
       });
     };
 
+    // 初始檢查（頁面可能已滾動過 hero）
+    if (window.scrollY >= threshold) setVisible(true);
+
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  return hidden;
+  return visible;
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -139,7 +149,7 @@ export default function ChatWidget() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const keyboardHeight = useKeyboardHeight();
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const scrollHidden = useScrollDirection();
+  const mobileFabVisible = useMobileFabVisibility();
 
   // 隱藏在 admin 頁面
   if (pathname.startsWith("/admin")) return null;
@@ -283,7 +293,7 @@ export default function ChatWidget() {
         <button
           onClick={() => setIsOpen(true)}
           className={`fixed right-4 z-50 bg-tea-green hover:bg-tea-green-dark text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 w-11 h-11 bottom-20 md:w-14 md:h-14 md:bottom-6 ${
-            isMobile && scrollHidden ? "translate-y-24 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+            isMobile && !mobileFabVisible ? "translate-y-24 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
           }`}
           aria-label="Open chat"
         >
