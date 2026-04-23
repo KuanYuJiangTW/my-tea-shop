@@ -193,6 +193,6 @@ export async function POST(req: NextRequest) {
       ? "Sorry, the service is temporarily unavailable. Please try again later or contact us via LINE."
       : "抱歉，服務暫時無法使用，請稍後再試或透過 LINE 聯繫我們。";
 
-    return NextResponse.json({ error: errorMsg }, { status: 503 });
+    return NextResponse.json({ error: `${errorMsg}\n\n[DEBUG] ${String(err)}` }, { status: 503 });
   }
 }
