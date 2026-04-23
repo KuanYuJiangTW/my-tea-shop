@@ -4,22 +4,9 @@ import { buildKnowledgeBase } from "@/lib/chat-knowledge";
 
 export const maxDuration = 30;
 
-// 診斷端點：GET /api/chat — 列出可用模型
+// 健康檢查端點
 export async function GET() {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return NextResponse.json({ error: "No API key" }, { status: 500 });
-
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    const data = await res.json();
-    const models = (data.models || [])
-      .filter((m: { supportedGenerationMethods?: string[] }) => m.supportedGenerationMethods?.includes("generateContent"))
-      .map((m: { name: string }) => m.name)
-      .filter((n: string) => n.includes("flash"));
-    return NextResponse.json({ availableFlashModels: models });
-  } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
-  }
+  return NextResponse.json({ ok: true });
 }
 
 // ── 速率限制（記憶體內，每分鐘 10 則/IP）──────────────────────────────────────
@@ -137,7 +124,7 @@ export async function POST(req: NextRequest) {
     // 建立 Gemini client
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       systemInstruction: systemPrompt,
     });
 
@@ -190,6 +177,6 @@ export async function POST(req: NextRequest) {
       ? "Sorry, the service is temporarily unavailable. Please try again later or contact us via LINE."
       : "抱歉，服務暫時無法使用，請稍後再試或透過 LINE 聯繫我們。";
 
-    return NextResponse.json({ error: `${errorMsg}\n\n[DEBUG] ${String(err)}` }, { status: 503 });
+    return NextResponse.json({ error: errorMsg }, { status: 503 });
   }
 }
