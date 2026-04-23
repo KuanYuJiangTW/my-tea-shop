@@ -4,6 +4,27 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 
+// ── 手機鍵盤高度偵測 ─────────────────────────────────────────────────────────
+
+function useKeyboardHeight() {
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const onResize = () => {
+      const diff = window.innerHeight - vv.height;
+      setKeyboardHeight(diff > 50 ? diff : 0);
+    };
+
+    vv.addEventListener("resize", onResize);
+    return () => vv.removeEventListener("resize", onResize);
+  }, []);
+
+  return keyboardHeight;
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ChatMessage {
@@ -85,6 +106,10 @@ export default function ChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const keyboardHeight = useKeyboardHeight();
 
   // 隱藏在 admin 頁面
   if (pathname.startsWith("/admin")) return null;
@@ -108,11 +133,20 @@ export default function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isStreaming]);
 
-  // 開啟時 focus 輸入框
+  // 開啟時 focus 輸入框（手機不自動 focus 避免鍵盤彈出）
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    if (isOpen) inputRef.current?.focus();
-  }, [isOpen]);
+    if (isOpen && !isMobile) inputRef.current?.focus();
+  }, [isOpen, isMobile]);
+
+  // 手機開啟時鎖定背景滾動
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (isOpen && isMobile) {
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = ""; };
+    }
+  }, [isOpen, isMobile]);
 
   // ── 送出訊息 ──────────────────────────────────────────────────────────────
 
@@ -221,7 +255,10 @@ export default function ChatWidget() {
 
       {/* 對話視窗 */}
       {isOpen && (
-        <div className="fixed z-50 right-0 bottom-0 md:right-4 md:bottom-4 w-full md:w-[380px] h-[60dvh] md:h-[520px] bg-white md:rounded-2xl shadow-2xl border border-tea-green-pale flex flex-col overflow-hidden">
+        <div
+          className="fixed z-50 right-0 bottom-0 md:right-4 md:bottom-4 w-full md:w-[380px] h-[100dvh] md:h-[520px] bg-white md:rounded-2xl shadow-2xl border border-tea-green-pale flex flex-col overflow-hidden"
+          style={isMobile && keyboardHeight > 0 ? { height: `calc(100dvh - ${keyboardHeight}px)` } : undefined}
+        >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-tea-green text-white rounded-t-none md:rounded-t-2xl flex-shrink-0">
             <div className="flex items-center gap-2">
@@ -321,7 +358,7 @@ export default function ChatWidget() {
           )}
 
           {/* 輸入區 */}
-          <div className="px-3 py-2 border-t border-tea-green-pale bg-white flex-shrink-0">
+          <div className="px-3 py-2 border-t border-tea-green-pale bg-white flex-shrink-0" style={{ paddingBottom: isMobile && keyboardHeight === 0 ? "calc(0.5rem + env(safe-area-inset-bottom))" : undefined }}>
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
@@ -331,14 +368,15 @@ export default function ChatWidget() {
                 placeholder={t("placeholder")}
                 rows={1}
                 className="flex-1 resize-none text-sm px-3 py-2 rounded-xl border border-tea-green-pale bg-tea-cream-light/50 focus:outline-none focus:ring-1 focus:ring-tea-green placeholder-tea-text-light/50 max-h-20"
+                style={{ fontSize: "16px" }}
               />
               <button
                 onClick={() => sendMessage(input)}
                 disabled={isStreaming || !input.trim()}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-40 text-white transition-colors flex-shrink-0"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-40 text-white transition-colors flex-shrink-0"
                 aria-label={t("send")}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <line x1="22" y1="2" x2="11" y2="13" />
                   <polygon points="22 2 15 22 11 13 2 9 22 2" />
                 </svg>

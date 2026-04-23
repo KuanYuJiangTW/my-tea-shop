@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { headers } from "next/headers";
 import { CartProvider } from "@/context/CartContext";
@@ -12,6 +12,10 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://my-tea-shop.vercel.app";
 
