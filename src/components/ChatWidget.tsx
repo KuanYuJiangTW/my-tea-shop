@@ -1,0 +1,352 @@
+"use client";
+
+import { useState, useRef, useEffect, useCallback } from "react";
+import { usePathname } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface ChatMessage {
+  role: "user" | "model";
+  content: string;
+}
+
+const STORAGE_KEY = "wujuetea_chat";
+const THROTTLE_MS = 2000;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function getQuickQuestionGroup(pathname: string): "home" | "products" | "experiences" {
+  if (pathname.startsWith("/products") || pathname.startsWith("/en/products")) return "products";
+  if (pathname.startsWith("/experiences") || pathname.startsWith("/en/experiences")) return "experiences";
+  return "home";
+}
+
+function loadMessages(): ChatMessage[] {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMessages(messages: ChatMessage[]) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  } catch { /* quota exceeded — ignore */ }
+}
+
+// ── LINE contact button renderer ──────────────────────────────────────────────
+
+function renderMessageContent(text: string, lineLabel: string) {
+  const parts = text.split(/\[LINE_CONTACT\]\((.*?)\)/);
+  if (parts.length === 1) return <span className="whitespace-pre-wrap">{text}</span>;
+
+  return (
+    <span className="whitespace-pre-wrap">
+      {parts.map((part, i) => {
+        if (i % 2 === 1 && part) {
+          return (
+            <a
+              key={i}
+              href={part}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-[#06C755] hover:bg-[#05b34d] text-white text-xs font-medium rounded-lg transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.070 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+              </svg>
+              {lineLabel}
+            </a>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </span>
+  );
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+export default function ChatWidget() {
+  const pathname = usePathname();
+  const locale = useLocale();
+  const t = useTranslations("chat");
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [lastSentAt, setLastSentAt] = useState(0);
+  const [initialized, setInitialized] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // 隱藏在 admin 頁面
+  if (pathname.startsWith("/admin")) return null;
+
+  // 初始化：從 sessionStorage 載入
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    setMessages(loadMessages());
+    setInitialized(true);
+  }, []);
+
+  // 儲存到 sessionStorage
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (initialized) saveMessages(messages);
+  }, [messages, initialized]);
+
+  // 自動捲動到底
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isStreaming]);
+
+  // 開啟時 focus 輸入框
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (isOpen) inputRef.current?.focus();
+  }, [isOpen]);
+
+  // ── 送出訊息 ──────────────────────────────────────────────────────────────
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const sendMessage = useCallback(async (text: string) => {
+    if (!text.trim() || isStreaming) return;
+
+    const now = Date.now();
+    if (now - lastSentAt < THROTTLE_MS) return;
+    setLastSentAt(now);
+
+    const userMsg: ChatMessage = { role: "user", content: text.trim() };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
+    setInput("");
+    setIsStreaming(true);
+
+    const aiMsg: ChatMessage = { role: "model", content: "" };
+
+    try {
+      abortRef.current = new AbortController();
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
+          locale,
+        }),
+        signal: abortRef.current.signal,
+      });
+
+      if (res.status === 429) {
+        aiMsg.content = t("errorRateLimit");
+        setMessages([...newMessages, aiMsg]);
+        setIsStreaming(false);
+        return;
+      }
+
+      if (!res.ok || !res.body) {
+        aiMsg.content = t("errorGeneral");
+        setMessages([...newMessages, aiMsg]);
+        setIsStreaming(false);
+        return;
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+        setMessages([...newMessages, { ...aiMsg, content: accumulated }]);
+      }
+
+      aiMsg.content = accumulated;
+      setMessages([...newMessages, aiMsg]);
+    } catch (err) {
+      if ((err as Error).name !== "AbortError") {
+        aiMsg.content = t("errorGeneral");
+        setMessages([...newMessages, aiMsg]);
+      }
+    } finally {
+      setIsStreaming(false);
+      abortRef.current = null;
+    }
+  }, [isStreaming, lastSentAt, messages, locale, t]);
+
+  // ── 快捷問題 ──────────────────────────────────────────────────────────────
+
+  const group = getQuickQuestionGroup(pathname);
+  const quickQuestions = [
+    t(`quickQuestions.${group}.q1`),
+    t(`quickQuestions.${group}.q2`),
+    t(`quickQuestions.${group}.q3`),
+  ];
+
+  const showQuickQuestions = messages.length === 0;
+
+  // ── Keyboard ──────────────────────────────────────────────────────────────
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(input);
+    }
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  return (
+    <>
+      {/* 浮動按鈕 */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed right-4 z-50 w-14 h-14 bg-tea-green hover:bg-tea-green-dark text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 bottom-20 md:bottom-6"
+          aria-label="Open chat"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+          </svg>
+        </button>
+      )}
+
+      {/* 對話視窗 */}
+      {isOpen && (
+        <div className="fixed z-50 right-0 bottom-0 md:right-4 md:bottom-4 w-full md:w-[380px] h-[60dvh] md:h-[520px] bg-white md:rounded-2xl shadow-2xl border border-tea-green-pale flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 bg-tea-green text-white rounded-t-none md:rounded-t-2xl flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <svg width="20" height="20" viewBox="0 0 34 34" fill="none">
+                <path d="M17 4C17 4 8 11 8 20C8 24.97 12.03 29 17 29C21.97 29 26 24.97 26 20C26 11 17 4 17 4Z" fill="white" opacity="0.85"/>
+                <path d="M17 9C17 9 12 15 12 20C12 22.76 14.24 25 17 25C19.76 25 22 22.76 22 20C22 15 17 9 17 9Z" fill="white" opacity="0.5"/>
+              </svg>
+              <span className="font-medium text-sm">{t("title")}</span>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+              aria-label="Close chat"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-tea-cream-light/30">
+            {/* 歡迎訊息 */}
+            {showQuickQuestions && (
+              <div className="flex gap-2">
+                <div className="w-7 h-7 rounded-full bg-tea-green-mist flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg width="14" height="14" viewBox="0 0 34 34" fill="none">
+                    <path d="M17 4C17 4 8 11 8 20C8 24.97 12.03 29 17 29C21.97 29 26 24.97 26 20C26 11 17 4 17 4Z" fill="#7D9B84" opacity="0.85"/>
+                  </svg>
+                </div>
+                <div className="max-w-[80%] px-3 py-2 rounded-2xl rounded-tl-md bg-white border border-tea-green-pale text-sm text-tea-text leading-relaxed">
+                  <span className="whitespace-pre-wrap">{t("welcome")}</span>
+                </div>
+              </div>
+            )}
+
+            {/* 對話紀錄 */}
+            {messages.map((msg, i) => (
+              <div key={i} className={`flex gap-2 ${msg.role === "user" ? "justify-end" : ""}`}>
+                {msg.role === "model" && (
+                  <div className="w-7 h-7 rounded-full bg-tea-green-mist flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg width="14" height="14" viewBox="0 0 34 34" fill="none">
+                      <path d="M17 4C17 4 8 11 8 20C8 24.97 12.03 29 17 29C21.97 29 26 24.97 26 20C26 11 17 4 17 4Z" fill="#7D9B84" opacity="0.85"/>
+                    </svg>
+                  </div>
+                )}
+                <div
+                  className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                    msg.role === "user"
+                      ? "bg-tea-green text-white rounded-tr-md"
+                      : "bg-white border border-tea-green-pale text-tea-text rounded-tl-md"
+                  }`}
+                >
+                  {msg.role === "model"
+                    ? renderMessageContent(msg.content, t("contactLine"))
+                    : <span className="whitespace-pre-wrap">{msg.content}</span>
+                  }
+                </div>
+              </div>
+            ))}
+
+            {/* 打字指示器 */}
+            {isStreaming && messages[messages.length - 1]?.role === "user" && (
+              <div className="flex gap-2">
+                <div className="w-7 h-7 rounded-full bg-tea-green-mist flex items-center justify-center flex-shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 34 34" fill="none">
+                    <path d="M17 4C17 4 8 11 8 20C8 24.97 12.03 29 17 29C21.97 29 26 24.97 26 20C26 11 17 4 17 4Z" fill="#7D9B84" opacity="0.85"/>
+                  </svg>
+                </div>
+                <div className="px-3 py-2 rounded-2xl rounded-tl-md bg-white border border-tea-green-pale">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-tea-green/40 rounded-full animate-bounce [animation-delay:0ms]" />
+                    <span className="w-2 h-2 bg-tea-green/40 rounded-full animate-bounce [animation-delay:150ms]" />
+                    <span className="w-2 h-2 bg-tea-green/40 rounded-full animate-bounce [animation-delay:300ms]" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* 快捷問題 */}
+          {showQuickQuestions && (
+            <div className="px-4 py-2 flex flex-wrap gap-1.5 border-t border-tea-green-pale bg-white flex-shrink-0">
+              {quickQuestions.map((q, i) => (
+                <button
+                  key={i}
+                  onClick={() => sendMessage(q)}
+                  className="px-3 py-1.5 text-xs bg-tea-cream-light hover:bg-tea-green-mist text-tea-text rounded-full border border-tea-green-pale transition-colors"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* 輸入區 */}
+          <div className="px-3 py-2 border-t border-tea-green-pale bg-white flex-shrink-0">
+            <div className="flex items-end gap-2">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={t("placeholder")}
+                rows={1}
+                className="flex-1 resize-none text-sm px-3 py-2 rounded-xl border border-tea-green-pale bg-tea-cream-light/50 focus:outline-none focus:ring-1 focus:ring-tea-green placeholder-tea-text-light/50 max-h-20"
+              />
+              <button
+                onClick={() => sendMessage(input)}
+                disabled={isStreaming || !input.trim()}
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-40 text-white transition-colors flex-shrink-0"
+                aria-label={t("send")}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

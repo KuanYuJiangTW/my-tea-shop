@@ -1101,5 +1101,31 @@
     "experience": "Experiences",
     "logistics": "Travel & Accommodation",
     "other": "Other"
+  },
+  "chat": {
+    "title": "Tea Assistant",
+    "placeholder": "Ask me anything about tea…",
+    "send": "Send",
+    "welcome": "Hello! I'm Wu Jue Tea's assistant 🍵\nI can help you with tea recommendations, brewing tips, and our tea mountain experiences. What would you like to know?",
+    "errorGeneral": "Sorry, something went wrong. Please try again later.",
+    "errorRateLimit": "Too many messages. Please wait a moment.",
+    "contactLine": "Contact Us on LINE",
+    "quickQuestions": {
+      "home": {
+        "q1": "Recommend a tea for gifting",
+        "q2": "What experiences are available",
+        "q3": "How to brew tea properly"
+      },
+      "products": {
+        "q1": "What are the flavor profiles",
+        "q2": "What food pairs well with tea",
+        "q3": "Do you offer gift packaging"
+      },
+      "experiences": {
+        "q1": "What age is suitable",
+        "q2": "What should I bring",
+        "q3": "Do experiences run in rain"
+      }
+    }
   }
 }

@@ -5,6 +5,7 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SiteChrome from "@/components/SiteChrome";
+import ChatWidget from "@/components/ChatWidget";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { NextIntlClientProvider } from "next-intl";
@@ -76,6 +77,7 @@ export default async function RootLayout({
           <AuthProvider>
             <CartProvider>
               <SiteChrome>{children}</SiteChrome>
+              <ChatWidget />
             </CartProvider>
           </AuthProvider>
         </NextIntlClientProvider>
