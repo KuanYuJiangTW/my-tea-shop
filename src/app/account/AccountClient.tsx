@@ -186,6 +186,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState("");
 
+  // PayPal retry state
+  const [paypalRetryingId, setPaypalRetryingId] = useState<string | null>(null);
+
   // Address edit state
   const [editAddressOrder, setEditAddressOrder] = useState<Order | null>(null);
   const [addressForm, setAddressForm] = useState({ city: "", address: "" });
@@ -309,6 +312,27 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     });
     document.body.appendChild(form);
     form.submit();
+  }
+
+  async function handlePaypalRetry(orderId: string) {
+    setPaypalRetryingId(orderId);
+    try {
+      const res = await fetch("/api/paypal/retry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, locale }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        alert(json.error ?? t("errors.retryFailed"));
+        setPaypalRetryingId(null);
+        return;
+      }
+      if (json.url) window.location.href = json.url;
+    } catch {
+      alert(t("errors.retryFailed"));
+      setPaypalRetryingId(null);
+    }
   }
 
   async function handleCancelBooking() {
@@ -855,7 +879,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           </span>
                         </div>
                         <div className="text-sm text-tea-text-light">
-                          {new Date(order.created_at).toLocaleDateString("zh-TW")} · {t("orders.itemCount", { count: itemCount })} · {order.payment_method === "cod" ? t("orders.cod") : t("orders.online")}
+                          {new Date(order.created_at).toLocaleDateString("zh-TW")} · {t("orders.itemCount", { count: itemCount })} · {order.payment_method === "cod" ? t("orders.cod") : order.payment_method === "paypal" ? "PayPal" : t("orders.online")}
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
@@ -912,14 +936,25 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         </div>
 
                         {/* Actions */}
-                        {canCancel && (
-                          <div className="pt-1 border-t border-tea-green-pale/60">
-                            <button
-                              onClick={() => { setCancelConfirmId(order.id); setCancelError(""); }}
-                              className="text-sm text-rose-500 hover:text-rose-700 font-medium transition-colors"
-                            >
-                              {t("orders.cancelOrder")}
-                            </button>
+                        {(canCancel || (order.payment_method === "paypal" && order.payment_status === "pending" && order.order_status !== "cancelled" && order.order_status !== "failed")) && (
+                          <div className="pt-1 border-t border-tea-green-pale/60 flex items-center gap-4">
+                            {order.payment_method === "paypal" && order.payment_status === "pending" && order.order_status !== "cancelled" && order.order_status !== "failed" && (
+                              <button
+                                onClick={() => handlePaypalRetry(order.id)}
+                                disabled={paypalRetryingId === order.id}
+                                className="text-sm text-tea-green hover:text-tea-green-dark font-medium transition-colors disabled:opacity-50"
+                              >
+                                {paypalRetryingId === order.id ? t("orders.retrying") : t("orders.retryPaypal")}
+                              </button>
+                            )}
+                            {canCancel && (
+                              <button
+                                onClick={() => { setCancelConfirmId(order.id); setCancelError(""); }}
+                                className="text-sm text-rose-500 hover:text-rose-700 font-medium transition-colors"
+                              >
+                                {t("orders.cancelOrder")}
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>

@@ -21,7 +21,7 @@ export interface EmailOrderData {
   orderId:       string;
   customerName:  string;
   customerEmail: string;
-  paymentMethod: "online" | "cod";
+  paymentMethod: "online" | "cod" | "paypal";
   shippingAddress: {
     type:       "home" | "cvs";
     city?:      string;
@@ -75,7 +75,8 @@ function formatShipping(addr: EmailOrderData["shippingAddress"]): string {
   return `超商店到店｜${company} ${storeName}`;
 }
 
-function formatPayment(method: "online" | "cod"): string {
+function formatPayment(method: "online" | "cod" | "paypal"): string {
+  if (method === "paypal") return "PayPal 國際付款";
   return method === "online" ? "線上付款（綠界）" : "貨到付款";
 }
 

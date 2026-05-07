@@ -34,7 +34,7 @@ export interface CartItem {
 
 // ─── Checkout ─────────────────────────────────────────────────────────────────
 
-export type PaymentMethod = "online" | "cod" | "stripe";
+export type PaymentMethod = "online" | "cod" | "stripe" | "paypal";
 export type DeliveryType  = "home" | "cvs";
 export type CvsCompany    = "seven" | "family" | "hilife" | "ok";
 

@@ -173,7 +173,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell">
                         <span className="text-xs text-[#6B8872]">
-                          {order.payment_method === "cod" ? "貨到付款" : "線上付款"}
+                          {order.payment_method === "cod" ? "貨到付款" : order.payment_method === "paypal" ? "PayPal" : "線上付款"}
                         </span>
                       </td>
                       <td className="px-4 py-3">

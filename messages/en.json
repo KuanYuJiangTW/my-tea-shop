@@ -298,7 +298,12 @@
     "stripePaymentDesc": "Credit card, Apple Pay, Google Pay (international cards accepted)",
     "stripeShort": "Stripe",
     "submitStripe": "Pay with Stripe",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "paypalPayment": "PayPal (International)",
+    "paypalPaymentDesc": "Credit/debit card, PayPal balance (international payments)",
+    "paypalShort": "PayPal",
+    "submitPaypal": "Pay with PayPal",
+    "paypalMinAmount": "PayPal minimum payment is NT$32"
   },
   "account": {
     "title": "My Account",
@@ -424,6 +429,8 @@
       "editAddress": "Edit delivery address",
       "cvsChangeHint": "To change your pickup store, please contact us:",
       "cancelOrder": "Cancel Order",
+      "retryPaypal": "Retry Payment",
+      "retrying": "Redirecting...",
       "cod": "Cash on Delivery",
       "online": "Online Payment",
       "homeDelivery": "Home Delivery | {city} {address}",
@@ -477,6 +484,7 @@
       "emailBindFailed": "Binding failed. Please try again later.",
       "emailInvalid": "Please enter a valid email address",
       "cancelFailed": "Cancellation failed. Please try again later.",
+      "retryFailed": "Retry payment failed. Please try again later.",
       "cityAddressRequired": "Please fill in both city and address",
       "updateFailed": "Update failed. Please try again later.",
       "reviewFailed": "Submission failed. Please try again later."
@@ -926,7 +934,16 @@
     "viewBookings": "View My Bookings",
     "browseExperiences": "Browse More Experiences",
     "backHome": "Back to Home",
-    "backToCart": "Back to Cart"
+    "backToCart": "Back to Cart",
+    "paypalProcessing": "Processing your payment, please wait...",
+    "paypalCancelTitle": "Payment Incomplete",
+    "paypalCancelDesc": "Your PayPal payment was not completed.",
+    "paypalCancelPointsHint": "Your points and coupons have been reserved. Retrying will not deduct them again. To get your points back, please cancel the order.",
+    "paypalRetry": "Retry Payment",
+    "paypalCancelOrder": "Cancel Order",
+    "paypalCaptureFailed": "Payment Processing Failed",
+    "paypalCaptureFailedDesc": "Payment processing failed. You can retry or cancel the order to get your points back.",
+    "paypalContactSupport": "Contact Support"
   },
   "faq": {
     "pageTitle": "FAQ",

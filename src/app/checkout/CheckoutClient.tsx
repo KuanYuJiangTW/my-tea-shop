@@ -280,6 +280,35 @@ export default function CheckoutClient() {
       return;
     }
 
+    if (payment === "paypal") {
+      try {
+        const res = await fetch("/api/paypal/create-order", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ ...buildOrderPayload(), locale }),
+        });
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}));
+          throw new Error(json.error ?? t("errors.networkError"));
+        }
+        const { url } = await res.json();
+        if (url) {
+          clearCart();
+          try { localStorage.removeItem("wujuetea_cart"); } catch {}
+          if (user) {
+            try { await getSupabaseBrowserClient().from("cart_items").delete().eq("user_id", user.id); } catch {}
+          }
+          window.location.href = url;
+        } else {
+          throw new Error(t("errors.networkError"));
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : t("errors.networkError"));
+        setSubmitting(false);
+      }
+      return;
+    }
+
     if (payment === "stripe") {
       try {
         const res = await fetch("/api/stripe/checkout", {
@@ -295,7 +324,6 @@ export default function CheckoutClient() {
         if (url) {
           clearCart();
           try { localStorage.removeItem("wujuetea_cart"); } catch {}
-          // Clear Supabase cart before redirect (debounce won't fire in time)
           if (user) {
             try { await getSupabaseBrowserClient().from("cart_items").delete().eq("user_id", user.id); } catch {}
           }
@@ -450,10 +478,10 @@ export default function CheckoutClient() {
                   {([
                     { value: "online" as PaymentMethod, label: t("onlinePayment"), desc: t("onlinePaymentDesc"), disabled: false,
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> },
-                    { value: "stripe" as PaymentMethod, label: t("stripePayment"), desc: t("stripePaymentDesc"), disabled: true,
-                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 7a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V7z"/><path d="M12 11c-1.5-1.5-4 .5-2 2s3.5-.5 2-2z"/><circle cx="7" cy="12" r="1"/><circle cx="17" cy="12" r="1"/></svg> },
-                    { value: "cod" as PaymentMethod, label: t("cashOnDelivery"), desc: t("codDesc"), disabled: false,
-                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><path d="M3 8h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><path d="M6 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> },
+                    { value: "paypal" as PaymentMethod, label: t("paypalPayment"), desc: grandTotal < 32 ? t("paypalMinAmount") : t("paypalPaymentDesc"), disabled: grandTotal < 32,
+                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="0"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.77.77 0 0 1 .757-.644h6.568c2.177 0 3.903.555 5.132 1.652 1.23 1.097 1.708 2.678 1.421 4.7-.084.594-.222 1.16-.413 1.696a7.338 7.338 0 0 1-.88 1.63 5.994 5.994 0 0 1-1.322 1.303 5.868 5.868 0 0 1-1.768.895c-.658.222-1.39.333-2.176.333h-2.33a.77.77 0 0 0-.758.644l-1.17 5.828a.77.77 0 0 1-.757.644l-.372-.064Z" fill="#003087"/><path d="M19.168 7.206c-.014.098-.03.197-.048.297-.705 3.627-3.12 4.876-6.203 4.876H11.41a.763.763 0 0 0-.754.644l-.8 5.072-.227 1.438a.402.402 0 0 0 .397.467h2.788a.67.67 0 0 0 .661-.564l.028-.14.524-3.32.033-.183a.67.67 0 0 1 .662-.565h.416c2.7 0 4.813-1.097 5.432-4.273.258-1.326.125-2.432-.558-3.21a2.665 2.665 0 0 0-.764-.539Z" fill="#009cde"/></svg> },
+                    ...(locale !== "en" ? [{ value: "cod" as PaymentMethod, label: t("cashOnDelivery"), desc: t("codDesc"), disabled: false,
+                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><path d="M3 8h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><path d="M6 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> }] : []),
                   ]).map(opt => (
                     <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${opt.disabled ? "cursor-not-allowed opacity-50 border-tea-green-pale bg-gray-50" : `cursor-pointer ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}`}>
                       <input type="radio" name="payment" value={opt.value} checked={payment === opt.value}
@@ -764,7 +792,7 @@ export default function CheckoutClient() {
                   )}
                   <div className="flex justify-between text-sm text-tea-text-light">
                     <span>{t("paymentLabel")}</span>
-                    <span>{payment === "stripe" ? t("stripeShort") : payment === "online" ? t("onlinePaymentShort") : t("codShort")}</span>
+                    <span>{payment === "paypal" ? t("paypalShort") : payment === "stripe" ? t("stripeShort") : payment === "online" ? t("onlinePaymentShort") : t("codShort")}</span>
                   </div>
                   <div className="flex justify-between font-bold text-tea-text pt-1">
                     <span>{t("totalAmount")}</span>
@@ -780,6 +808,13 @@ export default function CheckoutClient() {
                         <circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M12 2a10 10 0 0110 10"/>
                       </svg>
                       {t("processing")}
+                    </>
+                  ) : payment === "paypal" ? (
+                    <>
+                      {t("submitPaypal")}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                      </svg>
                     </>
                   ) : payment === "stripe" ? (
                     <>

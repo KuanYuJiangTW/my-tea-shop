@@ -200,7 +200,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <div className="space-y-2">
               <Row
                 label="方式"
-                value={order.payment_method === "cod" ? "貨到付款" : "線上付款（綠界）"}
+                value={order.payment_method === "cod" ? "貨到付款" : order.payment_method === "paypal" ? "PayPal 國際付款" : "線上付款（綠界）"}
               />
               <Row
                 label="付款狀態"
@@ -208,6 +208,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               />
               {order.ecpay_trade_no && (
                 <Row label="綠界編號" value={order.ecpay_trade_no} mono />
+              )}
+              {order.paypal_order_id && (
+                <Row label="PayPal Order ID" value={order.paypal_order_id} mono />
               )}
             </div>
           </div>

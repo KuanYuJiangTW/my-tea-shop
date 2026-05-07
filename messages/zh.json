@@ -298,7 +298,12 @@
     "stripePaymentDesc": "信用卡、Apple Pay、Google Pay（適用國際信用卡）",
     "stripeShort": "Stripe 國際付款",
     "submitStripe": "前往 Stripe 付款",
-    "comingSoon": "即將推出"
+    "comingSoon": "即將推出",
+    "paypalPayment": "PayPal 國際付款",
+    "paypalPaymentDesc": "信用卡、簽帳卡、PayPal 餘額（適用國際付款）",
+    "paypalShort": "PayPal 國際付款",
+    "submitPaypal": "前往 PayPal 付款",
+    "paypalMinAmount": "PayPal 最低付款金額為 NT$32"
   },
   "account": {
     "title": "會員中心",
@@ -424,6 +429,8 @@
       "editAddress": "修改收件地址",
       "cvsChangeHint": "如需變更超商門市，請聯絡客服：",
       "cancelOrder": "取消訂單",
+      "retryPaypal": "重新付款",
+      "retrying": "跳轉中⋯",
       "cod": "貨到付款",
       "online": "線上付款",
       "homeDelivery": "宅配｜{city} {address}",
@@ -477,6 +484,7 @@
       "emailBindFailed": "綁定失敗，請稍後再試",
       "emailInvalid": "請輸入有效的電子郵件格式",
       "cancelFailed": "取消失敗，請稍後再試",
+      "retryFailed": "重新付款失敗，請稍後再試",
       "cityAddressRequired": "請填寫完整的縣市與地址",
       "updateFailed": "更新失敗，請稍後再試",
       "reviewFailed": "送出失敗，請稍後再試"
@@ -926,7 +934,16 @@
     "viewBookings": "查看我的預約",
     "browseExperiences": "瀏覽更多體驗",
     "backHome": "回到首頁",
-    "backToCart": "返回購物車"
+    "backToCart": "返回購物車",
+    "paypalProcessing": "付款處理中，請稍候...",
+    "paypalCancelTitle": "付款未完成",
+    "paypalCancelDesc": "您的 PayPal 付款尚未完成。",
+    "paypalCancelPointsHint": "您的點數與折價券已預扣，重新付款不會再次扣除。若不需要此訂單，請點擊取消訂單以退還點數。",
+    "paypalRetry": "重新付款",
+    "paypalCancelOrder": "取消訂單",
+    "paypalCaptureFailed": "付款處理失敗",
+    "paypalCaptureFailedDesc": "付款處理失敗，您可以重新嘗試或取消訂單退還點數。",
+    "paypalContactSupport": "聯繫客服"
   },
   "faq": {
     "pageTitle": "常見問題",
