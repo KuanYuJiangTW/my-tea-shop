@@ -31,7 +31,7 @@ function buildCheckMacValue(params: Record<string, string>): string {
     .join("&");
   const raw     = `HashKey=${HASH_KEY}&${chain}&HashIV=${HASH_IV}`;
   const encoded = phpUrlencode(raw).toLowerCase();
-  return createHash("sha256").update(encoded).digest("hex").toUpperCase();
+  return createHash("md5").update(encoded).digest("hex").toUpperCase();
 }
 
 export async function POST(req: NextRequest) {
