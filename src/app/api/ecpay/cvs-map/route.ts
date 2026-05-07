@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "crypto";
+import { createHash, createHmac } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
@@ -13,21 +13,31 @@ const CVS_SUBTYPE: Record<string, string> = {
   ok:     "OKMARTC2C",
 };
 
-// Nonce store：記錄合法的 MerchantTradeNo，callback 時驗證
-// TTL 10 分鐘，超過自動清除
-const nonceStore = new Map<string, number>();
-const NONCE_TTL = 10 * 60 * 1000;
+// HMAC secret for signing MerchantTradeNo
+const HMAC_SECRET = process.env.ECPAY_HASH_KEY! + process.env.ECPAY_HASH_IV!;
 
-export function verifyAndConsumeNonce(tradeNo: string): boolean {
-  const ts = nonceStore.get(tradeNo);
-  if (!ts) return false;
-  nonceStore.delete(tradeNo);
-  if (Date.now() - ts > NONCE_TTL) return false;
-  // 清除過期 nonce
-  for (const [key, val] of nonceStore) {
-    if (Date.now() - val > NONCE_TTL) nonceStore.delete(key);
-  }
-  return true;
+/**
+ * 產生帶簽名的 MerchantTradeNo
+ * 格式: M{timestamp11}{hmac8} = 20 chars
+ */
+export function createSignedTradeNo(): string {
+  const ts = String(Date.now()).slice(-11);
+  const sig = createHmac("sha256", HMAC_SECRET).update(ts).digest("hex").slice(0, 8).toUpperCase();
+  return `M${ts}${sig}`;
+}
+
+/**
+ * 驗證 MerchantTradeNo 的簽名
+ */
+export function verifyTradeNo(tradeNo: string): boolean {
+  if (!tradeNo || tradeNo.length !== 20 || !tradeNo.startsWith("M")) return false;
+  const ts  = tradeNo.slice(1, 12);
+  const sig = tradeNo.slice(12);
+  const expected = createHmac("sha256", HMAC_SECRET).update(ts).digest("hex").slice(0, 8).toUpperCase();
+  if (sig !== expected) return false;
+  // 檢查 10 分鐘內
+  const elapsed = Date.now() - Number(ts.padStart(13, "0").slice(0, 13));
+  return elapsed < 10 * 60 * 1000 && elapsed >= 0;
 }
 
 function phpUrlencode(input: string): string {
@@ -59,10 +69,7 @@ export async function POST(req: NextRequest) {
   }
 
   const base     = process.env.NEXT_PUBLIC_BASE_URL!;
-  const tradeNo  = `M${Date.now()}${randomBytes(2).toString("hex")}`.slice(0, 20);
-
-  // 記錄 nonce
-  nonceStore.set(tradeNo, Date.now());
+  const tradeNo  = createSignedTradeNo();
 
   const params: Record<string, string> = {
     MerchantID:       MERCHANT,
