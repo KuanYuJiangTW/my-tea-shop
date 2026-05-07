@@ -25,7 +25,7 @@ function verifyCheckMacValue(params: Record<string, string>): boolean {
     .join("&");
   const raw     = `HashKey=${HASH_KEY}&${chain}&HashIV=${HASH_IV}`;
   const encoded = phpUrlencode(raw).toLowerCase();
-  const expected = createHash("sha256").update(encoded).digest("hex").toUpperCase();
+  const expected = createHash("md5").update(encoded).digest("hex").toUpperCase();
   return expected === CheckMacValue;
 }
 
