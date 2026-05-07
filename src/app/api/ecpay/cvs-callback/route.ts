@@ -26,6 +26,9 @@ export async function POST(req: NextRequest) {
   <\/script></body></html>`;
 
   return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" },
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Security-Policy": "script-src 'unsafe-inline'",
+    },
   });
 }
