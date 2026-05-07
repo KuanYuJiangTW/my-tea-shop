@@ -113,6 +113,10 @@ export async function capturePayPalOrder(paypalOrderId: string) {
 
   if (!res.ok) {
     const text = await res.text();
+    // 競態：已被另一方 capture（Result 頁 vs Webhook），視為成功
+    if (res.status === 422 && text.includes("ORDER_ALREADY_CAPTURED")) {
+      return { status: "COMPLETED", alreadyCaptured: true };
+    }
     throw new Error(`PayPal capture failed: ${res.status} ${text}`);
   }
 
