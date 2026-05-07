@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
@@ -12,6 +12,23 @@ const CVS_SUBTYPE: Record<string, string> = {
   hilife: "HILIFEC2C",
   ok:     "OKMARTC2C",
 };
+
+// Nonce store：記錄合法的 MerchantTradeNo，callback 時驗證
+// TTL 10 分鐘，超過自動清除
+const nonceStore = new Map<string, number>();
+const NONCE_TTL = 10 * 60 * 1000;
+
+export function verifyAndConsumeNonce(tradeNo: string): boolean {
+  const ts = nonceStore.get(tradeNo);
+  if (!ts) return false;
+  nonceStore.delete(tradeNo);
+  if (Date.now() - ts > NONCE_TTL) return false;
+  // 清除過期 nonce
+  for (const [key, val] of nonceStore) {
+    if (Date.now() - val > NONCE_TTL) nonceStore.delete(key);
+  }
+  return true;
+}
 
 function phpUrlencode(input: string): string {
   const SAFE = /^[A-Za-z0-9\-_.]$/;
@@ -42,7 +59,10 @@ export async function POST(req: NextRequest) {
   }
 
   const base     = process.env.NEXT_PUBLIC_BASE_URL!;
-  const tradeNo  = `M${Date.now()}`.slice(0, 20);
+  const tradeNo  = `M${Date.now()}${randomBytes(2).toString("hex")}`.slice(0, 20);
+
+  // 記錄 nonce
+  nonceStore.set(tradeNo, Date.now());
 
   const params: Record<string, string> = {
     MerchantID:       MERCHANT,
