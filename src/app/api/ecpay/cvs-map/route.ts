@@ -18,11 +18,11 @@ const HMAC_SECRET = process.env.ECPAY_HASH_KEY! + process.env.ECPAY_HASH_IV!;
 
 /**
  * 產生帶簽名的 MerchantTradeNo
- * 格式: M{timestamp11}{hmac8} = 20 chars
+ * 格式: M{timestamp13}{hmac6} = 20 chars
  */
 export function createSignedTradeNo(): string {
-  const ts = String(Date.now()).slice(-11);
-  const sig = createHmac("sha256", HMAC_SECRET).update(ts).digest("hex").slice(0, 8).toUpperCase();
+  const ts = String(Date.now());
+  const sig = createHmac("sha256", HMAC_SECRET).update(ts).digest("hex").slice(0, 6).toUpperCase();
   return `M${ts}${sig}`;
 }
 
@@ -31,12 +31,12 @@ export function createSignedTradeNo(): string {
  */
 export function verifyTradeNo(tradeNo: string): boolean {
   if (!tradeNo || tradeNo.length !== 20 || !tradeNo.startsWith("M")) return false;
-  const ts  = tradeNo.slice(1, 12);
-  const sig = tradeNo.slice(12);
-  const expected = createHmac("sha256", HMAC_SECRET).update(ts).digest("hex").slice(0, 8).toUpperCase();
+  const ts  = tradeNo.slice(1, 14);
+  const sig = tradeNo.slice(14);
+  const expected = createHmac("sha256", HMAC_SECRET).update(ts).digest("hex").slice(0, 6).toUpperCase();
   if (sig !== expected) return false;
   // 檢查 10 分鐘內
-  const elapsed = Date.now() - Number(ts.padStart(13, "0").slice(0, 13));
+  const elapsed = Date.now() - Number(ts);
   return elapsed < 10 * 60 * 1000 && elapsed >= 0;
 }
 
