@@ -433,6 +433,9 @@
       "retrying": "跳轉中⋯",
       "cod": "貨到付款",
       "online": "線上付款",
+      "shippingFee": "運費",
+      "discount": "折扣",
+      "total": "合計",
       "homeDelivery": "宅配｜{city} {address}",
       "cvsPickup": "超商｜{store} {storeName}"
     },

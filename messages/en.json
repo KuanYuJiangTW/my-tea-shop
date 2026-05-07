@@ -433,6 +433,9 @@
       "retrying": "Redirecting...",
       "cod": "Cash on Delivery",
       "online": "Online Payment",
+      "shippingFee": "Shipping",
+      "discount": "Discount",
+      "total": "Total",
       "homeDelivery": "Home Delivery | {city} {address}",
       "cvsPickup": "Pickup | {store} {storeName}"
     },

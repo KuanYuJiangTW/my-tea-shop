@@ -23,6 +23,8 @@ type Order = {
   payment_method: string;
   items: { name: string; quantity: number; unitPrice: number; subtotal: number }[];
   shipping_address: { type: string; city?: string; address?: string; company?: string; storeName?: string };
+  shipping_fee: number;
+  discount_amount: number;
 };
 
 type PointTx = {
@@ -934,6 +936,22 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                                 <span className="text-tea-text font-medium">NT${item.subtotal?.toLocaleString()}</span>
                               </div>
                             ))}
+                            {order.shipping_fee > 0 && (
+                              <div className="flex justify-between text-sm pt-1 border-t border-tea-green-pale/40">
+                                <span className="text-tea-text-light">{t("orders.shippingFee")}</span>
+                                <span className="text-tea-text font-medium">NT${order.shipping_fee.toLocaleString()}</span>
+                              </div>
+                            )}
+                            {order.discount_amount > 0 && (
+                              <div className="flex justify-between text-sm">
+                                <span className="text-tea-text-light">{t("orders.discount")}</span>
+                                <span className="text-tea-green font-medium">-NT${order.discount_amount.toLocaleString()}</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between text-sm font-semibold pt-1 border-t border-tea-green-pale/40">
+                              <span className="text-tea-text">{t("orders.total")}</span>
+                              <span className="text-tea-text">NT${order.total_amount.toLocaleString()}</span>
+                            </div>
                           </div>
                           {(canCancel) && (
                             <p className="mt-2 text-xs text-tea-text-light">
