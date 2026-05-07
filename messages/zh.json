@@ -429,7 +429,7 @@
       "editAddress": "修改收件地址",
       "cvsChangeHint": "如需變更超商門市，請聯絡客服：",
       "cancelOrder": "取消訂單",
-      "retryPaypal": "重新付款",
+      "retryPayment": "重新付款",
       "retrying": "跳轉中⋯",
       "cod": "貨到付款",
       "online": "線上付款",

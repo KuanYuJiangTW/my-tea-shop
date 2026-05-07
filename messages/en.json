@@ -429,7 +429,7 @@
       "editAddress": "Edit delivery address",
       "cvsChangeHint": "To change your pickup store, please contact us:",
       "cancelOrder": "Cancel Order",
-      "retryPaypal": "Retry Payment",
+      "retryPayment": "Retry Payment",
       "retrying": "Redirecting...",
       "cod": "Cash on Delivery",
       "online": "Online Payment",

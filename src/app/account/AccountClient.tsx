@@ -186,8 +186,8 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState("");
 
-  // PayPal retry state
-  const [paypalRetryingId, setPaypalRetryingId] = useState<string | null>(null);
+  // Order retry payment state
+  const [orderRetryingId, setOrderRetryingId] = useState<string | null>(null);
 
   // Address edit state
   const [editAddressOrder, setEditAddressOrder] = useState<Order | null>(null);
@@ -314,24 +314,51 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
     form.submit();
   }
 
-  async function handlePaypalRetry(orderId: string) {
-    setPaypalRetryingId(orderId);
+  async function handleOrderRetry(orderId: string, paymentMethod: string) {
+    setOrderRetryingId(orderId);
     try {
-      const res = await fetch("/api/paypal/retry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, locale }),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        alert(json.error ?? t("errors.retryFailed"));
-        setPaypalRetryingId(null);
-        return;
+      if (paymentMethod === "paypal") {
+        const res = await fetch("/api/paypal/retry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, locale }),
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          alert(json.error ?? t("errors.retryFailed"));
+          setOrderRetryingId(null);
+          return;
+        }
+        if (json.url) window.location.href = json.url;
+      } else {
+        // ECPay retry
+        const res = await fetch("/api/ecpay/retry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId }),
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          alert(json.error ?? t("errors.retryFailed"));
+          setOrderRetryingId(null);
+          return;
+        }
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = json.ecpayUrl;
+        Object.entries(json.params as Record<string, string>).forEach(([k, v]) => {
+          const input = document.createElement("input");
+          input.type  = "hidden";
+          input.name  = k;
+          input.value = v;
+          form.appendChild(input);
+        });
+        document.body.appendChild(form);
+        form.submit();
       }
-      if (json.url) window.location.href = json.url;
     } catch {
       alert(t("errors.retryFailed"));
-      setPaypalRetryingId(null);
+      setOrderRetryingId(null);
     }
   }
 
@@ -863,9 +890,13 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 const canCancel = order.order_status === "new";
                 const canEditAddress = isHomeDelivery && ["new", "preparing"].includes(order.order_status);
                 const isCvsPending = !isHomeDelivery && ["new", "preparing"].includes(order.order_status);
+                const isPendingPayment = order.payment_status === "pending"
+                  && order.order_status !== "cancelled"
+                  && order.order_status !== "failed"
+                  && order.payment_method !== "cod";
 
                 return (
-                  <div key={order.id} className="bg-white rounded-2xl border border-tea-green-pale overflow-hidden">
+                  <div key={order.id} className={`bg-white rounded-2xl border overflow-hidden ${isPendingPayment ? "border-amber-300 border-l-4" : "border-tea-green-pale"}`}>
                     {/* Order Summary Row */}
                     <button
                       className="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-tea-cream-light/50 transition"
@@ -936,27 +967,34 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         </div>
 
                         {/* Actions */}
-                        {(canCancel || (order.payment_method === "paypal" && order.payment_status === "pending" && order.order_status !== "cancelled" && order.order_status !== "failed")) && (
-                          <div className="pt-1 border-t border-tea-green-pale/60 flex items-center gap-4">
-                            {order.payment_method === "paypal" && order.payment_status === "pending" && order.order_status !== "cancelled" && order.order_status !== "failed" && (
-                              <button
-                                onClick={() => handlePaypalRetry(order.id)}
-                                disabled={paypalRetryingId === order.id}
-                                className="text-sm text-tea-green hover:text-tea-green-dark font-medium transition-colors disabled:opacity-50"
-                              >
-                                {paypalRetryingId === order.id ? t("orders.retrying") : t("orders.retryPaypal")}
-                              </button>
-                            )}
-                            {canCancel && (
-                              <button
-                                onClick={() => { setCancelConfirmId(order.id); setCancelError(""); }}
-                                className="text-sm text-rose-500 hover:text-rose-700 font-medium transition-colors"
-                              >
-                                {t("orders.cancelOrder")}
-                              </button>
-                            )}
-                          </div>
-                        )}
+                        {(() => {
+                          const canRetry = order.payment_status === "pending"
+                            && order.order_status !== "cancelled"
+                            && order.order_status !== "failed"
+                            && (order.payment_method === "paypal" || order.payment_method === "online");
+                          if (!canCancel && !canRetry) return null;
+                          return (
+                            <div className="pt-3 border-t border-tea-green-pale/60 flex items-center gap-3">
+                              {canRetry && (
+                                <button
+                                  onClick={() => handleOrderRetry(order.id, order.payment_method)}
+                                  disabled={orderRetryingId === order.id}
+                                  className="bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors"
+                                >
+                                  {orderRetryingId === order.id ? t("orders.retrying") : t("orders.retryPayment")}
+                                </button>
+                              )}
+                              {canCancel && (
+                                <button
+                                  onClick={() => { setCancelConfirmId(order.id); setCancelError(""); }}
+                                  className="text-sm text-rose-400 hover:text-rose-600 font-medium transition-colors"
+                                >
+                                  {t("orders.cancelOrder")}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>
