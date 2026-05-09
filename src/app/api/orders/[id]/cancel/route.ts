@@ -48,9 +48,11 @@ export async function POST(
     return NextResponse.json({ error: "取消失敗，請稍後再試" }, { status: 500 });
   }
 
-  // 還原庫存（COD 下單即扣庫存；ECPay 付款成功後才扣，未付款則不需還原）
+  // 還原庫存
+  // COD: 下單即扣庫存 → 取消需還原
+  // ECPay / PayPal / Stripe: 付款成功後才扣庫存 → 只有 paid 才需還原
   const shouldRestoreStock =
-    order.payment_method !== "ecpay" || order.payment_status === "paid";
+    order.payment_method === "cod" || order.payment_status === "paid";
 
   if (shouldRestoreStock && Array.isArray(order.items)) {
     const orderItems = order.items as { productId: number; quantity: number; spec: string }[];
