@@ -157,10 +157,14 @@ export default function CheckoutClient() {
     fetch("/api/user/points").then(r => r.json()).then(data => {
       if (typeof data.balance === "number") setPointsBalance(data.balance);
     }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (region !== "international" || countries.length > 0) return;
     fetch("/api/shipping/countries").then(r => r.json()).then(data => {
       if (Array.isArray(data)) setCountries(data);
     }).catch(() => {});
-  }, []);
+  }, [region]);
 
   useEffect(() => {
     if (availableCoupons.length === 0 || autoAppliedRef.current) return;
