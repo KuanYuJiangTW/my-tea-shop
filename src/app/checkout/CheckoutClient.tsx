@@ -15,10 +15,29 @@ import type {
   EcpayCheckoutResponse,
   CreateOrderRequest,
 } from "@/types";
+import {
+  calcTotalWeightG,
+  calcDomesticFee,
+  EPACKET_MAX_WEIGHT_G,
+  INTERNATIONAL_FREE_SHIPPING_THRESHOLD,
+} from "@/lib/shipping-constants";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^09\d{8}$/;
+const intlPhoneRegex = /^\+?[\d\s\-()]{7,20}$/;
 const CITIES = ["台北市","新北市","桃園市","台中市","台南市","高雄市","基隆市","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","屏東縣","宜蘭縣","花蓮縣","台東縣","澎湖縣","金門縣","連江縣"];
+
+type CountryInfo = {
+  countryCode: string;
+  countryName: string;
+  countryNameEn: string;
+  zoneCode: string;
+  zoneName: string;
+  baseFee: number;
+  perExtra: number;
+  estimatedDaysMin: number;
+  estimatedDaysMax: number;
+};
 
 type FormErrors = {
   name?: string;
@@ -27,6 +46,11 @@ type FormErrors = {
   city?: string;
   address?: string;
   cvsStoreName?: string;
+  intlCountry?: string;
+  intlAddressLine1?: string;
+  intlCity?: string;
+  intlState?: string;
+  intlPostalCode?: string;
 };
 
 export default function CheckoutClient() {
@@ -50,6 +74,10 @@ export default function CheckoutClient() {
   const cityRef = useRef<HTMLDivElement>(null);
   const [cvsOpen, setCvsOpen] = useState(false);
   const cvsRef = useRef<HTMLDivElement>(null);
+  const [region, setRegion] = useState<"domestic" | "international">("domestic");
+  const [countries, setCountries] = useState<CountryInfo[]>([]);
+  const [countryOpen, setCountryOpen] = useState(false);
+  const countryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -58,6 +86,9 @@ export default function CheckoutClient() {
       }
       if (cvsRef.current && !cvsRef.current.contains(e.target as Node)) {
         setCvsOpen(false);
+      }
+      if (countryRef.current && !countryRef.current.contains(e.target as Node)) {
+        setCountryOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -77,8 +108,32 @@ export default function CheckoutClient() {
   const [pointsBalance, setPointsBalance] = useState(0);
   const [usePoints, setUsePoints]         = useState(false);
 
+  // 國際配送重量計算
+  const cartWeightItems = items.map(i => {
+    const rawId = i.product.id;
+    let spec: string;
+    if (rawId >= 20000) spec = "teabag";
+    else if (rawId >= 10000) spec = "75g";
+    else spec = "150g";
+    return { spec, quantity: i.quantity };
+  });
+  const totalWeightG = calcTotalWeightG(cartWeightItems);
+  const isOverweight = totalWeightG > EPACKET_MAX_WEIGHT_G;
+  const selectedCountry = countries.find(c => c.countryCode === form.internationalAddress.country);
+
   // 運費
-  const shippingFee = totalPrice >= 1000 ? 0 : delivery === "home" ? 250 : 60;
+  let shippingFee: number;
+  if (region === "international") {
+    if (!selectedCountry || isOverweight) {
+      shippingFee = 0;
+    } else if (totalPrice >= INTERNATIONAL_FREE_SHIPPING_THRESHOLD) {
+      shippingFee = 0;
+    } else {
+      shippingFee = selectedCountry.baseFee + Math.ceil((totalWeightG - 100) / 100) * selectedCountry.perExtra;
+    }
+  } else {
+    shippingFee = calcDomesticFee(delivery === "cvs" ? "cvs" : "home", totalPrice);
+  }
 
   // 折扣計算
   const couponDiscount  = appliedCoupon ? appliedCoupon.discount_amount : 0;
@@ -93,6 +148,9 @@ export default function CheckoutClient() {
     }).catch(() => {});
     fetch("/api/user/points").then(r => r.json()).then(data => {
       if (typeof data.balance === "number") setPointsBalance(data.balance);
+    }).catch(() => {});
+    fetch("/api/shipping/countries").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setCountries(data);
     }).catch(() => {});
   }, []);
 
@@ -134,6 +192,7 @@ export default function CheckoutClient() {
     city: "", address: "",
     cvsCompany: "seven", cvsStoreId: "", cvsStoreName: "",
     note: "",
+    internationalAddress: { country: "", countryName: "", state: "", city: "", addressLine1: "", addressLine2: "", postalCode: "" },
   });
 
   useEffect(() => {
@@ -230,9 +289,16 @@ export default function CheckoutClient() {
     customer: { name: form.name, email: form.email, phone: form.phone },
     paymentMethod: payment,
     deliveryType:  delivery,
-    ...(delivery === "home"
-      ? { shippingAddress: { city: form.city, address: form.address } }
-      : { cvsInfo: { company: form.cvsCompany, storeId: form.cvsStoreId, storeName: form.cvsStoreName } }),
+    ...(delivery === "international"
+      ? {
+          internationalAddress: {
+            ...form.internationalAddress,
+            countryName: selectedCountry?.countryNameEn ?? selectedCountry?.countryName ?? form.internationalAddress.country,
+          },
+        }
+      : delivery === "home"
+        ? { shippingAddress: { city: form.city, address: form.address } }
+        : { cvsInfo: { company: form.cvsCompany, storeId: form.cvsStoreId, storeName: form.cvsStoreName } }),
     items: items.map(i => {
       const rawId = i.product.id;
       let productId: number;
@@ -358,15 +424,25 @@ export default function CheckoutClient() {
   function validate(): boolean {
     const e: FormErrors = {};
     const phone = form.phone.replace(/[-\s]/g, "");
-    if (form.name.trim().length < 2)                       e.name  = t("errors.nameRequired");
+    if (form.name.trim().length < 2) e.name = t("errors.nameRequired");
     if (!user?.email && !emailRegex.test(form.email.trim())) e.email = t("errors.emailInvalid");
-    if (!phoneRegex.test(phone))                           e.phone = t("errors.phoneInvalid");
-    if (delivery === "home") {
-      if (!CITIES.includes(form.city))        e.city    = t("errors.cityRequired");
-      if (form.address.trim().length < 4)     e.address = t("errors.addressRequired");
-    }
-    if (delivery === "cvs") {
-      if (!form.cvsStoreId || !form.cvsStoreName) e.cvsStoreName = t("errors.storeRequired");
+    if (delivery === "international") {
+      if (!intlPhoneRegex.test(form.phone.trim())) e.phone = t("errors.intlPhoneInvalid");
+      const ia = form.internationalAddress;
+      if (!ia.country) e.intlCountry = t("errors.intlCountryRequired");
+      if (!ia.addressLine1.trim()) e.intlAddressLine1 = t("errors.intlAddressRequired");
+      if (!ia.city.trim()) e.intlCity = t("errors.intlCityRequired");
+      if (!ia.state.trim()) e.intlState = t("errors.intlStateRequired");
+      if (!ia.postalCode.trim()) e.intlPostalCode = t("errors.intlPostalCodeRequired");
+    } else {
+      if (!phoneRegex.test(phone)) e.phone = t("errors.phoneInvalid");
+      if (delivery === "home") {
+        if (!CITIES.includes(form.city)) e.city = t("errors.cityRequired");
+        if (form.address.trim().length < 4) e.address = t("errors.addressRequired");
+      }
+      if (delivery === "cvs") {
+        if (!form.cvsStoreId || !form.cvsStoreName) e.cvsStoreName = t("errors.storeRequired");
+      }
     }
     setFormErrors(e);
     return Object.keys(e).length === 0;
@@ -450,7 +526,7 @@ export default function CheckoutClient() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-tea-text mb-2">{t("phone")} *</label>
-                    <input type="tel" name="phone" value={form.phone} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, phone: undefined })); }} placeholder={t("phonePlaceholder")} className={inputCls(!!formErrors.phone)} />
+                    <input type="tel" name="phone" value={form.phone} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, phone: undefined })); }} placeholder={region === "international" ? t("intlPhonePlaceholder") : t("phonePlaceholder")} className={inputCls(!!formErrors.phone)} />
                     {formErrors.phone && <p className="mt-1 text-xs text-rose-500">{formErrors.phone}</p>}
                   </div>
                   <div className="sm:col-span-2">
@@ -474,13 +550,16 @@ export default function CheckoutClient() {
               {/* Payment Method */}
               <div className="bg-white rounded-2xl p-7 shadow-sm">
                 <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("paymentMethod")}</h2>
+                {region === "international" && (
+                  <p className="text-xs text-amber-600 mb-3">{t("intlPaypalOnly")}</p>
+                )}
                 <div className="space-y-3">
                   {([
-                    { value: "online" as PaymentMethod, label: t("onlinePayment"), desc: t("onlinePaymentDesc"), disabled: false,
-                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> },
+                    ...(region !== "international" ? [{ value: "online" as PaymentMethod, label: t("onlinePayment"), desc: t("onlinePaymentDesc"), disabled: false,
+                      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> }] : []),
                     { value: "paypal" as PaymentMethod, label: t("paypalPayment"), desc: grandTotal < 32 ? t("paypalMinAmount") : t("paypalPaymentDesc"), disabled: grandTotal < 32,
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="0"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.77.77 0 0 1 .757-.644h6.568c2.177 0 3.903.555 5.132 1.652 1.23 1.097 1.708 2.678 1.421 4.7-.084.594-.222 1.16-.413 1.696a7.338 7.338 0 0 1-.88 1.63 5.994 5.994 0 0 1-1.322 1.303 5.868 5.868 0 0 1-1.768.895c-.658.222-1.39.333-2.176.333h-2.33a.77.77 0 0 0-.758.644l-1.17 5.828a.77.77 0 0 1-.757.644l-.372-.064Z" fill="#003087"/><path d="M19.168 7.206c-.014.098-.03.197-.048.297-.705 3.627-3.12 4.876-6.203 4.876H11.41a.763.763 0 0 0-.754.644l-.8 5.072-.227 1.438a.402.402 0 0 0 .397.467h2.788a.67.67 0 0 0 .661-.564l.028-.14.524-3.32.033-.183a.67.67 0 0 1 .662-.565h.416c2.7 0 4.813-1.097 5.432-4.273.258-1.326.125-2.432-.558-3.21a2.665 2.665 0 0 0-.764-.539Z" fill="#009cde"/></svg> },
-                    ...(locale !== "en" ? [{ value: "cod" as PaymentMethod, label: t("cashOnDelivery"), desc: t("codDesc"), disabled: false,
+                    ...(region !== "international" && locale !== "en" ? [{ value: "cod" as PaymentMethod, label: t("cashOnDelivery"), desc: t("codDesc"), disabled: false,
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><path d="M3 8h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><path d="M6 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> }] : []),
                   ]).map(opt => (
                     <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${opt.disabled ? "cursor-not-allowed opacity-50 border-tea-green-pale bg-gray-50" : `cursor-pointer ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}`}>
@@ -502,6 +581,39 @@ export default function CheckoutClient() {
               {/* Delivery Method */}
               <div className="bg-white rounded-2xl p-7 shadow-sm">
                 <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("deliveryMethod")}</h2>
+
+                {/* Region Selector */}
+                <div className="mb-5">
+                  <p className="text-sm font-medium text-tea-text mb-3">{t("regionLabel")}</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {([
+                      { value: "domestic" as const, label: t("regionDomestic"), desc: t("regionDomesticDesc"),
+                        icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+                      { value: "international" as const, label: t("regionInternational"), desc: t("regionInternationalDesc"),
+                        icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> },
+                    ]).map(opt => (
+                      <label key={opt.value} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border cursor-pointer transition-colors text-center ${region === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}>
+                        <input type="radio" name="region" value={opt.value} checked={region === opt.value}
+                          onChange={() => {
+                            setRegion(opt.value);
+                            if (opt.value === "international") {
+                              setDelivery("international");
+                              setPayment("paypal");
+                            } else {
+                              setDelivery("home");
+                            }
+                            setFormErrors({});
+                          }} className="sr-only" />
+                        <div className={`${region === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
+                        <div className="text-sm font-medium text-tea-text">{opt.label}</div>
+                        <div className="text-[11px] text-tea-text-light">{opt.desc}</div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Domestic delivery options */}
+                {region === "domestic" && (
                 <div className="space-y-3 mb-6">
                   {([
                     { value: "home" as DeliveryType, label: t("homeDelivery"), desc: t("homeDeliveryDesc"),
@@ -520,6 +632,7 @@ export default function CheckoutClient() {
                     </label>
                   ))}
                 </div>
+                )}
 
                 {/* Home Delivery Address */}
                 {delivery === "home" && (
@@ -659,6 +772,132 @@ export default function CheckoutClient() {
                   </div>
                 )}
 
+                {/* International Address */}
+                {region === "international" && (
+                  <div className="space-y-4 mb-6">
+                    {/* Overweight warning */}
+                    {isOverweight && (
+                      <div className="flex items-start gap-2 bg-rose-50 rounded-xl p-3">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" strokeWidth="2" className="flex-shrink-0 mt-0.5">
+                          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <p className="text-xs text-rose-700">{t("intlOverweight")}</p>
+                      </div>
+                    )}
+
+                    {/* Country selector */}
+                    <div>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("intlCountry")} *</label>
+                      <div ref={countryRef} className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setCountryOpen(!countryOpen)}
+                          className={`${inputCls(!!formErrors.intlCountry)} flex items-center justify-between text-left ${!form.internationalAddress.country ? "text-tea-text-light/60" : "text-tea-text"}`}
+                        >
+                          <span>
+                            {form.internationalAddress.country
+                              ? (locale === "en"
+                                  ? countries.find(c => c.countryCode === form.internationalAddress.country)?.countryNameEn
+                                  : countries.find(c => c.countryCode === form.internationalAddress.country)?.countryName
+                                ) ?? form.internationalAddress.country
+                              : t("intlSelectCountry")}
+                          </span>
+                          <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${countryOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {countryOpen && (
+                          <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-y-auto max-h-56">
+                            {countries.map(c => (
+                              <button
+                                key={c.countryCode}
+                                type="button"
+                                onClick={() => {
+                                  setForm(prev => ({
+                                    ...prev,
+                                    internationalAddress: { ...prev.internationalAddress, country: c.countryCode, countryName: c.countryName },
+                                  }));
+                                  setFormErrors(p => ({ ...p, intlCountry: undefined }));
+                                  setCountryOpen(false);
+                                }}
+                                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                                  form.internationalAddress.country === c.countryCode
+                                    ? "bg-tea-green-mist text-tea-green font-medium"
+                                    : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
+                                }`}
+                              >
+                                {locale === "en" ? c.countryNameEn : c.countryName}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {formErrors.intlCountry && <p className="mt-1 text-xs text-rose-500">{formErrors.intlCountry}</p>}
+                    </div>
+
+                    {/* Address Line 1 */}
+                    <div>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("intlAddressLine1")} *</label>
+                      <input type="text" value={form.internationalAddress.addressLine1}
+                        onChange={e => { setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, addressLine1: e.target.value } })); setFormErrors(p => ({ ...p, intlAddressLine1: undefined })); }}
+                        placeholder={t("intlAddressLine1Placeholder")} className={inputCls(!!formErrors.intlAddressLine1)} />
+                      {formErrors.intlAddressLine1 && <p className="mt-1 text-xs text-rose-500">{formErrors.intlAddressLine1}</p>}
+                    </div>
+
+                    {/* Address Line 2 */}
+                    <div>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("intlAddressLine2")}</label>
+                      <input type="text" value={form.internationalAddress.addressLine2}
+                        onChange={e => setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, addressLine2: e.target.value } }))}
+                        placeholder={t("intlAddressLine2Placeholder")} className={inputCls()} />
+                    </div>
+
+                    {/* City + State */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-tea-text mb-2">{t("intlCity")} *</label>
+                        <input type="text" value={form.internationalAddress.city}
+                          onChange={e => { setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, city: e.target.value } })); setFormErrors(p => ({ ...p, intlCity: undefined })); }}
+                          placeholder={t("intlCityPlaceholder")} className={inputCls(!!formErrors.intlCity)} />
+                        {formErrors.intlCity && <p className="mt-1 text-xs text-rose-500">{formErrors.intlCity}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-tea-text mb-2">{t("intlState")} *</label>
+                        <input type="text" value={form.internationalAddress.state}
+                          onChange={e => { setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, state: e.target.value } })); setFormErrors(p => ({ ...p, intlState: undefined })); }}
+                          placeholder={t("intlStatePlaceholder")} className={inputCls(!!formErrors.intlState)} />
+                        {formErrors.intlState && <p className="mt-1 text-xs text-rose-500">{formErrors.intlState}</p>}
+                      </div>
+                    </div>
+
+                    {/* Postal Code */}
+                    <div className="w-1/2">
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("intlPostalCode")} *</label>
+                      <input type="text" value={form.internationalAddress.postalCode}
+                        onChange={e => { setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, postalCode: e.target.value } })); setFormErrors(p => ({ ...p, intlPostalCode: undefined })); }}
+                        placeholder={t("intlPostalCodePlaceholder")} className={inputCls(!!formErrors.intlPostalCode)} />
+                      {formErrors.intlPostalCode && <p className="mt-1 text-xs text-rose-500">{formErrors.intlPostalCode}</p>}
+                    </div>
+
+                    {/* Weight & estimated days info */}
+                    {selectedCountry && !isOverweight && (
+                      <div className="flex flex-col gap-1 bg-tea-cream-light/80 rounded-xl p-3">
+                        <p className="text-xs text-tea-text-light">{t("intlTotalWeight", { weight: totalWeightG.toString() })}</p>
+                        <p className="text-xs text-tea-text-light">{t("intlEstimatedDays", { min: selectedCountry.estimatedDaysMin.toString(), max: selectedCountry.estimatedDaysMax.toString() })}</p>
+                        {totalPrice < INTERNATIONAL_FREE_SHIPPING_THRESHOLD && shippingFee > 0 && (
+                          <p className="text-xs text-amber-600">{t("intlFreeShipping")}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Disclaimer */}
+                    <div className="flex items-start gap-2 bg-amber-50 rounded-xl p-3">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0 mt-0.5">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                      </svg>
+                      <p className="text-xs text-amber-700">{t("intlDisclaimer")}</p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Note */}
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-tea-text mb-2">{t("note")}</label>
@@ -775,8 +1014,11 @@ export default function CheckoutClient() {
                       <span className="text-tea-text">NT${shippingFee.toLocaleString()}</span>
                     )}
                   </div>
-                  {shippingFee > 0 && (
+                  {shippingFee > 0 && region === "domestic" && (
                     <p className="text-xs text-amber-600">{t("shippingThreshold")}</p>
+                  )}
+                  {region === "international" && totalPrice < INTERNATIONAL_FREE_SHIPPING_THRESHOLD && shippingFee > 0 && (
+                    <p className="text-xs text-amber-600">{t("intlFreeShipping")}</p>
                   )}
                   {couponDiscount > 0 && (
                     <div className="flex justify-between text-sm text-tea-green">
@@ -800,7 +1042,7 @@ export default function CheckoutClient() {
                   </div>
                 </div>
                 {error && <p className="text-red-400 text-sm text-center mb-3">{error}</p>}
-                <button type="submit" disabled={submitting}
+                <button type="submit" disabled={submitting || (region === "international" && isOverweight)}
                   className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-full font-medium transition-colors flex items-center justify-center gap-2">
                   {submitting ? (
                     <>

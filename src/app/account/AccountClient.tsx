@@ -22,7 +22,7 @@ type Order = {
   payment_status: string;
   payment_method: string;
   items: { name: string; quantity: number; unitPrice: number; subtotal: number }[];
-  shipping_address: { type: string; city?: string; address?: string; company?: string; storeName?: string };
+  shipping_address: { type: string; city?: string; address?: string; company?: string; storeName?: string; country?: string; countryName?: string; state?: string; addressLine1?: string; addressLine2?: string; postalCode?: string };
   shipping_fee: number;
   discount_amount: number;
 };
@@ -885,12 +885,15 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 const itemCount = Array.isArray(order.items) ? order.items.reduce((s, i) => s + i.quantity, 0) : 0;
                 const addr = order.shipping_address;
                 const isHomeDelivery = addr?.type === "home";
-                const shippingText = isHomeDelivery
-                  ? t("orders.homeDelivery", { city: addr.city ?? "", address: addr.address ?? "" })
-                  : t("orders.cvsPickup", { store: CVS_NAME[addr?.company ?? ""] ?? addr?.company ?? "", storeName: addr?.storeName ?? "" });
+                const isInternational = addr?.type === "international";
+                const shippingText = isInternational
+                  ? `🌍 ${addr.countryName ?? addr.country ?? ""} — ${[addr.addressLine1, addr.city, addr.state, addr.postalCode].filter(Boolean).join(", ")}`
+                  : isHomeDelivery
+                    ? t("orders.homeDelivery", { city: addr.city ?? "", address: addr.address ?? "" })
+                    : t("orders.cvsPickup", { store: CVS_NAME[addr?.company ?? ""] ?? addr?.company ?? "", storeName: addr?.storeName ?? "" });
 
                 const canCancel = order.order_status === "new";
-                const canEditAddress = isHomeDelivery && ["new", "preparing"].includes(order.order_status);
+                const canEditAddress = isHomeDelivery && !isInternational && ["new", "preparing"].includes(order.order_status);
                 const isCvsPending = !isHomeDelivery && ["new", "preparing"].includes(order.order_status);
                 const isPendingPayment = order.payment_status === "pending"
                   && order.order_status !== "cancelled"

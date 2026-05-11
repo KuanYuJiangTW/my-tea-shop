@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabase";
 import type { EcpayCheckoutRequest, EcpayCheckoutResponse } from "@/types";
+import { calculateShippingFee } from "@/lib/shipping";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
 const HASH_KEY  = process.env.ECPAY_HASH_KEY!;
@@ -132,7 +133,7 @@ export async function POST(req: NextRequest) {
 
   // ── 3. 後端計算運費 ──────────────────────────────────────────────────────
   const subtotal    = validatedItems.reduce((sum, i) => sum + i.subtotal, 0);
-  const shippingFee = subtotal >= 1000 ? 0 : body.deliveryType === "home" ? 250 : 60;
+  const { fee: shippingFee } = await calculateShippingFee({ deliveryType: body.deliveryType, subtotal });
 
   // ── 4. 驗證 token ────────────────────────────────────────────────────────
   const cookieStore = await cookies();

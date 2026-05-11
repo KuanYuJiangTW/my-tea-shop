@@ -205,7 +205,7 @@ describe("POST /api/paypal/create-order", () => {
     expect(res.status).toBe(200);
 
     expect(mockCreatePayPalOrder).toHaveBeenCalledWith(
-      1200, "order-abc", expect.any(String), expect.any(String),
+      1200, "order-abc", expect.any(String), expect.any(String), undefined,
     );
   });
 
@@ -219,7 +219,7 @@ describe("POST /api/paypal/create-order", () => {
     expect(res.status).toBe(200);
 
     expect(mockCreatePayPalOrder).toHaveBeenCalledWith(
-      850, "order-abc", expect.any(String), expect.any(String),
+      850, "order-abc", expect.any(String), expect.any(String), undefined,
     );
   });
 
@@ -235,7 +235,7 @@ describe("POST /api/paypal/create-order", () => {
     expect(res.status).toBe(200);
 
     expect(mockCreatePayPalOrder).toHaveBeenCalledWith(
-      660, "order-abc", expect.any(String), expect.any(String),
+      660, "order-abc", expect.any(String), expect.any(String), undefined,
     );
   });
 
@@ -257,7 +257,7 @@ describe("POST /api/paypal/create-order", () => {
     expect(res.status).toBe(200);
 
     expect(mockCreatePayPalOrder).toHaveBeenCalledWith(
-      1100, "order-abc", expect.any(String), expect.any(String),
+      1100, "order-abc", expect.any(String), expect.any(String), undefined,
     );
   });
 
@@ -310,6 +310,7 @@ describe("POST /api/paypal/create-order", () => {
       1200, "order-abc",
       expect.stringContaining("/en/order/result"),
       expect.stringContaining("/en/order/result"),
+      undefined,
     );
   });
 
@@ -323,7 +324,7 @@ describe("POST /api/paypal/create-order", () => {
     expect(res.status).toBe(200);
 
     expect(mockCreatePayPalOrder).toHaveBeenCalledWith(
-      950, "order-abc", expect.any(String), expect.any(String),
+      950, "order-abc", expect.any(String), expect.any(String), undefined,
     );
   });
 
@@ -337,7 +338,7 @@ describe("POST /api/paypal/create-order", () => {
     expect(res.status).toBe(200);
 
     expect(mockCreatePayPalOrder).toHaveBeenCalledWith(
-      1120, "order-abc", expect.any(String), expect.any(String),
+      1120, "order-abc", expect.any(String), expect.any(String), undefined,
     );
   });
 });

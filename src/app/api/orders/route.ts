@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabase";
 import { sendOrderEmails } from "@/lib/email";
 import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { calculateShippingFee } from "@/lib/shipping";
 
 const rateLimiter = createRateLimiter(20, 60_000); // 20 req/min per IP
 import type { CreateOrderRequest } from "@/types";
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest) {
 
   // ── 3. 後端計算運費 ──────────────────────────────────────────────────────
   const subtotal    = validatedItems.reduce((sum, i) => sum + i.subtotal, 0);
-  const shippingFee = subtotal >= 1000 ? 0 : body.deliveryType === "home" ? 250 : 60;
+  const { fee: shippingFee } = await calculateShippingFee({ deliveryType: body.deliveryType, subtotal });
 
   // ── 4. 驗證 token，未登入直接拒絕 ──────────────────────────────────────
   const cookieStore = await cookies();

@@ -23,11 +23,17 @@ export interface EmailOrderData {
   customerEmail: string;
   paymentMethod: "online" | "cod" | "paypal";
   shippingAddress: {
-    type:       "home" | "cvs";
+    type:       "home" | "cvs" | "international";
     city?:      string;
     address?:   string;
     company?:   string;
     storeName?: string;
+    country?:      string;
+    countryName?:  string;
+    state?:        string;
+    addressLine1?: string;
+    addressLine2?: string;
+    postalCode?:   string;
   };
   items: {
     name:      string;
@@ -64,6 +70,17 @@ function escapeHtml(str: string): string {
 }
 
 function formatShipping(addr: EmailOrderData["shippingAddress"]): string {
+  if (addr.type === "international") {
+    const parts = [
+      addr.addressLine1,
+      addr.addressLine2,
+      addr.city,
+      addr.state,
+      addr.postalCode,
+      addr.countryName ?? addr.country,
+    ].filter(Boolean).map(s => escapeHtml(s!));
+    return `國際配送｜${parts.join(", ")}`;
+  }
   if (addr.type === "home") {
     return `宅配到府｜${escapeHtml(addr.city ?? "")} ${escapeHtml(addr.address ?? "")}`;
   }

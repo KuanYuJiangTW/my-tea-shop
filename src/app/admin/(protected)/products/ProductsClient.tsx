@@ -27,6 +27,10 @@ type Product = {
   // 茶包
   price_tea_bag: number | null;
   stock_tea_bag: number | null;
+  // 配送重量 (g)
+  shipping_weight_150g: number | null;
+  shipping_weight_75g: number | null;
+  shipping_weight_teabag: number | null;
   is_active: boolean;
 };
 
@@ -51,6 +55,9 @@ type EditState = {
   stock_75g: string;
   price_tea_bag: string;
   stock_tea_bag: string;
+  shipping_weight_150g: string;
+  shipping_weight_75g: string;
+  shipping_weight_teabag: string;
 };
 
 type CreateForm = {
@@ -240,6 +247,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         stock_75g:     toStr(product.stock_75g),
         price_tea_bag: toStr(product.price_tea_bag),
         stock_tea_bag: toStr(product.stock_tea_bag),
+        shipping_weight_150g: toStr(product.shipping_weight_150g),
+        shipping_weight_75g: toStr(product.shipping_weight_75g),
+        shipping_weight_teabag: toStr(product.shipping_weight_teabag),
       },
     }));
     setError((prev) => ({ ...prev, [product.id]: "" }));
@@ -295,6 +305,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         stock_75g:     toNum(draft.stock_75g),
         price_tea_bag: toNum(draft.price_tea_bag),
         stock_tea_bag: toNum(draft.stock_tea_bag),
+        shipping_weight_150g: toNum(draft.shipping_weight_150g),
+        shipping_weight_75g: toNum(draft.shipping_weight_75g),
+        shipping_weight_teabag: toNum(draft.shipping_weight_teabag),
       }),
     });
 
@@ -326,6 +339,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 stock_75g:     toNum(draft.stock_75g),
                 price_tea_bag: toNum(draft.price_tea_bag),
                 stock_tea_bag: toNum(draft.stock_tea_bag),
+                shipping_weight_150g: toNum(draft.shipping_weight_150g),
+                shipping_weight_75g: toNum(draft.shipping_weight_75g),
+                shipping_weight_teabag: toNum(draft.shipping_weight_teabag),
               }
             : p
         )
@@ -858,6 +874,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
 
               {/* 規格區 */}
               {isEditing ? (
+                <>
                 <div className="border-t border-[#F5F0E8] px-5 py-4 bg-[#FAF7F2]">
                   <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-3">各規格售價與庫存</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -919,6 +936,44 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     </div>
                   </div>
                 </div>
+
+                {/* 配送重量 */}
+                <div>
+                  <p className="text-sm font-semibold text-[#3D4A42] mb-3">配送重量（國際運費計算用，留空使用預設值）</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
+                      <p className="text-xs font-bold text-[#3D4A42] mb-2">150g (g)</p>
+                      <input
+                        type="number" min="0"
+                        value={draft.shipping_weight_150g}
+                        onChange={(e) => updateField(product.id, "shipping_weight_150g", e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        placeholder="預設 200g"
+                      />
+                    </div>
+                    <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
+                      <p className="text-xs font-bold text-[#3D4A42] mb-2">75g (g)</p>
+                      <input
+                        type="number" min="0"
+                        value={draft.shipping_weight_75g}
+                        onChange={(e) => updateField(product.id, "shipping_weight_75g", e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        placeholder="預設 120g"
+                      />
+                    </div>
+                    <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
+                      <p className="text-xs font-bold text-[#3D4A42] mb-2">茶包 (g)</p>
+                      <input
+                        type="number" min="0"
+                        value={draft.shipping_weight_teabag}
+                        onChange={(e) => updateField(product.id, "shipping_weight_teabag", e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        placeholder="預設 150g"
+                      />
+                    </div>
+                  </div>
+                </div>
+                </>
               ) : (
                 <div className="border-t border-[#F5F0E8] px-5 py-3 flex flex-wrap gap-4 bg-[#FAF7F2]">
                   {[

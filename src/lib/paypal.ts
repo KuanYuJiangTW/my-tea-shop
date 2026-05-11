@@ -56,25 +56,50 @@ export async function paypalFetch(path: string, options: RequestInit = {}) {
 
 // ─── 建立 PayPal Order ──────────────────────────────────────────────────────
 
+interface PayPalShippingAddress {
+  fullName: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  countryCode: string;
+}
+
 export async function createPayPalOrder(
   totalAmount: number,
   orderId: string,
   returnUrl: string,
   cancelUrl: string,
+  shippingAddress?: PayPalShippingAddress,
 ): Promise<{ paypalOrderId: string; approveUrl: string }> {
+  const purchaseUnit: Record<string, unknown> = {
+    reference_id: orderId,
+    amount: {
+      currency_code: "TWD",
+      value: totalAmount.toString(),
+    },
+  };
+
+  if (shippingAddress) {
+    purchaseUnit.shipping = {
+      name: { full_name: shippingAddress.fullName },
+      address: {
+        address_line_1: shippingAddress.addressLine1,
+        ...(shippingAddress.addressLine2 ? { address_line_2: shippingAddress.addressLine2 } : {}),
+        admin_area_2: shippingAddress.city,
+        admin_area_1: shippingAddress.state,
+        postal_code: shippingAddress.postalCode,
+        country_code: shippingAddress.countryCode,
+      },
+    };
+  }
+
   const res = await paypalFetch("/v2/checkout/orders", {
     method: "POST",
     body: JSON.stringify({
       intent: "CAPTURE",
-      purchase_units: [
-        {
-          reference_id: orderId,
-          amount: {
-            currency_code: "TWD",
-            value: totalAmount.toString(),
-          },
-        },
-      ],
+      purchase_units: [purchaseUnit],
       payment_source: {
         paypal: {
           experience_context: {

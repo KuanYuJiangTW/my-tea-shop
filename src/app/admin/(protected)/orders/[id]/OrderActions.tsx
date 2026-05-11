@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type ShippingAddress = {
-  type: "home" | "cvs";
+  type: "home" | "cvs" | "international";
   city?: string;
   address?: string;
   company?: string;

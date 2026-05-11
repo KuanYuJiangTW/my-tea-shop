@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabase";
 import Stripe from "stripe";
 import type { CreateOrderRequest } from "@/types";
+import { calculateShippingFee } from "@/lib/shipping";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -127,7 +128,7 @@ export async function POST(req: NextRequest) {
 
   // ── 3. Shipping fee ────────────────────────────────────────────────────────
   const subtotal    = validatedItems.reduce((sum, i) => sum + i.subtotal, 0);
-  const shippingFee = subtotal >= 1000 ? 0 : body.deliveryType === "home" ? 250 : 60;
+  const { fee: shippingFee } = await calculateShippingFee({ deliveryType: body.deliveryType, subtotal });
 
   // ── 4. Auth ────────────────────────────────────────────────────────────────
   const cookieStore = await cookies();

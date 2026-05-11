@@ -6,11 +6,17 @@ import OrderActions from "./OrderActions";
 export const dynamic = "force-dynamic";
 
 type ShippingAddress = {
-  type: "home" | "cvs";
+  type: "home" | "cvs" | "international";
   city?: string;
   address?: string;
   company?: string;
   storeName?: string;
+  country?: string;
+  countryName?: string;
+  state?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  postalCode?: string;
 };
 
 type OrderItem = {
@@ -187,9 +193,16 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <div className="space-y-2">
               <Row
                 label="方式"
-                value={shipping?.type === "home" ? "宅配到府" : "超商店到店"}
+                value={shipping?.type === "international" ? "國際配送" : shipping?.type === "home" ? "宅配到府" : "超商店到店"}
               />
-              {shipping?.type === "home" ? (
+              {shipping?.type === "international" ? (
+                <>
+                  <Row label="國家" value={shipping.countryName ?? shipping.country ?? "—"} />
+                  <Row label="地址" value={[shipping.addressLine1, shipping.addressLine2].filter(Boolean).join(", ")} />
+                  <Row label="城市/州" value={`${shipping.city ?? ""}, ${shipping.state ?? ""}`} />
+                  <Row label="郵遞區號" value={shipping.postalCode ?? "—"} />
+                </>
+              ) : shipping?.type === "home" ? (
                 <Row label="地址" value={`${shipping.city ?? ""} ${shipping.address ?? ""}`} />
               ) : (
                 <>

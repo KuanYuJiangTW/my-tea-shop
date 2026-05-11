@@ -15,6 +15,7 @@ function ResultContent() {
   const isPaypal    = paypalParam === "success" || paypalParam === "cancel";
   const paypalToken = params.get("token"); // PayPal appends this on success
   const paypalOrderId = params.get("orderId"); // DB order ID on cancel
+  const isIntlOrder   = params.get("intl") === "1";
   const success     = isStripe
     ? stripeParam === "success"
     : isPaypal
@@ -250,14 +251,25 @@ function ResultContent() {
                   </p>
                 )}
                 {user?.email ? (
-                  <p className="text-tea-text-light text-sm mb-10">{t("emailSentOrder", { email: user.email })}</p>
+                  <p className="text-tea-text-light text-sm mb-4">{t("emailSentOrder", { email: user.email })}</p>
                 ) : (
-                  <p className="text-sm text-amber-600 mb-10">
+                  <p className="text-sm text-amber-600 mb-4">
                     {t("noEmailOrderPrefix")}{" "}
                     <Link href={lp("/account")} className="underline font-medium">{t("accountCenter")}</Link>
                     {" "}{t("noEmailOrderSuffix")}
                   </p>
                 )}
+                {isIntlOrder && (
+                  <div className="bg-amber-50 rounded-2xl px-6 py-4 text-left mb-10">
+                    <p className="text-sm font-semibold text-amber-800 mb-2">{t("intlNoticeTitle")}</p>
+                    <ul className="space-y-1.5 text-sm text-amber-700">
+                      <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span>{t("intlNoticeDays")}</li>
+                      <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span>{t("intlNoticeDuty")}</li>
+                      <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span>{t("intlNoticeNoReturn")}</li>
+                    </ul>
+                  </div>
+                )}
+                {!isIntlOrder && <div className="mb-10" />}
               </>
             )}
           </>

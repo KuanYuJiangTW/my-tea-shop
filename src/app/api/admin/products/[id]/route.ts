@@ -26,6 +26,9 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
     stock_75g?: number | null;
     price_tea_bag?: number | null;
     stock_tea_bag?: number | null;
+    shipping_weight_150g?: number | null;
+    shipping_weight_75g?: number | null;
+    shipping_weight_teabag?: number | null;
     is_active?: boolean;
   };
 
@@ -49,6 +52,9 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
   if (body.stock_75g !== undefined)       update.stock_75g       = body.stock_75g;
   if (body.price_tea_bag !== undefined)   update.price_tea_bag   = body.price_tea_bag;
   if (body.stock_tea_bag !== undefined)   update.stock_tea_bag   = body.stock_tea_bag;
+  if (body.shipping_weight_150g !== undefined)  update.shipping_weight_150g  = body.shipping_weight_150g;
+  if (body.shipping_weight_75g !== undefined)   update.shipping_weight_75g   = body.shipping_weight_75g;
+  if (body.shipping_weight_teabag !== undefined) update.shipping_weight_teabag = body.shipping_weight_teabag;
   if (body.is_active !== undefined)       update.is_active       = body.is_active;
 
   if (Object.keys(update).length === 0) {

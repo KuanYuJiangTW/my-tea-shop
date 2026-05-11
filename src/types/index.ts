@@ -21,6 +21,9 @@ export interface Product {
   priceTeaBag?: number;    // 茶包 15包×3g 售價
   stock75g?: number;       // 75g 庫存
   stockTeaBag?: number;    // 茶包庫存
+  shippingWeight150g?: number;   // 配送重量 150g 規格 (g)
+  shippingWeight75g?: number;    // 配送重量 75g 規格 (g)
+  shippingWeightTeabag?: number; // 配送重量 茶包規格 (g)
 }
 
 export type ProductCategory = "烏龍茶" | "紅茶";
@@ -35,8 +38,18 @@ export interface CartItem {
 // ─── Checkout ─────────────────────────────────────────────────────────────────
 
 export type PaymentMethod = "online" | "cod" | "stripe" | "paypal";
-export type DeliveryType  = "home" | "cvs";
+export type DeliveryType  = "home" | "cvs" | "international";
 export type CvsCompany    = "seven" | "family" | "hilife" | "ok";
+
+export interface InternationalAddress {
+  country:      string;
+  countryName:  string;
+  state:        string;
+  city:         string;
+  addressLine1: string;
+  addressLine2: string;
+  postalCode:   string;
+}
 
 export interface CheckoutForm {
   name:         string;
@@ -48,6 +61,7 @@ export interface CheckoutForm {
   cvsStoreId:   string;
   cvsStoreName: string;
   note:         string;
+  internationalAddress: InternationalAddress;
 }
 
 // ─── Order ────────────────────────────────────────────────────────────────────
@@ -132,6 +146,7 @@ export interface CreateOrderRequest {
     city:    string;
     address: string;
   };
+  internationalAddress?: InternationalAddress;
   cvsInfo?: {
     company:   CvsCompany;
     storeId?:  string;

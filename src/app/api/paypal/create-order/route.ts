@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { createPayPalOrder } from "@/lib/paypal";
 import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
 import type { CreateOrderRequest } from "@/types";
+import { calculateShippingFee } from "@/lib/shipping";
 
 const limiter = createRateLimiter(20, 60_000);
 
@@ -23,7 +24,7 @@ type ProductRow = {
 };
 
 const MAX_LENGTHS = {
-  name: 100, phone: 20, city: 50, address: 200, note: 500, storeName: 100,
+  name: 100, phone: 30, city: 50, address: 200, note: 500, storeName: 100,
 };
 
 const PAYPAL_MIN_AMOUNT = 32;
@@ -55,12 +56,19 @@ export async function POST(req: NextRequest) {
   if (!body.customer?.name?.trim() || !body.customer?.phone?.trim()) {
     return NextResponse.json({ error: "Please fill in customer info" }, { status: 400 });
   }
-  if (body.deliveryType !== "home" && body.deliveryType !== "cvs") {
+  if (body.deliveryType !== "home" && body.deliveryType !== "cvs" && body.deliveryType !== "international") {
     return NextResponse.json({ error: "Invalid delivery type" }, { status: 400 });
   }
   const VALID_CVS = ["seven", "family", "hilife", "ok"];
   if (body.deliveryType === "cvs" && body.cvsInfo?.company && !VALID_CVS.includes(body.cvsInfo.company)) {
     return NextResponse.json({ error: "Invalid CVS type" }, { status: 400 });
+  }
+  // International address validation
+  if (body.deliveryType === "international") {
+    const ia = body.internationalAddress;
+    if (!ia?.country || !ia?.state || !ia?.city || !ia?.addressLine1 || !ia?.postalCode) {
+      return NextResponse.json({ error: "International address is incomplete" }, { status: 400 });
+    }
   }
   if (body.customer.name.length > MAX_LENGTHS.name) return NextResponse.json({ error: "Name too long" }, { status: 400 });
   if (body.customer.phone.length > MAX_LENGTHS.phone) return NextResponse.json({ error: "Phone too long" }, { status: 400 });
@@ -130,7 +138,19 @@ export async function POST(req: NextRequest) {
 
   // ── 3. Shipping fee ──────────────────────────────────────────────────────
   const subtotal = validatedItems.reduce((sum, i) => sum + i.subtotal, 0);
-  const shippingFee = subtotal >= 1000 ? 0 : body.deliveryType === "home" ? 250 : 60;
+  let shippingFeeResult;
+  try {
+    shippingFeeResult = await calculateShippingFee({
+      deliveryType: body.deliveryType,
+      subtotal,
+      countryCode: body.internationalAddress?.country,
+      items: body.deliveryType === "international" ? validatedItems.map(i => ({ spec: i.spec, quantity: i.quantity })) : undefined,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+  const shippingFee = shippingFeeResult.fee;
 
   // ── 4. Auth ──────────────────────────────────────────────────────────────
   const authClient = await createSupabaseServerClient();
@@ -200,10 +220,24 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 8. Create pending order ──────────────────────────────────────────────
-  const shippingAddress =
-    body.deliveryType === "home"
-      ? { type: "home", city: body.shippingAddress?.city, address: body.shippingAddress?.address }
-      : { type: "cvs", company: body.cvsInfo?.company, storeId: body.cvsInfo?.storeId, storeName: body.cvsInfo?.storeName };
+  let shippingAddress;
+  if (body.deliveryType === "international") {
+    const ia = body.internationalAddress!;
+    shippingAddress = {
+      type: "international",
+      country: ia.country,
+      countryName: ia.countryName,
+      state: ia.state,
+      city: ia.city,
+      addressLine1: ia.addressLine1,
+      addressLine2: ia.addressLine2 || undefined,
+      postalCode: ia.postalCode,
+    };
+  } else if (body.deliveryType === "home") {
+    shippingAddress = { type: "home", city: body.shippingAddress?.city, address: body.shippingAddress?.address };
+  } else {
+    shippingAddress = { type: "cvs", company: body.cvsInfo?.company, storeId: body.cvsInfo?.storeId, storeName: body.cvsInfo?.storeName };
+  }
 
   const { data: orderData, error: dbError } = await supabase.from("orders").insert({
     customer_name: body.customer.name,
@@ -243,12 +277,25 @@ export async function POST(req: NextRequest) {
   const reqOrigin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/checkout.*/, "") || "";
   const base = reqOrigin || process.env.NEXT_PUBLIC_BASE_URL || ALLOWED_ORIGIN;
   const localePath = body.locale === "en" ? "/en" : "";
-  const returnUrl = `${base}${localePath}/order/result?paypal=success`;
+  const intlParam = body.deliveryType === "international" ? "&intl=1" : "";
+  const returnUrl = `${base}${localePath}/order/result?paypal=success${intlParam}`;
   const cancelUrl = `${base}${localePath}/order/result?paypal=cancel&orderId=${orderData.id}`;
 
   try {
+    const paypalShipping = body.deliveryType === "international" && body.internationalAddress
+      ? {
+          fullName: body.customer.name,
+          addressLine1: body.internationalAddress.addressLine1,
+          addressLine2: body.internationalAddress.addressLine2 || undefined,
+          city: body.internationalAddress.city,
+          state: body.internationalAddress.state,
+          postalCode: body.internationalAddress.postalCode,
+          countryCode: body.internationalAddress.country,
+        }
+      : undefined;
+
     const { paypalOrderId, approveUrl } = await createPayPalOrder(
-      totalAmount, orderData.id, returnUrl, cancelUrl,
+      totalAmount, orderData.id, returnUrl, cancelUrl, paypalShipping,
     );
 
     // Store PayPal Order ID

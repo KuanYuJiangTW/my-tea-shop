@@ -15,7 +15,7 @@ type Order = {
   payment_status: string;
   payment_method: string;
   items: { name: string; quantity: number; unitPrice: number }[];
-  shipping_address: { type: string; city?: string; address?: string; company?: string; storeName?: string };
+  shipping_address: { type: string; city?: string; address?: string; company?: string; storeName?: string; country?: string; countryName?: string };
   note?: string;
 };
 
@@ -47,6 +47,7 @@ function shortId(id: string) {
 
 function formatShipping(addr: Order["shipping_address"]): string {
   if (!addr) return "—";
+  if (addr.type === "international") return `國際｜${addr.countryName ?? addr.country ?? ""}`;
   if (addr.type === "home") return `宅配｜${addr.city ?? ""} ${addr.address ?? ""}`;
   const map: Record<string, string> = { seven: "7-ELEVEN", family: "全家", hilife: "萊爾富", ok: "OK" };
   return `超商｜${map[addr.company ?? ""] ?? addr.company} ${addr.storeName ?? ""}`;
