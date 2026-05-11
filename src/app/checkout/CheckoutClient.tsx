@@ -108,6 +108,14 @@ export default function CheckoutClient() {
   const [pointsBalance, setPointsBalance] = useState(0);
   const [usePoints, setUsePoints]         = useState(false);
 
+  const [form, setForm] = useState<CheckoutForm>({
+    name: "", email: "", phone: "",
+    city: "", address: "",
+    cvsCompany: "seven", cvsStoreId: "", cvsStoreName: "",
+    note: "",
+    internationalAddress: { country: "", countryName: "", state: "", city: "", addressLine1: "", addressLine2: "", postalCode: "" },
+  });
+
   // 國際配送重量計算
   const cartWeightItems = items.map(i => {
     const rawId = i.product.id;
@@ -186,14 +194,6 @@ export default function CheckoutClient() {
     setCouponError("");
     setShowCouponDropdown(false);
   }
-
-  const [form, setForm] = useState<CheckoutForm>({
-    name: "", email: "", phone: "",
-    city: "", address: "",
-    cvsCompany: "seven", cvsStoreId: "", cvsStoreName: "",
-    note: "",
-    internationalAddress: { country: "", countryName: "", state: "", city: "", addressLine1: "", addressLine2: "", postalCode: "" },
-  });
 
   useEffect(() => {
     if (!user) return;
