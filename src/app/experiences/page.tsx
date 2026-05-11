@@ -9,11 +9,11 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "茶山體驗 | 霧抉茶",
-  description: "親身走入嘉義梅山茶園，體驗茶藝、烤茶、採茶、紅茶製作與淺漬茶果酒，感受從茶葉到生活的每一個細節。",
+  description: "親身走入嘉義阿里山梅山茶園，體驗茶藝、烤茶、採茶、紅茶製作與淺漬茶果酒，感受從茶葉到生活的每一個細節。",
   alternates: { canonical: "/experiences" },
   openGraph: {
     title:       "茶山體驗 | 霧抉茶",
-    description: "親身走入嘉義梅山茶園，體驗茶藝、烤茶、採茶、紅茶製作與淺漬茶果酒，感受從茶葉到生活的每一個細節。",
+    description: "親身走入嘉義阿里山梅山茶園，體驗茶藝、烤茶、採茶、紅茶製作與淺漬茶果酒，感受從茶葉到生活的每一個細節。",
     url:         "/experiences",
     images: [{ url: "/images/gallery/tea-cup.jpg", width: 1200, height: 630, alt: "霧抉茶茶山體驗" }],
   },

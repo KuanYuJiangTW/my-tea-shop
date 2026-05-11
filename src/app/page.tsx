@@ -11,8 +11,8 @@ import { getTranslations, getLocale } from "next-intl/server";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "霧抉茶 | 台灣嘉義梅山高山茶",
-  description: "嘉義梅山一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。從茶園到您手上，每一泡都是我們親手把關的好茶。",
+  title: "霧抉茶 | 台灣嘉義阿里山梅山高山茶",
+  description: "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。從茶園到您手上，每一泡都是我們親手把關的好茶。",
   alternates: {
     canonical: "/",
   },
@@ -37,7 +37,7 @@ export default async function HomePage() {
       <section className="relative min-h-screen flex items-center overflow-hidden">
         <Image
           src="/images/gallery/picking2.jpg"
-          alt="嘉義梅山採茶實景"
+          alt="阿里山梅山採茶實景"
           fill
           priority
           className="object-cover"

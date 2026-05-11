@@ -7,14 +7,14 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "茶葉系列",
-  description: "嚴選嘉義梅山高山烏龍茶、金萱茶、紅茶、紅烏龍、四季春等台灣頂級茶葉。每一款都來自自家茶園，品質親手把關。",
-  keywords: ["台灣高山茶", "烏龍茶購買", "金萱茶", "四季春", "嘉義梅山茶葉", "高山茶網購"],
+  description: "嚴選嘉義阿里山梅山高山烏龍茶、金萱茶、紅茶、紅烏龍、四季春等台灣頂級茶葉。每一款都來自自家茶園，品質親手把關。",
+  keywords: ["台灣高山茶", "烏龍茶購買", "金萱茶", "四季春", "阿里山高山茶", "嘉義茶葉", "梅山茶", "高山茶網購"],
   alternates: {
     canonical: "/products",
   },
   openGraph: {
     title: "茶葉系列 | 霧抉茶",
-    description: "嚴選嘉義梅山高山烏龍茶、金萱茶等台灣頂級茶葉，品質親手把關。",
+    description: "嚴選嘉義阿里山梅山高山烏龍茶、金萱茶等台灣頂級茶葉，品質親手把關。",
     url: "/products",
   },
 };

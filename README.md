@@ -8,7 +8,7 @@
 
 # 霧抉茶 Wu Jue Tea
 
-**台灣嘉義梅山高山茶｜自產自銷電商 + 茶藝體驗預約平台**
+**嘉義阿里山梅山高山茶｜自產自銷電商 + 茶藝體驗預約平台**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -115,7 +115,7 @@
 
 ## 專案簡介
 
-**霧抉茶**是為台灣嘉義梅山山區茶農家庭打造的全端平台，涵蓋兩大核心系統：
+**霧抉茶**是為台灣嘉義阿里山區茶農家庭打造的全端平台，涵蓋兩大核心系統：
 
 1. **電商系統** — 商品瀏覽、購物車、ECPay 金流（信用卡 / 超商）、訂單追蹤
 2. **茶藝體驗預約系統** — 5 種體驗活動、場次管理、線上預約付款、候補通知、完課後留評

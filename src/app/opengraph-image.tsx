@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "霧抉茶 | 台灣嘉義梅山高山茶";
+export const alt = "霧抉茶 | 台灣嘉義阿里山梅山高山茶";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -127,7 +127,7 @@ export default function OgImage() {
               fontFamily: "serif",
             }}
           >
-            嘉義梅山・自產自銷高山茶
+            阿里山梅山・自產自銷高山茶
           </div>
         </div>
       </div>

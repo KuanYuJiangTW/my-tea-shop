@@ -24,7 +24,7 @@ export interface ExperienceContent {
 // 靜態備援（Sanity 尚未建立內容時使用）
 const FALLBACK_CONTENT: Record<string, Omit<ExperienceContent, "slug" | "name" | "nameEn">> = {
   "tea-ceremony": {
-    tagline:    "由專業茶藝師為您泡茶，在嘉義梅山迷人的山景陪伴下，靜心感受台灣高山茶的清甜甘醇。",
+    tagline:    "由專業茶藝師為您泡茶，在阿里山梅山迷人的山景陪伴下，靜心感受台灣高山茶的清甜甘醇。",
     coverImage: "/images/gallery/tea-cup.jpg",
     includes:   ["專業茶藝師全程帶領", "四款精選高山茶品茗", "茶點輕食", "山景茶席位"],
     notes:      ["建議穿著舒適輕便服裝", "場地有高低差，不建議穿高跟鞋"],

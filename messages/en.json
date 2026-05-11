@@ -22,7 +22,7 @@
     "cart": "Cart",
     "menu": "Menu",
     "footer": {
-      "tagline": "From the mountains of Meishan, Chiayi,\na family's 40-year dedication to growing and selling fine tea.",
+      "tagline": "From Alishan Meishan, Chiayi, Taiwan —\na family's 40-year dedication to growing and selling fine tea.",
       "quickLinks": "Quick Links",
       "links": {
         "products": "Tea Products",
@@ -55,7 +55,7 @@
       "subtitle": "Taiwan Premium Tea",
       "title": "Wu Jue Tea",
       "tagline": "From the Highlands of Taiwan",
-      "description": "In the mountains of Meishan, Chiayi, a family of three has devoted 40 years to their craft. Every cup that reaches your hands is personally overseen by us.",
+      "description": "In the Alishan Meishan mountains of Chiayi, Taiwan, a family of three has devoted 40 years to their craft. Every cup that reaches your hands is personally overseen by us.",
       "exploreBtn": "Explore Our Teas",
       "storyBtn": "Our Story"
     },
@@ -66,7 +66,7 @@
       "items": {
         "mountain": {
           "title": "Highland Character",
-          "desc": "Our tea gardens nestle in the misty Meishan mountains of Alishan, Chiayi. The cool altitude and dramatic day-night temperature swings give our leaves their sweet, mellow character."
+          "desc": "Our tea gardens nestle in the misty Alishan Meishan mountains of Chiayi, Taiwan. The cool altitude and dramatic day-night temperature swings give our leaves their sweet, mellow character."
         },
         "handcraft": {
           "title": "Handcrafted",
@@ -85,13 +85,13 @@
     "experiences": {
       "sectionLabel": "Experience",
       "title": "Tea Mountain Experiences",
-      "tagline": "Step into the Meishan tea gardens and feel a leaf's story with your own hands",
+      "tagline": "Step into the Alishan Meishan tea gardens and feel a leaf's story with your own hands",
       "viewAllCount": "View all {count} experiences"
     },
     "brandStory": {
       "sectionLabel": "Brand Story",
       "title": "From a Single Leaf\nto a Perfect Cup",
-      "p1": "Our parents entered the tea industry when they were young, and for over 40 years we have tended our gardens in the Meishan mountains with love and dedication. Wu Jue Tea has always stood for growing and selling our own tea.",
+      "p1": "Our parents entered the tea industry when they were young, and for over 40 years we have tended our gardens in the Alishan Meishan tea region with love and dedication. Wu Jue Tea has always stood for growing and selling our own tea.",
       "p2": "From growing and processing to roasting, packing, and shipping — every step is handled by our family of three. Every cup you hold is the result of time and heart."
     },
     "stats": {
@@ -160,7 +160,7 @@
   "experiences": {
     "pageTitle": "Tea Experiences",
     "sectionLabel": "Experience",
-    "pageTagline": "Step into the Meishan tea gardens and feel a leaf's story with your own hands",
+    "pageTagline": "Step into the Alishan Meishan tea gardens and feel a leaf's story with your own hands",
     "bookNow": "Book Now",
     "viewCalendar": "View Available Sessions",
     "viewSessions": "View Sessions",
@@ -413,7 +413,7 @@
       "personCount": "{count} guests",
       "orderLabel": "Order #{id}",
       "noBookingsTitle": "No bookings yet",
-      "noBookingsDesc": "Come experience the tea mountains of Meishan, Chiayi!",
+      "noBookingsDesc": "Come experience the Alishan Meishan tea mountains of Chiayi, Taiwan!",
       "browse": "Browse Tea Experiences",
       "participantsDue": "Details due: {date}",
       "participantsDueExpired": "(Overdue)",
@@ -768,8 +768,8 @@
     },
     "story": {
       "yearsLabel": "years of tea expertise",
-      "title": "Meishan, Chiayi — A Family Tea Garden Story",
-      "p1": "Our parents entered the tea industry when they were young, and for over 40 years we have tended our gardens in the Meishan mountains with love and dedication. Wu Jue Tea has always stood for growing and selling our own tea.",
+      "title": "Alishan Meishan — A Family Tea Garden Story",
+      "p1": "Our parents entered the tea industry when they were young, and for over 40 years we have tended our gardens in the Alishan Meishan tea region with love and dedication. Wu Jue Tea has always stood for growing and selling our own tea.",
       "p2": "From growing and processing to roasting, packing, and shipping — every step is handled by our family of three. Every cup you hold is the result of time and heart.",
       "p3": "All so you can enjoy that smooth, sweet sip with complete peace of mind.",
       "shopCta": "Explore Our Teas"
@@ -789,12 +789,12 @@
         "desc": "Over 40 years since our parents first entered the tea industry. Our roasting is guided by decades of accumulated experience and trained intuition — every batch is a labor of love."
       },
       "region": {
-        "title": "Meishan, Chiayi",
-        "desc": "Our gardens sit in the Meishan mountains of Alishan, Chiayi. The cool highland climate and year-round mist give our teas their distinctively sweet, mellow flavor."
+        "title": "Alishan Meishan Tea Region",
+        "desc": "Our gardens sit in the Alishan Meishan mountains of Chiayi, Taiwan. The cool highland climate and year-round mist give our teas their distinctively sweet, mellow flavor."
       },
       "delivery": {
         "title": "Nationwide Delivery",
-        "desc": "We ship anywhere in Taiwan, even a single pack. Visit us in person for a tasting, or order online and let the taste of Meishan come straight to your door."
+        "desc": "We ship anywhere in Taiwan, even a single pack. Visit us in person for a tasting, or order online and let the taste of Alishan Meishan tea come straight to your door."
       }
     },
     "teas": {
@@ -804,7 +804,7 @@
       "oolong": {
         "name": "Highland Oolong",
         "flavor": "Fresh & Floral",
-        "desc": "Grown in the misty highland gardens of Meishan, Chiayi. The liquor is clear gold, with a clean fragrance, gentle sweetness, and a long lingering finish."
+        "desc": "Grown in the misty Alishan Meishan highland gardens of Chiayi, Taiwan. The liquor is clear gold, with a clean fragrance, gentle sweetness, and a long lingering finish."
       },
       "jinxuan": {
         "name": "Jin Xuan Tea",
@@ -829,8 +829,8 @@
     },
     "galleryPhotos": {
       "farm2": {
-        "alt": "Panoramic view of Meishan high-mountain tea garden",
-        "caption": "Meishan Tea Garden",
+        "alt": "Panoramic view of Alishan Meishan high-mountain tea garden",
+        "caption": "Alishan Meishan Tea Garden",
         "desc": "Year-round misty high-mountain tea fields"
       },
       "picking2": {
