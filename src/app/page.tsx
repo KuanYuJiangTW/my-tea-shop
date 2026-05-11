@@ -39,6 +39,7 @@ export default async function HomePage() {
     "name": "霧抉茶 Wu Jue Tea",
     "image": `${baseUrl}/images/gallery/picking2.jpg`,
     "url": baseUrl,
+    "telephone": "+886-972-619-391",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "太興村8鄰溪頭19號之2",
