@@ -45,6 +45,7 @@ export default async function HomePage() {
       "streetAddress": "太興村8鄰溪頭19號之2",
       "addressLocality": "梅山鄉",
       "addressRegion": "嘉義縣",
+      "postalCode": "603",
       "addressCountry": "TW",
     },
     "description": "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。",
