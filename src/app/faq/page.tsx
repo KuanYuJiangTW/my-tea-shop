@@ -31,8 +31,37 @@ export default async function FaqPage() {
   ]);
   const lp = (path: string) => locale === "en" ? `/en${path}` : path;
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
+
+  // 將 PortableText block 轉純文字供 JSON-LD 使用
+  const toPlain = (blocks: unknown[]): string =>
+    (blocks as Array<{ _type?: string; children?: Array<{ text?: string }> }>)
+      .filter(b => b._type === "block")
+      .map(b => (b.children ?? []).map(c => c.text ?? "").join(""))
+      .join("\n");
+
+  const faqJsonLd = faqs.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": toPlain(faq.answer),
+      },
+    })),
+  } : null;
+
   return (
-    <div className="min-h-screen">
+    <>
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
+      <div className="min-h-screen">
       {/* Hero */}
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -63,5 +92,6 @@ export default async function FaqPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

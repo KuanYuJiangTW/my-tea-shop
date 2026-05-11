@@ -22,8 +22,39 @@ export const metadata: Metadata = {
 export default async function ProductsPage() {
   const [products, t] = await Promise.all([getProducts(), getTranslations("products")]);
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
+
+  const productsJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "霧抉茶茶葉系列",
+    "url": `${baseUrl}/products`,
+    "itemListElement": products.map((p, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "item": {
+        "@type": "Product",
+        "name": p.name,
+        "url": `${baseUrl}/products`,
+        "image": p.image ? `${baseUrl}${p.image}` : undefined,
+        "description": p.description,
+        "offers": {
+          "@type": "Offer",
+          "price": p.price,
+          "priceCurrency": "TWD",
+          "availability": "https://schema.org/InStock",
+        },
+      },
+    })),
+  };
+
   return (
-    <div className="min-h-screen">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productsJsonLd) }}
+      />
+      <div className="min-h-screen">
       {/* Hero */}
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -42,5 +73,6 @@ export default async function ProductsPage() {
 
       <ProductsClient products={products} />
     </div>
+    </>
   );
 }

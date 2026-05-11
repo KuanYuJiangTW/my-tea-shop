@@ -31,8 +31,44 @@ export default async function HomePage() {
   const lp = (path: string) => isEn ? `/en${path}` : path;
   const contentMap = Object.fromEntries(contents.map(c => [c.slug, c]));
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
+
+  const localBusinessJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "霧抉茶 Wu Jue Tea",
+    "image": `${baseUrl}/images/gallery/picking2.jpg`,
+    "url": baseUrl,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "太興村8鄰溪頭19號之2",
+      "addressLocality": "梅山鄉",
+      "addressRegion": "嘉義縣",
+      "addressCountry": "TW",
+    },
+    "description": "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。",
+    "priceRange": "$$",
+  };
+
+  const webSiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "霧抉茶",
+    "alternateName": "Wu Jue Tea",
+    "url": baseUrl,
+  };
+
   return (
-    <div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+      />
+      <div>
       {/* Hero */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
         <Image
@@ -302,5 +338,6 @@ export default async function HomePage() {
         </div>
       </section>
     </div>
+    </>
   );
 }
