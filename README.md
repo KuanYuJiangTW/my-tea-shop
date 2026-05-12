@@ -10,11 +10,13 @@
 
 **嘉義阿里山梅山高山茶｜自產自銷電商 + 茶藝體驗預約平台**
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-2-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 [![Stripe](https://img.shields.io/badge/Stripe-008CDD?logo=stripe&logoColor=white)](https://stripe.com/)
+[![PayPal](https://img.shields.io/badge/PayPal-003087?logo=paypal&logoColor=white)](https://www.paypal.com/)
+[![Vitest](https://img.shields.io/badge/Vitest-4-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [線上預覽](https://taiwantea.store) · [管理後台](https://taiwantea.store/admin)
@@ -26,12 +28,16 @@
 ## 專案亮點
 
 - **正式營運中的產品** — 非教學範例或 Demo 專案
-- **完整電商流程**：商品目錄 → 購物車 → 綠界金流結帳 → 訂單追蹤 → Email 通知
+- **完整電商流程**：商品目錄 → 購物車 → 多元金流結帳 → 訂單追蹤 → Email 通知
 - **完整預約系統**：場次日曆 → 候補自動順延 → 完課留評
+- **國際訂單支援**：Stripe / PayPal 國際金流 + 國際配送運費計算
+- **AI 智能客服**：Groq LLM 驅動的即時聊天機器人，自動回答商品與訂單問題
 - **管理後台**：營收圖表、訂單 / 預約 / 商品管理、評價審核
 - **安全優先**：2FA（TOTP）、CSP nonce、RLS、HMAC 簽章 Session、API 限流、後端價格驗證
 - **中英雙語（zh-TW / EN）**：含所有交易信件，使用 next-intl
+- **SEO 優化**：JSON-LD 結構化資料、動態 Sitemap、robots.txt、OG Image 自動生成
 - **自動化排程**：Vercel Cron 處理完課標記、活動提醒、候補過期清理
+- **自動化測試**：Vitest 單元測試覆蓋國際配送與 PayPal 金流
 
 ---
 
@@ -117,7 +123,7 @@
 
 **霧抉茶**是為台灣嘉義阿里山區茶農家庭打造的全端平台，涵蓋兩大核心系統：
 
-1. **電商系統** — 商品瀏覽、購物車、ECPay 金流（信用卡 / 超商）、訂單追蹤
+1. **電商系統** — 商品瀏覽、購物車、多元金流（ECPay / Stripe / PayPal）、國內外配送、訂單追蹤
 2. **茶藝體驗預約系統** — 5 種體驗活動、場次管理、線上預約付款、候補通知、完課後留評
 
 ---
@@ -126,15 +132,19 @@
 
 | 類別 | 技術 |
 |---|---|
-| **框架** | [Next.js 15](https://nextjs.org/)（App Router）+ [React 19](https://react.dev/) |
+| **框架** | [Next.js 16](https://nextjs.org/)（App Router）+ [React 19](https://react.dev/) |
 | **語言** | [TypeScript 5](https://www.typescriptlang.org/)（strict mode） |
-| **樣式** | [Tailwind CSS 3](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/) |
+| **樣式 / 動畫** | [Tailwind CSS 3](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/) + [Motion](https://motion.dev/) |
 | **資料庫 / 認證** | [Supabase](https://supabase.com/)（PostgreSQL + Auth + RLS） |
 | **內容管理** | [Sanity CMS](https://www.sanity.io/)（體驗頁面內容 + 內嵌 Studio） |
 | **國際化** | [next-intl](https://next-intl.dev/)（繁體中文 / English） |
-| **金流 / 物流** | [ECPay 綠界](https://www.ecpay.com.tw/)（信用卡 / ATM / 超商代碼 + 超商店到店物流）+ [Stripe](https://stripe.com/)（國際信用卡 / Apple Pay / Google Pay） |
+| **金流** | [ECPay 綠界](https://www.ecpay.com.tw/)（信用卡 / ATM / 超商代碼）+ [Stripe](https://stripe.com/)（國際信用卡 / Apple Pay / Google Pay）+ [PayPal](https://www.paypal.com/)（國際買家） |
+| **物流** | ECPay 綠界（超商店到店）+ 國際配送運費計算（依國家 / 重量分區計費） |
+| **AI 客服** | [Groq](https://groq.com/)（LLM 即時聊天客服） |
 | **Email** | [Resend](https://resend.com/)（訂單 / 預約 / 候補通知） |
 | **圖表** | [Recharts](https://recharts.org/)（後台收益圖表） |
+| **測試** | [Vitest](https://vitest.dev/)（單元測試） |
+| **SEO** | JSON-LD 結構化資料、動態 Sitemap、robots.txt、OG Image |
 | **部署** | [Vercel](https://vercel.com/) |
 
 ---
@@ -145,10 +155,12 @@
 
 - **商品瀏覽**：多規格選擇（150g / 75g / 茶包），即時庫存顯示，售完自動鎖定
 - **購物車**：Context 狀態管理，localStorage 本地快取，Supabase 雲端同步
-- **結帳流程**：宅配到府 / 超商店到店（7-11、全家、萊爾富、OK），滿額免運
-- **付款方式**：線上付款（ECPay：信用卡 / ATM / 超商代碼）、Stripe 國際付款（信用卡 / Apple Pay / Google Pay）、貨到付款
+- **結帳流程**：宅配到府 / 超商店到店（7-11、全家、萊爾富、OK）/ 國際配送，滿額免運
+- **付款方式**：ECPay（信用卡 / ATM / 超商代碼）、Stripe（信用卡 / Apple Pay / Google Pay）、PayPal（國際買家）、貨到付款
+- **國際配送**：依國家分區計算運費（ePacket 限重 2kg），支援全球配送
 - **訂單追蹤**：登入後查看歷史訂單與最新狀態，支援取消
 - **優惠券 / 積點**：優惠碼驗證，完課後自動累積積點，積點折抵消費
+- **AI 智能客服**：浮動聊天視窗，即時回答商品、配送、退換貨等常見問題
 - **Email 通知**：下單確認、出貨通知（顧客 + 商家雙份）
 - **中英雙語**：全站支援繁體中文 / English 切換（next-intl）
 
@@ -183,14 +195,27 @@
 | `complete-bookings` | 每日 02:00 UTC | 自動標記已結束的體驗為「完成」，發放積點 |
 | `experience-reminders` | 每日 01:00 UTC | 參加者補填提醒（活動前 5 天）、活動前日提醒、場次確認/取消、候補過期清理與順延通知 |
 
+### SEO 優化
+
+- **JSON-LD 結構化資料**：LocalBusiness schema（含地址、電話、郵遞區號）
+- **動態 Sitemap**：自動產生含所有體驗頁的 sitemap.xml
+- **robots.txt**：程式化產生，排除購物車、結帳等非公開頁面
+- **OG Image**：Next.js 動態生成 Open Graph 社群分享圖
+- **Google Search Console**：已整合驗證
+
 ### 安全機制
 
 - **CSP 安全標頭**：動態 nonce 防 XSS，搭配 `X-Frame-Options`、`HSTS`、`Permissions-Policy` 等完整 HTTP 安全標頭
 - **ECPay 簽章驗證**：回調 `CheckMacValue` SHA256 驗證 + timing-safe 比對
+- **PayPal Webhook 驗證**：PayPal Webhook 簽章驗證
 - **Supabase RLS**：行級安全確保顧客只能存取自己的資料
 - **Admin 認證**：HMAC 簽章 Cookie + 2FA（TOTP），全站 `/admin/*` 由 Middleware 守門
-- **API 限流**：IP rate limiter（20 req/min），登入失敗 15 分鐘限 5 次
+- **API 限流**：IP rate limiter（20 req/min），登入失敗 15 分鐘限 5 次；AI 客服 10 req/min
 - **後端價格驗證**：結帳時後端重新計算金額，完全不信任前端數據
+
+### 測試
+
+- **Vitest 單元測試**：國際配送運費計算、PayPal 金流整合（建立訂單、扣款、重試、取消、Webhook、競態條件、速率限制）
 
 ---
 
@@ -202,9 +227,16 @@
 │   └── en.json                           # English
 │
 src/
-├── app/                                  # Next.js 15 App Router
-│   ├── layout.tsx                        # 根版面（GA、Auth、Cart Provider）
+├── __tests__/                            # 單元測試
+│   ├── international/                    # 國際配送測試
+│   └── paypal/                           # PayPal 金流測試
+│
+├── app/                                  # Next.js 16 App Router
+│   ├── layout.tsx                        # 根版面（GA、Auth、Cart Provider、ChatWidget）
 │   ├── page.tsx                          # 首頁
+│   ├── sitemap.ts                        # 動態 Sitemap 產生
+│   ├── robots.ts                         # robots.txt 產生
+│   ├── opengraph-image.tsx               # 動態 OG Image 產生
 │   ├── about/                            # 品牌故事
 │   ├── products/                         # 商品列表
 │   ├── process/                          # 製茶過程
@@ -242,12 +274,15 @@ src/
 │       ├── experience-sessions/          # 場次查詢
 │       ├── waitlist/                     # 加入候補、候補確認
 │       ├── reviews/                      # 建立評價
+│       ├── chat/                         # AI 客服聊天（Groq LLM）
 │       ├── user/coupons|points/          # 優惠券驗證、積點查詢
 │       ├── products/stock/               # 商品庫存
+│       ├── shipping/countries/           # 國際配送國家與運費查詢
 │       ├── ecpay/                        # 綠界金流 + 物流（商品 + 體驗 + 超商地圖）
-│       ├── stripe/                      # Stripe 國際金流（結帳 + Webhook）
+│       ├── stripe/                       # Stripe 國際金流（結帳 + Webhook）
+│       ├── paypal/                       # PayPal 金流（建立訂單 + 扣款 + 重試 + Webhook）
 │       ├── cron/                         # 排程任務
-│       ├── admin/                        # 後台管理 API（含 2FA 設定）
+│       ├── admin/                        # 後台管理 API（含 2FA、圖片上傳）
 │       ├── contact/                      # 聯絡表單
 │       ├── revalidate/                   # ISR 快取更新
 │       └── sanity-webhook/              # Sanity CMS Webhook
@@ -256,7 +291,9 @@ src/
 │   ├── Header.tsx                        # 黏性導覽（RWD 漢堡選單、購物車圖示）
 │   ├── Footer.tsx
 │   ├── ProductCard.tsx                   # 商品卡片（多規格、庫存狀態）
+│   ├── TeaBagCard.tsx                    # 茶包商品卡片
 │   ├── ProductLightbox.tsx               # 商品圖片燈箱
+│   ├── ChatWidget.tsx                    # AI 客服浮動聊天視窗
 │   ├── LanguageSwitcher.tsx              # 中英語言切換
 │   ├── SiteChrome.tsx                    # 自動隱藏 Header/Footer（後台路由）
 │   ├── GoogleAnalytics.tsx               # GA4 整合
@@ -276,6 +313,10 @@ src/
 │   ├── products.ts                       # 商品資料查詢
 │   ├── email.ts                          # Resend 信件（訂單 / 預約 / 候補 / 聯絡）
 │   ├── waitlist.ts                       # 候補通知與過期邏輯
+│   ├── paypal.ts                         # PayPal API 整合（Token 快取、建立/扣款訂單）
+│   ├── shipping.ts                       # 配送運費計算（國內 / 國際）
+│   ├── shipping-constants.ts             # 配送常量（規格重量、免運門檻、ePacket 限重）
+│   ├── chat-knowledge.ts                 # AI 客服知識庫（商品 + 體驗資料快取）
 │   ├── admin-auth-guard.ts               # Admin 認證中介
 │   ├── admin-token.ts                    # HMAC 簽章
 │   ├── rate-limit.ts                     # IP 限流
@@ -309,15 +350,25 @@ src/
      │
      ├── 貨到付款 ──► POST /api/orders ──► 寫入 DB（pending）+ 扣庫存 + 寄信
      │
-     └── 線上付款 ──► POST /api/ecpay/checkout ──► 寫入 DB（pending）
-                              │
-                              ▼
-                      自動提交表單至綠界
-                              │
-             ┌────────────────┴─────────────────┐
-             │                                  │
-  Server 回調 /api/ecpay/return        Browser 回調 /api/ecpay/result
-  （驗證簽章 → 更新 paid → 扣庫存 → 寄信）   （轉址至 /order/result）
+     ├── ECPay ──► POST /api/ecpay/checkout ──► 寫入 DB（pending）
+     │                    │
+     │                    ▼
+     │            自動提交表單至綠界
+     │                    │
+     │       ┌────────────┴──────────────┐
+     │       │                           │
+     │  Server 回調 /api/ecpay/return   Browser 回調 /api/ecpay/result
+     │  （驗簽 → paid → 扣庫存 → 寄信） （轉址至 /order/result）
+     │
+     ├── Stripe ──► POST /api/stripe/checkout ──► Stripe Checkout Session
+     │                    │
+     │                    ▼
+     │            Webhook /api/stripe/webhook ──► 更新 paid → 扣庫存 → 寄信
+     │
+     └── PayPal ──► POST /api/paypal/create-order ──► 建立 PayPal 訂單
+                          │
+                          ▼
+                  POST /api/paypal/capture ──► 扣款確認 → 更新 paid → 寄信
 ```
 
 ## 體驗預約流程
@@ -395,6 +446,12 @@ STRIPE_SECRET_KEY=
 STRIPE_PUBLISHABLE_KEY=
 STRIPE_WEBHOOK_SECRET=
 
+# ── PayPal 國際金流（可選） ──────────────────
+PAYPAL_CLIENT_ID=
+PAYPAL_CLIENT_SECRET=
+PAYPAL_WEBHOOK_ID=
+PAYPAL_MODE=sandbox              # sandbox 或 live
+
 # ── 綠界物流（超商店到店） ───────────────────
 ECPAY_LOGISTICS_HASH_KEY=
 ECPAY_LOGISTICS_HASH_IV=
@@ -402,6 +459,9 @@ ECPAY_LOGISTICS_HASH_IV=
 # ── 管理後台 ───────────────────────────────────
 ADMIN_PASSWORD=
 ADMIN_TOKEN_SECRET=        # 任意隨機字串，用於 HMAC 簽章
+
+# ── AI 客服（可選） ─────────────────────────────
+GROQ_API_KEY=
 
 # ── Sanity CMS（可選） ────────────────────────
 NEXT_PUBLIC_SANITY_PROJECT_ID=
@@ -411,6 +471,9 @@ SANITY_WEBHOOK_SECRET=     # Sanity Webhook 驗證
 
 # ── Google Analytics（可選） ──────────────────
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+
+# ── LINE 官方帳號（可選，AI 客服轉真人用）────
+NEXT_PUBLIC_LINE_OFFICIAL_URL=
 
 # ── Cron Secret（Vercel Cron 驗證用） ─────────
 CRON_SECRET=
@@ -429,10 +492,12 @@ npm run dev
 ### 其他指令
 
 ```bash
-npm run build    # 正式環境建置
-npm run start    # 啟動正式伺服器
-npm run lint     # ESLint 檢查
-npx tsc --noEmit # TypeScript 型別檢查
+npm run build      # 正式環境建置
+npm run start      # 啟動正式伺服器
+npm run lint       # ESLint 檢查
+npm run test       # 執行單元測試（Vitest）
+npm run test:watch # 監聽模式測試
+npx tsc --noEmit   # TypeScript 型別檢查
 ```
 
 ---
@@ -457,7 +522,7 @@ vercel --prod
     },
     {
       "path": "/api/cron/experience-reminders",
-      "schedule": "0 * * * *"
+      "schedule": "0 1 * * *"
     }
   ]
 }
