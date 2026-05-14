@@ -1,3 +1,4 @@
+# my-tea-shop Docker development environment
 services:
   app:
     build:
