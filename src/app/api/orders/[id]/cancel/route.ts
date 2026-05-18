@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase as adminSupabase } from "@/lib/supabase";
+import { refundPoints } from "@/lib/points";
 
 const CANCELLABLE_STATUSES = ["new"];
 
@@ -75,13 +76,13 @@ export async function POST(
       .eq("id", order.coupon_id);
   }
 
-  // 還原已扣除的點數
-  if (order.points_used > 0) {
-    await adminSupabase.from("point_transactions").insert({
-      user_id:     user.id,
-      points:      order.points_used,
-      type:        "earn",
-      order_id:    id,
+  // 還原已扣除的點數（新制：退還 points_discount，type='refund'）
+  const pointsToRefund = (order as Record<string, unknown>).points_discount as number ?? Math.floor((order.points_used ?? 0) / 100);
+  if (pointsToRefund > 0) {
+    await refundPoints({
+      userId: user.id,
+      points: pointsToRefund,
+      orderId: id,
       description: "訂單取消退還點數",
     });
   }

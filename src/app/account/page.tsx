@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase as adminSupabase } from "@/lib/supabase";
+import { getValidBalance, getUserTier } from "@/lib/points";
 import AccountClient from "./AccountClient";
 
 export const dynamic = "force-dynamic";
@@ -37,14 +38,38 @@ export default async function AccountPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  // 點數記錄
+  // 點數記錄 + 有效餘額 + 等級
   const { data: pointTxs } = await adminSupabase
     .from("point_transactions")
-    .select("id, points, type, description, created_at")
+    .select("id, points, type, description, created_at, expires_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
-    .limit(20);
-  const pointsBalance = (pointTxs ?? []).reduce((sum: number, t: { points: number }) => sum + t.points, 0);
+    .limit(50);
+  const pointsBalance = await getValidBalance(user.id);
+  const memberTier = await getUserTier(user.id);
+
+  // 年消費 + 即將到期點數
+  const { data: membership } = await adminSupabase
+    .from("user_membership")
+    .select("annual_spend")
+    .eq("user_id", user.id)
+    .single();
+  const annualSpend = membership?.annual_spend ?? 0;
+
+  const thirtyDaysLater = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const now = new Date().toISOString();
+  const { data: expiringTxs } = await adminSupabase
+    .from("point_transactions")
+    .select("points, expires_at")
+    .eq("user_id", user.id)
+    .gt("points", 0)
+    .gt("expires_at", now)
+    .lte("expires_at", thirtyDaysLater);
+  const expiringPoints = (expiringTxs ?? []).reduce((s, t) => s + t.points, 0);
+  const earliestExpiry = (expiringTxs ?? [])
+    .map(t => t.expires_at)
+    .filter(Boolean)
+    .sort()[0] ?? null;
 
   // 折價券（可用 + 已使用，共同顯示）
   const { data: coupons } = await adminSupabase
@@ -88,6 +113,10 @@ export default async function AccountPage() {
         profile={profile ?? null}
         orders={orders ?? []}
         pointsBalance={pointsBalance}
+        memberTier={{ id: memberTier.id, name: memberTier.name, points_rate: memberTier.points_rate, max_discount_rate: memberTier.max_discount_rate, min_annual_spend: memberTier.min_annual_spend }}
+        annualSpend={annualSpend}
+        expiringPoints={expiringPoints}
+        earliestExpiry={earliestExpiry}
         pointTransactions={pointTxs ?? []}
         coupons={coupons ?? []}
         bookings={

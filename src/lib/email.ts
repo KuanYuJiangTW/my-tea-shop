@@ -1,6 +1,10 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
+}
 
 const FROM    = process.env.RESEND_FROM_EMAIL ?? "霧抉茶 <noreply@taiwantea.store>";
 const ADMIN   = process.env.ADMIN_EMAIL       ?? "qdbzdt2846@gmail.com";
@@ -170,7 +174,7 @@ export async function sendContactEmail(data: {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:     FROM,
     to:       ADMIN,
     replyTo:  data.email,
@@ -265,7 +269,7 @@ export async function sendShippingEmail(data: ShippingEmailData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      data.customerEmail,
     subject: `【霧抉茶】您的訂單已出貨 #${shortId(data.orderId)}`,
@@ -368,7 +372,7 @@ async function sendCustomerEmail(data: EmailOrderData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      data.customerEmail,
     subject: `【霧抉茶】訂單確認 #${shortId(data.orderId)}`,
@@ -463,7 +467,7 @@ async function sendAdminEmail(data: EmailOrderData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      ADMIN,
     subject: `【新訂單】${data.customerName} 的訂單 #${shortId(data.orderId)}｜NT$${data.totalAmount.toLocaleString()}`,
@@ -577,7 +581,7 @@ async function sendBookingCustomerEmail(data: BookingEmailData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      data.bookerEmail,
     subject: `【霧抉茶】體驗預約確認 — ${safeExp} #${shortBid}`,
@@ -702,7 +706,7 @@ export async function sendParticipantFillReminder(data: ParticipantReminderData)
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      data.bookerEmail,
     subject: `【霧抉茶】提醒：請補填 ${missing} 位參加者資料（活動前 5 天）— ${safeExp}`,
@@ -780,7 +784,7 @@ export async function sendSessionConfirmEmail(data: SessionConfirmData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      data.bookerEmail,
     subject: `【霧抉茶】活動確認 — ${safeExp} 將如期於 ${data.sessionDate} 舉行`,
@@ -878,7 +882,7 @@ export async function sendBookingCancelEmail(data: BookingCancelData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      data.bookerEmail,
     subject: `【霧抉茶】預約取消確認 — ${safeExp} ${data.sessionDate}`,
@@ -955,7 +959,7 @@ export async function sendSessionCancelEmail(data: SessionCancelData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      data.bookerEmail,
     subject: `【霧抉茶】活動取消通知 — ${safeExp} ${data.sessionDate} 已取消`,
@@ -1038,7 +1042,7 @@ export async function sendDayBeforeReminder(data: DayBeforeReminderData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      data.bookerEmail,
     subject: `【霧抉茶】明天見！${safeExp} 活動提醒 — ${data.sessionDate} ${timeLabel}`,
@@ -1086,7 +1090,7 @@ export async function sendAdminSessionCancelNotice(data: {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      ADMIN,
     subject: `【後台】場次取消 — ${safeExp} ${data.sessionDate} 共 ${data.cancelledBookingCount} 筆需退款`,
@@ -1152,7 +1156,7 @@ export async function sendWaitlistNotifyEmail(data: {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      data.bookerEmail,
     subject: `【霧抉茶】候補通知！${safeExp} ${data.sessionDate} 有名額釋出，請在 ${data.deadlineLabel} 前確認`,
@@ -1206,10 +1210,135 @@ async function sendBookingAdminEmail(data: BookingEmailData) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM,
     to:      ADMIN,
     subject: `【新預約】${safeName} — ${safeExp} ${data.sessionDate} ${data.startTime.slice(0, 5)}｜${data.participantCount}人`,
+    html,
+  });
+}
+
+// ─── 點數到期提醒 ─────────────────────────────────────────────────────────
+
+export async function sendPointsExpiryEmail(data: {
+  customerEmail: string;
+  customerName: string;
+  expiringPoints: number;
+  expiryDate: string;
+  daysLeft: number;
+}) {
+  const safeName = data.customerName.replace(/</g, "&lt;");
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:0;background:#F5F1EB;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F1EB;padding:24px 0;">
+    <tr><td align="center">
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;">
+        <tr><td style="background:#3D4A42;padding:20px 28px;">
+          <p style="margin:0;font-size:18px;font-weight:700;color:#E8E0D2;">霧抉茶 WuJue Tea</p>
+        </td></tr>
+        <tr><td style="padding:28px;">
+          <p style="margin:0 0 12px;font-size:15px;color:#3D4A42;">親愛的 ${safeName} 您好，</p>
+          <p style="margin:0 0 16px;font-size:14px;color:#5A6B5E;line-height:1.6;">
+            您有 <strong style="color:#D97706;">NT$${data.expiringPoints}</strong> 的點數將於
+            <strong>${data.expiryDate}</strong>（${data.daysLeft} 天後）到期。
+          </p>
+          <p style="margin:0 0 20px;font-size:14px;color:#5A6B5E;">到期後點數將無法使用，建議您盡快至商城選購心儀商品，使用點數折抵！</p>
+          <a href="https://taiwantea.store/products" style="display:inline-block;padding:10px 24px;background:#7D9B84;color:#fff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">立即選購</a>
+        </td></tr>
+        <tr><td style="padding:0 28px 20px;">
+          <p style="margin:0;font-size:11px;color:#9CA89E;">此為系統自動通知，如有疑問請聯繫客服。</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  await getResend().emails.send({
+    from: FROM,
+    to: data.customerEmail,
+    subject: `【霧抉茶】您有 NT$${data.expiringPoints} 點數即將到期（${data.daysLeft} 天後）`,
+    html,
+  });
+}
+
+// ─── 升等通知 ─────────────────────────────────────────────────────────────
+
+export async function sendTierUpgradeEmail(data: {
+  customerEmail: string;
+  customerName: string;
+  newTierName: string;
+  pointsRate: number;
+  maxDiscountRate: number;
+}) {
+  const safeName = data.customerName.replace(/</g, "&lt;");
+  const ratePercent = Math.round(data.pointsRate * 100);
+  const discountPercent = Math.round(data.maxDiscountRate * 100);
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:0;background:#F5F1EB;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F1EB;padding:24px 0;">
+    <tr><td align="center">
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;">
+        <tr><td style="background:#3D4A42;padding:20px 28px;">
+          <p style="margin:0;font-size:18px;font-weight:700;color:#E8E0D2;">霧抉茶 WuJue Tea</p>
+        </td></tr>
+        <tr><td style="padding:28px;text-align:center;">
+          <p style="margin:0 0 8px;font-size:24px;">🎉</p>
+          <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:#3D4A42;">恭喜升等為${data.newTierName}！</p>
+          <p style="margin:0 0 12px;font-size:15px;color:#3D4A42;">親愛的 ${safeName} 您好，</p>
+          <p style="margin:0 0 16px;font-size:14px;color:#5A6B5E;line-height:1.6;">
+            您已成功升等為 <strong style="color:#7D9B84;">${data.newTierName}</strong>，享有以下專屬權益：
+          </p>
+          <table width="100%" cellpadding="8" style="font-size:14px;color:#3D4A42;border-collapse:collapse;">
+            <tr style="background:#F0EDE6;"><td>消費回饋率</td><td style="font-weight:700;">${ratePercent}%</td></tr>
+            <tr><td>點數折抵上限</td><td style="font-weight:700;">${discountPercent}%</td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:0 28px 20px;text-align:center;">
+          <a href="https://taiwantea.store/account" style="display:inline-block;padding:10px 24px;background:#7D9B84;color:#fff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">查看會員權益</a>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  await getResend().emails.send({
+    from: FROM,
+    to: data.customerEmail,
+    subject: `【霧抉茶】恭喜！您已升等為${data.newTierName} 🎉`,
+    html,
+  });
+}
+
+// ─── 異常告警（寄給管理員）─────────────────────────────────────────────────
+
+export async function sendAnomalyAlertEmail(data: {
+  anomalies: { userId: string; type: string; detail: string }[];
+  date: string;
+}) {
+  const rows = data.anomalies.map(a =>
+    `<tr><td style="padding:6px 8px;border:1px solid #ddd;">${a.userId.slice(0, 8)}...</td>` +
+    `<td style="padding:6px 8px;border:1px solid #ddd;">${a.type}</td>` +
+    `<td style="padding:6px 8px;border:1px solid #ddd;">${a.detail}</td></tr>`
+  ).join("");
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:20px;font-family:Arial,sans-serif;">
+  <h2 style="color:#D97706;">點數異常告警 — ${data.date}</h2>
+  <p>以下為今日偵測到的異常事件：</p>
+  <table style="border-collapse:collapse;width:100%;font-size:13px;">
+    <tr style="background:#f5f5f5;"><th style="padding:8px;border:1px solid #ddd;">用戶</th><th style="padding:8px;border:1px solid #ddd;">類型</th><th style="padding:8px;border:1px solid #ddd;">詳情</th></tr>
+    ${rows}
+  </table>
+  <p style="margin-top:16px;font-size:12px;color:#999;">此為系統自動告警，請至後台查看詳情。</p>
+</body></html>`;
+
+  await getResend().emails.send({
+    from: FROM,
+    to: ADMIN,
+    subject: `【告警】點數異常 — ${data.date}（${data.anomalies.length} 筆）`,
     html,
   });
 }

@@ -47,12 +47,16 @@ export default function BookingFlow({ session, userEmail }: Props) {
   const [loading, setLoading]     = useState(false);
   const [error,  setError]        = useState("");
   const [pointsBalance, setPointsBalance] = useState(0);
+  const [pointsMaxRate, setPointsMaxRate] = useState(0.10);
   const [pointsInput, setPointsInput]     = useState("");
 
   useEffect(() => {
     fetch("/api/user/points")
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.balance) setPointsBalance(d.balance); })
+      .then(d => {
+        if (d?.balance) setPointsBalance(d.balance);
+        if (d?.tier?.max_discount_rate) setPointsMaxRate(d.tier.max_discount_rate);
+      })
       .catch(() => {});
   }, []);
 
@@ -60,11 +64,12 @@ export default function BookingFlow({ session, userEmail }: Props) {
   const [waitlistCount, setWaitlistCount] = useState(1);
   const [waitlistDone, setWaitlistDone]   = useState(false);
 
-  const totalPrice     = exp.price * count;
-  const parsedPoints   = parseInt(pointsInput) || 0;
-  const validPoints    = parsedPoints >= 200 && parsedPoints % 100 === 0 && parsedPoints <= pointsBalance && parsedPoints / 100 <= Math.floor(totalPrice * 0.1) ? parsedPoints : 0;
-  const pointsDiscount = Math.floor(validPoints / 100);
-  const finalPrice     = Math.max(totalPrice - pointsDiscount, 0);
+  const totalPrice      = exp.price * count;
+  const parsedPoints    = parseInt(pointsInput) || 0;
+  const maxPointsAllow  = Math.min(pointsBalance, Math.floor(totalPrice * pointsMaxRate));
+  const validPoints     = parsedPoints >= 10 && parsedPoints <= maxPointsAllow ? parsedPoints : 0;
+  const pointsDiscount  = validPoints; // 1:1
+  const finalPrice      = Math.max(totalPrice - pointsDiscount, 0);
   const dateLabel  = new Date(session.sessionDate + "T00:00:00").toLocaleDateString(
     locale === "en" ? "en-US" : "zh-TW",
     { year: "numeric", month: "long", day: "numeric", weekday: "long" }
@@ -319,29 +324,39 @@ export default function BookingFlow({ session, userEmail }: Props) {
             </div>
           </div>
 
-          {/* 點數折抵 */}
-          {pointsBalance > 0 && (
+          {/* 點數折抵（新制 1:1）*/}
+          {pointsBalance >= 10 && maxPointsAllow >= 10 && (
             <div className="mb-6">
               <label className="block text-sm font-medium text-tea-text mb-1.5">
                 {t("usePointsLabel")}
-                <span className="ml-2 text-xs font-normal text-tea-text-light">{t("availablePoints", { balance: pointsBalance.toLocaleString(), max: Math.floor(totalPrice * 0.1).toLocaleString() })}</span>
+                <span className="ml-2 text-xs font-normal text-tea-text-light">{t("availablePoints", { balance: pointsBalance.toLocaleString(), max: maxPointsAllow.toLocaleString() })}</span>
               </label>
-              <input
-                type="number"
-                min={0}
-                step={100}
-                value={pointsInput}
-                onChange={e => setPointsInput(e.target.value)}
-                placeholder={t("pointsPlaceholder")}
-                className="w-full border border-tea-green-pale rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30 focus:border-tea-green"
-              />
-              {pointsInput && !validPoints && parseInt(pointsInput) > 0 && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  max={maxPointsAllow}
+                  step={1}
+                  value={pointsInput}
+                  onChange={e => setPointsInput(e.target.value)}
+                  placeholder={`10 ~ ${maxPointsAllow}`}
+                  className="flex-1 border border-tea-green-pale rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30 focus:border-tea-green"
+                />
+                <button
+                  type="button"
+                  onClick={() => setPointsInput(String(maxPointsAllow))}
+                  className="text-xs text-tea-green hover:underline whitespace-nowrap"
+                >{t("pointsUseMax")}</button>
+              </div>
+              {pointsInput && !validPoints && parsedPoints > 0 && (
                 <p className="text-xs text-amber-600 mt-1">
-                  {parseInt(pointsInput) < 200 ? t("pointsErrors.min200") :
-                   parseInt(pointsInput) % 100 !== 0 ? t("pointsErrors.multiple100") :
-                   parseInt(pointsInput) > pointsBalance ? t("pointsErrors.exceeds") :
-                   t("pointsErrors.maxDiscount", { max: Math.floor(totalPrice * 0.1) })}
+                  {parsedPoints < 10 ? t("pointsErrors.min10") :
+                   parsedPoints > pointsBalance ? t("pointsErrors.exceeds") :
+                   t("pointsErrors.maxDiscount", { max: maxPointsAllow })}
                 </p>
+              )}
+              {validPoints > 0 && (
+                <p className="text-xs text-tea-green mt-1">{t("pointsWillSave", { amount: validPoints.toLocaleString() })}</p>
               )}
             </div>
           )}

@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { validateRedemption, deductPoints } from "@/lib/points";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
 const HASH_KEY  = process.env.ECPAY_HASH_KEY!;
@@ -54,28 +55,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "找不到此預約或狀態不符" }, { status: 404 });
   }
 
-  // ── 點數折抵驗證 ────────────────────────────────────────────────────────────
+  // ── 點數折抵驗證（新制 1:1）────────────────────────────────────────────────
   let pointsUsed = 0;
   let pointsDiscount = 0;
 
   if (pointsToUse > 0) {
-    if (pointsToUse < 200 || pointsToUse % 100 !== 0) {
-      return NextResponse.json({ error: "點數最少 200 點，且須為 100 的倍數" }, { status: 400 });
+    const redemption = await validateRedemption(user.id, pointsToUse, booking.total_price);
+    if (!redemption.valid) {
+      return NextResponse.json({ error: redemption.error }, { status: 400 });
     }
-    const { data: txs } = await supabase
-      .from("point_transactions")
-      .select("points")
-      .eq("user_id", user.id);
-    const balance = (txs ?? []).reduce((s: number, t: { points: number }) => s + t.points, 0);
-    if (balance < pointsToUse) {
-      return NextResponse.json({ error: "點數不足" }, { status: 400 });
-    }
-    const maxDiscount = Math.floor(booking.total_price * 0.1);
-    if (pointsToUse / 100 > maxDiscount) {
-      return NextResponse.json({ error: `點數折抵上限為 NT$${maxDiscount}` }, { status: 400 });
-    }
-    pointsUsed = pointsToUse;
-    pointsDiscount = Math.floor(pointsToUse / 100);
+    pointsUsed = redemption.pointsUsed;
+    pointsDiscount = redemption.pointsDiscount; // 1:1
   }
 
   const actualAmount = Math.max(booking.total_price - pointsDiscount, 0);
@@ -87,11 +77,10 @@ export async function POST(req: NextRequest) {
       .update({ points_used: pointsUsed, points_discount: pointsDiscount })
       .eq("id", bookingId);
 
-    await supabase.from("point_transactions").insert({
-      user_id:    user.id,
-      points:     -pointsUsed,
-      type:       "redeem",
-      booking_id: bookingId,
+    await deductPoints({
+      userId: user.id,
+      points: pointsUsed,
+      bookingId,
       description: `體驗預約折抵 NT$${pointsDiscount}`,
     });
   }

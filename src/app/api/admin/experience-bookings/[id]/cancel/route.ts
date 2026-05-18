@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { notifyNextWaitlist } from "@/lib/waitlist";
+import { refundPoints } from "@/lib/points";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -55,23 +56,22 @@ export async function POST(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  // 退還已折抵的點數（按退款比例，待付款全額退還，未使用點數不退）
+  // 退還已折抵的點數（新制：使用 points_discount，type='refund'）
   const wasPending = booking.status === "confirmed" ? false : true;
-  if (booking.points_used > 0) {
-    const paidAmt      = booking.total_price - (booking.points_discount ?? 0);
-    const refundRate   = paidAmt > 0 ? refundAmount / paidAmt : 0;
-    const refundPoints = wasPending
-      ? booking.points_used
-      : Math.floor(booking.points_used * refundRate);
-    if (refundPoints > 0) {
-      const { error: pointsError } = await supabase.from("point_transactions").insert({
-        user_id:    booking.user_id,
-        points:     refundPoints,
-        type:       "earn",
-        booking_id: id,
+  const pointsDiscountUsed = booking.points_discount ?? 0;
+  if (pointsDiscountUsed > 0) {
+    const paidAmt = booking.total_price - pointsDiscountUsed;
+    const calcRefundRate = paidAmt > 0 ? refundAmount / paidAmt : 0;
+    const pointsToReturn = wasPending
+      ? pointsDiscountUsed
+      : Math.floor(pointsDiscountUsed * calcRefundRate);
+    if (pointsToReturn > 0) {
+      await refundPoints({
+        userId: booking.user_id,
+        points: pointsToReturn,
+        bookingId: id,
         description: "體驗預約取消退還點數",
       });
-      if (pointsError) console.error("[points] 退還失敗:", pointsError.message);
     }
   }
 

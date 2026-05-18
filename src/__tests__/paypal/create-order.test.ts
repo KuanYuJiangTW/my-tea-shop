@@ -98,11 +98,81 @@ function setupSupabaseMocks(overrides: {
       };
     }
     if (table === "point_transactions") {
+      const pointsData = overrides.points ?? [];
+      const positivePoints = (pointsData as { points: number }[]).filter(p => p.points > 0);
+      const negativePoints = (pointsData as { points: number }[]).filter(p => p.points < 0);
+      const eqMock = vi.fn().mockReturnValue({
+        gt: vi.fn().mockReturnValue({
+          or: vi.fn().mockResolvedValue({ data: positivePoints, error: null }),
+        }),
+        lt: vi.fn().mockResolvedValue({ data: negativePoints, error: null }),
+      });
       return {
         select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ data: overrides.points ?? [], error: null }),
+          eq: eqMock,
         }),
         insert: vi.fn().mockResolvedValue({ error: null }),
+      };
+    }
+    if (table === "coupon_templates") {
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              gt: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: null, error: { message: "not found" } }),
+              }),
+            }),
+          }),
+        }),
+      };
+    }
+    if (table === "coupon_usages") {
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ count: 0, data: null, error: null }),
+        }),
+        insert: vi.fn().mockResolvedValue({ error: null }),
+        delete: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ error: null }),
+          }),
+        }),
+      };
+    }
+    if (table === "user_membership") {
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: { tier_id: "standard", annual_spend: 0, member_tiers: { id: "standard", name: "一般會員", min_annual_spend: 0, points_rate: 0.02, max_discount_rate: 0.10 } }, error: null }),
+          }),
+        }),
+        insert: vi.fn().mockResolvedValue({ error: null }),
+        update: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ error: null }),
+        }),
+      };
+    }
+    if (table === "member_tiers") {
+      return {
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({ data: [
+            { id: "gold", min_annual_spend: 8000, points_rate: 0.04, max_discount_rate: 0.20 },
+            { id: "silver", min_annual_spend: 3000, points_rate: 0.03, max_discount_rate: 0.15 },
+            { id: "standard", min_annual_spend: 0, points_rate: 0.02, max_discount_rate: 0.10 },
+          ], error: null }),
+        }),
+      };
+    }
+    if (table === "points_campaigns") {
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            lte: vi.fn().mockReturnValue({
+              gte: vi.fn().mockResolvedValue({ data: [], error: null }),
+            }),
+          }),
+        }),
       };
     }
     return {};
@@ -245,7 +315,7 @@ describe("POST /api/paypal/create-order", () => {
     const res = await POST(makeRequest(body));
     expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.error).toContain("Coupon");
+    expect(json.error).toContain("折價券");
   });
 
   it("should apply valid coupon discount", async () => {
@@ -262,16 +332,17 @@ describe("POST /api/paypal/create-order", () => {
   });
 
   it("should return 400 for insufficient points", async () => {
-    setupSupabaseMocks({ points: [{ points: 100 }] });
+    setupSupabaseMocks({ points: [{ points: 100, expires_at: new Date(Date.now() + 86400000).toISOString() }] });
     const body = { ...BASE_ORDER_BODY, pointsToUse: 200 };
     const res = await POST(makeRequest(body));
     expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.error).toContain("Insufficient points");
+    expect(json.error).toContain("點數");
   });
 
-  it("should return 400 for invalid points amount", async () => {
-    setupSupabaseMocks({ points: [{ points: 500 }] });
+  it("should return 400 for points exceeding tier limit", async () => {
+    // 一般會員上限 10%，subtotal=1200, shipping=0, maxDiscount=120
+    setupSupabaseMocks({ points: [{ points: 500, expires_at: new Date(Date.now() + 86400000).toISOString() }] });
     const body = { ...BASE_ORDER_BODY, pointsToUse: 150 };
     const res = await POST(makeRequest(body));
     expect(res.status).toBe(400);

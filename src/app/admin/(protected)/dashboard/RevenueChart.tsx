@@ -14,6 +14,7 @@ export interface MonthRevenue {
   month: string; // e.g. "1月"
   product: number;
   experience: number;
+  discount?: number; // 行銷折扣消耗
 }
 
 interface TooltipPayloadEntry {
@@ -82,6 +83,16 @@ export default function RevenueChart({ data }: { data: MonthRevenue[] }) {
           strokeWidth={2}
           dot={{ r: 3, fill: "#D97706" }}
           activeDot={{ r: 5 }}
+        />
+        <Line
+          type="monotone"
+          dataKey="discount"
+          name="折扣消耗"
+          stroke="#9333EA"
+          strokeWidth={1.5}
+          strokeDasharray="4 3"
+          dot={{ r: 2, fill: "#9333EA" }}
+          activeDot={{ r: 4 }}
         />
       </LineChart>
     </ResponsiveContainer>

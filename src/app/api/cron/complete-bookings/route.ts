@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { issuePoints } from "@/lib/points";
 
 // Vercel Cron: 每天 02:00 UTC 執行
-// 將活動結束超過 7 天、仍為 confirmed 的預約自動標記 completed 並發放積點
+// 將活動結束超過 7 天、仍為 confirmed 的預約自動標記 completed 並發放點數
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
     }
     results.completed++;
 
-    // 發放積點（有 user_id 才發）
+    // 發放點數（有 user_id 才發）
     if (!booking.user_id) continue;
 
     // 防重複：確認是否已有 earn 記錄
@@ -61,24 +62,21 @@ export async function GET(req: NextRequest) {
       continue;
     }
 
+    // 新制：使用統一的 issuePoints 函式
     const pointsDiscount = booking.points_discount ?? 0;
-    const earnPoints = Math.floor((booking.total_price - pointsDiscount) / 10);
+    const earnBase = Math.max(booking.total_price - pointsDiscount, 0);
 
-    if (earnPoints > 0) {
-      const { error: pointsError } = await supabase.from("point_transactions").insert({
-        user_id:     booking.user_id,
-        points:      earnPoints,
-        type:        "earn",
-        booking_id:  booking.id,
+    try {
+      const { points } = await issuePoints({
+        userId: booking.user_id,
+        earnBase,
+        bookingId: booking.id,
         description: "體驗完成回饋",
-        expires_at:  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
       });
-      if (pointsError) {
-        console.error(`[cron] 發放積點 booking ${booking.id} 失敗:`, pointsError.message);
-        results.errors++;
-      } else {
-        results.pointsIssued++;
-      }
+      if (points > 0) results.pointsIssued++;
+    } catch (err) {
+      console.error(`[cron] 發放點數 booking ${booking.id} 失敗:`, err);
+      results.errors++;
     }
   }
 
