@@ -64,12 +64,27 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const anomalies: { userId: string; type: string; detail: string }[] = [];
+
+    for (const f of flagged ?? []) {
+      anomalies.push({
+        userId: f.user_id,
+        type: "高倍率警示",
+        detail: `${f.points} 點 | multiplier: ${f.multiplier} | ${f.description}`,
+      });
+    }
+
+    for (const e of excessiveRedeems) {
+      anomalies.push({
+        userId: e.userId,
+        type: "單日超額折抵",
+        detail: `合計折抵 ${e.total} 點`,
+      });
+    }
+
     await sendAnomalyAlertEmail({
-      adminEmail,
+      anomalies,
       date: new Date().toLocaleDateString("zh-TW"),
-      summary: lines.join("\n"),
-      flaggedCount,
-      excessiveRedeemCount: excessiveCount,
     });
   }
 
