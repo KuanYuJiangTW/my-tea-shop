@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { sendBookingCancelEmail } from "@/lib/email";
 import { notifyNextWaitlist } from "@/lib/waitlist";
+import { refundPoints } from "@/lib/points";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -72,22 +73,20 @@ export async function POST(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  // 退還已折抵的點數
-  // 待付款：點數已於結帳時扣除但尚未付款，取消時全額退還
-  // 已確認：按退款比例退還
-  if (booking.points_used > 0) {
-    const refundPoints = wasPending
-      ? booking.points_used
-      : Math.floor(booking.points_used * refundRate);
-    if (refundPoints > 0) {
-      const { error: pointsError } = await supabase.from("point_transactions").insert({
-        user_id:    user.id,
-        points:     refundPoints,
-        type:       "earn",
-        booking_id: id,
+  // 退還已折抵的點數（新制：使用 points_discount，type='refund'）
+  // 待付款：全額退還；已確認：按退款比例退還
+  const pointsDiscountUsed = booking.points_discount ?? 0;
+  if (pointsDiscountUsed > 0) {
+    const pointsToReturn = wasPending
+      ? pointsDiscountUsed
+      : Math.floor(pointsDiscountUsed * refundRate);
+    if (pointsToReturn > 0) {
+      await refundPoints({
+        userId: user.id,
+        points: pointsToReturn,
+        bookingId: id,
         description: "體驗預約取消退還點數",
       });
-      if (pointsError) console.error("[points] 退還失敗:", pointsError.message);
     }
   }
 

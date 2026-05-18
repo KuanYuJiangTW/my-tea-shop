@@ -413,11 +413,61 @@ describe("create-order rollback points on PayPal failure (7.13)", () => {
         };
       }
       if (table === "point_transactions") {
+        const eqMock = vi.fn().mockReturnValue({
+          gt: vi.fn().mockReturnValue({
+            or: vi.fn().mockResolvedValue({ data: [{ points: 500 }], error: null }),
+          }),
+          lt: vi.fn().mockResolvedValue({ data: [], error: null }),
+        });
         return {
           select: vi.fn().mockReturnValue({
-            eq: vi.fn().mockResolvedValue({ data: [{ points: 500 }], error: null }),
+            eq: eqMock,
           }),
           insert: mockPointInsert,
+        };
+      }
+      if (table === "coupon_templates") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                gt: vi.fn().mockReturnValue({
+                  single: vi.fn().mockResolvedValue({ data: null, error: { message: "not found" } }),
+                }),
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === "user_membership") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({ data: { tier_id: "standard", annual_spend: 0, member_tiers: { id: "standard", name: "一般會員", min_annual_spend: 0, points_rate: 0.02, max_discount_rate: 0.10 } }, error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === "member_tiers") {
+        return {
+          select: vi.fn().mockReturnValue({
+            order: vi.fn().mockResolvedValue({ data: [
+              { id: "gold", min_annual_spend: 8000 },
+              { id: "silver", min_annual_spend: 3000 },
+              { id: "standard", min_annual_spend: 0 },
+            ], error: null }),
+          }),
+        };
+      }
+      if (table === "points_campaigns") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              lte: vi.fn().mockReturnValue({
+                gte: vi.fn().mockResolvedValue({ data: [], error: null }),
+              }),
+            }),
+          }),
         };
       }
       return {};
@@ -425,25 +475,25 @@ describe("create-order rollback points on PayPal failure (7.13)", () => {
 
     mockCreatePayPalOrder.mockRejectedValue(new Error("PayPal timeout"));
 
-    const body = { ...BASE_ORDER_BODY, pointsToUse: 200 };
+    const body = { ...BASE_ORDER_BODY, pointsToUse: 100 };
     const res = await POST(makeRequest(body));
 
     expect(res.status).toBe(500);
 
     // point_transactions.insert 被呼叫兩次：
-    // 第一次：扣除 (-200, type: "redeem")
-    // 第二次：退還 (+200, type: "earn")
+    // 第一次：扣除 (-100, type: "redeem")
+    // 第二次：退還 (+100, type: "refund")
     const insertCalls = mockPointInsert.mock.calls;
     expect(insertCalls.length).toBe(2);
 
     expect(insertCalls[0][0]).toMatchObject({
-      points: -200,
+      points: -100,
       type: "redeem",
     });
 
     expect(insertCalls[1][0]).toMatchObject({
-      points: 200,
-      type: "earn",
+      points: 100,
+      type: "refund",
     });
   });
 

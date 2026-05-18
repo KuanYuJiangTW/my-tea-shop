@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
+import { issuePoints } from "@/lib/points";
 
 // PATCH /api/admin/experience-bookings/[id]
 // body: { refund_status?: "processed", status?: "completed" }
@@ -28,7 +29,7 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // 狀態剛變成 completed → 發放積點（防重複：確認無已有 earn 記錄）
+  // 狀態剛變成 completed → 發放點數（新制：earnBase × tier.points_rate × multiplier）
   if (
     body.status === "completed" &&
     prevBooking?.status !== "completed" &&
@@ -42,17 +43,14 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
 
     if ((count ?? 0) === 0) {
       const pointsDiscount = prevBooking.points_discount ?? 0;
-      const earnPoints = Math.max(Math.floor(prevBooking.total_price - pointsDiscount), 0);
-      if (earnPoints > 0) {
-        await supabase.from("point_transactions").insert({
-          user_id:    prevBooking.user_id,
-          points:     earnPoints,
-          type:       "earn",
-          booking_id: id,
-          description: "體驗完成回饋",
-          expires_at:  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-        });
-      }
+      const earnBase = Math.max(prevBooking.total_price - pointsDiscount, 0);
+
+      await issuePoints({
+        userId: prevBooking.user_id,
+        earnBase,
+        bookingId: id,
+        description: "體驗完成回饋",
+      });
     }
   }
 

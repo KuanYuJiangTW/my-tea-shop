@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendShippingEmail } from "@/lib/email";
+import { issuePoints, refundPoints } from "@/lib/points";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -62,7 +63,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // 更新前先取得訂單目前狀態（判斷是否剛變成 completed）
   const { data: prevOrder } = await supabase
     .from("orders")
-    .select("order_status, user_id, items, shipping_fee, discount_amount, coupon_id, points_used, payment_method, payment_status")
+    .select("order_status, user_id, items, subtotal, shipping_fee, discount_amount, coupon_discount, points_discount, coupon_id, points_used, payment_method, payment_status")
     .eq("id", id)
     .single();
 
@@ -75,7 +76,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // 訂單狀態剛變成「已完成」→ 發放點數（防止重複：確認該訂單尚無 earn 記錄）
+  // 訂單狀態剛變成「已完成」→ 發放點數（新制：earnBase �� tier.points_rate × multiplier）
   if (
     body.orderStatus === "completed" &&
     prevOrder?.order_status !== "completed" &&
@@ -90,16 +91,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if ((count ?? 0) === 0) {
       const items = prevOrder.items as { subtotal: number }[] ?? [];
       const productSubtotal = items.reduce((s, i) => s + i.subtotal, 0);
-      const couponDiscount = (prevOrder.discount_amount as number) ?? 0;
-      const pointsDiscount = ((prevOrder.points_used as number) ?? 0) / 100;
-      const earnBase = Math.max(Math.floor(productSubtotal - couponDiscount - pointsDiscount), 0);
-      await supabase.from("point_transactions").insert({
-        user_id:     prevOrder.user_id,
-        points:      earnBase,
-        type:        "earn",
-        order_id:    id,
+      // 新制：分開計算，避免雙重扣除
+      const couponDisc = (prevOrder as Record<string, unknown>).coupon_discount as number ?? 0;
+      const pointsDisc = (prevOrder as Record<string, unknown>).points_discount as number ?? 0;
+      const earnBase = Math.max(productSubtotal - couponDisc - pointsDisc, 0);
+
+      await issuePoints({
+        userId: prevOrder.user_id as string,
+        earnBase,
+        orderId: id,
         description: "訂單完成回饋",
-        expires_at:  new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
       });
     }
   }
@@ -117,12 +118,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         .eq("id", prevOrder.coupon_id);
     }
 
-    if (prevOrder.points_used > 0) {
-      await supabase.from("point_transactions").insert({
-        user_id:     prevOrder.user_id,
-        points:      prevOrder.points_used,
-        type:        "earn",
-        order_id:    id,
+    // 退還點數（新制：用 type='refund'，退還的是 points_discount 而非 points_used）
+    const pointsToRefund = (prevOrder as Record<string, unknown>).points_discount as number ?? 0;
+    if (pointsToRefund > 0) {
+      await refundPoints({
+        userId: prevOrder.user_id as string,
+        points: pointsToRefund,
+        orderId: id,
         description: "訂單取消退還點數",
       });
     }

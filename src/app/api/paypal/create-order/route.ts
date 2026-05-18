@@ -5,6 +5,8 @@ import { createPayPalOrder } from "@/lib/paypal";
 import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
 import type { CreateOrderRequest } from "@/types";
 import { calculateShippingFee } from "@/lib/shipping";
+import { validateRedemption, deductPoints, refundPoints } from "@/lib/points";
+import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
 
 const limiter = createRateLimiter(20, 60_000);
 
@@ -162,54 +164,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
 
-  // ── 5. Coupon validation ─────────────────────────────────────────────────
+  // ── 5. Coupon validation (batch + universal) ─────────────────────────────
   let couponId: string | null = null;
   let couponDiscount = 0;
+  let couponType: "batch" | "universal" | null = null;
 
   if (body.couponCode) {
-    const { data: coupon } = await supabase
-      .from("coupons")
-      .select("id, discount_amount, min_order_amount")
-      .eq("user_id", userId)
-      .eq("code", body.couponCode)
-      .is("used_at", null)
-      .gt("expires_at", new Date().toISOString())
-      .single();
-
-    if (!coupon) {
-      return NextResponse.json({ error: "Coupon is invalid or already used" }, { status: 400 });
+    const couponResult = await resolveCouponCode(userId, body.couponCode);
+    if (!couponResult.valid) {
+      return NextResponse.json({ error: couponResult.error }, { status: 400 });
     }
-    if (subtotal + shippingFee < coupon.min_order_amount) {
-      return NextResponse.json({ error: `Minimum order NT$${coupon.min_order_amount} required` }, { status: 400 });
+    if (subtotal + shippingFee < couponResult.coupon.min_order_amount) {
+      return NextResponse.json({ error: `Minimum order NT$${couponResult.coupon.min_order_amount} required` }, { status: 400 });
     }
-    couponId = coupon.id;
-    couponDiscount = coupon.discount_amount;
+    couponId = couponResult.coupon.id;
+    couponDiscount = couponResult.coupon.discount_amount;
+    couponType = couponResult.coupon.type;
   }
 
-  // ── 6. Points validation ─────────────────────────────────────────────────
+  // ── 6. Points validation (新制 1:1) ──────────────────────────────────────
   let pointsUsed = 0;
   let pointsDiscount = 0;
   const pointsToUse = body.pointsToUse ?? 0;
 
   if (pointsToUse > 0) {
-    if (pointsToUse < 200 || pointsToUse % 100 !== 0) {
-      return NextResponse.json({ error: "Points must be at least 200 and a multiple of 100" }, { status: 400 });
-    }
-    const { data: txs } = await supabase
-      .from("point_transactions")
-      .select("points")
-      .eq("user_id", userId);
-    const balance = (txs ?? []).reduce((s: number, t: { points: number }) => s + t.points, 0);
-    if (balance < pointsToUse) {
-      return NextResponse.json({ error: "Insufficient points" }, { status: 400 });
-    }
     const afterCoupon = subtotal + shippingFee - couponDiscount;
-    const maxDiscount = Math.floor(afterCoupon * 0.1);
-    if (pointsToUse / 100 > maxDiscount) {
-      return NextResponse.json({ error: `Points discount capped at NT$${maxDiscount}` }, { status: 400 });
+    const redemption = await validateRedemption(userId, pointsToUse, afterCoupon);
+    if (!redemption.valid) {
+      return NextResponse.json({ error: redemption.error }, { status: 400 });
     }
-    pointsUsed = pointsToUse;
-    pointsDiscount = pointsToUse / 100;
+    pointsUsed = redemption.pointsUsed;
+    pointsDiscount = redemption.pointsDiscount; // 1:1
   }
 
   // ── 7. Total & minimum ───────────────────────────────────────────────────
@@ -252,8 +237,11 @@ export async function POST(req: NextRequest) {
     payment_status: "pending",
     note: body.note ?? null,
     user_id: userId,
+    subtotal,
     coupon_id: couponId,
     discount_amount: couponDiscount + pointsDiscount,
+    coupon_discount: couponDiscount,
+    points_discount: pointsDiscount,
     points_used: pointsUsed,
   }).select("id").single();
 
@@ -263,13 +251,17 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 9. Deduct coupon & points ────────────────────────────────────────────
-  if (couponId) {
+  if (couponId && couponType === "batch") {
     await supabase.from("coupons").update({ used_at: new Date().toISOString(), order_id: orderData.id }).eq("id", couponId);
+  } else if (couponId && couponType === "universal") {
+    await recordCouponUsage({ templateId: couponId, userId, orderId: orderData.id });
   }
   if (pointsUsed > 0) {
-    await supabase.from("point_transactions").insert({
-      user_id: userId, points: -pointsUsed, type: "redeem",
-      order_id: orderData.id, description: `Order discount NT$${pointsDiscount}`,
+    await deductPoints({
+      userId,
+      points: pointsUsed,
+      orderId: orderData.id,
+      description: `Order discount NT$${pointsDiscount}`,
     });
   }
 
@@ -309,15 +301,19 @@ export async function POST(req: NextRequest) {
     await supabase.from("orders").update({ order_status: "failed" }).eq("id", orderData.id);
 
     // Rollback coupon
-    if (couponId) {
+    if (couponId && couponType === "batch") {
       await supabase.from("coupons").update({ used_at: null, order_id: null }).eq("id", couponId);
+    } else if (couponId && couponType === "universal") {
+      await supabase.from("coupon_usages").delete().eq("template_id", couponId).eq("user_id", userId).eq("order_id", orderData.id);
     }
 
     // Rollback points
     if (pointsUsed > 0) {
-      await supabase.from("point_transactions").insert({
-        user_id: userId, points: pointsUsed, type: "earn",
-        order_id: orderData.id, description: "PayPal 建立失敗退還點數",
+      await refundPoints({
+        userId,
+        points: pointsUsed,
+        orderId: orderData.id,
+        description: "PayPal 建立失敗退還點數",
       });
     }
 

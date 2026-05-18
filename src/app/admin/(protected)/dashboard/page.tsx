@@ -21,11 +21,19 @@ async function getStats() {
     todayExpRes,
     monthProductRes,
     monthExpRes,
+    monthProductCashRes,
+    monthExpCashRes,
     pendingRes,
     recentOrdersRes,
     recentExpRes,
     chartOrdersRes,
     chartExpRes,
+    monthCouponRes,
+    monthPointsConsumedRes,
+    monthPointsIssuedRes,
+    outstandingPositiveRes,
+    outstandingNegativeRes,
+    monthExpiredRes,
   ] = await Promise.all([
     // 今日商品訂單數
     supabase
@@ -40,20 +48,33 @@ async function getStats() {
       .eq("status", "confirmed")
       .gte("created_at", todayStart),
 
-    // 本月產品營收
+    // 本月產品確認營收（completed）
+    supabase
+      .from("orders")
+      .select("total_amount")
+      .gte("created_at", monthStart)
+      .eq("order_status", "completed"),
+
+    // 本月體驗確認營收（completed）
+    supabase
+      .from("experience_bookings")
+      .select("total_price")
+      .eq("status", "completed")
+      .gte("created_at", monthStart),
+
+    // 本月產品收款金額（paid，現金流）
     supabase
       .from("orders")
       .select("total_amount")
       .gte("created_at", monthStart)
       .eq("payment_status", "paid"),
 
-    // 本月體驗營收（透過 session join 篩選 session_date 在本月）
+    // 本月體驗收款金額（confirmed = 已付款）
     supabase
       .from("experience_bookings")
-      .select("total_price, session:experience_sessions!inner(session_date)")
-      .eq("status", "confirmed")
-      .gte("session.session_date", monthStartDate)
-      .lte("session.session_date", monthEndDate),
+      .select("total_price")
+      .in("status", ["confirmed", "completed"])
+      .gte("created_at", monthStart),
 
     // 待出貨訂單
     supabase
@@ -75,25 +96,88 @@ async function getStats() {
       .order("created_at", { ascending: false })
       .limit(5),
 
-    // 近 6 個月商品訂單（for 圖表）
+    // 近 6 個月商品訂單（for 圖表，改用 completed）
     supabase
       .from("orders")
-      .select("created_at, total_amount")
-      .eq("payment_status", "paid")
+      .select("created_at, total_amount, coupon_discount, points_discount")
+      .eq("order_status", "completed")
       .gte("created_at", sixMonthsAgoStr),
 
-    // 近 6 個月體驗預約（for 圖表）
+    // 近 6 個月體驗預約（for 圖表，改用 completed）
     supabase
       .from("experience_bookings")
-      .select("total_price, session:experience_sessions!inner(session_date)")
-      .eq("status", "confirmed")
-      .gte("session.session_date", `${sixMonthsAgo.getFullYear()}-${String(sixMonthsAgo.getMonth() + 1).padStart(2, "0")}-01`),
+      .select("total_price, created_at")
+      .eq("status", "completed")
+      .gte("created_at", `${sixMonthsAgo.getFullYear()}-${String(sixMonthsAgo.getMonth() + 1).padStart(2, "0")}-01`),
+
+    // 本月折價券消耗
+    supabase
+      .from("orders")
+      .select("coupon_discount")
+      .eq("order_status", "completed")
+      .gte("created_at", monthStart),
+
+    // 本月點數消耗
+    supabase
+      .from("orders")
+      .select("points_discount")
+      .eq("order_status", "completed")
+      .gte("created_at", monthStart),
+
+    // 本月點數發放
+    supabase
+      .from("point_transactions")
+      .select("points")
+      .eq("type", "earn")
+      .gte("created_at", monthStart),
+
+    // 未兌現點數負債（有效正值點數）
+    supabase
+      .from("point_transactions")
+      .select("points")
+      .gt("points", 0)
+      .or(`expires_at.gt.${new Date().toISOString()},expires_at.is.null`),
+
+    // 已兌換點數（負值 = redeem）
+    supabase
+      .from("point_transactions")
+      .select("points")
+      .lt("points", 0),
+
+    // 本月過期沖銷
+    supabase
+      .from("points_expiry_events")
+      .select("points_expired")
+      .gte("created_at", monthStart),
   ]);
 
+  // ── 確認營收（completed）──
   const monthProductRevenue =
     monthProductRes.data?.reduce((s, o) => s + (o.total_amount ?? 0), 0) ?? 0;
   const monthExpRevenue =
     monthExpRes.data?.reduce((s, b) => s + (b.total_price ?? 0), 0) ?? 0;
+
+  // ── 現金流（已收款）──
+  const monthProductCash =
+    monthProductCashRes.data?.reduce((s, o) => s + (o.total_amount ?? 0), 0) ?? 0;
+  const monthExpCash =
+    monthExpCashRes.data?.reduce((s, b) => s + (b.total_price ?? 0), 0) ?? 0;
+  const monthCashFlow = monthProductCash + monthExpCash;
+
+  // ── 行銷成本 ──
+  const monthCouponCost =
+    monthCouponRes.data?.reduce((s, o) => s + (o.coupon_discount ?? 0), 0) ?? 0;
+  const monthPointsCost =
+    monthPointsConsumedRes.data?.reduce((s, o) => s + (o.points_discount ?? 0), 0) ?? 0;
+  const monthPointsIssued =
+    monthPointsIssuedRes.data?.reduce((s, t) => s + (t.points ?? 0), 0) ?? 0;
+  const outstandingPositive =
+    outstandingPositiveRes.data?.reduce((s, t) => s + (t.points ?? 0), 0) ?? 0;
+  const outstandingNegative =
+    outstandingNegativeRes.data?.reduce((s, t) => s + (t.points ?? 0), 0) ?? 0;
+  const outstandingPoints = Math.max(outstandingPositive + outstandingNegative, 0);
+  const monthExpired =
+    monthExpiredRes.data?.reduce((s, e) => s + (e.points_expired ?? 0), 0) ?? 0;
 
   // 產生近 6 個月圖表資料
   const chartData: MonthRevenue[] = [];
@@ -114,14 +198,20 @@ async function getStats() {
     const expSum =
       chartExpRes.data
         ?.filter(b => {
-          const sess = b.session as unknown as { session_date: string } | null;
-          if (!sess) return false;
-          const [sy, sm] = sess.session_date.split("-").map(Number);
-          return sy === y && sm === m;
+          const bd = new Date(b.created_at as string);
+          return bd.getFullYear() === y && bd.getMonth() + 1 === m;
         })
         .reduce((s, b) => s + (b.total_price ?? 0), 0) ?? 0;
 
-    chartData.push({ month: label, product: productSum, experience: expSum });
+    const discountSum =
+      chartOrdersRes.data
+        ?.filter(o => {
+          const od = new Date(o.created_at as string);
+          return od.getFullYear() === y && od.getMonth() + 1 === m;
+        })
+        .reduce((s, o) => s + ((o.coupon_discount as number ?? 0) + (o.points_discount as number ?? 0)), 0) ?? 0;
+
+    chartData.push({ month: label, product: productSum, experience: expSum, discount: discountSum });
   }
 
   return {
@@ -130,6 +220,12 @@ async function getStats() {
     monthProductRevenue,
     monthExpRevenue,
     monthTotalRevenue: monthProductRevenue + monthExpRevenue,
+    monthCashFlow,
+    monthCouponCost,
+    monthPointsCost,
+    monthPointsIssued,
+    outstandingPoints,
+    monthExpired,
     pendingShipment:  pendingRes.count ?? 0,
     recentOrders:     recentOrdersRes.data ?? [],
     recentExp:        recentExpRes.data ?? [],
@@ -159,6 +255,7 @@ export default async function DashboardPage() {
   const {
     todayOrders, todayExp,
     monthProductRevenue, monthExpRevenue, monthTotalRevenue,
+    monthCashFlow, monthCouponCost, monthPointsCost, monthPointsIssued, outstandingPoints, monthExpired,
     pendingShipment,
     recentOrders, recentExp,
     chartData,
@@ -216,12 +313,72 @@ export default async function DashboardPage() {
       ),
     },
     {
+      label: "本月現金流",
+      value: `NT$${monthCashFlow.toLocaleString()}`,
+      unit: "",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#2D7A4F]">
+          <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+        </svg>
+      ),
+    },
+    {
       label: "待出貨",
       value: pendingShipment,
       unit: "筆",
       icon: (
         <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#7D9B84]">
           <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+        </svg>
+      ),
+    },
+    {
+      label: "折價券消耗",
+      value: `NT$${monthCouponCost.toLocaleString()}`,
+      unit: "",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#B45309]">
+          <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />
+        </svg>
+      ),
+    },
+    {
+      label: "點數消耗",
+      value: `NT$${monthPointsCost.toLocaleString()}`,
+      unit: "",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#B45309]">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+        </svg>
+      ),
+    },
+    {
+      label: "本月發放點數",
+      value: monthPointsIssued.toLocaleString(),
+      unit: "點",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#6B21A8]">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.87c0 1.92-1.43 2.96-3.12 3.17z" />
+        </svg>
+      ),
+    },
+    {
+      label: "未兌現點數負債",
+      value: `NT$${outstandingPoints.toLocaleString()}`,
+      unit: "",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#9333EA]">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H11.5v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.65c.09 1.71 1.37 2.66 2.85 2.97V19h1.73v-1.67c1.52-.29 2.72-1.16 2.72-2.74 0-2.21-1.87-2.97-3.64-3.45z" />
+        </svg>
+      ),
+    },
+    {
+      label: "本月過期沖銷",
+      value: `NT$${monthExpired.toLocaleString()}`,
+      unit: "",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#DC2626]">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
         </svg>
       ),
     },
@@ -237,8 +394,8 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Stats Cards — 2 欄手機 / 3 欄桌機 */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+      {/* Stats Cards — 2 欄手機 / 3 欄平板 / 4 欄桌機 */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white rounded-2xl border border-[#EDE8DC] p-4 min-w-0">
             <div className="flex items-center justify-between mb-2">

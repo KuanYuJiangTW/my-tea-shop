@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { sendOrderEmails } from "@/lib/email";
 import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
 import { calculateShippingFee } from "@/lib/shipping";
+import { validateRedemption, deductPoints } from "@/lib/points";
 
 const rateLimiter = createRateLimiter(20, 60_000); // 20 req/min per IP
 import type { CreateOrderRequest } from "@/types";
@@ -165,30 +166,19 @@ export async function POST(req: NextRequest) {
     couponDiscount = coupon.discount_amount;
   }
 
-  // ── 6. 點數折抵驗證 ──────────────────────────────────────────────────────
+  // ── 6. 點數折抵驗證（新制 1:1）───────────────────────────────────────────
   let pointsUsed = 0;
   let pointsDiscount = 0;
   const pointsToUse = body.pointsToUse ?? 0;
 
   if (pointsToUse > 0) {
-    if (pointsToUse < 200 || pointsToUse % 100 !== 0) {
-      return NextResponse.json({ error: "點數最少 200 點，且須為 100 的倍數" }, { status: 400 });
-    }
-    const { data: txs } = await supabase
-      .from("point_transactions")
-      .select("points")
-      .eq("user_id", userId);
-    const balance = (txs ?? []).reduce((s: number, t: { points: number }) => s + t.points, 0);
-    if (balance < pointsToUse) {
-      return NextResponse.json({ error: "點數不足" }, { status: 400 });
-    }
     const afterCoupon = subtotal + shippingFee - couponDiscount;
-    const maxDiscount = Math.floor(afterCoupon * 0.1);
-    if (pointsToUse / 100 > maxDiscount) {
-      return NextResponse.json({ error: `點數折抵上限為 NT$${maxDiscount}` }, { status: 400 });
+    const redemption = await validateRedemption(userId, pointsToUse, afterCoupon);
+    if (!redemption.valid) {
+      return NextResponse.json({ error: redemption.error }, { status: 400 });
     }
-    pointsUsed = pointsToUse;
-    pointsDiscount = pointsToUse / 100;
+    pointsUsed = redemption.pointsUsed;
+    pointsDiscount = redemption.pointsDiscount; // 1:1
   }
 
   // ── 7. 計算最終金額 ──────────────────────────────────────────────────────
@@ -219,6 +209,7 @@ export async function POST(req: NextRequest) {
       payment_method:   body.paymentMethod,
       shipping_address: shippingAddress,
       items:            validatedItems,
+      subtotal,
       shipping_fee:     shippingFee,
       total_amount:     totalAmount,
       order_status:     "new",
@@ -227,6 +218,8 @@ export async function POST(req: NextRequest) {
       user_id:          userId,
       coupon_id:        couponId,
       discount_amount:  couponDiscount + pointsDiscount,
+      coupon_discount:  couponDiscount,
+      points_discount:  pointsDiscount,
       points_used:      pointsUsed,
     })
     .select("id")
@@ -244,11 +237,10 @@ export async function POST(req: NextRequest) {
 
   // 若使用點數折抵，立即扣除（防止重複使用）
   if (pointsUsed > 0) {
-    await supabase.from("point_transactions").insert({
-      user_id:     userId,
-      points:      -pointsUsed,
-      type:        "redeem",
-      order_id:    data.id,
+    await deductPoints({
+      userId,
+      points: pointsUsed,
+      orderId: data.id,
       description: `訂單折抵 NT$${pointsDiscount}`,
     });
   }

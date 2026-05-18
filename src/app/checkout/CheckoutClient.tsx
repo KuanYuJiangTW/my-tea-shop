@@ -101,12 +101,15 @@ export default function CheckoutClient() {
   const [couponInput, setCouponInput]             = useState("");
   const [appliedCoupon, setAppliedCoupon]         = useState<CouponRow | null>(null);
   const [couponError, setCouponError]             = useState("");
+  const [couponSuccess, setCouponSuccess]         = useState(false);
   const [showCouponDropdown, setShowCouponDropdown] = useState(false);
   const autoAppliedRef = useRef(false);
 
-  // 點數
+  // 點數（新制 1:1）
   const [pointsBalance, setPointsBalance] = useState(0);
-  const [usePoints, setUsePoints]         = useState(false);
+  const [pointsMaxRate, setPointsMaxRate] = useState(0.10);
+  const [pointsTierName, setPointsTierName] = useState("");
+  const [pointsToUse, setPointsToUse]     = useState(0);
 
   const [form, setForm] = useState<CheckoutForm>({
     name: "", email: "", phone: "",
@@ -146,9 +149,9 @@ export default function CheckoutClient() {
   // 折扣計算
   const couponDiscount  = appliedCoupon ? appliedCoupon.discount_amount : 0;
   const afterCoupon     = totalPrice + shippingFee - couponDiscount;
-  const maxPointsToUse  = Math.floor(Math.min(pointsBalance, Math.floor(afterCoupon * 0.1) * 100) / 100) * 100;
-  const pointsDiscount  = usePoints && maxPointsToUse >= 200 ? maxPointsToUse / 100 : 0;
-  const grandTotal      = Math.max(afterCoupon - pointsDiscount, 0);
+  const maxPointsAllowed = Math.min(pointsBalance, Math.floor(afterCoupon * pointsMaxRate));
+  const pointsDiscount   = pointsToUse >= 10 && pointsToUse <= maxPointsAllowed ? pointsToUse : 0;
+  const grandTotal       = Math.max(afterCoupon - pointsDiscount, 0);
 
   useEffect(() => {
     fetch("/api/user/coupons").then(r => r.json()).then(data => {
@@ -156,6 +159,8 @@ export default function CheckoutClient() {
     }).catch(() => {});
     fetch("/api/user/points").then(r => r.json()).then(data => {
       if (typeof data.balance === "number") setPointsBalance(data.balance);
+      if (data.tier?.max_discount_rate) setPointsMaxRate(data.tier.max_discount_rate);
+      if (data.tier?.name) setPointsTierName(data.tier.name);
     }).catch(() => {});
   }, []);
 
@@ -178,18 +183,42 @@ export default function CheckoutClient() {
     }
   }, [availableCoupons, totalPrice, shippingFee]);
 
-  function handleApplyCoupon() {
+  async function handleApplyCoupon() {
     const code = couponInput.trim().toUpperCase();
     if (!code) { setAppliedCoupon(null); setCouponError(""); return; }
+    // 先查本地批次券
     const match = availableCoupons.find(c => c.code.toUpperCase() === code);
-    if (!match) { setCouponError(t("couponNotFound")); setAppliedCoupon(null); return; }
-    if (totalPrice + shippingFee < match.min_order_amount) {
-      setCouponError(t("couponMinOrder", { min: match.min_order_amount }));
-      setAppliedCoupon(null);
+    if (match) {
+      if (totalPrice + shippingFee < match.min_order_amount) {
+        setCouponError(t("couponMinOrder", { min: match.min_order_amount }));
+        setAppliedCoupon(null);
+        return;
+      }
+      setCouponError("");
+      setAppliedCoupon(match);
+      setCouponSuccess(true); setTimeout(() => setCouponSuccess(false), 2000);
       return;
     }
-    setCouponError("");
-    setAppliedCoupon(match);
+    // 查不到 → 嘗試驗證通用碼
+    try {
+      const res = await fetch("/api/user/validate-coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        setCouponError(data.error || t("couponNotFound"));
+        setAppliedCoupon(null);
+        return;
+      }
+      setCouponError("");
+      setAppliedCoupon({ id: data.id, code, discount_amount: data.discount_amount, min_order_amount: data.min_order_amount, expires_at: data.expires_at } as CouponRow);
+      setCouponSuccess(true); setTimeout(() => setCouponSuccess(false), 2000);
+    } catch {
+      setCouponError(t("couponNotFound"));
+      setAppliedCoupon(null);
+    }
   }
 
   function selectCoupon(c: CouponRow) {
@@ -321,7 +350,7 @@ export default function CheckoutClient() {
     }),
     note:        form.note || undefined,
     couponCode:  appliedCoupon?.code,
-    pointsToUse: usePoints && maxPointsToUse >= 200 ? maxPointsToUse : undefined,
+    pointsToUse: pointsDiscount > 0 ? pointsToUse : undefined,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -991,21 +1020,50 @@ export default function CheckoutClient() {
                   </div>
                   {couponError && <p className="mt-1 text-xs text-rose-500">{couponError}</p>}
                   {appliedCoupon && !couponError && (
-                    <p className="mt-1 text-xs text-tea-green">{t("couponAppliedMsg", { amount: appliedCoupon.discount_amount })}</p>
+                    <p className={`mt-1 text-xs text-tea-green transition-all duration-500 ${couponSuccess ? "bg-green-50 px-2 py-1 rounded-md scale-105" : ""}`}>
+                      {couponSuccess ? "✓ " : ""}{t("couponAppliedMsg", { amount: appliedCoupon.discount_amount })}
+                    </p>
                   )}
                 </div>
 
-                {/* Points */}
-                {pointsBalance >= 200 && maxPointsToUse >= 200 && (
+                {/* Points — 新制 1:1 */}
+                {pointsBalance >= 10 && maxPointsAllowed >= 10 && (
                   <div className="mb-3 pb-3 border-b border-tea-green-pale">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" checked={usePoints} onChange={e => setUsePoints(e.target.checked)}
-                        className="accent-tea-green" />
-                      <span className="text-xs text-tea-text">
-                        {t("usePointsLabel", { points: maxPointsToUse.toLocaleString(), discount: (maxPointsToUse / 100).toLocaleString() })}
-                        <span className="text-tea-text-light ml-1">{t("pointsBalanceLabel", { balance: pointsBalance.toLocaleString() })}</span>
-                      </span>
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-tea-text">{t("pointsRedeemLabel")}</span>
+                      <span className="text-xs text-tea-text-light">{t("pointsBalanceLabel", { balance: pointsBalance.toLocaleString() })}</span>
+                    </div>
+                    {pointsTierName && (
+                      <p className="text-[11px] text-tea-text-light mb-2">
+                        您為{pointsTierName}，本次最高可折抵 NT${maxPointsAllowed.toLocaleString()}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        max={maxPointsAllowed}
+                        step={1}
+                        value={pointsToUse || ""}
+                        placeholder={`10 ~ ${maxPointsAllowed}`}
+                        onChange={e => {
+                          const v = Math.max(0, Math.min(maxPointsAllowed, Math.floor(Number(e.target.value) || 0)));
+                          setPointsToUse(v);
+                        }}
+                        className="flex-1 border border-tea-green-pale rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-tea-green"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setPointsToUse(maxPointsAllowed)}
+                        className="text-xs text-tea-green hover:underline whitespace-nowrap"
+                      >{t("pointsUseMax")}</button>
+                    </div>
+                    {pointsToUse > 0 && pointsToUse < 10 && (
+                      <p className="mt-1 text-xs text-amber-600">{t("pointsMinWarning")}</p>
+                    )}
+                    {pointsDiscount > 0 && (
+                      <p className="mt-1 text-xs text-tea-green animate-pulse">{t("pointsWillDiscount", { amount: pointsDiscount.toLocaleString() })}</p>
+                    )}
                   </div>
                 )}
 
@@ -1031,9 +1089,9 @@ export default function CheckoutClient() {
                     </div>
                   )}
                   {pointsDiscount > 0 && (
-                    <div className="flex justify-between text-sm text-tea-green">
+                    <div className="flex justify-between text-sm text-tea-green bg-green-50 rounded px-1 -mx-1 transition-colors duration-500">
                       <span>{t("pointsDiscountLabel")}</span>
-                      <span>-NT${pointsDiscount.toLocaleString()}</span>
+                      <span className="font-semibold">-NT${pointsDiscount.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm text-tea-text-light">

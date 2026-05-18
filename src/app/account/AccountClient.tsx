@@ -76,11 +76,23 @@ type WaitlistRow = {
   } | null;
 };
 
+type MemberTierInfo = {
+  id: string;
+  name: string;
+  points_rate: number;
+  max_discount_rate: number;
+  min_annual_spend: number;
+};
+
 type Props = {
   user: { id: string; email: string };
   profile: Profile | null;
   orders: Order[];
   pointsBalance: number;
+  memberTier: MemberTierInfo;
+  annualSpend: number;
+  expiringPoints: number;
+  earliestExpiry: string | null;
   pointTransactions: PointTx[];
   coupons: CouponRow[];
   bookings: BookingRow[];
@@ -133,7 +145,7 @@ function bookingStatusCls(status: BookingRow["status"]): string {
   return map[status] ?? "bg-gray-100 text-gray-600";
 }
 
-export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, pointTransactions, coupons, bookings, waitlist }: Props) {
+export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, memberTier, annualSpend, expiringPoints, earliestExpiry, pointTransactions, coupons, bookings, waitlist }: Props) {
   const t = useTranslations("account");
   const locale = useLocale();
   const lp = (path: string) => locale === "en" ? `/en${path}` : path;
@@ -141,6 +153,17 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   const rawTab = searchParams.get("tab");
   const defaultTab = rawTab === "orders" ? "orders" : rawTab === "rewards" ? "rewards" : rawTab === "bookings" ? "bookings" : "profile";
   const [tab, setTab] = useState<"profile" | "orders" | "rewards" | "bookings">(defaultTab);
+
+  // ── Tier history state ──────────────────────────────────────────────────────
+  const [tierHistory, setTierHistory] = useState<Array<{ id: string; from_tier: string; to_tier: string; reason: string; changed_at: string }>>([]);
+  useEffect(() => {
+    if (user?.id) {
+      fetch(`/api/admin/members/${user.id}/tier-history`)
+        .then(r => r.json())
+        .then(data => { if (Array.isArray(data)) setTierHistory(data.slice(0, 5)); })
+        .catch(() => {});
+    }
+  }, [user?.id]);
 
   // ── Booking cancel state ────────────────────────────────────────────────────
   const [bookingList, setBookingList]           = useState(bookings);
@@ -802,14 +825,79 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         {/* ─── Rewards Tab ─── */}
         {tab === "rewards" && (
           <div className="space-y-6">
-            {/* 點數餘額 */}
+            {/* 會員等級 + 點數餘額 */}
             <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-7">
-              <h2 className="font-semibold text-tea-text mb-1">{t("rewards.pointsTitle")}</h2>
-              <p className="text-xs text-tea-text-light mb-5">{t("rewards.pointsDesc")}</p>
-              <div className="flex items-end gap-2 mb-6">
-                <span className="font-serif text-5xl font-bold text-tea-green">{pointsBalance.toLocaleString()}</span>
-                <span className="text-tea-text-light mb-1">{t("rewards.pointsUnit")}</span>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold text-tea-text">{t("rewards.pointsTitle")}</h2>
+                <span className="text-xs font-medium px-3 py-1 rounded-full bg-tea-green-mist text-tea-green">
+                  {memberTier.name} · {t("rewards.earnRate", { rate: Math.round(memberTier.points_rate * 100) })}
+                </span>
               </div>
+              <p className="text-xs text-tea-text-light mb-4">
+                {t("rewards.pointsDescNew", { maxRate: Math.round(memberTier.max_discount_rate * 100) })}
+              </p>
+
+              {/* 年消費進度條 + 保級預警 */}
+              {(() => {
+                const TIERS = [
+                  { id: "standard", name: t("rewards.tierStandard"), min: 0 },
+                  { id: "silver", name: t("rewards.tierSilver"), min: 3000 },
+                  { id: "gold", name: t("rewards.tierGold"), min: 8000 },
+                ];
+                const currentIdx = TIERS.findIndex(t => t.id === memberTier.id);
+                const nextTier = TIERS[currentIdx + 1];
+                const progress = nextTier ? Math.min(annualSpend / nextTier.min * 100, 100) : 100;
+                const currentMonth = new Date().getMonth() + 1;
+                const isNearYearEnd = currentMonth >= 11;
+                const currentTierMin = TIERS[currentIdx]?.min ?? 0;
+                const needsRetentionWarning = isNearYearEnd && currentIdx > 0 && annualSpend < currentTierMin;
+                const retentionGap = currentTierMin - annualSpend;
+                return (
+                  <div className="mb-5">
+                    <div className="flex items-center justify-between text-xs text-tea-text-light mb-1">
+                      <span>{t("rewards.annualSpend")}: NT${annualSpend.toLocaleString()}</span>
+                      {nextTier ? <span>{t("rewards.nextTier", { name: nextTier.name, amount: nextTier.min.toLocaleString() })}</span> : <span>{t("rewards.maxTier")}</span>}
+                    </div>
+                    <div className="w-full h-2 bg-tea-green-pale rounded-full overflow-hidden">
+                      <div className="h-full bg-tea-green rounded-full transition-all" style={{ width: `${progress}%` }} />
+                    </div>
+                    {needsRetentionWarning && (
+                      <p className="mt-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                        距離保級還差 NT${retentionGap.toLocaleString()}，年底前達標可保留{memberTier.name}等級
+                      </p>
+                    )}
+                    {tierHistory.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        <p className="text-xs font-medium text-tea-text-light">等級變更紀錄</p>
+                        {tierHistory.map(h => (
+                          <div key={h.id} className="text-xs text-tea-text-light flex gap-2">
+                            <span className="text-[#9CA89E]">{new Date(h.changed_at).toLocaleDateString("zh-TW")}</span>
+                            <span>{h.from_tier} → {h.to_tier}</span>
+                            <span className="text-[#9CA89E]">({h.reason === "upgrade" ? "升等" : h.reason === "annual_reset" ? "年度重置" : h.reason})</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              <div className="flex items-end gap-2 mb-4">
+                <span className="font-serif text-5xl font-bold text-tea-green">NT${pointsBalance.toLocaleString()}</span>
+                <span className="text-tea-text-light mb-1">{t("rewards.pointsUnitNew")}</span>
+              </div>
+
+              {/* 到期提醒 */}
+              {expiringPoints > 0 && (
+                <p className="text-xs text-amber-600 mb-4">
+                  {t("rewards.expiringWarning", { amount: expiringPoints.toLocaleString() })}
+                  {earliestExpiry && (
+                    <span className="ml-1">
+                      （最早到期：{new Date(earliestExpiry).toLocaleDateString("zh-TW", { month: "long", day: "numeric" })}）
+                    </span>
+                  )}
+                </p>
+              )}
               {pointTransactions.length > 0 ? (
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-3">{t("rewards.recentHistory")}</p>
