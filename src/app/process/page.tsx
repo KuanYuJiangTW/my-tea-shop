@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
 import ProcessContent from "./ProcessContent";
 
 export const metadata: Metadata = {
@@ -15,6 +16,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ProcessPage() {
-  return <ProcessContent />;
+export default async function ProcessPage() {
+  const [experiences, contents] = await Promise.all([
+    getExperienceTypes(),
+    getExperienceContents(),
+  ]);
+
+  const activeExperiences = experiences.filter((e) => e.isActive);
+
+  return <ProcessContent experiences={activeExperiences} contents={contents} />;
 }

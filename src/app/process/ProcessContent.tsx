@@ -1,8 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { Clock, Users } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import type { ExperienceType } from "@/types";
+import type { ExperienceContent } from "@/lib/experiences";
 
 const stepKeys = [
   { key: "pick",         number: "01", color: "bg-tea-green-mist", accent: "text-tea-green" },
@@ -22,10 +26,19 @@ const teaKeys = [
   { key: "white",  color: "bg-gray-100/20"  },
 ] as const;
 
-export default function ProcessContent() {
+interface Props {
+  experiences: ExperienceType[];
+  contents: ExperienceContent[];
+}
+
+export default function ProcessContent({ experiences, contents }: Props) {
   const locale = useLocale();
   const t = useTranslations("process");
   const lp = (path: string) => locale === "en" ? `/en${path}` : path;
+  const isEn = locale === "en";
+
+  const contentMap = Object.fromEntries(contents.map((c) => [c.slug, c]));
+  const featuredExperiences = experiences.slice(0, 3);
 
   const steps = stepKeys.map((s) => ({
     ...s,
@@ -202,6 +215,90 @@ export default function ProcessContent() {
           </div>
         </div>
       </section>
+
+      {/* 茶山體驗引導 */}
+      {featuredExperiences.length > 0 && (
+        <section className="py-16 md:py-24 bg-tea-green-mist">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-end justify-between mb-12">
+              <div>
+                <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">
+                  {t("experienceCta.sectionLabel")}
+                </p>
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">
+                  {t("experienceCta.title")}
+                </h2>
+                <p className="text-tea-text-light max-w-xl">
+                  {t("experienceCta.tagline")}
+                </p>
+              </div>
+              <Link
+                href={lp("/experiences")}
+                className="hidden md:flex text-tea-green hover:text-tea-green-dark font-medium text-sm items-center gap-1 transition-colors shrink-0 ml-8"
+              >
+                {t("experienceCta.viewAll")}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredExperiences.map((exp) => {
+                const content = contentMap[exp.slug];
+                if (!content) return null;
+                const imgSrc = content.coverImage ?? "/images/gallery/tea-cup.jpg";
+                return (
+                  <Link
+                    key={exp.id}
+                    href={lp(`/experiences/${exp.slug}`)}
+                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-tea-green-pale/50"
+                  >
+                    <div className="relative h-48 overflow-hidden">
+                      <Image
+                        src={imgSrc}
+                        alt={isEn ? exp.nameEn : exp.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-5">
+                      <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">
+                        {isEn ? (exp.nameEn || exp.name) : exp.name}
+                      </h3>
+                      <p className="text-tea-text-light text-sm leading-relaxed mb-4 line-clamp-2">
+                        {isEn ? (content.taglineEn || content.tagline) : content.tagline}
+                      </p>
+                      <div className="flex items-center justify-between text-sm text-tea-text-light">
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5 text-tea-green" />
+                            {t("experienceCta.duration", { hours: exp.durationHours })}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3.5 h-3.5 text-tea-green" />
+                            {t("experienceCta.participants", { min: exp.minParticipants, max: exp.maxParticipants })}
+                          </span>
+                        </div>
+                        <span className="font-semibold text-tea-text">NT$ {exp.price.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="text-center mt-10">
+              <Link
+                href={lp("/experiences")}
+                className="bg-tea-green hover:bg-tea-green-dark text-white px-9 py-3.5 rounded-full font-medium transition-colors"
+              >
+                {t("experienceCta.viewAll")}
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 不同茶款說明 */}
       <section className="py-16 bg-tea-text">

@@ -716,6 +716,15 @@
     "otherStyles": "Different Teas, Different Craft",
     "otherStylesDesc": "The process above uses Taiwan oolong as the example. Different tea types follow different methods — green tea skips oxidation entirely, black tea undergoes full oxidation, and white tea is only withered without rolling. Each technique is the finest expression of that tea's character.",
     "shopCta": "Shop Our Teas",
+    "experienceCta": {
+      "sectionLabel": "Tea Mountain Experience",
+      "title": "Experience the Tea Mountain",
+      "tagline": "Now that you know the craft, why not live it? Step into our Ali Mountain tea gardens and feel every stage — from leaf to cup — with your own hands.",
+      "viewAll": "View All Experiences",
+      "bookNow": "Book Now",
+      "duration": "{hours} hrs",
+      "participants": "{min}–{max} people"
+    },
     "oxidationLabel": "Oxidation: {value}",
     "teas": {
       "oolong": {

@@ -716,6 +716,15 @@
     "otherStyles": "不同茶款，不同工藝",
     "otherStylesDesc": "以上流程以台灣烏龍茶為例。不同類別的茶葉有不同的製作方式——綠茶省略氧化步驟，紅茶則進行完全氧化，白茶僅經萎凋不揉捻。每一種工法都是對茶葉特性的最佳詮釋。",
     "shopCta": "選購各式茶品",
+    "experienceCta": {
+      "sectionLabel": "Tea Mountain Experience",
+      "title": "親身走入茶山",
+      "tagline": "了解製茶工藝之後，不如親手體驗？走入阿里山梅山茶園，感受從採摘到成茶的每一個環節。",
+      "viewAll": "查看全部體驗",
+      "bookNow": "立即預約",
+      "duration": "{hours} 小時",
+      "participants": "{min}–{max} 人"
+    },
     "oxidationLabel": "氧化度 {value}",
     "teas": {
       "oolong": {
