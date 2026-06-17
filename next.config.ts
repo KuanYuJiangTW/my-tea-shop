@@ -48,12 +48,16 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Studio 需要 unsafe-eval，排在後面以覆蓋上方的通用 CSP
+        // Sanity Studio 是管理工具，需要寬鬆 CSP（unsafe-eval、WSS、多個 *.sanity.io 子域名）
         source: "/studio/:path*",
         headers: [
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src https://api.sanity.io; object-src 'none';",
+            value: "default-src 'self' https://*.sanity.io; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https://*.sanity.io; object-src 'none';",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
           },
         ],
       },
