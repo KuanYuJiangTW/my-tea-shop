@@ -7,13 +7,13 @@ import type { EcpayCheckoutRequest, EcpayCheckoutResponse } from "@/types";
 import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints } from "@/lib/points";
 import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
-import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
 const HASH_KEY  = process.env.ECPAY_HASH_KEY!;
 const HASH_IV   = process.env.ECPAY_HASH_IV!;
 const ECPAY_URL = "https://payment.ecpay.com.tw/Cashier/AioCheckout/index";
-const limiter = createRateLimiter(10, 60_000);
+const RL_KEY = (ip: string) => `ecpay-checkout:${ip}`;
 
 function phpUrlencode(input: string): string {
   const SAFE = /^[A-Za-z0-9\-_.]$/;
@@ -55,10 +55,9 @@ const MAX_LENGTHS = {
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  if (limiter.isLimited(ip)) {
+  if (!(await rateLimit(RL_KEY(ip), 10, 60_000))) {
     return NextResponse.json({ error: "操作太頻繁，請稍後再試" }, { status: 429 });
   }
-  limiter.record(ip);
 
   const origin = req.headers.get("origin") ?? "";
   if (origin && origin !== ALLOWED_ORIGIN) {

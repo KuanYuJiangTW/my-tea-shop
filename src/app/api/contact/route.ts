@@ -1,37 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendContactEmail } from "@/lib/email";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
-// ─── Rate Limiter（防止垃圾信轟炸管理員信箱）────────────────────────────────
+// ─── Rate Limiter（防止垃圾信轟炸管理員信箱，持久化）─────────────────────────
 const MAX_CONTACT = 5;
 const CONTACT_WINDOW_MS = 60 * 60_000; // 1 小時
-type ContactRecord = { count: number; resetAt: number };
-const contactMap = new Map<string, ContactRecord>();
-
-function getClientIp(req: NextRequest): string {
-  return req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
-}
-
-function isContactRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const r = contactMap.get(ip);
-  if (!r) return false;
-  if (r.resetAt <= now) { contactMap.delete(ip); return false; }
-  return r.count >= MAX_CONTACT;
-}
-
-function recordContact(ip: string): void {
-  const now = Date.now();
-  const r = contactMap.get(ip);
-  if (r && r.resetAt > now) r.count += 1;
-  else contactMap.set(ip, { count: 1, resetAt: now + CONTACT_WINDOW_MS });
-}
 
 // ─── 合法 subject 白名單 ──────────────────────────────────────────────────────
 const VALID_SUBJECTS = ["product", "order", "wholesale", "visit", "other"];
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  if (isContactRateLimited(ip)) {
+  if (!(await rateLimit(`contact:${ip}`, MAX_CONTACT, CONTACT_WINDOW_MS))) {
     return NextResponse.json({ error: "傳送過於頻繁，請稍後再試" }, { status: 429 });
   }
 
@@ -57,8 +37,6 @@ export async function POST(req: NextRequest) {
   if (!VALID_SUBJECTS.includes(subject)) {
     return NextResponse.json({ error: "無效的主旨類型" }, { status: 400 });
   }
-
-  recordContact(ip);
 
   try {
     await sendContactEmail({ name, email, subject, message });

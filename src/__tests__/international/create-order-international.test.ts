@@ -20,7 +20,7 @@ vi.mock("@/lib/paypal", () => ({
   createPayPalOrder: (...args: unknown[]) => mockCreatePayPalOrder(...args),
 }));
 vi.mock("@/lib/rate-limit", () => ({
-  createRateLimiter: () => ({ isLimited: () => false, record: () => {} }),
+  rateLimit: async () => true,
   getClientIp: () => "127.0.0.1",
 }));
 vi.mock("@/lib/shipping", () => ({

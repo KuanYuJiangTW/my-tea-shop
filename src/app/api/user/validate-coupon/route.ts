@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { resolveCouponCode } from "@/lib/coupons";
-import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
-const limiter = createRateLimiter(10, 60_000); // 10 次/分鐘
+const RL_KEY = (ip: string) => `validate-coupon:${ip}`; // 10 次/分鐘
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  if (limiter.isLimited(ip)) {
+  if (!(await rateLimit(RL_KEY(ip), 10, 60_000))) {
     return NextResponse.json({ error: "操作太頻繁，請稍後再試" }, { status: 429 });
   }
-  limiter.record(ip);
 
   const authClient = await createSupabaseServerClient();
   const { data: { user } } = await authClient.auth.getUser();

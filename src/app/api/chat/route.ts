@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { buildKnowledgeBase } from "@/lib/chat-knowledge";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 export const maxDuration = 30;
 
@@ -9,29 +10,12 @@ export async function GET() {
   return NextResponse.json({ ok: true, provider: "groq" });
 }
 
-// ── 速率限制（記憶體內，每分鐘 10 則/IP）──────────────────────────────────────
-
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-
-  if (rateLimitMap.size > 100) {
-    for (const [key, val] of rateLimitMap) {
-      if (now > val.resetAt) rateLimitMap.delete(key);
-    }
-  }
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + 60_000 });
-    return true;
-  }
-
-  if (entry.count >= 10) return false;
-  entry.count++;
-  return true;
-}
+// ── 速率限制（持久化）──────────────────────────────────────────────────────────
+// 1) 每 IP 每分鐘 10 則；2) 全站每日總量上限，避免有心人輪換 IP 刷爆 Groq 額度。
+const PER_IP_MAX = 10;
+const PER_IP_WINDOW_MS = 60_000;
+const DAILY_GLOBAL_MAX = Number(process.env.CHAT_DAILY_LIMIT ?? 1000);
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 // ── System Prompt ─────────────────────────────────────────────────────────────
 
@@ -75,14 +59,24 @@ interface ChatMessage {
 }
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = getClientIp(req);
   const startTime = Date.now();
 
-  // 速率限制
-  if (!checkRateLimit(ip)) {
+  // 每 IP 速率限制
+  if (!(await rateLimit(`chat:${ip}`, PER_IP_MAX, PER_IP_WINDOW_MS))) {
     console.log(`[chat] ${new Date().toISOString()} | ip=${ip} | status=429`);
     return NextResponse.json(
       { error: "目前訊息量較多，請稍後再試。" },
+      { status: 429 }
+    );
+  }
+
+  // 全站每日總量上限（防止輪換 IP 刷爆 API 額度）
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD（UTC）
+  if (!(await rateLimit(`chat:global:${today}`, DAILY_GLOBAL_MAX, DAY_MS))) {
+    console.warn(`[chat] ${new Date().toISOString()} | 全站每日上限已達 ${DAILY_GLOBAL_MAX}`);
+    return NextResponse.json(
+      { error: "今日客服服務量已達上限，請改用 LINE 聯繫我們。" },
       { status: 429 }
     );
   }

@@ -164,38 +164,6 @@ describe("手動調整點數驗證", () => {
   });
 });
 
-// ── 12.4 Rate limit 邏輯 ────────────────────────────────────────────
-
-describe("Rate limit 邏輯", () => {
-  it("createRateLimiter 在限制內不阻擋", async () => {
-    const { createRateLimiter } = await import("@/lib/rate-limit");
-    const limiter = createRateLimiter(3, 60_000);
-
-    expect(limiter.isLimited("1.2.3.4")).toBe(false);
-    limiter.record("1.2.3.4");
-    limiter.record("1.2.3.4");
-    expect(limiter.isLimited("1.2.3.4")).toBe(false);
-  });
-
-  it("createRateLimiter 超過限制後阻擋", async () => {
-    const { createRateLimiter } = await import("@/lib/rate-limit");
-    const limiter = createRateLimiter(2, 60_000);
-
-    limiter.record("5.6.7.8");
-    limiter.record("5.6.7.8");
-    expect(limiter.isLimited("5.6.7.8")).toBe(true);
-  });
-
-  it("不同 IP 互不影響", async () => {
-    const { createRateLimiter } = await import("@/lib/rate-limit");
-    const limiter = createRateLimiter(1, 60_000);
-
-    limiter.record("10.0.0.1");
-    expect(limiter.isLimited("10.0.0.1")).toBe(true);
-    expect(limiter.isLimited("10.0.0.2")).toBe(false);
-  });
-});
-
 // ── 12.5 Campaign audit log 格式 ────────────────────────────────────
 
 describe("Campaign audit log 格式", () => {

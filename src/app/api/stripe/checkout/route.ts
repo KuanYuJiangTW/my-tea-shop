@@ -7,10 +7,10 @@ import type { CreateOrderRequest } from "@/types";
 import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints } from "@/lib/points";
 import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
-import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const limiter = createRateLimiter(10, 60_000);
+const RL_KEY = (ip: string) => `stripe-checkout:${ip}`;
 
 const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
@@ -32,10 +32,9 @@ const MAX_LENGTHS = {
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  if (limiter.isLimited(ip)) {
+  if (!(await rateLimit(RL_KEY(ip), 10, 60_000))) {
     return NextResponse.json({ error: "操作太頻繁，請稍後再試" }, { status: 429 });
   }
-  limiter.record(ip);
 
   if (!process.env.STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: "Stripe is not configured" }, { status: 503 });

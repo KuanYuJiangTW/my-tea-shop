@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
-import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
-const rateLimiter = createRateLimiter(20, 60_000); // 20 req/min per IP
+const RL_KEY = (ip: string) => `bookings:${ip}`; // 20 req/min per IP
 
 // POST /api/bookings — 建立預約（付款前，取得 booking id 後導向 ECPay）
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  if (rateLimiter.isLimited(ip)) {
+  if (!(await rateLimit(RL_KEY(ip), 20, 60_000))) {
     return NextResponse.json({ error: "請求過於頻繁，請稍後再試。" }, { status: 429 });
   }
-  rateLimiter.record(ip);
 
   // 驗證登入狀態
   const supabaseUser = await createSupabaseServerClient();
@@ -26,6 +25,11 @@ export async function POST(req: NextRequest) {
 
   if (!sessionId || !participantCount || !bookerName || !bookerPhone) {
     return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
+  }
+
+  // 人數必須為正整數且在合理上限內，避免負數繞過名額檢查並產生負金額
+  if (!Number.isInteger(participantCount) || participantCount < 1 || participantCount > 50) {
+    return NextResponse.json({ error: "參加人數不正確" }, { status: 400 });
   }
 
   // 查詢場次資訊

@@ -2,18 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase } from "@/lib/supabase";
 import { createPayPalOrder } from "@/lib/paypal";
-import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
-const limiter = createRateLimiter(20, 60_000);
+const RL_KEY = (ip: string) => `paypal-retry:${ip}`;
 
 const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  if (limiter.isLimited(ip)) {
+  if (!(await rateLimit(RL_KEY(ip), 20, 60_000))) {
     return NextResponse.json({ error: "請求過於頻繁，請稍後再試。" }, { status: 429 });
   }
-  limiter.record(ip);
 
   // Auth
   const authClient = await createSupabaseServerClient();

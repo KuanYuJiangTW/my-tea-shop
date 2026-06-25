@@ -3,11 +3,11 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabase";
 import { sendOrderEmails } from "@/lib/email";
-import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints } from "@/lib/points";
 
-const rateLimiter = createRateLimiter(20, 60_000); // 20 req/min per IP
+const RL_KEY = (ip: string) => `orders:${ip}`; // 20 req/min per IP
 import type { CreateOrderRequest } from "@/types";
 
 type ProductRow = {
@@ -27,10 +27,9 @@ const MAX_LENGTHS = {
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  if (rateLimiter.isLimited(ip)) {
+  if (!(await rateLimit(RL_KEY(ip), 20, 60_000))) {
     return NextResponse.json({ error: "請求過於頻繁，請稍後再試。" }, { status: 429 });
   }
-  rateLimiter.record(ip);
 
   const body = await req.json() as CreateOrderRequest;
 

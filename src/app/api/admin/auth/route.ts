@@ -2,51 +2,20 @@ import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { computeAdminToken } from "@/lib/admin-token";
 import { supabase } from "@/lib/supabase";
+import { getClientIp, rateLimitPeek, rateLimitBump, rateLimitReset } from "@/lib/rate-limit";
 
-// ─── In-memory Rate Limiter ───────────────────────────────────────────────────
-// 注意：Vercel serverless 在高流量下可能有多個 instance，
-// 此機制在同一 instance 內有效（已足以防止一般暴力破解）
+// ─── 持久化防爆破（只計失敗次數，Supabase rate_limits 表）─────────────────────
+// 改用 DB 計數，解決 Vercel serverless 多 instance 下記憶體限流失效的問題。
 const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60_000; // 15 分鐘
 const DELAY_MS   = 800;         // 失敗後延遲回應，增加暴力破解成本
-
-type AttemptRecord = { count: number; resetAt: number };
-const attemptMap = new Map<string, AttemptRecord>();
-
-function getClientIp(req: NextRequest): string {
-  return req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
-}
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const record = attemptMap.get(ip);
-  if (!record) return false;
-  if (record.resetAt <= now) {
-    attemptMap.delete(ip);
-    return false;
-  }
-  return record.count >= MAX_ATTEMPTS;
-}
-
-function recordFailure(ip: string): void {
-  const now = Date.now();
-  const record = attemptMap.get(ip);
-  if (record && record.resetAt > now) {
-    record.count += 1;
-  } else {
-    attemptMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-  }
-}
-
-function clearAttempts(ip: string): void {
-  attemptMap.delete(ip);
-}
+const RL_KEY = (ip: string) => `admin-auth:${ip}`;
 
 // ─── POST /api/admin/auth ─────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
 
-  if (isRateLimited(ip)) {
+  if (await rateLimitPeek(RL_KEY(ip), MAX_ATTEMPTS)) {
     return NextResponse.json(
       { error: "太多失敗嘗試，請 15 分鐘後再試。" },
       { status: 429 }
@@ -66,13 +35,13 @@ export async function POST(req: NextRequest) {
     timingSafeEqual(Buffer.from(password), Buffer.from(adminPassword));
 
   if (!passwordsMatch) {
-    recordFailure(ip);
+    await rateLimitBump(RL_KEY(ip), WINDOW_MS);
     // 固定延遲回應，讓暴力破解更耗時
     await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
     return NextResponse.json({ error: "Invalid password" }, { status: 401 });
   }
 
-  clearAttempts(ip);
+  await rateLimitReset(RL_KEY(ip));
 
   // 檢查是否已啟用 2FA
   const { data: totpData } = await supabase

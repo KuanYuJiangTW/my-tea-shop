@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
         participantsDueAt = d.toISOString();
       }
 
+      // 冪等性：僅當預約仍為 pending_payment 時才確認，避免綠界重送通知導致重複寄信
       const { data: booking, error: bookingError } = await supabase
         .from("experience_bookings")
         .update({
@@ -75,12 +76,14 @@ export async function POST(req: NextRequest) {
           ...(participantsDueAt ? { participants_due_at: participantsDueAt } : {}),
         })
         .eq("ecpay_trade_no", tradeNo)
+        .eq("status", "pending_payment")
         .select("*, session:experience_sessions(session_date, start_time, experience_types(name))")
-        .single();
+        .maybeSingle();
 
       if (bookingError) {
         console.error("更新體驗預約付款狀態失敗:", bookingError);
       } else if (booking) {
+        // booking 非 null 代表本次確實由 pending_payment → confirmed，才寄信（重放時 booking 為 null，跳過）
         const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
         const emailData: BookingEmailData = {
           bookingId:           booking.id,
@@ -100,17 +103,19 @@ export async function POST(req: NextRequest) {
     }
 
     // ── T 前綴：一般商品訂單付款 ─────────────────────────────────────────────
-    // 更新付款狀態並取得訂單資料
+    // 冪等性：僅當訂單仍為 pending 時才標記 paid，避免綠界重送通知導致重複扣庫存/寄信
     const { data: order, error } = await supabase
       .from("orders")
       .update({ payment_status: "paid" })
       .eq("ecpay_trade_no", tradeNo)
+      .eq("payment_status", "pending")
       .select("*")
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("更新訂單付款狀態失敗:", error);
     } else if (order) {
+      // order 非 null 代表本次確實由 pending → paid，才扣庫存與寄信（重放時 order 為 null，跳過）
       // 扣除庫存（線上付款，付款成功後才扣，原子性防超賣）
       const orderItems = order.items as { productId: number; quantity: number; spec: string }[];
       const decrementResults = await Promise.all(
