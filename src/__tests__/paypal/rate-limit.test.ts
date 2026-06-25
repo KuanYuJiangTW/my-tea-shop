@@ -29,7 +29,14 @@ describe("rateLimit（持久化）", () => {
 });
 
 describe("getClientIp", () => {
-  it("取 x-forwarded-for 最左 IP", () => {
+  it("x-real-ip 優先於 x-forwarded-for（防偽造）", () => {
+    const req = new NextRequest("http://localhost/api", {
+      headers: { "x-real-ip": "9.9.9.9", "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
+    });
+    expect(getClientIp(req)).toBe("9.9.9.9");
+  });
+
+  it("無 x-real-ip 時備援取 x-forwarded-for 最左 IP", () => {
     const req = new NextRequest("http://localhost/api", {
       headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
     });

@@ -8,6 +8,10 @@ import { supabase } from "@/lib/supabase";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function getClientIp(req: NextRequest): string {
+  // x-real-ip 由 Vercel edge 寫入，客端無法偽造，優先使用
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+  // 本地開發備援（生產環境上 x-forwarded-for 仍可被客端偽造）
   return req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
 }
 

@@ -2,6 +2,7 @@ import { timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { computeAdminToken } from "./admin-token";
+import { getClientIp } from "./rate-limit";
 import { supabase } from "./supabase";
 
 type RouteHandler = (req: NextRequest, ctx?: unknown) => Promise<Response>;
@@ -34,7 +35,7 @@ export function withAdminAuth(handler: RouteHandler, action?: string): RouteHand
 
     // 非同步寫入審計日誌（不阻塞回應，僅記錄寫入操作）
     if (action && res.ok) {
-      const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+      const ip = getClientIp(req);
       // 從 URL 路徑末段提取 resource_id（數字 ID 或 UUID）
       const pathParts = req.nextUrl.pathname.split("/");
       const lastPart = pathParts[pathParts.length - 1];
