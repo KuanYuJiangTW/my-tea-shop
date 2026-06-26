@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { computeAdminToken } from "@/lib/admin-token";
+import { generateAdminSessionToken, createAdminSession, deleteAdminSession } from "@/lib/admin-token";
 import { supabase } from "@/lib/supabase";
 import { getClientIp, rateLimitPeek, rateLimitBump, rateLimitReset } from "@/lib/rate-limit";
 
@@ -63,8 +63,9 @@ export async function POST(req: NextRequest) {
     return res;
   }
 
-  // 2FA 未啟用：直接發放正式 session
-  const token = computeAdminToken(adminPassword);
+  // 2FA 未啟用：直接發放隨機 DB-backed session
+  const token = generateAdminSessionToken();
+  await createAdminSession(token, ip);
   const res = NextResponse.json({ ok: true });
   res.cookies.set("admin_session", token, {
     httpOnly: true,
@@ -77,7 +78,10 @@ export async function POST(req: NextRequest) {
   return res;
 }
 
-export async function DELETE() {
+export async function DELETE(req: NextRequest) {
+  const token = req.cookies.get("admin_session")?.value;
+  if (token) await deleteAdminSession(token);
+
   const res = NextResponse.json({ ok: true });
   res.cookies.set("admin_session", "", {
     httpOnly: true,

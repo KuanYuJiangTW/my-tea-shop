@@ -106,24 +106,24 @@ export async function proxy(request: NextRequest) {
 
   if (pathname.startsWith("/admin/") || pathname.startsWith("/api/admin/")) {
     const session = request.cookies.get("admin_session")?.value;
-    const adminPassword = process.env.ADMIN_PASSWORD;
 
-    // Timing-safe 比對（Edge Runtime 使用 WebCrypto）
+    // 以 security definer RPC 查 DB 驗證 session（不需把 service_role key 帶進 Edge Runtime）
+    // Admin 為高風險路徑：DB 失敗 fail-closed（回 false）。
     const isValid = await (async () => {
-      if (!adminPassword || !session) return false;
-      const enc = new TextEncoder();
-      const key = await globalThis.crypto.subtle.importKey(
-        "raw", enc.encode(adminPassword), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
-      );
-      const sig = await globalThis.crypto.subtle.sign("HMAC", key, enc.encode("wujue-admin-v1"));
-      const expected = Array.from(new Uint8Array(sig))
-        .map(b => b.toString(16).padStart(2, "0")).join("");
-      if (session.length !== expected.length) return false;
-      let diff = 0;
-      for (let i = 0; i < session.length; i++) {
-        diff |= session.charCodeAt(i) ^ expected.charCodeAt(i);
+      if (!session) return false;
+      try {
+        const { data, error } = await supabase.rpc("validate_admin_session", {
+          p_token: session,
+        });
+        if (error) {
+          console.error("[admin-session] validate RPC 失敗，fail-closed:", error.message);
+          return false;
+        }
+        return data === true;
+      } catch (e) {
+        console.error("[admin-session] validate RPC 例外，fail-closed:", e);
+        return false;
       }
-      return diff === 0;
     })();
 
     if (!isValid) {

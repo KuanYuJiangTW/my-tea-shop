@@ -1,8 +1,8 @@
-import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { verify } from "otplib";
-import { computeAdminToken } from "@/lib/admin-token";
+import { generateAdminSessionToken, createAdminSession } from "@/lib/admin-token";
 import { supabase } from "@/lib/supabase";
+import { getClientIp } from "@/lib/rate-limit";
 
 // POST /api/admin/auth/2fa — 驗證 TOTP 碼，通過後設定正式 admin_session
 export async function POST(req: NextRequest) {
@@ -33,9 +33,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "驗證碼錯誤" }, { status: 401 });
   }
 
-  // 驗證通過：清除 pending，設定正式 session
-  const adminPassword = process.env.ADMIN_PASSWORD!;
-  const token = computeAdminToken(adminPassword);
+  // 驗證通過：清除 pending，發放隨機 DB-backed session
+  const token = generateAdminSessionToken();
+  await createAdminSession(token, getClientIp(req));
 
   const res = NextResponse.json({ ok: true });
   res.cookies.set("admin_pending", "", { maxAge: 0, path: "/" });
