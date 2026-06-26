@@ -32,4 +32,4 @@
 - [x] 7.1 確認 `computeAdminToken` 無其他呼叫端（含 `src/app/admin/page.tsx` 一併改用 `validateAdminSession`），已從 `src/lib/admin-token.ts` 刪除
 - [x] 7.2 `tsc --noEmit` 通過（僅剩既有無關的 `admin-campaigns-audit.test.ts` AbortSignal 型別錯誤）
 - [x] 7.3 `vitest run` 既有測試不新增失敗（314 passed；2 個失敗為既有無關的 `cron-anomaly-scan`）
-- [ ] 7.4 手動驗證：密碼登入 → TOTP → 後台可用；登出後 cookie 清除且 DB 記錄刪除；舊格式 cookie 被自動導回登入頁（**需先執行 task 1.3 SQL**）
+- [x] 7.4 手動驗證：密碼登入 → TOTP → 後台可用；登出後 cookie 清除且 DB 記錄刪除；竄改/舊格式 cookie 被自動導回登入頁
