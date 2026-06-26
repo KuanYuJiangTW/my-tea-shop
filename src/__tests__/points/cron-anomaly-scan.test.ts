@@ -56,9 +56,9 @@ describe("points-anomaly-scan cron", () => {
     expect(json.flaggedCount).toBe(1);
     expect(json.excessiveCount).toBe(0);
     expect(mockSendAnomalyEmail).toHaveBeenCalledWith(expect.objectContaining({
-      adminEmail: "admin@test.com",
-      flaggedCount: 1,
-      excessiveRedeemCount: 0,
+      anomalies: [
+        expect.objectContaining({ userId: "u1234567-xxxx", type: "高倍率警示" }),
+      ],
     }));
   });
 
@@ -104,8 +104,10 @@ describe("points-anomaly-scan cron", () => {
     expect(json.flaggedCount).toBe(1);
     expect(json.excessiveCount).toBe(1);
     expect(mockSendAnomalyEmail).toHaveBeenCalledWith(expect.objectContaining({
-      flaggedCount: 1,
-      excessiveRedeemCount: 1,
+      anomalies: expect.arrayContaining([
+        expect.objectContaining({ type: "高倍率警示" }),
+        expect.objectContaining({ type: "單日超額折抵" }),
+      ]),
     }));
   });
 });
