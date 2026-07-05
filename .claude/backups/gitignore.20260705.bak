@@ -20,11 +20,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# claude code（只提交制度檔：agents/playbooks/backups/WORKLOG，其餘一律忽略）
-.claude/*
-!.claude/agents/
-!.claude/playbooks/
-!.claude/backups/
-!.claude/WORKLOG.md
-.claude/settings.local.json
+# claude code
+.claude/
 .vercel
