@@ -54,3 +54,4 @@ taiwantea.store 正式營運中：真金流（Stripe／PayPal／ECPay）、真�
 ### 2026-07-05（建制 session 補記）
 - 查證狀態第 4 點實測結果：`npm install` 後 `npm run test` **全綠（26 檔案／316 測試，3.5 秒），不需要 `.env`**——單元測試 mock 完整，容器內可放心當驗證手段。注意 `npm ci` 目前是壞的（lockfile 缺 `@swc/helpers@0.5.23`），處理方式見 lessons.md。
 - 查證狀態「未驗證」第 2 點已解：中途建立的自訂 agent **不會立刻註冊，但 harness 重連後同 session 內即可用**；你讀信的這個 session 裡 checker/judge 一定已就位，派工前仍以你的可用 agent 清單為準。
+- 更正註記（透明揭露）：本文「查證狀態」第 2 點在建制 session 定稿前由原作者修改過一次——原句宣稱「citation 詳見各檔引用處」但當時各檔並無 URL（checker 抓到的），已改為指向 diagnosis.md「事實來源」。append-only 規則自建制 session 結束起算；此後任何人（含建制者的後續 session）都不得再改本文，只能在此區加註。
