@@ -26,6 +26,12 @@
 - 規則：自訂 agent 呼叫回報 not found 時，先檢查 system-reminder 的可用清單；不在清單就用 `general-purpose` ＋ 顯式 model ＋ 把角色檔內文貼進派工 prompt 頂替，稍後或下個 session 再用正式名稱——不要急著改 frontmatter
 - 去處：暫存於此
 
+## 2026-07-05 補記：npm ci 已修復，前一條的 workaround 過時
+- 情境：使用者要求修復 lockfile；`npm install` 同步後，乾淨 `npm ci` 與 316 測試全過，已 commit
+- 代價：無
+- 規則：`npm ci` 已可正常使用，不必再繞道 `npm install`；前一條教訓中仍有效的只剩「lockfile 變動未經使用者要求不提交」這個原則
+- 去處：本條即結案註記
+
 ## 2026-07-05 harness 內建 skill 不在檔案系統，subagent 查不到
 - 情境：checker 對抗審查時掃遍各 skills 目錄，判定 `code-review`/`verify`「不存在」——其實它們是 harness 內建 skill，只出現在主對話的可用 skill 清單
 - 代價：一個 false-FAIL；若照它的建議刪掉引用，會白丟兩個好工具
