@@ -18,6 +18,12 @@
 | Playwright 瀏覽器已預裝（`/opt/pw-browsers`） | 不要跑 `playwright install` |
 | 對外 HTTPS 走 agent proxy | TLS 錯誤時看 `/root/.ccr/README.md`，不要關閉憑證驗證 |
 
+**事實來源（2026-07-05 查證的 citation）**：
+- agents frontmatter（name/description 必填；tools/model/effort 等選填）、model 別名、effort 值域 `low|medium|high|xhigh|max`（預設 inherit）：https://code.claude.com/docs/en/sub-agents.md
+- `@path` import 為 eager、最深 4 層、純文字路徑不會載入：https://code.claude.com/docs/en/memory.md
+- web 容器暫時性、只有 repo 內容跨 session、repo 內 agents 自動載入：https://code.claude.com/docs/en/claude-code-on-the-web.md
+- 重新查證方式：派 `claude-code-guide` 並要求附 citation URL；文件與現實衝突時，以現實為準再更新本檔（MAINT-1）。
+
 ## DIAG-1 最漏 token：主對話自己做粗活
 
 **症狀**：主對話直接掃 repo、整檔 Read、讓 npm/vitest 完整輸出或 GitHub MCP 大回傳（整包 PR diff、CI log）灌進 context。

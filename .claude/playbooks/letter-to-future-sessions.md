@@ -32,7 +32,7 @@ taiwantea.store 正式營運中：真金流（Stripe／PayPal／ECPay）、真�
 
 **已驗證**（可直接信）：
 1. web 容器無 `gh` CLI（`command -v` 實測）；node/npm/python3/rg/jq 存在
-2. `.claude/agents/*.md` frontmatter 欄位、`model` 與 `effort` 合法值、`@import` eager 行為、web 環境持久化範圍——皆經 claude-code-guide 對官方文件查證並附 citation（詳見各檔引用處）
+2. `.claude/agents/*.md` frontmatter 欄位、`model` 與 `effort` 合法值、`@import` eager 行為、web 環境持久化範圍——皆經 claude-code-guide 對官方文件查證，citation URL 集中在 diagnosis.md「事實來源」一節
 3. `.gitignore` 白名單寫法有效（`git check-ignore -v` 實測）
 4. 單元測試在容器內可跑性：實測結果補記於交接區（撰寫本信時測試仍在背景執行）
 

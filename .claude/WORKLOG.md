@@ -26,8 +26,10 @@
   - [x] D 判斷力外化 → judgment.md
   - [ ] E 派工模板 → templates.md
   - [ ] F 維護協議 → maintenance.md + lessons.md
-  - [ ] G 給未來 session 的信 → letter-to-future-sessions.md
-  - [ ] 收尾：fresh-context 對抗審查 → 修正 → read-back → 全部 push
+  - [x] G 給未來 session 的信 → letter-to-future-sessions.md
+  - [x] 收尾①：checker 對抗審查（FAIL 2 項：缺 citation URL、skill 引用無查證法）→ 已修正
+  - [x] 收尾②：機械 read-back（13 檔皆在遠端、行數合規、本地遠端零差異）
+  - [ ] 收尾③：checker 複驗 2 項修正 → 最終總結
 - 決策紀錄：
   - .gitignore 原本整包忽略 .claude/，已改為白名單制（agents/playbooks/backups/WORKLOG 可提交）
   - 路由表用純文字路徑，不用 @import（官方文件確認 @ 會 eager load，深度 4 層）

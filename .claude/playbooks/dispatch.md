@@ -46,6 +46,7 @@
 | enum 裡出現 fable/mythos 級 | 只用於 judge 型終審 | 太貴，不用於粗活 |
 
 **skill 也是 effort 桿**：diff 審查用 `code-review`（可指定 low→max）；改動驗證用 `verify` skill；這些比自建流程可靠，優先用。
+**注意**：這些是 harness 內建 skill——只出現在主對話 system-reminder 的「可用 skill 清單」裡，**不是檔案系統上的檔案，subagent 通常看不到也用不了**。要用之前先確認自己清單裡有；沒有就退回等效做法：`npm run test` ＋ 派 `checker` 驗收。
 
 ## DISP-4 回報合約
 

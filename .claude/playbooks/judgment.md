@@ -62,7 +62,7 @@
 4. 無殘留 debug：`console.log`、註解掉的舊碼、沒登記進 WORKLOG 的 TODO
 5. 邊界條件至少想過這四個：空值／未登入／重複提交／zh 與 en 兩語系
 
-**驗的方式**：以上自查完，仍要過 dispatch.md DISP-6 的獨立驗證（checker 或 `code-review` skill medium 以上）。**自查不取代獨立驗證**，它只是讓你少在 checker 面前丟臉。
+**驗的方式**：以上自查完，仍要過 dispatch.md DISP-6 的獨立驗證（checker 或 `code-review` skill medium 以上；skill 不在你的可用清單時退回 checker，見 DISP-3 注意事項）。**自查不取代獨立驗證**，它只是讓你少在 checker 面前丟臉。
 
 **正例**：新增 API route → 測試綠＋lint 對比無新增＋錯誤處理寫法對照隔壁 route＋未登入回 401 驗過＋checker PASS → 進 commit。
 **反例**：「lint 有 3 個錯，但看起來都是既有的」→ 沒對比就放行 → 違規。去跑對比，10 秒的事。

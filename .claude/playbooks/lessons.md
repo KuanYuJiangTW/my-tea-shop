@@ -26,6 +26,12 @@
 - 規則：自訂 agent 呼叫回報 not found 時，先檢查 system-reminder 的可用清單；不在清單就用 `general-purpose` ＋ 顯式 model ＋ 把角色檔內文貼進派工 prompt 頂替，稍後或下個 session 再用正式名稱——不要急著改 frontmatter
 - 去處：暫存於此
 
+## 2026-07-05 harness 內建 skill 不在檔案系統，subagent 查不到
+- 情境：checker 對抗審查時掃遍各 skills 目錄，判定 `code-review`/`verify`「不存在」——其實它們是 harness 內建 skill，只出現在主對話的可用 skill 清單
+- 代價：一個 false-FAIL；若照它的建議刪掉引用，會白丟兩個好工具
+- 規則：判斷 skill 存不存在的唯一依據是「主對話 system-reminder 的可用 skill 清單」，不是檔案系統；subagent 通常沒有 Skill tool，不要派它驗證 skill 存在性
+- 去處：DISP-3 已補注意事項
+
 ## 2026-07-05 web 環境沒有 gh CLI
 - 情境：建制 session 用 `command -v gh` 實測
 - 代價：假設它存在的話，GitHub 操作會反覆失敗
