@@ -22,7 +22,7 @@
 - 驗收條件：
   - [x] A 環境診斷 → .claude/playbooks/diagnosis.md
   - [x] B CLAUDE.md 重寫為路由
-  - [ ] C 模型調度守則 → dispatch.md（含 .claude/agents/ 角色檔）
+  - [x] C 模型調度守則 → dispatch.md（含 agents/checker.md、agents/judge.md）
   - [ ] D 判斷力外化 → judgment.md
   - [ ] E 派工模板 → templates.md
   - [ ] F 維護協議 → maintenance.md + lessons.md
