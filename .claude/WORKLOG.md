@@ -23,7 +23,7 @@
   - [x] A 環境診斷 → .claude/playbooks/diagnosis.md
   - [x] B CLAUDE.md 重寫為路由
   - [x] C 模型調度守則 → dispatch.md（含 agents/checker.md、agents/judge.md）
-  - [ ] D 判斷力外化 → judgment.md
+  - [x] D 判斷力外化 → judgment.md
   - [ ] E 派工模板 → templates.md
   - [ ] F 維護協議 → maintenance.md + lessons.md
   - [ ] G 給未來 session 的信 → letter-to-future-sessions.md
