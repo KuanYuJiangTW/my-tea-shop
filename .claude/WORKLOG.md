@@ -17,6 +17,26 @@
 
 ---
 
+### [2026-07-07] 設計系統第零階段——產品探索與設計原則提案
+- 目標：設計長進場探索（產品定位／介面主角／關鍵場景／門面元件／品牌約束／專屬設計原則），報告經使用者確認後才開始接設計任務
+- 驗收條件：
+  - [x] 產品面盤點（Explore/sonnet）：19 前台頁＋14 後台頁＋133 API 路由、資料模型、商業規則皆有 file:line
+  - [x] 設計面盤點（Explore/sonnet）：色彩雙軌、字體、深色模式現況、13 個元件清點、品牌素材
+  - [x] 截圖檢視 6 張（home/products/experience-detail/booking/checkout/admin-dashboard）
+  - [x] 載重事實主對話抽驗：tailwind.config.ts 無 darkMode 欄位、components.json baseColor=neutral、public/ 與 src/app/ 無 favicon、--font-sans 被 layout.tsx:14(Geist) 與 globals.css:55(Noto Sans TC) 雙重定義
+  - [ ] 使用者確認：設計原則 3 條、預設淺色模式、門面元件 5 件（等回覆）
+- 關鍵發現（之後任何設計任務動工前必讀）：
+  - 色彩雙軌不相通：shadcn 語意 token 全灰階（globals.css:54-89，oklch chroma=0，含 chart-1~5）；品牌色只在 tea-* 十色階字面色票（tailwind.config.ts:20-31）。按鈕/元件預設色不是品牌綠
+  - 深色模式是未啟用 scaffold：.dark 變數表在 globals.css:102-134，但 darkMode 未設定（Tailwind 3 預設 media）、無 ThemeProvider/切換鈕、業務元件 0 處 dark:
+  - 字體非單一來源：--font-sans 雙重定義（Geist vs Noto Sans TC）；--font-serif 只靠 CDN @import（globals.css:1），無 next/font
+  - 品牌資產缺口：無 logo 圖檔、無 favicon；logo 是 Header.tsx:66-79 手刻 inline SVG；OG 圖（opengraph-image.tsx）與 email（src/lib/email.ts:107-109）各自硬編碼品牌色
+  - 積分規則文件過時：tasks.md:26 與 openspec/specs/coupon-and-points/spec.md:21-40 是舊制（200 點起用/100 倍數/固定 10%），現行以 src/lib/points.ts 為準（MIN 10 點、上限依等級 10/15/20%）。已回報使用者，未動文件（code≠spec 屬回報事項）
+  - 死碼：TeaBagCard.tsx、ui/border-beam.tsx 全站零引用
+  - i18n 實際檔名是 messages/zh.json＋en.json（CLAUDE.md 寫 zh-TW 是指 locale，非檔名）
+- 決策紀錄：
+  - 探索派 2 個 Explore(sonnet) 並行（產品面／設計面），主對話自讀 README＋6 張截圖＋抽驗載重事實——報告類交付以「雙 agent 交叉＋主對話抽驗」代替 checker（事實抽驗已做，真正的驗收閘門是使用者確認）
+- 狀態：進行中（報告已提交對話，等使用者拍板設計原則與門面元件）
+
 ### [2026-07-05] 建立制度檔案（Fable 5 建制 session）
 - 目標：把判斷力固化成 repo 內制度檔，供未來較小模型的 session 沿用
 - 驗收條件：
