@@ -36,3 +36,17 @@
   - subagent frontmatter 欄位已向官方文件查證：model 可用 sonnet/opus/haiku/inherit 等，effort 可用 low/medium/high/xhigh/max，預設 inherit
   - 制度檔語言：繁中敘述＋英文技術名詞（維護者讀繁中；工具名保持原文避免歧義）
 - 狀態：已完成（證據：checker 初審 FAIL 2 項→修正→複驗 PASS；13 檔皆在 origin 分支上；`npm run test` 26 檔/316 測試全綠實測）
+
+---
+
+### [2026-07-07] Production 資安評估 + 可行改善計畫文件
+- 目標：對 server 架構與程式架構做全面資安評估，產出「可行的改善計畫」文件；**唯讀分析，不動線上資料與用戶隱私**
+- 驗收條件：
+  - [ ] 涵蓋四域：A 認證/授權/2FA/RLS、B 金流/金額完整性、C 密鑰/設定/cron/基建、D 輸入驗證/注入/上傳/XSS/限流
+  - [ ] 每項發現有 file:line 證據與嚴重度分級；無虛構（checker 複驗）
+  - [ ] 改善計畫「可行」：分優先級、每項含具體修法/驗收，執行可交日常模型
+  - [ ] 文件產出並 commit+push 到 claude/production-security-assessment-bcb5bj
+- 決策紀錄：
+  - 全程唯讀靜態分析（讀 code/config/SQL），不連 production DB、不 dump 用戶資料——符合使用者鐵律
+  - 依四域平行派 4 個 general-purpose(sonnet) subagent 取證，主對話做跨域組合風險綜合（DISP-1）
+- 狀態：進行中
