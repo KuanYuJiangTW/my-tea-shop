@@ -49,4 +49,6 @@
 - 決策紀錄：
   - 全程唯讀靜態分析（讀 code/config/SQL），不連 production DB、不 dump 用戶資料——符合使用者鐵律
   - 依四域平行派 4 個 general-purpose(sonnet) subagent 取證，主對話做跨域組合風險綜合（DISP-1）
-- 狀態：進行中
+  - 【關鍵仲裁】B agent 誤判「無 middleware＝admin 可匿名利用」；查證 Next 16 已將 middleware 更名 proxy.ts，故 src/proxy.ts 為生效 middleware→無 guard 的 admin route 平時受保護；但 next@16.2.2 命中 middleware-bypass CVE(CVE-2026-44575)，與漏掛 guard 疊加才是真風險。三個爭議最大發現(SEC-001/004/007/022)主對話已親自覆核原始碼。
+- 產出：docs/security/2026-07-07-security-assessment.md（診斷，27 findings：3C/6H/10M/8L）＋ 2026-07-07-improvement-plan.md（P0–P3 可執行工單）
+- 狀態：文件已成稿，派 checker read-back 驗證中；驗過即 commit+push 收尾
