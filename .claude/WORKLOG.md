@@ -51,4 +51,5 @@
   - 依四域平行派 4 個 general-purpose(sonnet) subagent 取證，主對話做跨域組合風險綜合（DISP-1）
   - 【關鍵仲裁】B agent 誤判「無 middleware＝admin 可匿名利用」；查證 Next 16 已將 middleware 更名 proxy.ts，故 src/proxy.ts 為生效 middleware→無 guard 的 admin route 平時受保護；但 next@16.2.2 命中 middleware-bypass CVE(CVE-2026-44575)，與漏掛 guard 疊加才是真風險。三個爭議最大發現(SEC-001/004/007/022)主對話已親自覆核原始碼。
 - 產出：docs/security/2026-07-07-security-assessment.md（診斷，27 findings：3C/6H/10M/8L）＋ 2026-07-07-improvement-plan.md（P0–P3 可執行工單）
-- 狀態：文件已成稿，派 checker read-back 驗證中；驗過即 commit+push 收尾
+- 狀態：✅ 已完成。證據：checker read-back 14 條承重宣稱全 PASS（含 SEC-001/002/003/004/005/006/007/022 及 4 項正面確認 file:line 皆與原始碼一致，無虛構）；兩文件已 push 到 origin/claude/production-security-assessment-bcb5bj（commit 21aafdb）
+- 未做（依約定）：未開 PR（使用者未要求）、未動 main、未連線上 DB／未讀用戶資料。SEC-002/010 等「需站方 Dashboard 確認」項已列入報告 §6
