@@ -20,7 +20,7 @@
 ## 3. 部署與搜尋引擎提交
 
 - [x] 3.1 Commit + push 觸發 Vercel 部署
-- [ ] 3.2 部署後抽查 production：`/robots.txt`、`/llms.txt`、`/sitemap.xml`（含 /en 條目）、體驗頁 View Source 確認 JSON-LD
+- [x] 3.2 部署後抽查 production：`/robots.txt`、`/llms.txt`、`/sitemap.xml`（含 /en 條目）、體驗頁 View Source 確認 JSON-LD
 - [ ] 3.3 Google Search Console 重新提交 sitemap
 - [ ] 3.4 Bing Webmaster Tools 驗證網站（可由 GSC 匯入）並提交 sitemap（ChatGPT 搜尋使用 Bing 索引）
 - [ ] 3.5 Cloudflare AI Crawl Control → Agent Readiness「Check your site」跑檢測並處理建議
