@@ -3,10 +3,12 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Clock, Users, CheckCircle, AlertCircle } from "lucide-react";
 import { getExperienceBySlug, getExperienceTypes, getExperienceContent } from "@/lib/experiences";
+import { supabase } from "@/lib/supabase";
 import ExperienceCalendar from "./ExperienceCalendar";
 import ExperienceReviews from "./ExperienceReviews";
 import ExperienceGallery from "./ExperienceGallery";
 import { getTranslations, getLocale } from "next-intl/server";
+import { langAlternates, jsonLdString } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -26,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title:       `${content.name} | 霧抉茶體驗`,
     description,
-    alternates:  { canonical: `/experiences/${slug}` },
+    alternates:  langAlternates(`/experiences/${slug}`),
     openGraph: {
       title:       `${content.name} | 霧抉茶體驗`,
       description,
@@ -51,8 +53,70 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
   const imgSrc = content.coverImage ?? "/images/gallery/tea-cup.jpg";
 
+  // ── JSON-LD 結構化資料（AI 搜尋 / Google 富摘要）───────────────────────────
+  // 評價數 ≥ 3 才輸出 aggregateRating，樣本太少反而減分
+  const { data: ratingRows } = await supabase
+    .from("experience_reviews")
+    .select("rating")
+    .eq("experience_type_id", experience.id)
+    .eq("is_visible", true);
+  const ratings = (ratingRows ?? []).map(r => r.rating as number);
+  const aggregateRating = ratings.length >= 3
+    ? {
+        "@type": "AggregateRating",
+        "ratingValue": Number((ratings.reduce((s, r) => s + r, 0) / ratings.length).toFixed(1)),
+        "reviewCount": ratings.length,
+        "bestRating": 5,
+        "worstRating": 1,
+      }
+    : undefined;
+
+  const baseUrl     = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
+  const pagePath    = `${isEn ? "/en" : ""}/experiences/${slug}`;
+  const ldName      = isEn ? experience.nameEn : experience.name;
+  const ldDesc      = content.seoDescription ?? ((isEn && content.taglineEn) ? content.taglineEn : content.tagline);
+  const ldImage     = imgSrc.startsWith("http") ? imgSrc : `${baseUrl}${imgSrc}`;
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": ldName,
+    "alternateName": isEn ? experience.name : experience.nameEn,
+    "description": ldDesc,
+    "image": ldImage,
+    "url": `${baseUrl}${pagePath}`,
+    "brand": { "@type": "Brand", "name": "霧抉茶 Wu Jue Tea" },
+    "aggregateRating": aggregateRating,
+    "offers": {
+      "@type": "Offer",
+      "price": experience.price,
+      "priceCurrency": "TWD",
+      "availability": "https://schema.org/InStock",
+      "url": `${baseUrl}${pagePath}`,
+      "seller": { "@id": `${baseUrl}/#business` },
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": isEn ? "Home" : "首頁", "item": isEn ? `${baseUrl}/en` : baseUrl },
+      { "@type": "ListItem", "position": 2, "name": isEn ? "Tea Experiences" : "茶山體驗", "item": `${baseUrl}${isEn ? "/en" : ""}/experiences` },
+      { "@type": "ListItem", "position": 3, "name": ldName, "item": `${baseUrl}${pagePath}` },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-tea-cream-light">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbJsonLd) }}
+      />
       {/* Hero */}
       <div className="relative h-64 md:h-96 overflow-hidden">
         <Image src={imgSrc} alt={experience.name} fill priority className="object-cover" />

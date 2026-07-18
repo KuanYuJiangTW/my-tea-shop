@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { langAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "隱私權政策",
   description: "霧抉茶隱私權政策，說明個人資料蒐集目的、使用範圍、保護措施與當事人權利。",
-  alternates: { canonical: "/privacy" },
+  alternates: langAlternates("/privacy"),
   openGraph: {
     title: "隱私權政策 | 霧抉茶",
     description: "霧抉茶隱私權政策，說明個人資料蒐集目的、使用範圍、保護措施與當事人權利。",

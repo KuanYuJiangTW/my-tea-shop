@@ -1,0 +1,38 @@
+## 1. Cloudflare AI Crawl Control（dashboard，2026-07-18 已完成）
+
+- [x] 1.1 Security 頁總開關「Block AI bots Scope」改為 Do not block (allow crawlers)
+- [x] 1.2 個別放行：Claude-User、ClaudeBot、GPTBot、Google-CloudVertexBot、Meta-ExternalAgent、FacebookBot、Amazonbot（AI Search / AI Assistant 類原本即放行）
+- [x] 1.3 維持封鎖：Bytespider、TikTok Spider、Anchor Browser、CCBot、PetalBot、Novellum、Timpibot、Arquivo；Bot Fight Mode 續開
+- [x] 1.4 Signals 頁關閉「Managed robots.txt」
+- [x] 1.5 外部驗證：抓 production 首頁（403 解除、內容完整）與 robots.txt（無 Content-Signal、無 AI Disallow）
+
+## 2. 程式碼實作（2026-07-18 已完成，尚未 commit）
+
+- [x] 2.1 新增 `src/lib/seo.ts`：`langAlternates()`（canonical + zh-TW/en hreflang）、`jsonLdString()`（轉義 `<` 防 `</script>` 突破）
+- [x] 2.2 改寫 `src/app/robots.ts`：AI 爬蟲群組明確 Allow（16 個 UA）、兩群組 Disallow 一致並新增 /admin、/auth/、/account、fallback 網域改 taiwantea.store
+- [x] 2.3 新增 `public/llms.txt`：雙語站點摘要（品牌/產品/六種體驗/聯絡/政策，不含價格）
+- [x] 2.4 改寫 `src/app/sitemap.ts`：每頁 zh + /en 雙條目含 hreflang alternates
+- [x] 2.5 全站 10 個公開頁 metadata 套用 `langAlternates()`；root layout 移除全站 canonical、fallback 網域統一
+- [x] 2.6 `experiences/[slug]` 新增 Product + BreadcrumbList JSON-LD（locale 對應、seller `@id` 引用 `/#business`）
+- [x] 2.7 首頁 LocalBusiness 加 `@id`；首頁/FAQ/產品列表 JSON-LD 改用 `jsonLdString()`
+- [x] 2.8 驗證：`npx tsc --noEmit`（僅既有測試檔錯誤）、`npm run build` 成功、檢查 build 產出的 robots.txt 與 sitemap.xml 內容正確
+
+## 3. 部署與搜尋引擎提交
+
+- [x] 3.1 Commit + push 觸發 Vercel 部署
+- [ ] 3.2 部署後抽查 production：`/robots.txt`、`/llms.txt`、`/sitemap.xml`（含 /en 條目）、體驗頁 View Source 確認 JSON-LD
+- [ ] 3.3 Google Search Console 重新提交 sitemap
+- [ ] 3.4 Bing Webmaster Tools 驗證網站（可由 GSC 匯入）並提交 sitemap（ChatGPT 搜尋使用 Bing 索引）
+- [ ] 3.5 Cloudflare AI Crawl Control → Agent Readiness「Check your site」跑檢測並處理建議
+
+## 4. 結構化資料強化（需真實資料，不虛構）
+
+- [x] 4.1 體驗頁 Product JSON-LD 加 `aggregateRating`：取自站內評價資料，設輸出門檻（評價數 ≥ 3 才輸出）
+- [ ] 4.2 向小江取得營業時間、地理座標、品牌社群連結（IG/FB/LINE），補進首頁 LocalBusiness 的 `openingHours` / `geo` / `sameAs`
+
+## 5. 驗收（部署一週後）
+
+- [ ] 5.1 Cloudflare Metrics：確認 GPTBot、ClaudeBot、PerplexityBot 等出現 Allowed 抓取量
+- [ ] 5.2 AI 實測：Perplexity / ChatGPT 問「嘉義梅山 高山茶」「阿里山茶園體驗 推薦」「Alishan tea picking experience」，記錄是否引用 taiwantea.store
+- [ ] 5.3 抽查 robots.txt 未被 Cloudflare 重新注入（無 Content-Signal 行）
+- [ ] 5.4 評估是否立案：產品獨立頁 `/products/[slug]`、茶知識內容策略（GEO 長期槓桿）

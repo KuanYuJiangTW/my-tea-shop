@@ -4,13 +4,14 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { sanityFetch } from "@/sanity/client";
 import { ALL_FAQS_QUERY } from "@/sanity/queries";
 import FaqClient from "./FaqClient";
+import { langAlternates, jsonLdString } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "常見問題 | 霧抉茶",
   description: "霧抉茶體驗預約常見問題解答，包含預約流程、退款政策、體驗內容與交通資訊。",
-  alternates: { canonical: "/faq" },
+  alternates: langAlternates("/faq"),
 };
 
 interface Faq {
@@ -58,7 +59,7 @@ export default async function FaqPage() {
       {faqJsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdString(faqJsonLd) }}
         />
       )}
       <div className="min-h-screen">

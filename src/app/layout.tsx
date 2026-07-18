@@ -17,7 +17,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://my-tea-shop.vercel.app";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -62,9 +62,8 @@ export const metadata: Metadata = {
   verification: {
     google: "KeiUxoKScCoDWTyzLMF-tXp_qLuIfFsKxX0L-977Mik",
   },
-  alternates: {
-    canonical: baseUrl,
-  },
+  // 注意：canonical 由各頁自行宣告（src/lib/seo.ts 的 langAlternates），
+  // 不在 root layout 設全站 canonical，避免未宣告的頁面被誤標為首頁的重複內容。
 };
 
 export default async function RootLayout({

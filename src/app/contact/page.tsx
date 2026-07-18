@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import ContactClient from "./ContactClient";
+import { langAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "聯絡我們",
   description: "歡迎聯絡霧抉茶！有產品詢問、訂單問題或批量採購需求，請填寫表單或致電 0972-619-391，我們將盡快回覆。",
   keywords: ["霧抉茶聯絡", "台灣茶葉批發", "嘉義茶葉採購", "霧抉茶電話"],
-  alternates: {
-    canonical: "/contact",
-  },
+  alternates: langAlternates("/contact"),
   openGraph: {
     title: "聯絡我們 | 霧抉茶",
     description: "有任何問題或批量採購需求，歡迎聯絡霧抉茶。",
