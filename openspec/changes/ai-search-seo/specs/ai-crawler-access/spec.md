@@ -19,14 +19,14 @@
 - **WHEN** 讀取 robots.txt 的 Sitemap 行
 - **THEN** URL 為 `https://taiwantea.store/sitemap.xml`（由 NEXT_PUBLIC_BASE_URL 決定，fallback 亦為 taiwantea.store）
 
-### Requirement: llms.txt 的 Link 回應標頭
+### Requirement: agent 可發現性的 Link 回應標頭
 
-所有頁面回應 SHALL 帶 `Link: <{baseUrl}/llms.txt>; rel="llms-txt"; type="text/markdown"` 標頭（next.config.ts 全站 headers），供 AI agent 從任意頁面發現站點摘要。
+所有頁面回應 SHALL 帶 RFC 8288 Link 標頭（next.config.ts 全站 headers），至少包含：`<{baseUrl}/llms.txt>; rel="describedby"`（IANA 註冊的 rel，Agent Readiness 檢測認定為 agent-useful）、`<{baseUrl}/llms.txt>; rel="llms-txt"`（社群慣例）、`<{baseUrl}/sitemap.xml>; rel="sitemap"`。SHALL NOT 發布宣告不存在服務的發現記錄（如無 agent 端點時的 DNS-AID `_index._agents` 記錄、空殼 api-catalog）——待日後真有 MCP/API 端點時再補。
 
 #### Scenario: agent 檢查回應標頭
 
 - **WHEN** 請求任一公開頁面
-- **THEN** 回應含指向 llms.txt 的 Link 標頭
+- **THEN** Link 標頭同時含 rel="describedby" 與 rel="llms-txt" 指向 llms.txt
 
 ### Requirement: llms.txt 站點摘要
 

@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const SUPABASE_HOST = "wrknatfejiexqlyywuzz.supabase.co";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
 // CSP 已移至 src/proxy.ts（middleware）以支援 nonce-based CSP
 // 靜態 CSP 無法包含動態 nonce，因此改由 middleware 在每個請求動態生成
@@ -45,10 +46,15 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
           },
-          // AI agent 可發現性：指向 llms.txt 站點摘要（agent readiness）
+          // AI agent 可發現性（RFC 8288）：describedby 為 IANA 註冊的 rel、
+          // llms-txt 為社群慣例，兩者都指向站點摘要；另附 sitemap 位置
           {
             key: "Link",
-            value: `<${process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store"}/llms.txt>; rel="llms-txt"; type="text/markdown"`,
+            value: [
+              `<${BASE_URL}/llms.txt>; rel="describedby"; type="text/markdown"`,
+              `<${BASE_URL}/llms.txt>; rel="llms-txt"; type="text/markdown"`,
+              `<${BASE_URL}/sitemap.xml>; rel="sitemap"; type="application/xml"`,
+            ].join(", "),
           },
         ],
       },
