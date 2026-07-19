@@ -7,9 +7,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 清除所有體驗相關頁面快取
+  // 清除所有取用 Sanity 內容的頁面快取
+  // （體驗內容出現在首頁與製茶頁；FAQ 頁的 FAQPage JSON-LD 也吃 Sanity）
   revalidatePath("/experiences");
   revalidatePath("/experiences/[slug]", "page");
+  revalidatePath("/faq");
+  revalidatePath("/");
+  revalidatePath("/process");
 
   return NextResponse.json({ revalidated: true });
 }
