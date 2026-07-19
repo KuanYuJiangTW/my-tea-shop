@@ -35,7 +35,7 @@
 
 - [ ] 5.1 Cloudflare Metrics：確認 GPTBot、ClaudeBot、PerplexityBot 等出現 Allowed 抓取量
 - [ ] 5.2 AI 實測：Perplexity / ChatGPT 問「嘉義梅山 高山茶」「阿里山茶園體驗 推薦」「Alishan tea picking experience」，記錄是否引用 taiwantea.store
-- [ ] 5.3 抽查 robots.txt 未被 Cloudflare 重新注入（無 Content-Signal 行）
+- [ ] 5.3 抽查 robots.txt 未被 Cloudflare 重新注入：Content-Signal 必須是站方正面宣告 `search=yes, ai-input=yes, ai-train=yes`；若變成 `ai-train=no` 或出現整排 AI 爬蟲 `Disallow: /`，代表 Managed robots.txt 被重新開啟
 - [ ] 5.4 評估是否立案：產品獨立頁 `/products/[slug]`、茶知識內容策略（GEO 長期槓桿）、預約查詢 MCP server
 
 ## 6. 阿里山主題內容（GEO 內容策略第一步，2026-07-19，因阿里山名氣 > 梅山）
