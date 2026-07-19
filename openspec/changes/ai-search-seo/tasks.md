@@ -23,7 +23,7 @@
 - [x] 3.2 部署後抽查 production：`/robots.txt`、`/llms.txt`、`/sitemap.xml`（含 /en 條目）、體驗頁 View Source 確認 JSON-LD
 - [ ] 3.3 Google Search Console 重新提交 sitemap
 - [ ] 3.4 Bing Webmaster Tools 驗證網站（可由 GSC 匯入）並提交 sitemap（ChatGPT 搜尋使用 Bing 索引）
-- [ ] 3.5 Cloudflare AI Crawl Control → Agent Readiness「Check your site」跑檢測並處理建議
+- [x] 3.5 Cloudflare AI Crawl Control → Agent Readiness「Check your site」跑檢測並處理建議（首掃 21 分；已補 Content-Signal 正面宣告 + Link 標頭，API/MCP/Commerce 類扣分屬 agent 經濟基建、與 AI 搜尋無關，列 5.4 評估）
 
 ## 4. 結構化資料強化（需真實資料，不虛構）
 
