@@ -22,7 +22,7 @@
 - [x] 3.1 Commit + push 觸發 Vercel 部署
 - [x] 3.2 部署後抽查 production：`/robots.txt`、`/llms.txt`、`/sitemap.xml`（含 /en 條目）、體驗頁 View Source 確認 JSON-LD
 - [ ] 3.3 Google Search Console 重新提交 sitemap
-- [ ] 3.4 Bing Webmaster Tools 驗證網站（可由 GSC 匯入）並提交 sitemap（ChatGPT 搜尋使用 Bing 索引）
+- [x] 3.4 Bing Webmaster Tools 驗證網站（可由 GSC 匯入）並提交 sitemap（ChatGPT 搜尋使用 Bing 索引）——已匯入驗證，sitemap 成功、0 錯誤、發現 30 網址（含雙語全頁）；後續可看「AI Performance (Beta)」報表追蹤 AI 引用
 - [x] 3.5 Cloudflare AI Crawl Control → Agent Readiness「Check your site」跑檢測並處理建議（首掃 21 分；補 Content-Signal + Link 標頭後複掃 29 分、Bot Access Control 100 滿分；API/MCP/Commerce 類扣分屬 agent 經濟基建、與 AI 搜尋無關，列 5.4 評估）
 - [x] 3.6 Link 標頭補 IANA 註冊 rel="describedby"（Agent Readiness 認定的 agent-useful 類型）與 rel="sitemap"；DNS-AID 刻意不做——語意為宣告 agent 端點，現無端點、發布即假廣告，留待 MCP server 立案
 
