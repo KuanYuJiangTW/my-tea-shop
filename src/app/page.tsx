@@ -37,6 +37,7 @@ export default async function HomePage() {
     "@type": "LocalBusiness",
     "@id": `${baseUrl}/#business`,
     "name": "霧抉茶 Wu Jue Tea",
+    "alternateName": "信淳茶居",
     "image": `${baseUrl}/images/gallery/picking2.jpg`,
     "url": baseUrl,
     "telephone": "+886-972-619-391",
@@ -50,6 +51,25 @@ export default async function HomePage() {
     },
     "description": "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。",
     "priceRange": "$$",
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 23.5537537,
+      "longitude": 120.6324229,
+    },
+    "hasMap": "https://maps.google.com/?cid=8366059333847730032",
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "08:00",
+        "closes": "18:00",
+      },
+    ],
+    "sameAs": [
+      "https://www.instagram.com/mist.decider.tea/",
+      "https://www.facebook.com/choose.mist.tea",
+      "https://line.me/R/ti/p/@976jhznk",
+    ],
   };
 
   const webSiteJsonLd = {

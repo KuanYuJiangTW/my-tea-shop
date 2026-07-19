@@ -2,7 +2,7 @@
 
 ### Requirement: 首頁輸出 LocalBusiness 與 WebSite JSON-LD
 
-首頁 SHALL 內嵌兩個 `application/ld+json` data block：`LocalBusiness`（含 `@id: {baseUrl}/#business`、中英名稱、image、電話 +886-972-619-391、完整 PostalAddress（嘉義縣梅山鄉太興村8鄰溪頭19號之2、郵遞區號 603、TW）、描述、priceRange）與 `WebSite`（name、alternateName、url）。
+首頁 SHALL 內嵌兩個 `application/ld+json` data block：`LocalBusiness`（含 `@id: {baseUrl}/#business`、中英名稱、alternateName「信淳茶居」（Google Maps 店名）、image、電話 +886-972-619-391、完整 PostalAddress（嘉義縣梅山鄉太興村8鄰溪頭19號之2、郵遞區號 603、TW）、描述、priceRange、`geo` 座標（23.5537537, 120.6324229）、`hasMap`（maps.google.com?cid= 形式）、`openingHoursSpecification`（週一至週日 08:00–18:00）、`sameAs`（IG／FB／LINE 官方帳號，不得使用個人帳號連結））與 `WebSite`（name、alternateName、url）。
 
 #### Scenario: AI 解析首頁店家實體
 
