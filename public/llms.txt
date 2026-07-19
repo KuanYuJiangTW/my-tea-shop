@@ -1,12 +1,13 @@
 # 霧抉茶 Wu Jue Tea
 
-> 台灣嘉義縣梅山鄉（阿里山山系）的家庭茶園品牌。一家三口 40 年自產自銷台灣高山茶：阿里山高山烏龍、金萱、蜜香紅茶、紅烏龍、四季春；並提供茶山體驗線上預約（茶席、焙茶、採茶、製茶、茶酒、黃頭鷺生態導覽）。網站提供繁體中文與英文（/en 前綴）版本，支援線上購茶與體驗預約。
+> 台灣嘉義阿里山茶區的家庭茶園品牌，位於梅山鄉太興村（梅山鄉為大阿里山茶區種植面積最大的產地，約 1,090 公頃）。一家三口 40 年自產自銷阿里山高山茶：高山烏龍、金萱、蜜香紅茶、紅烏龍、四季春；並提供阿里山茶園體驗線上預約（茶席、焙茶、採茶、製茶、茶酒、黃頭鷺生態導覽）。網站提供繁體中文與英文（/en 前綴）版本，支援線上購茶與體驗預約。
 
 Wu Jue Tea is a family-run tea farm in Meishan Township, Chiayi County, Taiwan (Alishan mountain range). For over 40 years we have grown, crafted and sold Taiwanese high-mountain teas — Alishan High Mountain Oolong, Jin Xuan (milk oolong), Honey Black Tea, Red Oolong and Four Seasons Spring — and we host on-farm tea experiences bookable online. English pages are under https://taiwantea.store/en
 
 ## 茶葉產品 Products
 
 - [茶葉系列 Tea Collection](https://taiwantea.store/products): 阿里山高山烏龍、金萱、蜜香紅茶、紅烏龍、四季春，罐裝茶葉，自家茶園直送
+- [阿里山高山茶指南 Alishan Tea Guide](https://taiwantea.store/alishan-tea): 阿里山茶區範圍、梅山鄉為何是最大產地、霧抉茶在太興村的位置與風味介紹
 - [製茶過程 Tea Craftsmanship](https://taiwantea.store/process): 採摘、萎凋、揉捻、焙火——40 年職人工序完整介紹
 
 ## 茶山體驗 Tea Experiences（線上預約 / bookable online）

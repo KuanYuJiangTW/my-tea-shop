@@ -36,4 +36,11 @@
 - [ ] 5.1 Cloudflare Metrics：確認 GPTBot、ClaudeBot、PerplexityBot 等出現 Allowed 抓取量
 - [ ] 5.2 AI 實測：Perplexity / ChatGPT 問「嘉義梅山 高山茶」「阿里山茶園體驗 推薦」「Alishan tea picking experience」，記錄是否引用 taiwantea.store
 - [ ] 5.3 抽查 robots.txt 未被 Cloudflare 重新注入（無 Content-Signal 行）
-- [ ] 5.4 評估是否立案：產品獨立頁 `/products/[slug]`、茶知識內容策略（GEO 長期槓桿）
+- [ ] 5.4 評估是否立案：產品獨立頁 `/products/[slug]`、茶知識內容策略（GEO 長期槓桿）、預約查詢 MCP server
+
+## 6. 阿里山主題內容（GEO 內容策略第一步，2026-07-19，因阿里山名氣 > 梅山）
+
+- [x] 6.1 新增 `/alishan-tea` 阿里山高山茶指南頁：雙語問答式段落（阿里山茶區範圍、梅山鄉為最大產地約 1,090 公頃、霧抉茶在太興的位置、風味、體驗），Article + BreadcrumbList JSON-LD，誠實區分「阿里山茶區」與「阿里山森林遊樂區」
+- [x] 6.2 Footer 導覽、sitemap（32 URL）、llms.txt 納入新頁並強化阿里山敘述
+- [ ] 6.3 小江把「阿里山定位」FAQ 三條加入 Sanity（文案已提供：在阿里山嗎／梅山茶與阿里山茶差異／交通）
+- [ ] 6.4 Google 商家檔案（信淳茶居）描述補「阿里山高山茶、梅山太興、茶園體驗」關鍵字（小江操作）

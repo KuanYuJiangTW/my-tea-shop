@@ -9,6 +9,7 @@ const STATIC_PAGES: Array<{ path: string; changeFrequency: ChangeFrequency; prio
   { path: "",               changeFrequency: "weekly",  priority: 1 },
   { path: "/products",      changeFrequency: "weekly",  priority: 0.9 },
   { path: "/experiences",   changeFrequency: "weekly",  priority: 0.85 },
+  { path: "/alishan-tea",   changeFrequency: "monthly", priority: 0.75 },
   { path: "/process",       changeFrequency: "monthly", priority: 0.7 },
   { path: "/about",         changeFrequency: "monthly", priority: 0.7 },
   { path: "/faq",           changeFrequency: "monthly", priority: 0.6 },

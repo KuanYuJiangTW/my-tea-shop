@@ -39,10 +39,11 @@ export default function Footer() {
             <h4 className="font-medium mb-5 text-tea-green-light tracking-wide">{t("quickLinks")}</h4>
             <ul className="space-y-3">
               {[
-                { href: lp("/products"), key: "products" },
-                { href: lp("/process"),  key: "process" },
-                { href: lp("/about"),    key: "about" },
-                { href: lp("/cart"),     key: "cart" },
+                { href: lp("/products"),    key: "products" },
+                { href: lp("/alishan-tea"), key: "alishan" },
+                { href: lp("/process"),     key: "process" },
+                { href: lp("/about"),       key: "about" },
+                { href: lp("/cart"),        key: "cart" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
