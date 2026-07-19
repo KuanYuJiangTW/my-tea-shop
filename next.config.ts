@@ -45,6 +45,11 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
           },
+          // AI agent 可發現性：指向 llms.txt 站點摘要（agent readiness）
+          {
+            key: "Link",
+            value: `<${process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store"}/llms.txt>; rel="llms-txt"; type="text/markdown"`,
+          },
         ],
       },
       {
