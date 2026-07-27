@@ -43,3 +43,9 @@
 - 代價：假設它存在的話，GitHub 操作會反覆失敗
 - 規則：web session 的 GitHub 操作一律用 `mcp__github__*` 工具（先 ToolSearch 載入）；本機 session 先 `command -v gh` 再決定
 - 去處：已入 diagnosis.md 環境事實表與 CLAUDE.md 開場檢查
+
+## 2026-07-27 套件回傳型別改了，`if (!result)` 就成了永遠通過的假驗證
+- 情境：稽核後台 2FA，發現 `otplib` v13 的 `verify()` 回傳 `{ valid: boolean }` 物件而非 boolean；程式碼沿用舊寫法 `const isValid = await verify(...); if (!isValid)`，物件恆為 truthy，導致任何 6 位數驗證碼都通過。同一寫法散在 3 個檔，且零測試覆蓋，兩份人工資安報告都沒抓到
+- 代價：後台 2FA 形同虛設（配合固定值 `admin_pending=1` cookie，可無密碼取得完整後台權限）；上線期間一直存在
+- 規則：驗證類函式（`verify`/`validate`/`check`）接回傳值時，先在 node 實跑一次印出型別再寫判斷（`node -e "const {f}=require('pkg'); f(...).then(r=>console.log(typeof r, JSON.stringify(r)))"`）；不可假設回傳 boolean。安全判斷式必須有一條「錯誤輸入被拒絕」的回歸測試，且要暫時退回修正、確認該測試會紅，才算數
+- 去處：暫存於此（JUDG-2「完成要有證據」的具體化：安全修正的證據＝回歸測試在舊碼上失敗）

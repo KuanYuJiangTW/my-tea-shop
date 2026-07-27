@@ -20,6 +20,15 @@
 - **WHEN** `POST /api/admin/auth` 密碼正確，且 2FA 已啟用
 - **THEN** 設定臨時 `admin_pending` cookie（10 分鐘有效），回傳 `{ require2fa: true }`，不設定 `admin_session`
 
+#### Scenario: 偽造 admin_pending cookie
+- **WHEN** 未通過密碼驗證，卻自行帶入 `admin_pending` cookie（如固定值 `1`）呼叫 `POST /api/admin/auth/2fa`
+- **THEN** 回傳 HTTP 401 `{ error: "請先完成密碼驗證" }`，不建立 session
+- **註**：`admin_pending` 的內容 SHALL 為伺服器以 `ADMIN_PASSWORD` 簽章、含有效期與隨機 nonce 的 token；MUST NOT 為固定值。httpOnly / sameSite 只約束瀏覽器，無法阻止攻擊者直接以 HTTP 客戶端帶入 cookie。
+
+#### Scenario: TOTP 驗證碼窮舉
+- **WHEN** 同一 IP 於 15 分鐘內累積 5 次 TOTP 驗證失敗
+- **THEN** 後續請求回傳 HTTP 429，不進行驗證碼比對
+
 #### Scenario: TOTP 驗證通過
 - **WHEN** `POST /api/admin/auth/2fa` 傳入有效的 6 位驗證碼，且 `admin_pending` cookie 有效
 - **THEN** 清除 `admin_pending`，產生隨機 session token、寫入 `admin_sessions`，設定正式 `admin_session` cookie，回傳 `{ ok: true }`
@@ -27,6 +36,7 @@
 #### Scenario: TOTP 驗證碼錯誤
 - **WHEN** `POST /api/admin/auth/2fa` 傳入無效驗證碼
 - **THEN** 回傳 HTTP 401 `{ error: "驗證碼錯誤" }`，不建立 session
+- **註**：otplib v13 的 `verify()` 回傳 `{ valid: boolean }` 物件而非 boolean。驗證結果 SHALL 取 `.valid` 判斷；直接判斷回傳值會因物件恆為 truthy 而使任何驗證碼皆通過。
 
 #### Scenario: 2FA 未設定時直接登入
 - **WHEN** `POST /api/admin/auth` 密碼正確，且 2FA 尚未啟用

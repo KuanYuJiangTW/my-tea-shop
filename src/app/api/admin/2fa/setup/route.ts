@@ -21,8 +21,9 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
     return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
   }
 
-  const isValid = await verify({ token: code, secret });
-  if (!isValid) {
+  // otplib v13 的 verify() 回傳 { valid: boolean }，物件恆為 truthy，必須取 .valid
+  const { valid } = await verify({ token: code, secret });
+  if (!valid) {
     return NextResponse.json({ error: "驗證碼錯誤，請重試" }, { status: 400 });
   }
 
