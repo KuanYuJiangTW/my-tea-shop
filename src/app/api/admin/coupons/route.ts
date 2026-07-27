@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 // GET /api/admin/coupons — 列表（含使用率統計）
-export async function GET(req: NextRequest) {
+export const GET = withAdminAuth(async (req: NextRequest) => {
   const type = req.nextUrl.searchParams.get("type"); // batch | universal | all
 
   if (type === "universal") {
@@ -44,10 +45,10 @@ export async function GET(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
-}
+});
 
 // POST /api/admin/coupons — 新增（批次券 or 通用碼）
-export async function POST(req: NextRequest) {
+export const POST = withAdminAuth(async (req: NextRequest) => {
   const body = await req.json();
   const { type } = body; // "batch" | "universal"
 
@@ -101,4 +102,4 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabase.from("coupons").insert(coupons).select("id");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ created: data?.length ?? 0 }, { status: 201 });
-}
+}, "create_coupon");

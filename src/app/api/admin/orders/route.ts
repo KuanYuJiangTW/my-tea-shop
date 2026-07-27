@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
-export async function GET() {
+export const GET = withAdminAuth(async () => {
   const { data, error } = await supabase
     .from("orders")
     .select("*")
@@ -12,4 +13,4 @@ export async function GET() {
   }
 
   return NextResponse.json(data);
-}
+});

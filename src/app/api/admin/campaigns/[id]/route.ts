@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 type Params = { params: Promise<{ id: string }> };
 
 // GET /api/admin/campaigns/[id]
-export async function GET(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const GET = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
   const { data, error } = await supabase
     .from("points_campaigns")
     .select("*")
@@ -14,11 +15,11 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
   if (error) return NextResponse.json({ error: "找不到此活動" }, { status: 404 });
   return NextResponse.json(data);
-}
+});
 
 // PATCH /api/admin/campaigns/[id] — 編輯活動
-export async function PATCH(req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
   const body = await req.json();
 
   // 不允許編輯已結束的活動
@@ -78,11 +79,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   return NextResponse.json(data);
-}
+}, "update_campaign");
 
 // DELETE /api/admin/campaigns/[id] — 停用（soft delete）
-export async function DELETE(req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const DELETE = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
 
   const { error } = await supabase
     .from("points_campaigns")
@@ -103,4 +104,4 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   });
 
   return NextResponse.json({ ok: true });
-}
+}, "delete_campaign");

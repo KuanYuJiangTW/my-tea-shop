@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 // GET /api/admin/campaigns — 列表（支援 status 篩選）
-export async function GET(req: NextRequest) {
+export const GET = withAdminAuth(async (req: NextRequest) => {
   const status = req.nextUrl.searchParams.get("status"); // active | ended | all
 
   let query = supabase
@@ -20,10 +21,10 @@ export async function GET(req: NextRequest) {
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
-}
+});
 
 // POST /api/admin/campaigns — 新增活動
-export async function POST(req: NextRequest) {
+export const POST = withAdminAuth(async (req: NextRequest) => {
   const body = await req.json();
 
   const { name, description, multiplier, campaign_type, starts_at, ends_at, target_product_ids, target_tier_ids, min_order_amount } = body;
@@ -53,4 +54,4 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });
-}
+}, "create_campaign");

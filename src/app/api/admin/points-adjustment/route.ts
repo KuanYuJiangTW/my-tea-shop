@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { getValidBalance } from "@/lib/points";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 // POST /api/admin/points-adjustment — 手動調整點數（加/扣）
-export async function POST(req: NextRequest) {
+export const POST = withAdminAuth(async (req: NextRequest) => {
   const body = await req.json();
   const { userId, points, adminId, adminNote } = body as {
     userId: string;
@@ -55,4 +56,4 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ ok: true, transaction: data });
-}
+}, "adjust_points");

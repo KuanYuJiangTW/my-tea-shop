@@ -8,6 +8,13 @@ vi.mock("@/lib/supabase", () => ({
   supabase: { from: (...args: unknown[]) => mockFrom(...args) },
 }));
 
+// 此檔測 handler 邏輯，先假設已通過 withAdminAuth；
+// 授權本身由 src/__tests__/admin/route-auth-coverage.test.ts 覆蓋
+vi.mock("next/headers", () => ({
+  cookies: async () => ({ get: () => ({ value: "test-session" }) }),
+}));
+vi.mock("@/lib/admin-token", () => ({ validateAdminSession: async () => true }));
+
 import { GET } from "@/app/api/admin/points-export/route";
 
 function makeReq(params?: Record<string, string>) {

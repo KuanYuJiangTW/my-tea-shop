@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 type Params = { params: Promise<{ id: string }> };
 
 // PATCH /api/admin/coupons/[id] — 編輯通用碼模板
-export async function PATCH(req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
   const body = await req.json();
 
   const { data: existing } = await supabase
@@ -34,11 +35,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
-}
+}, "update_coupon");
 
 // DELETE /api/admin/coupons/[id] — 停用
-export async function DELETE(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const DELETE = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
 
   const { error } = await supabase
     .from("coupon_templates")
@@ -47,4 +48,4 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
-}
+}, "delete_coupon");

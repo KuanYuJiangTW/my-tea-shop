@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendShippingEmail } from "@/lib/email";
 import { issuePoints, refundPoints } from "@/lib/points";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+type Params = { params: Promise<{ id: string }> };
+
+export const GET = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
 
   const { data, error } = await supabase
     .from("orders")
@@ -17,10 +20,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   return NextResponse.json(data);
-}
+});
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
 
   const body = await req.json() as {
     orderStatus?: string;
@@ -165,4 +168,4 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   return NextResponse.json({ ok: true });
-}
+}, "update_order");

@@ -8,12 +8,20 @@ vi.mock("@/lib/supabase", () => ({
   supabase: { from: (...args: unknown[]) => mockFrom(...args) },
 }));
 
+// 此檔測 handler 邏輯，先假設已通過 withAdminAuth；
+// 授權本身由 src/__tests__/admin/route-auth-coverage.test.ts 覆蓋
+vi.mock("next/headers", () => ({
+  cookies: async () => ({ get: () => ({ value: "test-session" }) }),
+}));
+vi.mock("@/lib/admin-token", () => ({ validateAdminSession: async () => true }));
+
 // Import handlers
 import { GET } from "@/app/api/admin/campaigns/[id]/history/route";
 import { PATCH, DELETE } from "@/app/api/admin/campaigns/[id]/route";
 
 function makeReq(method: string, body?: unknown) {
-  const opts: RequestInit = { method };
+  // 不用 DOM 的 RequestInit——它的 signal 允許 null，與 NextRequest 的定義不相容
+  const opts: { method: string; headers?: Record<string, string>; body?: string } = { method };
   if (body) {
     opts.headers = { "Content-Type": "application/json" };
     opts.body = JSON.stringify(body);
