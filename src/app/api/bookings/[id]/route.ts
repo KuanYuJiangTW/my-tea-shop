@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { maskParticipant } from "@/lib/pii";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -33,7 +34,12 @@ export async function GET(_req: Request, { params }: Params) {
     return NextResponse.json({ error: "找不到此預約" }, { status: 404 });
   }
 
-  return NextResponse.json(data);
+  // 參加者個資遮罩後才回傳（身分證號、生日、緊急聯絡電話）
+  const participants = Array.isArray(data.participants)
+    ? data.participants.map(maskParticipant)
+    : data.participants;
+
+  return NextResponse.json({ ...data, participants });
 }
 
 
