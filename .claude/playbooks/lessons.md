@@ -61,3 +61,13 @@
 - 代價：無（出手前查到了），但若照報告 L-6「明確只授權 service_role」照做就會停機
 - 規則：建議 REVOKE / 收緊任何權限前，先 `Grep "\.rpc\(|from\(\"<表名>\"" src` 找出全部呼叫點，並確認每個呼叫點用的是哪把 key（service_role 還是 anon）；Edge runtime 的程式碼特別容易是 anon。資安報告的通則建議不能無條件套用，要先對照本專案的實際呼叫方式
 - 去處：暫存於此
+
+## 2026-07-28 Bash tool 裡用 PowerShell here-string，commit 標題會多一個 @
+
+- 情境：本環境同時有 Bash 與 PowerShell 兩個工具。在 Bash tool 裡寫 `git commit -m @'...'@`（PowerShell here-string 語法），bash 解讀成「字元 @ 串接單引號字串」，於是 commit 標題變成 `@`、正文結尾多一個 `@`。同一個 session 內犯了兩次
+
+- 代價：兩次 amend + force-push main（第二次還得再次動用破壞性操作）
+
+- 規則：Bash tool 的多行字串一律用 heredoc `git commit -m "$(cat <<'EOF' ... EOF\n)"`；PowerShell here-string `@'...'@` 只能在 PowerShell tool 裡用。送出前先確認工具與語法配對
+
+- 去處：暫存於此
