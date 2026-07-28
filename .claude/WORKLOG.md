@@ -36,3 +36,24 @@
   - subagent frontmatter 欄位已向官方文件查證：model 可用 sonnet/opus/haiku/inherit 等，effort 可用 low/medium/high/xhigh/max，預設 inherit
   - 制度檔語言：繁中敘述＋英文技術名詞（維護者讀繁中；工具名保持原文避免歧義）
 - 狀態：已完成（證據：checker 初審 FAIL 2 項→修正→複驗 PASS；13 檔皆在 origin 分支上；`npm run test` 26 檔/316 測試全綠實測）
+
+---
+
+### [2026-07-28] 資安修補（07-04 與 07-07 兩份報告的高風險項）
+- 目標：把兩份資安評估的 Critical / High / Medium 項目修完並推上 main
+- 驗收條件：
+  - [x] SEC-001 後台 2FA 可完全繞過 → `8caea01`（otplib `verify()` 回傳物件不是 boolean；`admin_pending` 固定值 `"1"` 改 HMAC 簽章 token；2FA 端點補限流）
+  - [x] H-2 admin API 缺 `withAdminAuth` → `e13650f`（12 檔 19 handler；新增靜態掃描測試防復發）
+  - [x] H-1 Next.js 16.2.2 → 16.2.12 → `5d3153a`（報告建議的 16.2.10 不足，8 條 advisory 需 ≥16.2.11）
+  - [x] M-1 cvs-callback 反射型 XSS → `d7f4515`（資料改進 data-* 屬性、script 用 nonce、CSP 移除 unsafe-inline）
+  - [x] M-2 線上 RLS 唯讀複查 → `03b95b6` 新增 `supabase/rls-audit.sql`；小江實跑，orders 只剩 SELECT 政策、6/25 那 3 條危險寫入政策未復發
+  - [x] 新發現 RPC 權限破口 → `50306cb` 新增 `supabase/rpc-grants-remediation.sql`；小江跑 STEP 2a 並驗收通過
+  - [ ] STEP 2b：`drop function decrement_stock(integer,integer)`（孤兒清除，非緊急）
+  - [ ] STEP 4：網站實測（下單扣庫存／取消還原／後台登入／後台瀏覽）
+- 決策紀錄：
+  - git 歷史清理暫緩 —— 金鑰早已輪換，且小江決定 repo 維持公開當賣課教材。清理成本高（重寫 363 commit + 5 分支 force-push + 需開 GitHub Support ticket 才會真正消失）
+  - `validate_admin_session` 刻意不收 anon 權限 —— proxy.ts 的 Edge middleware 是故意用 anon key 呼叫它，避免 service_role key 進 Edge Runtime。報告 L-6「明確只授權 service_role」的通則不可照抄，會導致後台完全登不進去
+  - M-3（adminId 取自 body）暫不修 —— 改由 session 推導會連帶改後台 UI，且需先決定要不要做多管理員帳號，屬產品決策
+  - 安全修正的完成判準：暫時退回舊碼、確認回歸測試會紅，才算數（已對 2FA、admin 授權、XSS 三項各做一次）
+- 狀態：已完成（證據：359 測試全過、`tsc --noEmit` 零錯誤、`npm run build` 成功、RLS/RPC 驗收 SQL 輸出確認）
+  - 注意：`npm run lint` 已失效（Next 16 移除 `next lint`，且無 `eslint.config.js`），驗證改用 `tsc --noEmit`
