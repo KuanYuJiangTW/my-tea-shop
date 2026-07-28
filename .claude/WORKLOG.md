@@ -49,11 +49,13 @@
   - [x] M-2 線上 RLS 唯讀複查 → `03b95b6` 新增 `supabase/rls-audit.sql`；小江實跑，orders 只剩 SELECT 政策、6/25 那 3 條危險寫入政策未復發
   - [x] 新發現 RPC 權限破口 → `50306cb` 新增 `supabase/rpc-grants-remediation.sql`；小江跑 STEP 2a 並驗收通過
   - [x] STEP 2b：`drop function decrement_stock(integer,integer)` 已刪（相依性掃描 pg_proc/pg_trigger 皆 0 筆；原始定義存於 `supabase/rpc-grants-remediation.sql` 附錄）。驗收：剩 4 個函式、security_definer 全為 false、權限只剩 postgres+service_role
-  - [ ] STEP 4：網站實測（下單扣庫存／取消還原／後台登入／後台瀏覽）
+  - [x] STEP 4：網站實測 4 項全過（下單扣庫存／後台取消還原庫存／後台登入 2FA／後台頁面瀏覽）——小江實跑確認
+  - [x] 追加修復：2FA 時間容差 → `fbf2dd5`。小江回報 authenticator 驗證碼登不進後台，查出 otplib `epochTolerance` 預設 0（只收當下 30 秒窗），新增 `src/lib/totp.ts` 設為 `[30,30]`。此問題原被 `verify()` 型別誤用蓋住（任何碼都過），修掉誤用才浮現
+  - [x] 追加確認：`validate_admin_session` 權限未被誤收（`anon=X` 仍在，與修補前一致）
 - 決策紀錄：
   - git 歷史清理暫緩 —— 金鑰早已輪換，且小江決定 repo 維持公開當賣課教材。清理成本高（重寫 363 commit + 5 分支 force-push + 需開 GitHub Support ticket 才會真正消失）
   - `validate_admin_session` 刻意不收 anon 權限 —— proxy.ts 的 Edge middleware 是故意用 anon key 呼叫它，避免 service_role key 進 Edge Runtime。報告 L-6「明確只授權 service_role」的通則不可照抄，會導致後台完全登不進去
   - M-3（adminId 取自 body）暫不修 —— 改由 session 推導會連帶改後台 UI，且需先決定要不要做多管理員帳號，屬產品決策
   - 安全修正的完成判準：暫時退回舊碼、確認回歸測試會紅，才算數（已對 2FA、admin 授權、XSS 三項各做一次）
-- 狀態：已完成（證據：359 測試全過、`tsc --noEmit` 零錯誤、`npm run build` 成功、RLS/RPC 驗收 SQL 輸出確認）
+- 狀態：已完成（證據：362 測試全過、`tsc --noEmit` 零錯誤、`npm run build` 成功、RLS/RPC 驗收 SQL 輸出確認、STEP 4 網站實測 4 項全過）
   - 注意：`npm run lint` 已失效（Next 16 移除 `next lint`，且無 `eslint.config.js`），驗證改用 `tsc --noEmit`
