@@ -48,7 +48,7 @@
   - [x] M-1 cvs-callback 反射型 XSS → `d7f4515`（資料改進 data-* 屬性、script 用 nonce、CSP 移除 unsafe-inline）
   - [x] M-2 線上 RLS 唯讀複查 → `03b95b6` 新增 `supabase/rls-audit.sql`；小江實跑，orders 只剩 SELECT 政策、6/25 那 3 條危險寫入政策未復發
   - [x] 新發現 RPC 權限破口 → `50306cb` 新增 `supabase/rpc-grants-remediation.sql`；小江跑 STEP 2a 並驗收通過
-  - [ ] STEP 2b：`drop function decrement_stock(integer,integer)`（孤兒清除，非緊急）
+  - [x] STEP 2b：`drop function decrement_stock(integer,integer)` 已刪（相依性掃描 pg_proc/pg_trigger 皆 0 筆；原始定義存於 `supabase/rpc-grants-remediation.sql` 附錄）。驗收：剩 4 個函式、security_definer 全為 false、權限只剩 postgres+service_role
   - [ ] STEP 4：網站實測（下單扣庫存／取消還原／後台登入／後台瀏覽）
 - 決策紀錄：
   - git 歷史清理暫緩 —— 金鑰早已輪換，且小江決定 repo 維持公開當賣課教材。清理成本高（重寫 363 commit + 5 分支 force-push + 需開 GitHub Support ticket 才會真正消失）
