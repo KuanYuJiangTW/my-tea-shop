@@ -59,3 +59,24 @@
   - 安全修正的完成判準：暫時退回舊碼、確認回歸測試會紅，才算數（已對 2FA、admin 授權、XSS 三項各做一次）
 - 狀態：已完成（證據：362 測試全過、`tsc --noEmit` 零錯誤、`npm run build` 成功、RLS/RPC 驗收 SQL 輸出確認、STEP 4 網站實測 4 項全過）
   - 注意：`npm run lint` 已失效（Next 16 移除 `next lint`，且無 `eslint.config.js`），驗證改用 `tsc --noEmit`
+
+---
+
+### [2026-07-28] 資安清尾：M-3 與 L 級項目
+- 目標：把資安報告剩餘的 M-3 與 L 級 7 項處理完或做出明確結論
+- 驗收條件：
+  - [x] M-3 稽核來源可偽造 → `f3321fb`。admin_id 改由 getAdminActor() 從 session 推導（回傳 token 的 SHA-256 前 12 碼）。不必等多管理員決策——那是兩件事
+  - [x] L-5 TOTP 防重放 → `f3321fb`。借 rate_limits 以 max=1 做單次使用標記，key 為 secret+code 雜湊
+  - [x] L-7 sanity-webhook 改 HMAC → `f3321fb`。驗 sanity-webhook-signature（簽 `${t}.${body}`，5 分鐘容差），保留舊密鑰退路
+  - [x] L-8 上傳驗 magic bytes → `f3321fb`。檢查 JPEG/PNG/WebP 檔頭，副檔名與 contentType 改用檔頭判定結果
+  - [x] L-2 輸入驗證一致性 → `b88504f`。新增 src/lib/validate.ts，套用於 reviews 與後台 coupons/campaigns
+  - [x] L-6 rate_limit RPC 權限 → 已於 RPC 修補那輪完成
+  - [x] L-1 相依套件 → 結論：不處理（見決策紀錄），教訓已記入 lessons.md
+  - [x] L-4 CSP unsafe-inline → 結論：維持現狀（見決策紀錄）
+  - [ ] L-3 PII 加密與保存期限 → 部分完成（`c7232f3` 已做驗證與遮罩），保存期限待小江確認保單要求
+- 決策紀錄：
+  - **L-1 不跑 npm audit fix**：`--force` 會把 Next.js 降到 9.3.3（npm 找不到向前路徑時的建議）；不加 force 則改動 328 個套件卻修掉 0 個漏洞（42 → 42）。18 個 high/critical 中 17 個在 @sanity/cli 工具鏈或 PostCSS/Tailwind（建置期），唯一有執行期路徑的 sharp 卡在 Next 的 optionalDependencies `^0.34.5`（修補版 0.35.0 升不上去），屬上游問題
+  - **L-4 保留 unsafe-inline**：小江表示當初為其他原因加上。查證後確認：CSP Level 2 起，script-src 有 nonce 時瀏覽器會忽略 unsafe-inline，故現代瀏覽器實際只認 nonce，保留它的暴露面僅剩不支援 nonce 的老瀏覽器。**不可照 openspec/specs/csp-nonce/spec.md 補上 strict-dynamic**——那會讓 host 白名單失效，GA 與 Cloudflare Insights 會掛掉。建議改規格對齊現況
+  - /studio 有獨立的寬鬆 CSP（next.config.ts，unsafe-inline + unsafe-eval + https:）且不在 proxy.ts 的後台保護清單內（靠 Sanity 自身登入）。Studio 本來就需要 eval，維持現狀但需知情
+  - M-3 的 getAdminActor() 日後改多管理員時只需改回傳值，呼叫端不動
+- 狀態：已完成（證據：416 測試全過、`tsc --noEmit` 零錯誤、`npm run build` 成功）
