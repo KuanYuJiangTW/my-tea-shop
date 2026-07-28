@@ -135,6 +135,37 @@ describe("POST /api/admin/auth/2fa", () => {
     expect(res.cookies.get("admin_session")).toBeUndefined();
   });
 
+  // otplib 的 epochTolerance 預設 0（只收當下 30 秒窗），手機時鐘差幾秒就登不進去。
+  // 這組測試釘住「允許前後各一個時間步」的行為。
+  it("接受前一個時間窗產生的碼（手機時鐘慢）", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const prev = await generate({ secret: TEST_SECRET, epoch: now - 30 });
+
+    const res = await POST(makeReq(prev, await issuePendingToken()));
+
+    expect(res.status).toBe(200);
+    expect(res.cookies.get("admin_session")?.value).toBe("generated-session-token");
+  });
+
+  it("接受後一個時間窗產生的碼（手機時鐘快）", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const next = await generate({ secret: TEST_SECRET, epoch: now + 30 });
+
+    const res = await POST(makeReq(next, await issuePendingToken()));
+
+    expect(res.status).toBe(200);
+  });
+
+  it("超出容差範圍的舊碼仍然拒絕（容差沒有開太大）", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const stale = await generate({ secret: TEST_SECRET, epoch: now - 300 }); // 5 分鐘前
+
+    const res = await POST(makeReq(stale, await issuePendingToken()));
+
+    expect(res.status).toBe(401);
+    expect(res.cookies.get("admin_session")).toBeUndefined();
+  });
+
   it("非 6 位數格式回 400", async () => {
     const res = await POST(makeReq("12345", await issuePendingToken()));
     expect(res.status).toBe(400);

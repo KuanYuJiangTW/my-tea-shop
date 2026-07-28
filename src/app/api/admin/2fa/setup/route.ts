@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateSecret, generateURI, verify } from "otplib";
+import { generateSecret, generateURI } from "otplib";
+import { verifyTotp } from "@/lib/totp";
 import QRCode from "qrcode";
 import { supabase } from "@/lib/supabase";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
@@ -21,8 +22,7 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
     return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
   }
 
-  // otplib v13 的 verify() 回傳 { valid: boolean }，物件恆為 truthy，必須取 .valid
-  const { valid } = await verify({ token: code, secret });
+  const valid = await verifyTotp(code, secret);
   if (!valid) {
     return NextResponse.json({ error: "驗證碼錯誤，請重試" }, { status: 400 });
   }

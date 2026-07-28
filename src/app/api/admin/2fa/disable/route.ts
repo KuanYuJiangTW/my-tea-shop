@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verify } from "otplib";
+import { verifyTotp } from "@/lib/totp";
 import { supabase } from "@/lib/supabase";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
 
@@ -22,8 +22,7 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
     return NextResponse.json({ error: "2FA 尚未設定" }, { status: 400 });
   }
 
-  // otplib v13 的 verify() 回傳 { valid: boolean }，物件恆為 truthy，必須取 .valid
-  const { valid } = await verify({ token: code, secret: data.value });
+  const valid = await verifyTotp(code, data.value);
   if (!valid) {
     return NextResponse.json({ error: "驗證碼錯誤，請重試" }, { status: 400 });
   }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verify } from "otplib";
+import { verifyTotp } from "@/lib/totp";
 import { generateAdminSessionToken, createAdminSession } from "@/lib/admin-token";
 import { verifyPendingToken } from "@/lib/admin-pending";
 import { supabase } from "@/lib/supabase";
@@ -45,9 +45,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "2FA 尚未設定" }, { status: 400 });
   }
 
-  // otplib v13 的 verify() 回傳 { valid: boolean } 物件，不是 boolean。
-  // 直接判斷回傳值會因為物件恆為 truthy 而讓任何驗證碼都通過——必須取 .valid。
-  const { valid } = await verify({ token: code, secret: data.value });
+  const valid = await verifyTotp(code, data.value);
   if (!valid) {
     await rateLimitBump(RL_KEY(ip), WINDOW_MS);
     await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
