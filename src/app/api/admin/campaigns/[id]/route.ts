@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
 import { getAdminActor } from "@/lib/admin-token";
+import { checkAmount, checkArray, checkDate, checkText, firstError, MAX_NAME_LEN, MAX_TEXT_LEN } from "@/lib/validate";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -34,6 +35,17 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
   if (new Date(existing.ends_at) < new Date()) {
     return NextResponse.json({ error: "已結束的活動不可編輯" }, { status: 409 });
   }
+
+  const err = firstError(
+    checkText(body.name, "活動名稱", { max: MAX_NAME_LEN }),
+    checkText(body.description, "活動說明", { max: MAX_TEXT_LEN }),
+    checkDate(body.starts_at, "開始時間"),
+    checkDate(body.ends_at, "結束時間"),
+    checkAmount(body.min_order_amount, "最低消費金額"),
+    checkArray(body.target_product_ids, "指定商品", 500),
+    checkArray(body.target_tier_ids, "指定會員等級", 50),
+  );
+  if (err) return NextResponse.json({ error: err }, { status: 400 });
 
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (body.name !== undefined) update.name = body.name.trim();

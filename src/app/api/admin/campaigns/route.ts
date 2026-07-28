@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
+import { checkAmount, checkArray, checkDate, checkText, firstError, MAX_NAME_LEN, MAX_TEXT_LEN } from "@/lib/validate";
 
 // GET /api/admin/campaigns — 列表（支援 status 篩選）
 export const GET = withAdminAuth(async (req: NextRequest) => {
@@ -32,6 +33,18 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
   if (!name?.trim()) return NextResponse.json({ error: "活動名稱為必填" }, { status: 400 });
   if (!multiplier || multiplier < 1 || multiplier > 10) return NextResponse.json({ error: "倍率須在 1~10 之間" }, { status: 400 });
   if (!starts_at || !ends_at) return NextResponse.json({ error: "起訖時間為必填" }, { status: 400 });
+
+  const err = firstError(
+    checkText(name, "活動名稱", { max: MAX_NAME_LEN, required: true }),
+    checkText(description, "活動說明", { max: MAX_TEXT_LEN }),
+    checkDate(starts_at, "開始時間", true),
+    checkDate(ends_at, "結束時間", true),
+    checkAmount(min_order_amount, "最低消費金額"),
+    checkArray(target_product_ids, "指定商品", 500),
+    checkArray(target_tier_ids, "指定會員等級", 50),
+  );
+  if (err) return NextResponse.json({ error: err }, { status: 400 });
+
   if (new Date(ends_at) <= new Date(starts_at)) return NextResponse.json({ error: "結束時間須在開始時間之後" }, { status: 400 });
 
   const validTypes = ["global", "product", "first_purchase", "tier_specific"];
