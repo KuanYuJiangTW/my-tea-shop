@@ -55,3 +55,9 @@
 - 代價：三次來回改斷言，一度以為修正沒生效
 - 規則：驗轉義類修正時，斷言要針對「結構」不是「字串存在」——（a）數開閉標籤個數 `html.match(/<script/gi).length`；（b）取出屬性值後檢查裡面沒有未轉義的界定符 `attr).not.toContain('"')`；（c）數標籤內 `="` 出現次數＝預期屬性數；（d）解碼後與原輸入比對確認不失真。絕不用 `not.toContain('<惡意字串>')` 當主要判準
 - 去處：暫存於此（與前一條「安全修正需退回舊碼驗證測試會紅」同屬 JUDG-2 證據要求）
+
+## 2026-07-28 收緊權限前，先查「誰在用低權限身分呼叫它」
+- 情境：RLS 稽核發現 5 個 RPC 的 EXECUTE 都開放給 anon（PostgreSQL 建函式的預設行為），差點整批建議 REVOKE。實際查 `.rpc(` 呼叫點才發現 `validate_admin_session` 是 `src/proxy.ts` 的 Edge middleware 刻意用 anon key 呼叫的——它做成 SECURITY DEFINER 就是為了避免把 service_role key 帶進 Edge Runtime。整批收掉會讓後台完全登不進去
+- 代價：無（出手前查到了），但若照報告 L-6「明確只授權 service_role」照做就會停機
+- 規則：建議 REVOKE / 收緊任何權限前，先 `Grep "\.rpc\(|from\(\"<表名>\"" src` 找出全部呼叫點，並確認每個呼叫點用的是哪把 key（service_role 還是 anon）；Edge runtime 的程式碼特別容易是 anon。資安報告的通則建議不能無條件套用，要先對照本專案的實際呼叫方式
+- 去處：暫存於此
