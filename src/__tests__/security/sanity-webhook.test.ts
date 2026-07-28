@@ -19,78 +19,66 @@ const NOW = 1_800_000_000_000;
 const TS = NOW;
 const MIN = 60_000;
 
-describe("HMAC 簽章路徑", () => {
+describe("HMAC 簽章驗證", () => {
   it("正確簽章通過", () => {
-    const r = verifySanityWebhook(BODY, sign(BODY, TS), null, SECRET, NOW);
-    expect(r).toEqual({ ok: true, method: "hmac" });
+    expect(verifySanityWebhook(BODY, sign(BODY, TS), SECRET, NOW)).toEqual({ ok: true });
   });
 
   it("body 被竄改則簽章不符（簽章與內容綁定）", () => {
     const header = sign(BODY, TS);
     const tampered = JSON.stringify({ _type: "experience", _id: "evil" });
-    const r = verifySanityWebhook(tampered, header, null, SECRET, NOW);
-    expect(r.ok).toBe(false);
+    expect(verifySanityWebhook(tampered, header, SECRET, NOW).ok).toBe(false);
   });
 
   it("用錯誤密鑰簽的不通過", () => {
-    const r = verifySanityWebhook(BODY, sign(BODY, TS, "wrong-secret"), null, SECRET, NOW);
-    expect(r.ok).toBe(false);
+    expect(verifySanityWebhook(BODY, sign(BODY, TS, "wrong-secret"), SECRET, NOW).ok).toBe(false);
   });
 
   it("剛送出的毫秒時間戳（Sanity 實際格式）通過，不誤判過期", () => {
     // 回歸：production 就是因為把毫秒當秒再乘 1000，導致這種正常請求被判過期
-    const r = verifySanityWebhook(BODY, sign(BODY, NOW), null, SECRET, NOW + 2000);
-    expect(r).toEqual({ ok: true, method: "hmac" });
+    expect(verifySanityWebhook(BODY, sign(BODY, NOW), SECRET, NOW + 2000)).toEqual({ ok: true });
+  });
+
+  it("秒格式的時間戳也能容忍（相容 Stripe 風格）", () => {
+    const secs = Math.floor(NOW / 1000);
+    expect(verifySanityWebhook(BODY, sign(BODY, secs), SECRET, NOW).ok).toBe(true);
   });
 
   it("時間戳過舊視為重放", () => {
-    const old = TS - 10 * MIN; // 10 分鐘前（毫秒）
-    const r = verifySanityWebhook(BODY, sign(BODY, old), null, SECRET, NOW);
+    const r = verifySanityWebhook(BODY, sign(BODY, TS - 10 * MIN), SECRET, NOW);
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.reason).toContain("過期");
   });
 
   it("時間戳來自未來過多也拒絕", () => {
-    const future = TS + 10 * MIN;
-    const r = verifySanityWebhook(BODY, sign(BODY, future), null, SECRET, NOW);
-    expect(r.ok).toBe(false);
-  });
-
-  it("秒格式的時間戳也能容忍（相容 Stripe 風格）", () => {
-    const secs = Math.floor(NOW / 1000);
-    const r = verifySanityWebhook(BODY, sign(BODY, secs), null, SECRET, NOW);
-    expect(r.ok).toBe(true);
+    expect(verifySanityWebhook(BODY, sign(BODY, TS + 10 * MIN), SECRET, NOW).ok).toBe(false);
   });
 
   it("格式殘缺的簽章標頭拒絕", () => {
     for (const h of ["", "v1=abc", "t=123", "garbage", "t=,v1="]) {
-      const r = verifySanityWebhook(BODY, h || null, null, SECRET, NOW);
-      expect(r.ok).toBe(false);
+      expect(verifySanityWebhook(BODY, h || null, SECRET, NOW).ok).toBe(false);
     }
   });
 });
 
-describe("舊版共用密鑰退路", () => {
-  it("無簽章但密鑰正確時放行，並標示為 legacy", () => {
-    const r = verifySanityWebhook(BODY, null, SECRET, SECRET, NOW);
-    expect(r).toEqual({ ok: true, method: "legacy-secret" });
+describe("只接受簽章（舊版共用密鑰退路已移除）", () => {
+  it("完全沒有簽章標頭時拒絕", () => {
+    const r = verifySanityWebhook(BODY, null, SECRET, NOW);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.reason).toContain("缺少簽章");
   });
 
-  it("密鑰錯誤不放行", () => {
-    const r = verifySanityWebhook(BODY, null, "wrong", SECRET, NOW);
-    expect(r.ok).toBe(false);
-  });
-
-  it("有簽章標頭時不會退回密鑰路徑（避免降級繞過）", () => {
-    // 帶著正確的舊密鑰、但簽章是壞的 → 必須拒絕
-    const r = verifySanityWebhook(BODY, "t=1,v1=bogus", SECRET, SECRET, NOW);
-    expect(r.ok).toBe(false);
+  it("不因缺簽章而降級成任何較弱的驗證方式", () => {
+    // 2026-07-29 前的版本會在此情況下檢查 x-sanity-webhook-secret 標頭並放行。
+    // 現在無論客端送什麼，沒有有效簽章一律 false。
+    for (const h of [null, "", "  "]) {
+      expect(verifySanityWebhook(BODY, h, SECRET, NOW).ok).toBe(false);
+    }
   });
 });
 
 describe("設定缺失", () => {
   it("未設定 SANITY_WEBHOOK_SECRET 時一律拒絕（fail-closed）", () => {
-    const r = verifySanityWebhook(BODY, sign(BODY, TS), SECRET, undefined, NOW);
-    expect(r.ok).toBe(false);
+    expect(verifySanityWebhook(BODY, sign(BODY, TS), undefined, NOW).ok).toBe(false);
   });
 });

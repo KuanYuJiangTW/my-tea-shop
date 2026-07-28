@@ -26,23 +26,22 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 export type VerifyResult =
-  | { ok: true; method: "hmac" | "legacy-secret" }
+  | { ok: true }
   | { ok: false; reason: string };
 
 /**
- * 驗證 Sanity webhook 請求。
+ * 驗證 Sanity webhook 請求（僅接受 HMAC 簽章）。
  *
- * 兩條路徑：
- *  1. 有 sanity-webhook-signature → 走 HMAC（正式作法）
- *  2. 否則退回舊的共用密鑰標頭 → 回傳 method: "legacy-secret"
+ * 切換歷程：2026-07-29 於 Sanity 後台填入 Secret 並實測 POST 200 通過後，
+ * 移除了原本的共用密鑰退路。退路存在的期間僅為避免切換過程中快取更新無聲
+ * 失效；現在簽章路徑已確認可用，保留它只會多一條較弱的驗證途徑。
  *
- * 保留退路是為了不讓「Sanity 後台尚未切換成簽章模式」時快取更新無聲失效。
- * 呼叫端應在走到 legacy 路徑時留下記錄，待 Sanity 端設定完成後即可移除退路。
+ * 若日後 Sanity 後台的 Secret 被清空，webhook 會直接回 401 而非降級——
+ * 這是刻意的：寧可快取不更新（看得見），也不要靜默走弱驗證（看不見）。
  */
 export function verifySanityWebhook(
   rawBody: string,
   signatureHeader: string | null,
-  legacySecretHeader: string | null,
   secret: string | undefined,
   now: number = Date.now(),
 ): VerifyResult {
@@ -71,12 +70,8 @@ export function verifySanityWebhook(
     const expected = base64url(createHmac("sha256", secret).update(`${ts}.${rawBody}`).digest());
     if (!safeEqual(sig, expected)) return { ok: false, reason: "簽章不符" };
 
-    return { ok: true, method: "hmac" };
+    return { ok: true };
   }
 
-  if (legacySecretHeader && safeEqual(legacySecretHeader, secret)) {
-    return { ok: true, method: "legacy-secret" };
-  }
-
-  return { ok: false, reason: "缺少有效的簽章或密鑰" };
+  return { ok: false, reason: "缺少簽章標頭" };
 }
