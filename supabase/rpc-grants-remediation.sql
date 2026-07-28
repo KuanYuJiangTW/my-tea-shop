@@ -117,6 +117,35 @@ where p.pronamespace = 'public'::regnamespace
 order by p.proname, 簽章;
 
 
+-- ── 附錄：被刪除函式的原始定義（復原用）──────────────────────────────────
+--
+-- 2026-07-28 從 production 撈出的完整定義，於 STEP 2b 刪除前留存。
+-- 若日後發現誤刪需要復原，原樣執行以下區塊即可還原成刪除前的狀態。
+--
+-- ⚠️ 但復原前請先想清楚：這個函式之所以被刪，就是因為它是 SECURITY DEFINER
+--    （繞過 RLS）、無超賣防護、且 qty 沒有正負檢查（送負數會「增加」庫存）。
+--    真正需要的功能，三參數版 decrement_stock(integer, integer, text) 都有，
+--    而且更安全。除非確認有非用它不可的理由，否則不要復原。
+--
+--   CREATE OR REPLACE FUNCTION public.decrement_stock(p_id integer, qty integer)
+--    RETURNS void
+--    LANGUAGE sql
+--    SECURITY DEFINER
+--    SET search_path TO 'public'
+--   AS $function$
+--       UPDATE products
+--       SET stock_quantity = GREATEST(stock_quantity - qty, 0)
+--       WHERE id = p_id;
+--     $function$
+--
+-- 刪除依據（2026-07-28 逐項查證）：
+--   1. 程式碼 4 個呼叫點全部傳 3 個參數，spec 必為確定字串
+--      （src/app/api/orders/route.ts:87 填預設值並過白名單；其餘 3 處為 ?? '150g'）
+--   2. pg_proc.prosrc 掃描：無其他資料庫函式呼叫它（0 筆）
+--   3. pg_trigger 掃描：無 trigger 觸發它（0 筆）
+--   4. 刪除後兩參數呼叫會落到三參數版（spec DEFAULT '150g'），行為等價且更安全
+
+
 -- ── STEP 4：跑完後在網站上實測 ─────────────────────────────────────────────
 --
 -- 這些是結帳與限流的核心路徑，權限改動後務必實跑：
