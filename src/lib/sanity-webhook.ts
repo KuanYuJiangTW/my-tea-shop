@@ -61,8 +61,11 @@ export function verifySanityWebhook(
     const sig = parts.v1;
     if (!ts || !sig) return { ok: false, reason: "簽章格式不正確" };
 
-    const tsMs = Number(ts) * 1000;
-    if (!Number.isFinite(tsMs)) return { ok: false, reason: "簽章時間戳不正確" };
+    // Sanity 送的時間戳是「毫秒」（Date.now()），與 Stripe 的「秒」不同。
+    // 用量級判斷以同時容納兩種：< 1e12 視為秒（約在西元 33658 年以前），否則毫秒。
+    const tsNum = Number(ts);
+    if (!Number.isFinite(tsNum)) return { ok: false, reason: "簽章時間戳不正確" };
+    const tsMs = tsNum < 1e12 ? tsNum * 1000 : tsNum;
     if (Math.abs(now - tsMs) > MAX_SKEW_MS) return { ok: false, reason: "簽章已過期" };
 
     const expected = base64url(createHmac("sha256", secret).update(`${ts}.${rawBody}`).digest());

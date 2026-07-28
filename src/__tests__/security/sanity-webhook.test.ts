@@ -14,7 +14,10 @@ function sign(body: string, ts: number, secret = SECRET): string {
 }
 
 const NOW = 1_800_000_000_000;
-const TS = Math.floor(NOW / 1000);
+// Sanity 的時間戳是毫秒（Date.now()），不是秒。先前測試用秒，等於用錯誤假設
+// 驗證錯誤程式碼，所以沒抓到 production 的「簽章已過期」。
+const TS = NOW;
+const MIN = 60_000;
 
 describe("HMAC 簽章路徑", () => {
   it("正確簽章通過", () => {
@@ -34,17 +37,29 @@ describe("HMAC 簽章路徑", () => {
     expect(r.ok).toBe(false);
   });
 
+  it("剛送出的毫秒時間戳（Sanity 實際格式）通過，不誤判過期", () => {
+    // 回歸：production 就是因為把毫秒當秒再乘 1000，導致這種正常請求被判過期
+    const r = verifySanityWebhook(BODY, sign(BODY, NOW), null, SECRET, NOW + 2000);
+    expect(r).toEqual({ ok: true, method: "hmac" });
+  });
+
   it("時間戳過舊視為重放", () => {
-    const old = TS - 10 * 60; // 10 分鐘前
+    const old = TS - 10 * MIN; // 10 分鐘前（毫秒）
     const r = verifySanityWebhook(BODY, sign(BODY, old), null, SECRET, NOW);
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.reason).toContain("過期");
   });
 
   it("時間戳來自未來過多也拒絕", () => {
-    const future = TS + 10 * 60;
+    const future = TS + 10 * MIN;
     const r = verifySanityWebhook(BODY, sign(BODY, future), null, SECRET, NOW);
     expect(r.ok).toBe(false);
+  });
+
+  it("秒格式的時間戳也能容忍（相容 Stripe 風格）", () => {
+    const secs = Math.floor(NOW / 1000);
+    const r = verifySanityWebhook(BODY, sign(BODY, secs), null, SECRET, NOW);
+    expect(r.ok).toBe(true);
   });
 
   it("格式殘缺的簽章標頭拒絕", () => {
