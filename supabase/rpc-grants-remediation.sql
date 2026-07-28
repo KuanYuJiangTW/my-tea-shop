@@ -1,53 +1,41 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- RPC 執行權限修補（⚠️ 本檔會「修改」資料庫權限，不是唯讀）
+-- RPC 執行權限修補（⚠️ 本檔會「修改」資料庫，不是唯讀）
 --
--- 起因：2026-07-28 的 RLS 稽核（supabase/rls-audit.sql 第 ④ 段）發現
---       decrement_stock 有兩個同名多載，其中一個是 SECURITY DEFINER，
---       且 EXECUTE 權限開放給 PUBLIC / anon。
+-- 2026-07-28 稽核 STEP 1 的實際輸出：
 --
---       SECURITY DEFINER = 以函式擁有者（postgres）身分執行 = 完全繞過 RLS。
---       anon key 會打包進瀏覽器、Supabase 把 RPC 開在 /rest/v1/rpc/<name>、
---       參數名寫在公開 repo 裡 → 任何人免登入即可扣光庫存。
+--   decrement_stock(integer, integer)        security_definer = TRUE   ← 問題
+--   decrement_stock(integer, integer, text)  security_definer = false  ← 應用程式用這個
+--   increment_stock(integer, integer, text)  security_definer = false
+--   check_rate_limit(text, integer, bigint)  security_definer = false
+--   bump_rate_limit(text, bigint)            security_definer = false
 --
---       這不是誰改壞的：PostgreSQL 建立函式時，預設就把 EXECUTE 給 PUBLIC。
+-- 全部的 EXECUTE 都開放給 PUBLIC / anon（PostgreSQL 建立函式時的預設行為，
+-- 不是誰改壞的）。
 --
--- 前提：本專案所有 RPC 呼叫都在伺服器端（API routes / lib / cron），使用
---       service_role。已逐一確認無任何前端元件用 anon key 直接呼叫。
+-- 核心發現：兩參數版的 decrement_stock 是「規格（spec）」功能出現之前的
+-- 舊版本，程式碼裡已無任何呼叫點（4 處呼叫全部傳 3 個參數，且 spec 在
+-- src/app/api/orders/route.ts:87 一定會被填上預設值並通過白名單驗證）。
+-- 偏偏這個沒清掉的孤兒是 SECURITY DEFINER —— 以 postgres 身分執行、
+-- 完全繞過 RLS，而且 anon 可以呼叫。
 --
--- ⚠️⚠️ validate_admin_session 不在修補範圍內 ⚠️⚠️
+-- 攻擊方式：POST /rest/v1/rpc/decrement_stock 帶 {"p_id":1,"qty":9999}
+-- （不帶 spec），PostgREST 依參數名解析到兩參數版本 → 免登入扣光庫存。
+-- anon key 本來就會打包進瀏覽器，因此無需任何憑證。
+--
+-- 對照：三參數版不是 SECURITY DEFINER，以 anon 身分執行會被 products 的
+-- RLS 擋下（該表 RLS 已啟用且無政策）。應用程式能正常運作是因為伺服器端
+-- 用 service_role，本身即繞過 RLS。
+--
+-- ⚠️⚠️ validate_admin_session 不在本檔範圍 ⚠️⚠️
 --       src/proxy.ts 的 Edge middleware 是「刻意」用 anon key 呼叫它的
 --       （避免把 service_role key 帶進 Edge Runtime），它做成 SECURITY
---       DEFINER + 開放 anon 正是為此。收掉會導致整個後台無法登入。
---       其防護來自 256-bit 隨機 token，暴力破解不可行。
+--       DEFINER + 開放 anon 正是為此。收掉會導致後台完全無法登入。
 -- ─────────────────────────────────────────────────────────────────────────────
 
 
--- ── STEP 1：先看清楚要動的東西（唯讀，請先跑這段並確認輸出）────────────────
+-- ── STEP 2a：立即止血 — 收回執行權限（低風險，可先單獨執行）────────────────
 --
--- 重點確認：decrement_stock 的兩個多載，參數各是什麼？哪一個是 SECURITY
--- DEFINER？應用程式呼叫的是 (p_id, qty, spec)。若發現有用不到的舊多載，
--- 它可能是歷史遺留，應另外評估是否 DROP（本檔不代為刪除）。
-select
-  p.oid::regprocedure                          as 完整簽章,
-  p.prosecdef                                  as security_definer,
-  pg_get_userbyid(p.proowner)                  as 擁有者,
-  coalesce(array_to_string(p.proacl, ' | '), '（預設：PUBLIC 可執行）') as 目前權限
-from pg_proc p
-where p.pronamespace = 'public'::regnamespace
-  and p.proname in ('decrement_stock', 'increment_stock',
-                    'check_rate_limit', 'bump_rate_limit')
-order by p.proname, 完整簽章;
-
--- 想看函式內容再跑這段（確認 decrement_stock 到底做了什麼）：
--- select p.oid::regprocedure, pg_get_functiondef(p.oid)
--- from pg_proc p
--- where p.pronamespace = 'public'::regnamespace and p.proname = 'decrement_stock';
-
-
--- ── STEP 2：收回權限（⚠️ 這段會實際修改權限）──────────────────────────────
---
--- 用 DO block 逐一處理，因為 decrement_stock 有多個多載，
--- 單寫 revoke ... on function decrement_stock 會因簽章不明確而失敗。
+-- 用 DO block 是因為 decrement_stock 有多載，單寫函式名會因簽章不明確而報錯。
 do $$
 declare
   r record;
@@ -66,28 +54,49 @@ begin
 end $$;
 
 
+-- ── STEP 2b：確認孤兒函式真的沒人用，再刪 ─────────────────────────────────
+--
+-- 先跑這段唯讀查詢，看兩參數版的參數名與內容，確認它就是 spec 之前的舊版：
+select
+  p.oid::regprocedure                as 簽章,
+  pg_get_function_arguments(p.oid)   as 參數,
+  p.prosecdef                        as security_definer,
+  pg_get_functiondef(p.oid)          as 定義
+from pg_proc p
+where p.pronamespace = 'public'::regnamespace
+  and p.proname = 'decrement_stock'
+order by 簽章;
+
+-- 確認無誤後再執行刪除（STEP 2a 已止血，這步不急，可隔幾天再做）。
+-- 刪掉比只收權限更徹底：日後誰不小心重新 grant，洞也不會回來。
+--
+--   drop function if exists public.decrement_stock(integer, integer);
+--
+-- ⚠️ 只刪兩參數版。三參數版 (integer, integer, text) 是應用程式在用的，刪了結帳會壞。
+
+
 -- ── STEP 3：驗收（唯讀）────────────────────────────────────────────────────
 --
--- 期待結果：目前權限欄位只剩 postgres 與 service_role，
---          不再出現 anon= 或 authenticated=，也不再有開頭為 "=" 的 PUBLIC 項。
+-- 期待結果：目前權限只剩 postgres 與 service_role；
+--          不再出現 anon= / authenticated=，也不再有開頭為 "=" 的 PUBLIC 項。
 select
-  p.oid::regprocedure                          as 完整簽章,
-  p.prosecdef                                  as security_definer,
-  array_to_string(p.proacl, ' | ')             as 目前權限
+  p.oid::regprocedure                      as 簽章,
+  p.prosecdef                              as security_definer,
+  array_to_string(p.proacl, ' | ')         as 目前權限
 from pg_proc p
 where p.pronamespace = 'public'::regnamespace
   and p.proname in ('decrement_stock', 'increment_stock',
                     'check_rate_limit', 'bump_rate_limit')
-order by p.proname, 完整簽章;
+order by p.proname, 簽章;
 
 
--- ── STEP 4：跑完後請在網站上實測 ───────────────────────────────────────────
+-- ── STEP 4：跑完後在網站上實測 ─────────────────────────────────────────────
 --
--- 這些函式是結帳與限流的核心路徑，權限改動後務必實跑一次：
---   1. 下一筆測試訂單走完付款 → 確認庫存有正確扣減（decrement_stock）
---   2. 後台取消該訂單          → 確認庫存有還原（increment_stock）
---   3. 後台登入一次            → 確認 2FA 與限流正常（check/bump_rate_limit）
---   4. 後台頁面能正常瀏覽      → 確認 validate_admin_session 未受影響
+-- 這些是結帳與限流的核心路徑，權限改動後務必實跑：
+--   1. 下一筆測試訂單走完付款 → 庫存正確扣減（decrement_stock 三參數版）
+--   2. 後台取消該訂單          → 庫存正確還原（increment_stock）
+--   3. 後台登入一次            → 2FA 與限流正常（check/bump_rate_limit）
+--   4. 後台頁面正常瀏覽        → validate_admin_session 未受影響
 --
--- 若第 4 項失敗，代表誤收了 validate_admin_session，執行以下復原：
+-- 若第 4 項失敗，代表誤收了 validate_admin_session，復原：
 --   grant execute on function validate_admin_session(text) to anon, authenticated;
