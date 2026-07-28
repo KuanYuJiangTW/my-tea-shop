@@ -67,12 +67,39 @@ where p.pronamespace = 'public'::regnamespace
   and p.proname = 'decrement_stock'
 order by 簽章;
 
--- 確認無誤後再執行刪除（STEP 2a 已止血，這步不急，可隔幾天再做）。
+-- ⚠️ 刪之前務必先跑這兩個檢查 ⚠️
+--
+-- (1) 把上面查詢輸出的「定義」欄位複製存檔。DROP 之後要復原就只能靠它。
+--
+-- (2) 資料庫內部是否還有人在呼叫它？程式碼裡沒有呼叫點，不代表 DB 裡沒有——
+--     其他 function 的內文、trigger 都可能呼叫。期待結果：0 筆。
+select
+  p.oid::regprocedure as 呼叫者,
+  p.prosrc            as 內文片段
+from pg_proc p
+where p.pronamespace = 'public'::regnamespace
+  and p.prosrc ilike '%decrement_stock%'
+  and p.proname <> 'decrement_stock';        -- 排除它自己
+
+select
+  c.relname   as 資料表,
+  t.tgname    as trigger名稱,
+  p.proname   as 觸發函式
+from pg_trigger t
+join pg_class c on c.oid = t.tgrelid
+join pg_proc  p on p.oid = t.tgfoid
+where not t.tgisinternal
+  and p.prosrc ilike '%decrement_stock%';
+
+
+-- 兩個檢查都是 0 筆才執行刪除（STEP 2a 已止血，這步不急，可隔幾天再做）。
 -- 刪掉比只收權限更徹底：日後誰不小心重新 grant，洞也不會回來。
 --
 --   drop function if exists public.decrement_stock(integer, integer);
 --
 -- ⚠️ 只刪兩參數版。三參數版 (integer, integer, text) 是應用程式在用的，刪了結帳會壞。
+-- 註：`drop function` 不加 cascade；若有物件相依於它，PostgreSQL 會直接報錯
+--     並列出相依者——那就是第三道保險，報錯代表不能刪，別加 cascade 硬刪。
 
 
 -- ── STEP 3：驗收（唯讀）────────────────────────────────────────────────────
