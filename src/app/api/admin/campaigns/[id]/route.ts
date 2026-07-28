@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
+import { getAdminActor } from "@/lib/admin-token";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -74,7 +75,7 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
       changed_fields: changedFields,
       old_values: oldValues,
       new_values: newValues,
-      admin_id: body.adminId ?? null,
+      admin_id: await getAdminActor(), // 不用 body.adminId：客端可偽造
     });
   }
 
@@ -82,7 +83,7 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
 }, "update_campaign");
 
 // DELETE /api/admin/campaigns/[id] — 停用（soft delete）
-export const DELETE = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
+export const DELETE = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
   const { id } = await (ctx as Params).params;
 
   const { error } = await supabase
@@ -93,14 +94,13 @@ export const DELETE = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // 寫入 audit log
-  const body = await req.json().catch(() => ({}));
   await supabase.from("campaign_audit_log").insert({
     campaign_id: id,
     action: "deactivate",
     changed_fields: ["is_active"],
     old_values: { is_active: true },
     new_values: { is_active: false },
-    admin_id: body.adminId ?? null,
+    admin_id: await getAdminActor(), // 不用 body.adminId：客端可偽造
   });
 
   return NextResponse.json({ ok: true });

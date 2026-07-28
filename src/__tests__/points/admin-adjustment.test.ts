@@ -19,7 +19,10 @@ vi.mock("@/lib/email", () => ({
 vi.mock("next/headers", () => ({
   cookies: async () => ({ get: () => ({ value: "test-session" }) }),
 }));
-vi.mock("@/lib/admin-token", () => ({ validateAdminSession: async () => true }));
+vi.mock("@/lib/admin-token", () => ({
+  validateAdminSession: async () => true,
+  getAdminActor: async () => "session:deadbeef1234",
+}));
 
 import { POST } from "@/app/api/admin/points-adjustment/route";
 

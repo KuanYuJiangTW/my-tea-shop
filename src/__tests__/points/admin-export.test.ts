@@ -13,7 +13,10 @@ vi.mock("@/lib/supabase", () => ({
 vi.mock("next/headers", () => ({
   cookies: async () => ({ get: () => ({ value: "test-session" }) }),
 }));
-vi.mock("@/lib/admin-token", () => ({ validateAdminSession: async () => true }));
+vi.mock("@/lib/admin-token", () => ({
+  validateAdminSession: async () => true,
+  getAdminActor: async () => "session:deadbeef1234",
+}));
 
 import { GET } from "@/app/api/admin/points-export/route";
 

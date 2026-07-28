@@ -15,8 +15,11 @@ vi.mock("@/lib/supabase", () => ({
 // 限流層獨立測試，這裡預設放行，只在需要時覆寫
 const mockPeek = vi.fn().mockResolvedValue(false);
 const mockBump = vi.fn().mockResolvedValue(undefined);
+// rateLimit 在此路由用於「驗證碼單次使用」標記：true = 第一次用，false = 重放
+const mockRateLimit = vi.fn().mockResolvedValue(true);
 vi.mock("@/lib/rate-limit", () => ({
   getClientIp: () => "1.2.3.4",
+  rateLimit: (...a: unknown[]) => mockRateLimit(...a),
   rateLimitPeek: (...a: unknown[]) => mockPeek(...a),
   rateLimitBump: (...a: unknown[]) => mockBump(...a),
   rateLimitReset: vi.fn().mockResolvedValue(undefined),
@@ -44,6 +47,7 @@ function makeReq(code: string, pendingCookie?: string) {
 beforeEach(() => {
   vi.clearAllMocks();
   mockPeek.mockResolvedValue(false);
+  mockRateLimit.mockResolvedValue(true);
   mockFrom.mockImplementation(() => createChainMock({ value: TEST_SECRET }, null));
 });
 
@@ -164,6 +168,29 @@ describe("POST /api/admin/auth/2fa", () => {
 
     expect(res.status).toBe(401);
     expect(res.cookies.get("admin_session")).toBeUndefined();
+  });
+
+  it("同一組驗證碼重放時回 401，不發放 session", async () => {
+    const good = await generate({ secret: TEST_SECRET });
+    mockRateLimit.mockResolvedValue(false); // 模擬「這組碼已被用過」
+
+    const res = await POST(makeReq(good, await issuePendingToken()));
+
+    expect(res.status).toBe(401);
+    expect((await res.json()).error).toContain("已使用過");
+    expect(res.cookies.get("admin_session")).toBeUndefined();
+  });
+
+  it("單次使用標記以 max=1 呼叫，且 key 不含驗證碼明文", async () => {
+    const good = await generate({ secret: TEST_SECRET });
+
+    await POST(makeReq(good, await issuePendingToken()));
+
+    const [key, max] = mockRateLimit.mock.calls[0];
+    expect(max).toBe(1);
+    expect(String(key)).toMatch(/^totp-used:[0-9a-f]{32}$/);
+    expect(String(key)).not.toContain(good);
+    expect(String(key)).not.toContain(TEST_SECRET);
   });
 
   it("非 6 位數格式回 400", async () => {
