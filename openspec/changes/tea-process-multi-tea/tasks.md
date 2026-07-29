@@ -48,13 +48,16 @@
 
 ## 2. i18n 文案
 
-- [ ] 2.1 `messages/zh.json` 的 `process` 擴充：新增 `families.*`、`teaSteps.<teaKey>.<stepKey>.{desc,detail,skipReason}`、`matrix.*`、`teaSelector.*`、`craftNote.*`、`productCta.*`、`divergence.*`、`sourcing.{own,partner}`
-- [ ] 2.2 新增 `steps.ferment`／`steps.dryFirst`／`steps.ballRoll`／`steps.dryFinal`／`steps.pack` 五步的共通文案；文案須具名設備：甲種乾燥機、擠壓機與布球揉捻、粗選機與鼓風機、箱型焙茶機
-- [ ] 2.3 拆解既有 `steps.sort`：揀枝內容移入 `steps.dryFinal`、包裝內容移入 `steps.pack`（待 0.9 確認手工／機器的實情後定稿）
-- [ ] 2.4 `steps.roast` 文案補寫三件事：回家後由店主親手焙製、焙火的雙向代價（增甜厚穩定 vs 失花香鮮度）、因應客人偏好客製化——文案方向見 design.md 1.2.2
-- [ ] 2.3 移除 `teas.green`、`teas.white` 與 `otherStyles*` 舊區塊字串（確認無其他頁引用後才刪）
-- [ ] 2.4 `messages/en.json` 同步全部上述異動
-- [ ] 2.5 驗證：寫一次性腳本遞迴比對兩檔 `process` 子樹葉節點 key 集合，差集必須為空（**機械比對，不得肉眼確認**）
+- [x] 2.1 `messages/zh.json` 的 `process` 擴充：`families.*`、`teaSteps.<teaKey>.<stepKey>.{desc,detail,skipReason}`、`matrix.*`、`teaSelector.*`、`craftNote.*`、`productCta.*`、`divergence.*`、`sourcing.*`、`stepState.*` 全數到位
+- [x] 2.2 新增 `steps.ferment`／`dryFirst`／`ballRoll`／`dryFinal`／`pack` 五步共通文案，設備均具名（甲種乾燥機、擠壓機與布球揉捻、粗選機與鼓風機、箱型焙茶機）
+- [x] 2.3 拆解既有 `steps.sort`：揀枝入 `dryFinal`、包裝獨立為 `pack`。**同步移除「師傅逐一手工揀除」不實宣稱**，改為具名機器（0.5.3 據此結案）
+- [x] 2.4 `steps.roast` 補寫三件事：回家以箱型焙茶機焙製、焙火雙向代價、因應客人偏好客製化
+- [x] 2.5 **既有 8 步的 `detail` 全面改寫**：原本全是溫度時數（260-300°C、8-12小時等），依決策 ① 方案 B 逐條換成「判斷依據」
+- [x] 2.6 `messages/en.json` 同步全部上述異動
+- [x] 2.7 驗證：機械比對已寫成**常駐測試**（非一次性腳本）——`src/__tests__/tea-process.test.ts` 新增 8 條 i18n 測試，遞迴展開兩語系 `process` 葉節點集合取差集，並檢查 skipped 必有 skipReason、accent/optional 必有專屬 desc、文案不得回退出現溫度時數
+- [x] 2.8 驗證證據：`npm run test` 27 檔 345 測試全綠（原 337，+8 無退化）。**已做變異測試**：故意刪掉 `en.craftNote.redOolong` 並塞回溫度參數，3 條測試如預期紅燈，證明測試非空轉
+
+- [ ] 2.9 移除 `teas.green`、`teas.white` 與 `otherStyles*` 舊區塊字串——**現階段不可刪**：`ProcessContent.tsx:306-308` 仍在引用，刪了會讓線上頁面壞掉。順延至第 3 節改寫頁面時一併處理
 
 ## 3. 頁面實作
 

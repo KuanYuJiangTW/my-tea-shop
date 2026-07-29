@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, it, expect } from "vitest";
 
 import { products } from "@/data/products";
@@ -16,6 +19,12 @@ import {
  * 釘成可執行的斷言——製程資料是本頁的事實來源，寫錯不會有畫面異常，
  * 只會安靜地對客人講錯自家茶怎麼做。
  */
+
+/** 讀取某語系 messages 檔的 process 子樹 */
+function readMessages(locale: "zh" | "en"): Record<string, unknown> {
+  const raw = readFileSync(join(process.cwd(), "messages", `${locale}.json`), "utf-8");
+  return JSON.parse(raw).process as Record<string, unknown>;
+}
 
 /** 取某款茶「實際會做」的工序序列（不含 skipped） */
 function actualSteps(key: TeaKey): StepKey[] {
@@ -199,5 +208,119 @@ describe("擠壓不獨立成工序（設備不佔工序層級）", () => {
       expect(keys).not.toContain("press");
       expect(keys).not.toContain("squeeze");
     }
+  });
+});
+
+/**
+ * i18n 對稱性：zh / en 的 process 子樹必須逐葉節點對齊。
+ * 機械比對，不靠肉眼——漏翻一個 key 在畫面上只會顯示 key 名稱，
+ * 而 EN 站的讀者不會回報，我們也不會發現。
+ */
+describe("i18n：process 文案兩語系對稱", () => {
+  type Json = { [k: string]: unknown };
+
+  /** 遞迴展開成 "a.b.c" 葉節點路徑集合 */
+  function leafPaths(obj: unknown, prefix = ""): string[] {
+    if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {
+      return [prefix];
+    }
+    return Object.entries(obj as Json).flatMap(([k, v]) =>
+      leafPaths(v, prefix ? `${prefix}.${k}` : k),
+    );
+  }
+
+  const zh = readMessages("zh");
+  const en = readMessages("en");
+
+  it("zh 與 en 的 process 葉節點集合完全相同", () => {
+    const zhPaths = new Set(leafPaths(zh));
+    const enPaths = new Set(leafPaths(en));
+
+    const missingInEn = [...zhPaths].filter((p) => !enPaths.has(p)).sort();
+    const missingInZh = [...enPaths].filter((p) => !zhPaths.has(p)).sort();
+
+    expect({ missingInEn, missingInZh }).toEqual({
+      missingInEn: [],
+      missingInZh: [],
+    });
+  });
+
+  it("每個共通工序都有 name / desc / detail 三個欄位", () => {
+    for (const locale of [zh, en]) {
+      const steps = locale.steps as Record<string, Json>;
+      for (const key of [...COMMON_OPENING, "fix", "roll", "ferment", ...COMMON_CLOSING]) {
+        expect(Object.keys(steps[key] ?? {}).sort()).toEqual([
+          "desc",
+          "detail",
+          "name",
+        ]);
+      }
+    }
+  });
+
+  it("資料層用到的每個 step key 都有對應文案", () => {
+    for (const locale of [zh, en]) {
+      const steps = locale.steps as Record<string, unknown>;
+      for (const tea of teaProcesses) {
+        for (const { step } of resolveSteps(tea.key)) {
+          expect(steps[step]).toBeDefined();
+        }
+      }
+    }
+  });
+
+  it("每個 skipped 工序都有 skipReason，不得靜默跳過", () => {
+    for (const locale of [zh, en]) {
+      const teaSteps = locale.teaSteps as Record<string, Record<string, Json>>;
+      for (const tea of teaProcesses) {
+        for (const { step, state } of resolveSteps(tea.key)) {
+          if (state !== "skipped") continue;
+          expect(teaSteps[tea.key]?.[step]?.skipReason).toBeTruthy();
+        }
+      }
+    }
+  });
+
+  it("每個 accent / optional 工序都有專屬 desc", () => {
+    for (const locale of [zh, en]) {
+      const teaSteps = locale.teaSteps as Record<string, Record<string, Json>>;
+      for (const tea of teaProcesses) {
+        for (const { step, state } of resolveSteps(tea.key)) {
+          if (state !== "accent" && state !== "optional") continue;
+          expect(teaSteps[tea.key]?.[step]?.desc).toBeTruthy();
+        }
+      }
+    }
+  });
+
+  it("每款茶都有製法家族與工藝取捨文案", () => {
+    for (const locale of [zh, en]) {
+      const families = locale.families as Record<string, unknown>;
+      const craftNote = locale.craftNote as Record<string, unknown>;
+      for (const tea of teaProcesses) {
+        expect(families[tea.family]).toBeDefined();
+        expect(craftNote[tea.key]).toBeTruthy();
+      }
+    }
+  });
+
+  it("工序文案不得出現溫度或時數參數（決策 ① 方案 B）", () => {
+    // 方案 B：只寫工序與判斷依據，不寫未經確認的數值。
+    // 採摘季節的月份是季節事實而非製程參數，故僅檢查 desc/detail 的溫度與時長。
+    const banned = /\d\s*(°C|℃|度C)|\d+\s*[-–~]\s*\d+\s*(小時|分鐘|hours?|minutes?|mins?)\b/i;
+    for (const locale of [zh, en]) {
+      const steps = locale.steps as Record<string, Record<string, string>>;
+      for (const [key, copy] of Object.entries(steps)) {
+        expect(`${key}:${copy.desc} ${copy.detail}`).not.toMatch(banned);
+      }
+    }
+  });
+
+  it("揀枝文案不得宣稱手工——實情是粗選機與鼓風機", () => {
+    // 這是既有線上文案的不實工藝宣稱，改寫後不得復發（design.md 1.2.3）
+    const zhFinal = (zh.steps as Record<string, Record<string, string>>).dryFinal;
+    expect(`${zhFinal.desc}${zhFinal.detail}`).not.toMatch(/手工揀|逐一手工/);
+    expect(`${zhFinal.desc}${zhFinal.detail}`).toMatch(/粗選機/);
+    expect(`${zhFinal.desc}${zhFinal.detail}`).toMatch(/鼓風機/);
   });
 });
