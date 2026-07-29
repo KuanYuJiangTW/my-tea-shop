@@ -50,3 +50,24 @@
 - 代價：CLAUDE.md「技術事實」與 JUDG-5 品質底線都把 `npm run lint` 列為驗證手段，照做會卡住；不知情者會誤以為是自己改壞的而白追
 - 規則：**在 lint 修好之前，不要把「lint 無新增錯誤」當成可達成的驗收條件**——改用 `npx tsc --noEmit`（過濾出自己動過的檔案）＋ `npm run test` ＋ `npm run build` 三件套。宣告完成時明說「lint 在本 repo 目前不可用」，不要靜默跳過
 - 去處：暫存於此。修復本身是產品決策（要裝 eslint 9 flat config ＋ `eslint-config-next`，並改 package.json script），未經使用者要求不擅自動手；已在 openspec change 的 tasks 列為待回報項
+
+## 2026-07-29 Playwright 有 e2e/ 卻不是專案依賴
+- 情境：製茶過程頁要實測互動行為，`node` 匯入 playwright 得 ERR_MODULE_NOT_FOUND；查 `package.json` 完全沒有 playwright 或 `@playwright/test`，但 `e2e/` 有 6 個 spec ＋ `playwright.config.ts`
+- 成因：CLAUDE.md 寫「瀏覽器已預裝、不要跑 playwright install」——那句只保證**瀏覽器 binary**（`/opt/pw-browsers`），不保證**npm 套件**在 `node_modules`
+- 代價：以為 `e2e/` 可直接跑而排進驗收計畫，會卡住；誤把「不要 playwright install」讀成「什麼都不用裝」
+- 規則：要在本環境驗互動，把 playwright **裝在 scratchpad 的獨立 package**（`npm init -y && PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install playwright`），用 `executablePath: "/opt/pw-browsers/chromium"` 指向預裝瀏覽器。**不要**為了驗證就往 repo 的 package.json 加依賴——那是未經要求的產品變更
+- 去處：暫存於此；`e2e/` 是否該補依賴屬產品決策，已列入 openspec tasks 待回報
+
+## 2026-07-29 用 networkidle 當驗證的等待條件會給出假陰性
+- 情境：Playwright 驗「進站帶 #redOolong 應切到紅烏龍」，`waitUntil:"networkidle"` ＋ 固定 600ms 後判定失敗；改等 `[role="tab"][aria-selected="true"]` 實際出現後再測，同一份程式碼是通過的
+- 成因：頁面有外部資源載不到（沙箱代理擋掉字型／圖片），networkidle 的判定與 React hydration 完成與否無關——它可能在 hydration 前就返回
+- 代價：差點把正常功能當成 bug 去「修」；反過來也可能讓真 bug 被固定 sleep 蓋過去
+- 規則：驗前端狀態一律等**該狀態自己的 DOM 證據**（`waitForSelector` 等到 aria 屬性／文字出現），不要用 networkidle 或裸 `waitForTimeout` 當同步點
+- 去處：暫存於此
+
+## 2026-07-29 pkill -f "<pattern>" 會連自己的父 shell 一起殺
+- 情境：想收掉背景的 `next start`，下 `pkill -f "next start" && npm run build`，整條命令回 exit 144 且無輸出
+- 成因：父 shell 的命令列字串本身含有 `next start`（就在 pkill 的參數裡），`-f` 比對整個 command line 時把自己的 shell 也命中了
+- 代價：命令靜默中斷，看起來像 build 壞掉，實際上 build 根本沒跑到
+- 規則：收埠口用 `fuser -k <port>/tcp`；真要 pkill 就讓 pattern 不出現在自己的命令列（例如 `pkill -f 'next[ ]start'`），且不要與後續步驟串在同一條命令
+- 去處：暫存於此

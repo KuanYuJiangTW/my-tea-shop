@@ -30,7 +30,8 @@
 
 - [ ] 0.5.1 高山烏龍既分生茶與焙茶兩種賣法，`src/data/products.ts` 未呈現此區別——可能是未被網站呈現的商品選項，待與店主確認是否另立 change
 - [ ] 0.5.2 `npm run lint` 在本 repo 完全不可用（`next lint` 已被 Next 16 移除，且無 eslint 設定檔）。修復需裝 eslint 9 flat config ＋ `eslint-config-next` 並改 package.json script——屬產品決策，待店主指示是否另立 change
-- [ ] 0.5.3 現有 `messages/*.json` 的 `process.steps.sort` 宣稱「師傅逐一手工揀除」與實情（粗選機、鼓風機）不符，此為線上頁面的不實工藝宣稱。本 change 的 task 2.3 會修正，但若短期內不上線，建議先單獨改這一句
+- [x] 0.5.3 現有 `messages/*.json` 的 `process.steps.sort` 宣稱「師傅逐一手工揀除」與實情（粗選機、鼓風機）不符。**已於 task 2.3 修正並加測試防回退**，本項結案
+- [ ] 0.5.4 `e2e/` 有 6 個 spec ＋ `playwright.config.ts`，但 `package.json` 完全沒有 `playwright` / `@playwright/test` 依賴——e2e 目前無法執行。本次驗證改用 scratchpad 獨立安裝的 playwright（未動 repo 依賴）。是否補依賴屬產品決策，待店主指示
 
 ## 1. 資料結構
 
@@ -57,24 +58,53 @@
 - [x] 2.7 驗證：機械比對已寫成**常駐測試**（非一次性腳本）——`src/__tests__/tea-process.test.ts` 新增 8 條 i18n 測試，遞迴展開兩語系 `process` 葉節點集合取差集，並檢查 skipped 必有 skipReason、accent/optional 必有專屬 desc、文案不得回退出現溫度時數
 - [x] 2.8 驗證證據：`npm run test` 27 檔 345 測試全綠（原 337，+8 無退化）。**已做變異測試**：故意刪掉 `en.craftNote.redOolong` 並塞回溫度參數，3 條測試如預期紅燈，證明測試非空轉
 
-- [ ] 2.9 移除 `teas.green`、`teas.white` 與 `otherStyles*` 舊區塊字串——**現階段不可刪**：`ProcessContent.tsx:306-308` 仍在引用，刪了會讓線上頁面壞掉。順延至第 3 節改寫頁面時一併處理
+- [x] 2.9 移除 `teas.green`、`teas.white` 與 `otherStyles*` 舊區塊字串。原本因 `ProcessContent.tsx` 仍在引用而順延，已於第 3 節改寫頁面時一併完成；`process.teas` 現為五款實售茶（含 `origin`／`flavor`／`roast`／`oxidation`，供對照表取用）
 
 ## 3. 頁面實作
 
-- [ ] 3.1 `ProcessContent.tsx` 新增茶款選擇器狀態，與現有 `activeStep` 併存；sticky 容器改為上排茶款、下排工序
-- [ ] 3.2 工序列改為橫向捲動（`overflow-x-auto`），取代現行 `grid-cols-4 md:grid-cols-8`（工序數增至 9–10，grid 會變三排過高）
-- [ ] 3.3 保留現有 `stepBarRef` top 同步與 `IntersectionObserver` 高亮邏輯（`ProcessContent.tsx:56-117`），只換內容不重寫機制
-- [ ] 3.4 新增核心洞察圖區塊（IA ②）：共通前段 → 分歧段 → 共通後段
-- [ ] 3.5 工序區改為三段結構；分歧段加底色容器（`bg-tea-green-mist`）與標題，共通段維持白底
-- [ ] 3.6 工序卡片實作三態渲染；`skipped` 態保留卡片、劃線 + `opacity-50`、顯示 `skipReason`
-- [ ] 3.7 切換茶款時僅分歧段變動，共通前後段不動
-- [ ] 3.8 新增家族說明區塊（IA ③）與工藝取捨區塊（IA ⑤）
-- [ ] 3.9 新增來源徽章（自家茶園／合作茶農），中性樣式、與規格標籤同級
-- [ ] 3.10 新增商品 CTA（IA ⑥）導向 `/products`，經 `lp()` 處理 locale 前綴
-- [ ] 3.11 新增 5 茶對照表（IA ⑦），**語意化 `<table>`**、窄螢幕橫向捲動，取代原綠茶／白茶區塊
-- [ ] 3.12 切換茶款不重設捲動位置；`prefers-reduced-motion` 停用轉場
-- [ ] 3.13 每款茶區段加 `id` anchor（`#oolong`／`#black` 等），供 AI 段落層級引用
-- [ ] 3.14 沿用 `about/page.tsx:22-28` 的 5 茶漸層配色（已在 tailwind safelist，不需新增）
+- [x] 3.1 `ProcessContent.tsx` 新增 `activeTea` 狀態與 `activeStep` 併存；sticky 容器改為上排茶款、下排工序
+- [x] 3.2 工序列改為橫向捲動（`overflow-x-auto`），取代原 `grid-cols-4 md:grid-cols-8`
+- [x] 3.3 保留原 `stepBarRef` top 同步與 `IntersectionObserver` 機制，只換資料來源（改吃 `resolveSteps`）
+- [x] 3.4 核心洞察圖區塊（IA ②）：共通前段 → 分歧段 → 共通後段，分歧段以底色與箭頭強調
+- [x] 3.5 工序區三段結構；分歧段套 `bg-tea-green-mist` 容器與段落標題，共通段維持原底色
+- [x] 3.6 四態渲染：`skipped` 保留卡片、標題劃線 + `opacity-50`、編號欄顯示破折號並改印 `skipReason`
+- [x] 3.7 切換茶款僅分歧段變動（共通前後段由 `COMMON_OPENING`／`COMMON_CLOSING` 常數渲染）
+- [x] 3.8 家族說明（徽章列）與工藝取捨區塊（含焙火專段）
+- [x] 3.9 來源徽章：中性樣式，與家族／發酵度徽章同級並列
+- [x] 3.10 商品 CTA 導向 `/products`，經 `lp()` 處理 locale 前綴，附該茶漸層色塊與品名
+- [x] 3.11 5 茶對照表：語意化 `<table>`（`thead`/`th scope`/`caption`），窄螢幕 `overflow-x-auto`
+- [x] 3.12 切換茶款不重設捲動位置；`prefers-reduced-motion` 停用捲動動畫與 transition
+- [x] 3.13 每款茶 `id` anchor（`#oolong`／`#redOolong` 等），支援進站與站內 hash 切換
+- [x] 3.14 沿用 `about/page.tsx` 的 5 茶漸層配色
+- [x] 3.15 移除舊的綠茶／白茶區塊與 `otherStyles*` 字串（2.9 據此結案）
+
+### 實作過程抓到並修掉的兩個 bug
+
+- [x] 3.16 對照表左上角格子誤印「製法家族」，與第一列列標題重複——改為留白 + `sr-only` 表名
+- [x] 3.17 **hash 切換失效**：只在 mount 時讀 `location.hash`，站內已在 `/process` 時再點 `/process#redOolong`，瀏覽器只發 `hashchange` 不重新掛載元件，茶款不會跟著換。已補 `hashchange` 監聽
+
+### 3.18 驗證證據（實跑，非推論）
+
+- `npm run test`：27 檔 345 測試全綠
+- `npx tsc --noEmit`：本次異動檔零錯誤（唯一錯誤在 `src/__tests__/points/admin-campaigns-audit.test.ts`，不在本次 diff 內）
+- `npm run build`：成功，`/process` 在路由表
+- 實跑 `next start` 取頁：zh `/process` 與 en `/en/process` 皆 HTTP 200，server log **零 `MISSING_MESSAGE`**
+- Playwright 實測互動（截圖存 scratchpad）：
+
+  | 檢查項 | 結果 |
+  |---|---|
+  | 預設茶款 | 高山烏龍 |
+  | 烏龍：發酵 skipped、焙火 optional | ✓ |
+  | 蜜香紅茶：炒菁 skipped、採摘 accent（著蜒） | ✓ |
+  | 四季春：焙火 skipped | ✓ |
+  | 紅烏龍：發酵／焙火 accent | ✓ |
+  | 切換茶款捲動位置不變（1800 → 1800） | ✓ |
+  | 點茶款更新 hash（`#black`） | ✓ |
+  | 帶 `#redOolong` 進站選中紅烏龍 | ✓（修 3.17 後） |
+  | 語意化表格（6 表頭 / 9 資料列） | ✓ |
+  | 瀏覽器 console error | 0 |
+
+> 環境限制：容器無 Supabase 連線，`featuredExperiences` 取不到資料，故茶山體驗區塊在截圖中不顯示（該區塊為既有程式碼，本次未動）。
 
 ## 4. 結構化資料與 SEO
 

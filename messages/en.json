@@ -714,8 +714,6 @@
     "pageTagline": "From a tender leaf on the mountain to a perfect cup of tea, every step carries the craftsman's devotion and centuries of tradition",
     "tableTitle": "The Craft",
     "tableNote": "STEP",
-    "otherStyles": "Different Teas, Different Craft",
-    "otherStylesDesc": "The process above uses Taiwan oolong as the example. Different tea types follow different methods — green tea skips oxidation entirely, black tea undergoes full oxidation, and white tea is only withered without rolling. Each technique is the finest expression of that tea's character.",
     "shopCta": "Shop Our Teas",
     "experienceCta": {
       "sectionLabel": "Tea Mountain Experience",
@@ -726,23 +724,42 @@
       "duration": "{hours} hrs",
       "participants": "{min}–{max} people"
     },
-    "oxidationLabel": "Oxidation: {value}",
+    "oxidationLabel": "Oxidation {value}",
     "teas": {
       "oolong": {
-        "name": "Oolong",
-        "oxidation": "15–85%"
+        "name": "High Mountain Oolong",
+        "oxidation": "Light",
+        "origin": "Alishan Meishan",
+        "flavor": "Orchid",
+        "roast": "Light (default) / occasionally unroasted"
       },
-      "green": {
-        "name": "Green Tea",
-        "oxidation": "0%"
+      "jinxuan": {
+        "name": "Jin Xuan",
+        "oxidation": "Light",
+        "origin": "Alishan Meishan",
+        "flavor": "Milky",
+        "roast": "Light"
+      },
+      "sijichun": {
+        "name": "Four Seasons",
+        "oxidation": "Light",
+        "origin": "Songboling, Mingjian",
+        "flavor": "Floral",
+        "roast": "None (unroasted)"
       },
       "black": {
-        "name": "Black Tea",
-        "oxidation": "100%"
+        "name": "Honey Black Tea",
+        "oxidation": "Full",
+        "origin": "Alishan Meishan",
+        "flavor": "Honey",
+        "roast": "Light"
       },
-      "white": {
-        "name": "White Tea",
-        "oxidation": "Minimal"
+      "redOolong": {
+        "name": "Red Oolong",
+        "oxidation": "Heavy",
+        "origin": "Luye, Taitung",
+        "flavor": "Fruit & honey",
+        "roast": "Heavy"
       }
     },
     "steps": {
@@ -924,7 +941,8 @@
       "no": "No",
       "oxLight": "Light",
       "oxFull": "Full",
-      "oxHeavy": "Heavy"
+      "oxHeavy": "Heavy",
+      "shapeBall": "Ball-rolled"
     },
     "craftNote": {
       "title": "Why It Is Done This Way",

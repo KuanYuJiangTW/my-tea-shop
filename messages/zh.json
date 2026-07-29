@@ -714,8 +714,6 @@
     "pageTagline": "從山上的一片嫩葉，到杯中的一口好茶，每一步都承載著職人的心意與百年傳承",
     "tableTitle": "The Craft",
     "tableNote": "STEP",
-    "otherStyles": "不同茶款，不同工藝",
-    "otherStylesDesc": "以上流程以台灣烏龍茶為例。不同類別的茶葉有不同的製作方式——綠茶省略氧化步驟，紅茶則進行完全氧化，白茶僅經萎凋不揉捻。每一種工法都是對茶葉特性的最佳詮釋。",
     "shopCta": "選購各式茶品",
     "experienceCta": {
       "sectionLabel": "Tea Mountain Experience",
@@ -726,23 +724,42 @@
       "duration": "{hours} 小時",
       "participants": "{min}–{max} 人"
     },
-    "oxidationLabel": "氧化度 {value}",
+    "oxidationLabel": "發酵度 {value}",
     "teas": {
       "oolong": {
-        "name": "烏龍茶",
-        "oxidation": "15–85%"
+        "name": "高山烏龍",
+        "oxidation": "輕",
+        "origin": "阿里山梅山",
+        "flavor": "蘭花香",
+        "roast": "淺焙（預設）／偶有生茶"
       },
-      "green": {
-        "name": "綠茶",
-        "oxidation": "0%"
+      "jinxuan": {
+        "name": "金萱",
+        "oxidation": "輕",
+        "origin": "阿里山梅山",
+        "flavor": "奶香",
+        "roast": "淺焙"
+      },
+      "sijichun": {
+        "name": "四季春",
+        "oxidation": "輕",
+        "origin": "名間松柏嶺",
+        "flavor": "花香",
+        "roast": "不焙（生茶）"
       },
       "black": {
-        "name": "紅茶",
-        "oxidation": "100%"
+        "name": "蜜香紅茶",
+        "oxidation": "全",
+        "origin": "阿里山梅山",
+        "flavor": "蜜香",
+        "roast": "淺焙"
       },
-      "white": {
-        "name": "白茶",
-        "oxidation": "微氧化"
+      "redOolong": {
+        "name": "紅烏龍",
+        "oxidation": "重",
+        "origin": "台東鹿野",
+        "flavor": "果香蜜韻",
+        "roast": "重焙"
       }
     },
     "steps": {
@@ -924,7 +941,8 @@
       "no": "無",
       "oxLight": "輕",
       "oxFull": "全",
-      "oxHeavy": "重"
+      "oxHeavy": "重",
+      "shapeBall": "球形"
     },
     "craftNote": {
       "title": "為什麼要這樣做",
