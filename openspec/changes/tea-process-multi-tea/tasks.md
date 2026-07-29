@@ -108,24 +108,48 @@
 
 ## 4. 結構化資料與 SEO
 
-- [ ] 4.1 `src/app/process/page.tsx` 加入每款茶的 `HowTo` JSON-LD，`skipped` 工序不進 `step` 陣列
-- [ ] 4.2 JSON-LD 一律經 `jsonLdString()` 序列化；metadata 沿用 `langAlternates("/process")`
-- [ ] 4.3 更新 page metadata 的 `description`／`keywords`，納入 5 款茶與「紅茶製程」「紅烏龍」「四季春」等詞
-- [ ] 4.4 驗證：`npm run build` 後檢查產出 HTML 含 5 份 HowTo；紅茶那份不含「炒菁」、含「發酵」與「布球團揉」，且「揉捻」排序在「發酵」之前
+- [x] 4.1 `src/app/process/page.tsx` 加入每款茶的 `HowTo` JSON-LD；`skipped` 工序**不進** `step` 陣列（它在頁面上是對比用的說明，不是這款茶真的會做的一步）
+- [x] 4.2 一律經 `jsonLdString()` 序列化；metadata 沿用 `langAlternates("/process")`
+- [x] 4.3 更新 metadata `description`／`keywords`，納入 5 款茶與「紅茶製程」「球形紅茶」「紅烏龍」「四季春」「炒菁」「布球團揉」等詞
+- [x] 4.4 修掉自己寫出來的 bug：HowTo 名稱原本把「的製作過程」寫死在字串模板，EN 站會印出 `High Mountain Oolong的製作過程`。已抽成 `process.howTo.name` 佔位字串（zh `{tea}的製作過程`／en `How {tea} Is Made`）
+- [x] 4.5 驗證證據（實跑 `next start` 解析產出 HTML 的 JSON-LD）：
+
+  | 檢查項 | 結果 |
+  |---|---|
+  | zh／en 各 5 份 HowTo | ✓ |
+  | 步數符合 design.md 1.2 矩陣 | 11／11／10／11／12 ✓ |
+  | 蜜香紅茶不含「炒菁」 | ✓ |
+  | 蜜香紅茶含「發酵」與「布球團揉」 | ✓ |
+  | 蜜香紅茶「揉捻」排在「發酵」之前 | ✓ |
+  | 紅烏龍「炒菁」排在「發酵」之後 | ✓ |
+  | 四季春不含「焙火」 | ✓ |
+  | EN HowTo 名稱為英文 | ✓（修 4.4 後） |
 
 ## 5. 可及性與 RWD
 
-- [ ] 5.1 茶款與工序控制項使用原生 `<button>`，補 `aria-label`／`aria-pressed`
-- [ ] 5.2 375px 寬度實測：sticky 兩排不超過視窗高度 30%，對照表可橫向捲動且 body 無水平捲動
-- [ ] 5.3 鍵盤 Tab 走訪 15 個控制項皆可聚焦、focus ring 可見
+- [x] 5.1 茶款與工序控制項皆為原生 `<button>`。茶款選擇器補完**完整 WAI-ARIA tabs pattern**——原本只有 `role="tab"` 卻沒有配對的 tabpanel 與方向鍵導覽，屬不完整的 ARIA（對螢幕閱讀器反而比不加更糟）。現已補上 `aria-controls`／`role="tabpanel"`／`aria-labelledby`、roving tabindex 與方向鍵操作
+- [x] 5.2 375px 實測通過
+- [x] 5.3 鍵盤走訪與 focus ring 實測通過
+- [x] 5.4 驗證證據（Playwright 實測）：
+
+  | 檢查項 | 結果 |
+  |---|---|
+  | 375px body 無水平捲動 | ✓ |
+  | sticky 兩排高度 166px（視窗 812px 的 20.4%，門檻 30%） | ✓ |
+  | 對照表在自己的 `overflow-x:auto` 容器內捲動 | ✓ |
+  | roving tabindex（`0,-1,-1,-1,-1`） | ✓ |
+  | ←／→ 換茶且焦點跟隨 | ✓ |
+  | Home／End 跳頭尾（高山烏龍／紅烏龍） | ✓ |
+  | tab 與 tabpanel 雙向關聯正確 | ✓ |
+  | focus ring 可見 | ✓ |
 
 ## 6. 驗收
 
-- [ ] 6.1 `npm run test` 全綠（既有 26 檔／316 測試不得退化，貼輸出末段為證）
-- [ ] 6.2 `npm run lint` 無新增錯誤（`git stash` 前後對比，不得用「應該是既有的」帶過）
-- [ ] 6.3 `npm run build` 成功
-- [ ] 6.4 派 `checker` 獨立驗收：對照 `specs/tea-process-page/spec.md` 每條 Requirement 的 Scenario 逐條查證，附 `file:line` 證據
-- [ ] 6.5 zh／en 雙語各自實跑一次頁面（或 build 產出 HTML 抽查），確認無缺字串、無 `process.xxx` 原始 key 外露
+- [x] 6.1 `npm run test` 全綠：27 檔 345 測試（基準 26 檔 316，本次 +1 檔 +29 測試，無退化）
+- [ ] 6.2 `npm run lint` —— **本 repo 無法執行**（見 0.5.2）。已改用 `npx tsc --noEmit` 替代：本次異動檔零錯誤（唯一錯誤在 `src/__tests__/points/admin-campaigns-audit.test.ts`，不在本次 diff 內，屬既有）
+- [x] 6.3 `npm run build` 成功（容器無 `.env`，以 placeholder 環境變數實跑至完成）
+- [ ] 6.4 派 `checker` 獨立驗收 —— **未執行**：本 session 的執行環境指示為「未經使用者要求不得派 subagent」，與 CLAUDE.md 鐵律 2 衝突時以前者為準。已改為主對話內逐條實跑驗證並附證據（見各節驗證表）。**若要照規格派 checker 複驗，請明示**
+- [x] 6.5 zh／en 雙語各自實跑頁面：皆 HTTP 200，server log 零 `MISSING_MESSAGE`，HTML 內零 `process.xxx` 原始 key 外露
 
 ## 7. 收尾
 

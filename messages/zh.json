@@ -957,6 +957,9 @@
     "productCta": {
       "label": "買這款茶",
       "hint": "看完製程，嚐嚐結果。"
+    },
+    "howTo": {
+      "name": "{tea}的製作過程"
     }
   },
   "about": {

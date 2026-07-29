@@ -957,6 +957,9 @@
     "productCta": {
       "label": "Buy this tea",
       "hint": "You have seen how it is made — now taste the result."
+    },
+    "howTo": {
+      "name": "How {tea} Is Made"
     }
   },
   "about": {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, type KeyboardEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Clock, Users } from "lucide-react";
@@ -71,6 +71,8 @@ export default function ProcessContent({ experiences, contents }: Props) {
   const isScrollingRef = useRef(false);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stepBarRef = useRef<HTMLElement>(null);
+  const activeTabRef = useRef<HTMLButtonElement>(null);
+  const shouldFocusTabRef = useRef(false);
 
   /**
    * 進站時若帶著 #oolong 之類的 anchor，直接切到該茶。
@@ -186,6 +188,34 @@ export default function ProcessContent({ experiences, contents }: Props) {
     window.history.replaceState(null, "", `#${key}`);
   }, []);
 
+  /**
+   * tablist 的鍵盤操作（WAI-ARIA tabs pattern）：左右鍵在茶款間移動、Home/End 跳頭尾。
+   * 少了這段，roving tabindex 會讓鍵盤使用者只能停在當前茶款上、換不了茶。
+   */
+  const onTabKeyDown = useCallback(
+    (e: KeyboardEvent, index: number) => {
+      const last = teaProcesses.length - 1;
+      const next =
+        e.key === "ArrowRight" ? (index === last ? 0 : index + 1)
+        : e.key === "ArrowLeft" ? (index === 0 ? last : index - 1)
+        : e.key === "Home" ? 0
+        : e.key === "End" ? last
+        : null;
+      if (next === null) return;
+      e.preventDefault();
+      selectTea(teaProcesses[next].key);
+      shouldFocusTabRef.current = true;
+    },
+    [selectTea],
+  );
+
+  /** 用方向鍵換茶後把焦點帶到新的 tab（用滑鼠點選時不搶焦點） */
+  useEffect(() => {
+    if (!shouldFocusTabRef.current) return;
+    shouldFocusTabRef.current = false;
+    activeTabRef.current?.focus();
+  }, [activeTea]);
+
   const sections = [
     { id: "opening", titleKey: "commonOpeningTitle", descKey: "commonOpeningDesc" },
     { id: "divergence", titleKey: "divergenceTitle", descKey: "divergenceDesc" },
@@ -263,16 +293,26 @@ export default function ProcessContent({ experiences, contents }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           {/* 上排：茶款選擇器 */}
           <div className="mb-3">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1" role="tablist" aria-label={t("teaSelector.label")}>
-              {teaProcesses.map((tea) => {
+            <div
+              className="flex items-center gap-2 overflow-x-auto pb-1"
+              role="tablist"
+              aria-label={t("teaSelector.label")}
+            >
+              {teaProcesses.map((tea, i) => {
                 const isActive = activeTea === tea.key;
                 return (
                   <button
                     key={tea.key}
+                    id={`tab-${tea.key}`}
                     role="tab"
                     aria-selected={isActive}
+                    aria-controls={isActive ? activeTea : undefined}
+                    // roving tabindex：整組 tab 在鍵盤走訪中只佔一站，組內用方向鍵移動
+                    tabIndex={isActive ? 0 : -1}
+                    ref={isActive ? activeTabRef : undefined}
+                    onKeyDown={(e) => onTabKeyDown(e, i)}
                     onClick={() => selectTea(tea.key)}
-                    className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors motion-reduce:transition-none ${
+                    className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tea-green focus-visible:ring-offset-2 ${
                       isActive
                         ? "bg-tea-green text-white shadow-sm"
                         : "bg-tea-green-mist text-tea-text-light hover:bg-tea-green/20 hover:text-tea-green"
@@ -297,7 +337,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
                     onClick={() => scrollToStep(step.number!)}
                     aria-label={`${step.number} ${name}`}
                     aria-current={isActive ? "step" : undefined}
-                    className="flex flex-col items-center shrink-0 w-16"
+                    className="flex flex-col items-center shrink-0 w-16 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tea-green focus-visible:ring-offset-2"
                   >
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 motion-reduce:transition-none ${
@@ -327,7 +367,12 @@ export default function ProcessContent({ experiences, contents }: Props) {
       </section>
 
       {/* 工序詳情：三段結構 */}
-      <section id={activeTea} className="py-16 scroll-mt-36">
+      <section
+        id={activeTea}
+        role="tabpanel"
+        aria-labelledby={`tab-${activeTea}`}
+        className="py-16 scroll-mt-36"
+      >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* 來源徽章與家族 */}
           <div className="flex flex-wrap items-center gap-2 mb-10">
