@@ -80,3 +80,23 @@
   - /studio 有獨立的寬鬆 CSP（next.config.ts，unsafe-inline + unsafe-eval + https:）且不在 proxy.ts 的後台保護清單內（靠 Sanity 自身登入）。Studio 本來就需要 eval，維持現狀但需知情
   - M-3 的 getAdminActor() 日後改多管理員時只需改回傳值，呼叫端不動
 - 狀態：已完成（證據：416 測試全過、`tsc --noEmit` 零錯誤、`npm run build` 成功）
+
+---
+
+### [2026-07-29] 把 session 教訓固化成 hook / command / skill / rule
+- 目標：依「規則→CLAUDE.md、重複 prompt→command、該想起的能力→skill、必須發生的動作→hook」把資安 session 的教訓institutionalise。專案原本零 hook
+- 驗收條件：
+  - [x] Hook 攔截危險指令 → `cad08e0`（`.claude/settings.json` + `.claude/hooks/guard-commands.js`）。用 node 而非 jq（本機無 jq，2026-07-29 實測）
+  - [x] Hook 補上執行包裝器漏擋 → `8754e69`。`bash -c` / `sh -c` / `eval` 內的字串會被執行，不可當字面量剝掉
+  - [x] `/verify` command → `cad08e0`（`.claude/commands/verify.md`），含「npm run lint 已失效、不要去修它」
+  - [x] `reverse-verify` skill → `cad08e0`（`.claude/skills/reverse-verify/SKILL.md`）
+  - [x] JUDG-6（收緊權限前查呼叫點）、JUDG-7（引用外部規範前查第一手來源）→ `cad08e0`
+  - [x] JUDG-5 移除已失效的 `npm run lint`；CLAUDE.md 與 templates.md 的 3 處殘留一併修正
+  - [x] `.gitignore` 白名單補 `commands/` `skills/` `hooks/` `settings.json`（原本會靜默忽略整批新檔，由 lessons 的 check-ignore 規則抓到）
+  - [x] **guard hook 測試 26 案例全過**（2026-07-29 實跑，exit=0）：11 條應攔截、15 條應放行（其中 8 條專防誤擋）
+- 決策紀錄：
+  - **不新增 subagent** —— checker + judge 已覆蓋本 session 的需求，硬加「資安稽核員」只會與 checker 職責重疊，讓未來 session 不知道該派誰
+  - **hook 不是安全邊界，是防手滑的護欄** —— 拆字串拼接或直接改 settings.json 都能繞過，這是刻意的。它要攔的是「看到 42 個漏洞反射性打出 audit fix」那一瞬間
+  - 攔截型 hook 必須先剝離 heredoc 與引號內容再比對，否則會擋住「提到該指令」的正常操作（實作當下就擋掉了說明自己的 commit 與自己的測試腳本兩次，教訓已記入 lessons）
+  - hook 改動的驗收判準：`node .claude/hooks/guard-commands.test.js` 全過，且能通過「用它自己的說明文字當 commit 訊息」這一關
+- 狀態：已完成（證據：26 案例測試全過 exit=0；hook 實跑確認會攔 `npm audit fix` 並顯示完整理由，且不誤擋 `npm audit --json`；含 4 次觸發字串的 commit 訊息成功推送）
