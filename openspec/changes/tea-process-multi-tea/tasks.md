@@ -1,21 +1,29 @@
-## 0. 開工前置（擋住實作，需店主回覆）
+## 0. 開工前置
 
-- [ ] 0.1 **決策點 ①**：製程參數來源選 A／B／C（見 proposal「需要你拍板的三件事」）。選 A 需提供：蜜香紅茶的萎凋與發酵時數、紅烏龍的發酵程度與焙火條件、四季春與金萱是否有別於高山烏龍的參數
-- [ ] 0.2 **決策點 ②**：確認四季春（南投名間）與紅烏龍（台東鹿野）是自家茶園／契作／外採，決定製程敘述的口吻
-- [ ] 0.3 **決策點 ③**：路由架構選單頁（A）或子頁（B）
-- [ ] 0.4 店主校對 `design.md` 1.4 節「工藝取捨」5 則內容的事實正確性（金萱輕焙、蜜香紅茶不用藥、紅烏龍炒菁分水嶺、高山烏龍看天萎凋、四季春多次採收）
+- [x] 0.1 **決策 ①** → 方案 B：只寫工序與原理，不寫溫度時間（2026-07-25 店主拍板）
+- [x] 0.2 **決策 ②** → 主動標示來源徽章，敘事定調「每一款茶，都選它的原產地」（同上）
+- [x] 0.3 **決策 ③** → 階段一維持單頁 `/process`，不做子頁（同上）
+- [x] 0.4 **取得關鍵製程更正**：蜜香紅茶為球形紅茶（第一天烏龍工序 → 第二天紅茶揉捻與發酵 → 布球團揉成球），design.md 1.2 矩陣已重寫
+- [ ] 0.5 **店主待確認（不擋前期實作，擋上線）**：
+  - [ ] 蜜香紅茶的分歧段是否確實為「揉捻 → 發酵」順序（非「發酵 → 揉捻」）
+  - [ ] 蜜香紅茶**有無焙火**（design.md 1.3 對照表該格目前標「待確認」）
+  - [ ] 蜜香紅茶第一天是否包含浪菁（目前假設「跟烏龍一樣」＝含浪菁）
+  - [ ] 紅烏龍的重發酵是否發生在炒菁之前
+- [ ] 0.6 店主校對 `design.md` 1.4 節「工藝取捨」5 則的事實正確性（金萱輕焙、蜜香紅茶不用藥、紅烏龍炒菁分水嶺、高山烏龍看天萎凋、四季春多次採收）
 
-> 0.1–0.3 未回覆前不進入第 2 節以後的實作。第 1 節（資料結構）不依賴這些決策，可先行。
+> 0.5 的四個問題只影響分歧段的順序與 `roast` 一格，不影響資料結構與版面。可先實作，上線前補正。
 
 ## 1. 資料結構
 
-- [ ] 1.1 新增 `src/data/tea-process.ts`：`TeaKey`／`FamilyKey`／`StepKey`／`StepState` 型別，5 款茶的家族歸屬與 10 步狀態矩陣（依 `design.md` 1.2）
+- [ ] 1.1 新增 `src/data/tea-process.ts`：`TeaKey`／`FamilyKey`／`StepKey`／`StepState`／`Sourcing` 型別；共通前後段為模組常數，分歧段為 per-tea 資料（依 `design.md` 1.2、4）
 - [ ] 1.2 每款茶加 `productId` 對應 `src/data/products.ts`，供 CTA 導流使用
-- [ ] 1.3 驗證：`npx tsc --noEmit` 無新增錯誤；狀態矩陣與 design.md 1.2 表格逐格比對一致
+- [ ] 1.3 每款茶加 `sourcing` 欄位（`own` / `partner`）供來源徽章使用
+- [ ] 1.4 更正 `src/data/products.ts` 四季春 `origin`：「南投名間」→「南投名間松柏嶺」
+- [ ] 1.5 驗證：`npx tsc --noEmit` 無新增錯誤；分歧段順序與 design.md 1.2 表格逐格比對一致
 
 ## 2. i18n 文案
 
-- [ ] 2.1 `messages/zh.json` 的 `process` 擴充：新增 `families.*`、`teaSteps.<teaKey>.<stepKey>.{desc,detail,skipReason}`、`matrix.*`、`teaSelector.*`、`craftNote.*`、`productCta.*`
+- [ ] 2.1 `messages/zh.json` 的 `process` 擴充：新增 `families.*`、`teaSteps.<teaKey>.<stepKey>.{desc,detail,skipReason}`、`matrix.*`、`teaSelector.*`、`craftNote.*`、`productCta.*`、`divergence.*`、`sourcing.{own,partner}`
 - [ ] 2.2 新增 `steps.ferment` 與 `steps.ballRoll` 兩步的共通文案（現有 8 步 key 全部沿用，不作廢）
 - [ ] 2.3 移除 `teas.green`、`teas.white` 與 `otherStyles*` 舊區塊字串（確認無其他頁引用後才刪）
 - [ ] 2.4 `messages/en.json` 同步全部上述異動
@@ -24,21 +32,26 @@
 ## 3. 頁面實作
 
 - [ ] 3.1 `ProcessContent.tsx` 新增茶款選擇器狀態，與現有 `activeStep` 併存；sticky 容器改為上排茶款、下排工序
-- [ ] 3.2 工序列改為 10 步橫向捲動（`overflow-x-auto`），取代現行 `grid-cols-4 md:grid-cols-8`
+- [ ] 3.2 工序列改為橫向捲動（`overflow-x-auto`），取代現行 `grid-cols-4 md:grid-cols-8`（工序數增至 9–10，grid 會變三排過高）
 - [ ] 3.3 保留現有 `stepBarRef` top 同步與 `IntersectionObserver` 高亮邏輯（`ProcessContent.tsx:56-117`），只換內容不重寫機制
-- [ ] 3.4 工序卡片實作三態渲染；`skipped` 態保留卡片、降階樣式、顯示 `skipReason`
-- [ ] 3.5 新增家族說明區塊（②）與工藝取捨區塊（④）
-- [ ] 3.6 新增商品 CTA（⑤）導向 `/products`，經 `lp()` 處理 locale 前綴
-- [ ] 3.7 新增 5 茶對照表（⑥），窄螢幕橫向捲動，取代原綠茶／白茶區塊
-- [ ] 3.8 切換茶款不重設捲動位置；`prefers-reduced-motion` 停用轉場
-- [ ] 3.9 沿用 `about/page.tsx:22-28` 的 5 茶漸層配色（已在 tailwind safelist，不需新增）
+- [ ] 3.4 新增核心洞察圖區塊（IA ②）：共通前段 → 分歧段 → 共通後段
+- [ ] 3.5 工序區改為三段結構；分歧段加底色容器（`bg-tea-green-mist`）與標題，共通段維持白底
+- [ ] 3.6 工序卡片實作三態渲染；`skipped` 態保留卡片、劃線 + `opacity-50`、顯示 `skipReason`
+- [ ] 3.7 切換茶款時僅分歧段變動，共通前後段不動
+- [ ] 3.8 新增家族說明區塊（IA ③）與工藝取捨區塊（IA ⑤）
+- [ ] 3.9 新增來源徽章（自家茶園／合作茶農），中性樣式、與規格標籤同級
+- [ ] 3.10 新增商品 CTA（IA ⑥）導向 `/products`，經 `lp()` 處理 locale 前綴
+- [ ] 3.11 新增 5 茶對照表（IA ⑦），**語意化 `<table>`**、窄螢幕橫向捲動，取代原綠茶／白茶區塊
+- [ ] 3.12 切換茶款不重設捲動位置；`prefers-reduced-motion` 停用轉場
+- [ ] 3.13 每款茶區段加 `id` anchor（`#oolong`／`#black` 等），供 AI 段落層級引用
+- [ ] 3.14 沿用 `about/page.tsx:22-28` 的 5 茶漸層配色（已在 tailwind safelist，不需新增）
 
 ## 4. 結構化資料與 SEO
 
 - [ ] 4.1 `src/app/process/page.tsx` 加入每款茶的 `HowTo` JSON-LD，`skipped` 工序不進 `step` 陣列
 - [ ] 4.2 JSON-LD 一律經 `jsonLdString()` 序列化；metadata 沿用 `langAlternates("/process")`
 - [ ] 4.3 更新 page metadata 的 `description`／`keywords`，納入 5 款茶與「紅茶製程」「紅烏龍」「四季春」等詞
-- [ ] 4.4 驗證：`npm run build` 後檢查產出 HTML 含 5 份 HowTo，且紅茶那份不含「炒菁」、含「發酵」
+- [ ] 4.4 驗證：`npm run build` 後檢查產出 HTML 含 5 份 HowTo；紅茶那份不含「炒菁」、含「發酵」與「布球團揉」，且「揉捻」排序在「發酵」之前
 
 ## 5. 可及性與 RWD
 

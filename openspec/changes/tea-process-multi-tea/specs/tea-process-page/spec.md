@@ -18,58 +18,118 @@
 
 ### Requirement: 三個製法家族的分類
 
-頁面 SHALL 將 5 款茶歸入 3 個製法家族，分類依據為工序結構差異：`partialBall`（部分發酵球型：oolong／jinxuan／sijichun）、`fullStrip`（全發酵條型：black）、`heavyBall`（重發酵球型：redOolong）。選中任一茶款時，SHALL 顯示其所屬家族名稱與一句話定位。
+頁面 SHALL 將 5 款茶歸入 3 個製法家族，分類依據為**分歧段的走法**：`partialBall`（部分發酵球形：oolong／jinxuan／sijichun，走炒菁→揉捻）、`fullBall`（全發酵球形：black，走揉捻→發酵，不炒菁）、`heavyBall`（重發酵球形：redOolong，走重發酵→炒菁→揉捻）。選中任一茶款時，SHALL 顯示其所屬家族名稱與一句話定位。
+
+三個家族 SHALL 皆標示為球形——五款茶全部以布球團揉成球，包含紅茶。
 
 #### Scenario: 切換茶款顯示對應家族
 
 - **WHEN** 使用者選擇「蜜香紅茶」
-- **THEN** 家族標示為「全發酵條型紅茶」，而非烏龍類家族
+- **THEN** 家族標示為「全發酵**球形**紅茶」，而非條型紅茶、亦非烏龍類家族
 
-### Requirement: 工序主軸與三態渲染
+### Requirement: 共通段與分歧段的結構呈現
 
-頁面 SHALL 以固定的 10 步工序主軸呈現製程：`pick`、`witherSun`、`witherIndoor`、`shake`、`ferment`、`fix`、`roll`、`ballRoll`、`roast`、`sort`。每款茶在每一步 SHALL 標記為三態之一：
+頁面 SHALL 將製程呈現為三段結構：共通前段（`pick`、`witherSun`、`witherIndoor`、`shake`）、分歧段、共通後段（`ballRoll`、`roast`、`sort`）。分歧段 SHALL 有明顯異於共通段的視覺容器與標題。
+
+切換茶款時，SHALL 僅分歧段內容變動，共通前後段 SHALL 保持不變。
+
+#### Scenario: 五款茶共用前段
+
+- **WHEN** 使用者依序切換 5 款茶並檢視共通前段
+- **THEN** 採摘、日光萎凋、室內萎凋、浪菁四步在每款茶皆存在且不被標為跳過（蜜香紅茶的第一天工序與烏龍相同）
+
+#### Scenario: 五款茶共用布球團揉
+
+- **WHEN** 使用者檢視任一款茶的共通後段
+- **THEN** 「布球團揉」皆存在且非跳過狀態——包含蜜香紅茶，因其為球形紅茶
+
+#### Scenario: 切換茶款時共通段不動
+
+- **WHEN** 使用者從高山烏龍切換至蜜香紅茶
+- **THEN** 共通前段與共通後段的卡片內容不變，僅分歧段改變
+
+### Requirement: 工序三態渲染
+
+每款茶在每個工序 SHALL 標記為三態之一：
 
 - `common`：使用共通工序文案
 - `accent`：使用該茶專屬文案，並有視覺強調
 - `skipped`：卡片**保留但降階顯示**（劃線／低透明度），且 SHALL 顯示跳過原因
 
-工序編號 SHALL 固定使用主軸編號（01–10），SHALL NOT 因茶款不同而重新編號。
+工序編號 SHALL 採該茶自身的實際順序（01..N），SHALL NOT 使用跨茶款的固定槽位——分歧段的工序順序因茶而異（紅茶先揉捻後發酵、紅烏龍先發酵後炒菁），固定槽位會扭曲事實。
+
+`skipped` 狀態 SHALL 僅出現於分歧段。
 
 #### Scenario: 紅茶跳過炒菁
 
-- **WHEN** 使用者選擇「蜜香紅茶」並檢視第 06 步「炒菁」
-- **THEN** 該卡片以降階樣式呈現、未被隱藏，且顯示跳過原因（紅茶不炒菁，讓氧化持續到底）
+- **WHEN** 使用者選擇「蜜香紅茶」並檢視分歧段
+- **THEN** 「炒菁」卡片以降階樣式呈現、未被隱藏，且顯示跳過原因（紅茶不炒菁，讓氧化一路走到底）
 
 #### Scenario: 紅烏龍保留炒菁
 
-- **WHEN** 使用者選擇「紅烏龍」並檢視第 06 步「炒菁」
-- **THEN** 該卡片為正常（非降階）狀態——重發酵之後仍炒菁是紅烏龍與紅茶的分界
+- **WHEN** 使用者選擇「紅烏龍」並檢視分歧段
+- **THEN** 「炒菁」為正常（非降階）狀態——重發酵之後仍炒菁是紅烏龍與紅茶的分界
 
-#### Scenario: 編號不跳號重排
+#### Scenario: 分歧段順序忠實呈現
 
-- **WHEN** 使用者選擇「蜜香紅茶」
-- **THEN** 可見工序的編號仍為主軸編號（例如 `roll` 恆為 07），不會因為前面有跳過的步驟而重編為 04
+- **WHEN** 使用者檢視蜜香紅茶與紅烏龍的分歧段
+- **THEN** 蜜香紅茶呈現「揉捻 → 發酵」的順序，紅烏龍呈現「重發酵 → 炒菁 → 揉捻」的順序，兩者不被強制對齊為同一順序
 
 #### Scenario: 每款茶的三態組合正確
 
 - **WHEN** 檢視 5 款茶各自的工序狀態
-- **THEN** 狀態組合與 `design.md` 1.2 節的對照矩陣完全一致（`ferment` 僅 black／redOolong 有；`witherSun`、`shake`、`ballRoll`、`roast` 於 black 為 skipped）
+- **THEN** 狀態組合與 `design.md` 1.2 節的矩陣完全一致：`ferment` 僅 black／redOolong 有；`fix` 僅 black 為 skipped；`witherSun`、`shake`、`ballRoll` 於全部 5 款茶皆非 skipped
 
 ### Requirement: 五茶製程對照表
 
-頁面 SHALL 提供一張涵蓋全部 5 款茶的製程對照表，欄位至少包含：製法家族、發酵度、浪菁、炒菁、外型、焙火、產地／海拔、風味。產地與海拔 SHALL 取自 `src/data/products.ts`，不另立事實來源。
+頁面 SHALL 提供一張涵蓋全部 5 款茶的製程對照表，欄位至少包含：製法家族、發酵度、浪菁、**炒菁**、獨立發酵工序、外型、焙火、產地／海拔、**來源**、風味。產地與海拔 SHALL 取自 `src/data/products.ts`，不另立事實來源。
 
-發酵度 SHALL 以分級（輕／全／重）表示；在製程參數未經店主確認前 SHALL NOT 標示發酵百分比數值。
+發酵度 SHALL 以分級（輕／全／重）表示；依決策 ① 方案 B，SHALL NOT 標示發酵百分比或任何未經確認的溫度、時數。
+
+對照表 SHALL 使用語意化 `<table>` 標籤（非 div 模擬），以利 AI 檢索解析。
 
 #### Scenario: 對照表資料與商品資料一致
 
 - **WHEN** 對照表顯示四季春的產地與海拔
-- **THEN** 其值與 `src/data/products.ts` 中該品項的 `origin`／`altitude` 相同（南投名間、300m）
+- **THEN** 其值與 `src/data/products.ts` 中該品項的 `origin`／`altitude` 相同（南投名間松柏嶺、300m）
+
+#### Scenario: 炒菁欄位凸顯唯一差異
+
+- **WHEN** 使用者檢視「炒菁」列
+- **THEN** 僅蜜香紅茶為 ✗，其餘四款為 ✓——此列是五款茶最鋒利的結構差異
+
+#### Scenario: 外型欄位全為球形
+
+- **WHEN** 使用者檢視「外型」列
+- **THEN** 五款茶皆為球形，包含蜜香紅茶
 
 #### Scenario: 表格在窄螢幕可用
 
 - **WHEN** 使用者以 375px 寬度瀏覽對照表
 - **THEN** 表格可橫向捲動，頁面本身不產生水平捲動
+
+### Requirement: 產地來源誠實標示
+
+四季春（南投名間松柏嶺）與紅烏龍（台東鹿野）為合作茶農供應、非自家製作。頁面 SHALL 為每款茶顯示來源徽章，區分「自家茶園」與「合作茶農」，並標示具體產地。
+
+合作茶農供應的茶款，其製程敘述 SHALL 使用產地口吻（例如「松柏嶺的做法」），SHALL NOT 使用第一人稱宣稱為自家工序。
+
+來源徽章 SHALL 以中性資訊樣式呈現（與其他規格標籤同級），SHALL NOT 使用警示色或免責聲明語氣。
+
+#### Scenario: 合作茶款標示來源
+
+- **WHEN** 使用者選擇「四季春」
+- **THEN** 顯示來源徽章「合作茶農．南投名間松柏嶺」，且該款製程文案不出現「我們的師傅」等自家第一人稱敘述
+
+#### Scenario: 自家茶款標示來源
+
+- **WHEN** 使用者選擇「阿里山高山烏龍茶」
+- **THEN** 顯示來源徽章「自家茶園．阿里山梅山」
+
+#### Scenario: 徽章不呈現為免責聲明
+
+- **WHEN** 使用者檢視合作茶款的來源徽章
+- **THEN** 徽章樣式與自家茶款的徽章同級（同尺寸、同色系家族），不使用紅色、警告圖示或「非本場製作」等否定語氣
 
 ### Requirement: 導流至商品與體驗
 
@@ -91,14 +151,21 @@
 
 ### Requirement: 輸出 HowTo 結構化資料
 
-`/process` SHALL 為每款茶輸出一份 `HowTo` JSON-LD。`step` SHALL 僅包含該茶實際執行的工序，`skipped` 狀態的工序 SHALL NOT 出現在結構化資料中。`HowTo.name` SHALL 依 locale 對應中英名稱，與 `src/data/products.ts` 的 `name`／`nameEn` 一致。
+`/process` SHALL 為每款茶輸出一份 `HowTo` JSON-LD，`step` SHALL 依該茶的**實際順序**排列。`skipped` 狀態的工序 SHALL NOT 出現在結構化資料中——結構化資料描述真實作法，不是教學對比。`HowTo.name` SHALL 依 locale 對應中英名稱，與 `src/data/products.ts` 的 `name`／`nameEn` 一致。
 
 所有 JSON-LD SHALL 經 `src/lib/seo.ts` 的 `jsonLdString()` 序列化；頁面 metadata SHALL 沿用 `langAlternates("/process")`。
+
+每款茶的區段 SHALL 具備穩定的 `id` anchor（如 `#black`），使 AI 檢索可引用至段落層級。
 
 #### Scenario: 紅茶的 HowTo 不含炒菁
 
 - **WHEN** 爬蟲解析 `/process` 中蜜香紅茶的 HowTo 節點
-- **THEN** 其 `step` 陣列不含「炒菁」，且含「發酵」
+- **THEN** 其 `step` 陣列不含「炒菁」，含「發酵」與「布球團揉」，且「揉捻」排在「發酵」之前
+
+#### Scenario: 五份 HowTo 皆輸出
+
+- **WHEN** 爬蟲解析 `/process` 的 HTML 原始碼
+- **THEN** 可取得 5 份 HowTo 節點，分別對應 5 款茶
 
 #### Scenario: 安全序列化
 
@@ -128,11 +195,18 @@
 
 ### Requirement: 製程參數不得虛構
 
-頁面呈現的溫度、時間、次數等具體製程參數 SHALL 僅來自店主確認的實際做法，或明確標注為業界通則。SHALL NOT 由實作端自行推估後以「本場做法」語氣呈現。
+依決策 ① 方案 B，新增茶款（蜜香紅茶、紅烏龍）與新增工序（`ferment`、`ballRoll`）SHALL 只呈現工序說明與原理，SHALL NOT 出現任何溫度、時數、次數或發酵百分比。
 
-未取得確認前，新增茶款的參數欄位 SHALL 留白或省略，而非填入推測值。
+現有烏龍流程既有的參數（`steps.*.detail` 中的溫度與時間）SHALL 保留——那些是已確認的自家做法。
 
-#### Scenario: 參數未確認時的呈現
+任何新增參數 SHALL 僅來自店主確認，SHALL NOT 由實作端推估後以「本場做法」語氣呈現。
 
-- **WHEN** 蜜香紅茶的發酵時間尚未經店主確認
-- **THEN** 該款茶的發酵工序只呈現工序說明與原理，不出現任何未經確認的時數或溫度數字
+#### Scenario: 新增工序不出現數字
+
+- **WHEN** 使用者檢視蜜香紅茶的「發酵」工序
+- **THEN** 卡片呈現工序說明與原理，不出現任何時數、溫度或百分比數字
+
+#### Scenario: 既有參數保留
+
+- **WHEN** 使用者檢視高山烏龍的「炒菁」工序
+- **THEN** 既有的溫度與時間描述仍然存在，未因本次改版被移除
