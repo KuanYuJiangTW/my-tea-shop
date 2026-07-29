@@ -29,19 +29,44 @@
 
 ### Requirement: 共通段與分歧段的結構呈現
 
-頁面 SHALL 將製程呈現為三段結構：共通前段（`pick`、`witherSun`、`witherIndoor`、`shake`）、分歧段、共通後段（`ballRoll`、`roast`、`sort`）。分歧段 SHALL 有明顯異於共通段的視覺容器與標題。
+頁面 SHALL 將製程呈現為三段結構：共通前段（`pick`、`witherSun`、`witherIndoor`、`shake`）、分歧段、共通後段（`dryFirst`、`ballRoll`、`dryFinal`、`roast`、`sort`）。分歧段 SHALL 有明顯異於共通段的視覺容器與標題。
 
 切換茶款時，SHALL 僅分歧段內容變動，共通前後段 SHALL 保持不變。
+
+三段結構 SHALL NOT 被攤平為無分段的連續步驟清單——共 11–12 步，分段是其可讀性的前提。
 
 #### Scenario: 五款茶共用前段
 
 - **WHEN** 使用者依序切換 5 款茶並檢視共通前段
 - **THEN** 採摘、日光萎凋、室內萎凋、浪菁四步在每款茶皆存在且不被標為跳過（蜜香紅茶的第一天工序與烏龍相同）
 
-#### Scenario: 五款茶共用布球團揉
+#### Scenario: 五款茶共用擠壓團揉
 
 - **WHEN** 使用者檢視任一款茶的共通後段
-- **THEN** 「布球團揉」皆存在且非跳過狀態——包含蜜香紅茶，因其為球形紅茶
+- **THEN** 「擠壓團揉」皆存在且非跳過狀態——包含蜜香紅茶，因其為球形紅茶
+
+#### Scenario: 紅茶亦有焙火
+
+- **WHEN** 使用者檢視蜜香紅茶的共通後段
+- **THEN** 「焙火」存在且非跳過狀態，說明其作用為調整風味
+
+### Requirement: 具名設備與初製精製分工
+
+工序文案 SHALL 具名呈現實際使用的設備：甲種乾燥機（初乾）、擠壓機與布球揉捻（擠壓團揉）、箱型焙茶機（焙火）。SHALL NOT 以「專業設備」「先進機具」等空泛詞彙取代。
+
+頁面 SHALL 呈現焙火在自家進行、由店主親手調整風味的事實，作為「職人親手把關」宣稱的具體依據。
+
+設備名稱不屬於決策 ① 方案 B 所限制的製程參數（該限制僅針對溫度、時數、百分比），SHALL 完整寫出。
+
+#### Scenario: 設備具名
+
+- **WHEN** 使用者檢視「初乾」「擠壓團揉」「焙火」三個工序
+- **THEN** 三者分別出現「甲種乾燥機」「擠壓機」「箱型焙茶機」字樣
+
+#### Scenario: 焙火地點的敘事
+
+- **WHEN** 使用者檢視「焙火」工序
+- **THEN** 文案說明此步驟在自家完成、由店主親手調整風味，而非僅描述焙火的一般原理
 
 #### Scenario: 切換茶款時共通段不動
 
@@ -78,7 +103,7 @@
 #### Scenario: 每款茶的三態組合正確
 
 - **WHEN** 檢視 5 款茶各自的工序狀態
-- **THEN** 狀態組合與 `design.md` 1.2 節的矩陣完全一致：`ferment` 僅 black／redOolong 有；`fix` 僅 black 為 skipped；`witherSun`、`shake`、`ballRoll` 於全部 5 款茶皆非 skipped
+- **THEN** 狀態組合與 `design.md` 1.2 節的矩陣完全一致：`ferment` 僅 black／redOolong 有；`fix` 僅 black 為 skipped；`witherSun`、`shake`、`dryFirst`、`ballRoll`、`dryFinal`、`roast` 於全部 5 款茶皆非 skipped
 
 ### Requirement: 五茶製程對照表
 
@@ -195,7 +220,7 @@
 
 ### Requirement: 製程參數不得虛構
 
-依決策 ① 方案 B，新增茶款（蜜香紅茶、紅烏龍）與新增工序（`ferment`、`ballRoll`）SHALL 只呈現工序說明與原理，SHALL NOT 出現任何溫度、時數、次數或發酵百分比。
+依決策 ① 方案 B，新增茶款（蜜香紅茶、紅烏龍）與新增工序（`ferment`、`dryFirst`、`ballRoll`、`dryFinal`）SHALL 只呈現工序說明、原理與**設備名稱**，SHALL NOT 出現任何溫度、時數、次數或發酵百分比。
 
 現有烏龍流程既有的參數（`steps.*.detail` 中的溫度與時間）SHALL 保留——那些是已確認的自家做法。
 
