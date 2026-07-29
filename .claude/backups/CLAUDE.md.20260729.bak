@@ -6,7 +6,7 @@
 - Next.js 16（App Router）+ React 19 + TypeScript + Tailwind 3；UI 用 shadcn / @base-ui
 - 資料：Supabase（Postgres + RLS）；內容管理：Sanity（`/studio`）；金流：Stripe / PayPal / ECPay 綠界
 - i18n：next-intl（zh-TW / EN），字串在 `messages/`
-- 指令：`/verify` 一次跑完測試＋型別＋build（`npm run lint` 已失效，見 JUDG-5）
+- 指令：`npm run test`（vitest，測試在 `src/__tests__/`）、`npm run lint`、`npm run build`
 - e2e：`e2e/`（Playwright；瀏覽器已預裝，**不要跑 playwright install**）
 - 規格流程：動功能前先讀 `openspec/specs/<能力>/`；變更提案放 `openspec/changes/`
 - 部署：Vercel（含 cron，見 `vercel.json`）
@@ -34,11 +34,6 @@
 | 想了解本環境的坑（token/失焦/出錯） | `.claude/playbooks/diagnosis.md` |
 | 前人踩過的坑 | `.claude/playbooks/lessons.md` |
 | 你是新 session 的第一個 turn | `.claude/playbooks/letter-to-future-sessions.md` |
-| 改完要驗證 | 跑 `/verify`（測試＋型別＋build） |
-| 修完安全性 bug，要確認測試真的有效 | `reverse-verify` skill |
-
-**自動防護**：`npm audit fix`（會降級 Next.js）與 Bash 裡的 PowerShell here-string
-已由 `.claude/hooks/guard-commands.js` 攔截，不必記——但被擋時請讀它給的理由，不要繞過。
 
 ## 溝通約定
 - 對使用者回覆用繁體中文；程式碼、識別字、工具名照原樣英文。
