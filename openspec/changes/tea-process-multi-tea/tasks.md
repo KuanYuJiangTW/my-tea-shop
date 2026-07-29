@@ -21,24 +21,30 @@
   - [x] 判斷依據：看該批茶當下風味狀態與客人偏好；焙可增甜厚與穩定度，焙過頭則失花香與鮮度；通常只有青茶類才可能不焙
   - [x] 揀枝位置更正：**在布球團揉後的乾燥時同步進行**（粗選機選長枝、鼓風機篩雜物與不良葉），焙火後直接包裝
   - [x] 據此拆解 `sort`：揀枝併入 `dryFinal`、包裝獨立為 `pack`（見 design.md 1.2.3）
-- [ ] 0.9 **店主待確認（不擋實作，擋上線）**：
-  - [ ] **既有文案落差**：現有 `steps.sort` 寫「師傅逐一**手工**揀除老葉、茶梗與雜質」，但店主描述為粗選機與鼓風機。是機器初篩＋人工複檢並存，或既有文案為理想化描述？**改寫前必須確認，不由實作端認定**
-  - [ ] `design.md` 1.4「金萱乳香會被焙火蓋掉」為規劃者的領域推論，未經證實，請確認是否屬實
-- [ ] 0.10 店主校對 `design.md` 1.4 節「工藝取捨」各則的事實正確性
-
-> 0.9 只影響 `dryFinal` 與 `roast` 兩步的文案措辭，不影響資料結構與版面，可先實作、上線前補正。
+- [x] 0.9 **兩處文案事實已釐清**（2026-07-25 店主確認）：
+  - [x] 揀枝**就是粗選機與鼓風機，無手工揀除**——現有 `steps.sort`「師傅逐一手工揀除」為不實工藝宣稱，本次必須修正
+  - [x] 金萱奶香：**淺焙使奶香轉為奶油香，不會消失**；唯重焙才會被焙火味蓋掉。規劃者原推論已更正
+- [ ] 0.10 店主校對 `design.md` 1.4 節「工藝取捨」其餘各則的事實正確性（蜜香紅茶不用藥、紅烏龍炒菁分水嶺、高山烏龍看天萎凋、四季春多次採收）
 
 ## 0.5 另案回報（非本 change 範圍）
 
 - [ ] 0.5.1 高山烏龍既分生茶與焙茶兩種賣法，`src/data/products.ts` 未呈現此區別——可能是未被網站呈現的商品選項，待與店主確認是否另立 change
+- [ ] 0.5.2 `npm run lint` 在本 repo 完全不可用（`next lint` 已被 Next 16 移除，且無 eslint 設定檔）。修復需裝 eslint 9 flat config ＋ `eslint-config-next` 並改 package.json script——屬產品決策，待店主指示是否另立 change
+- [ ] 0.5.3 現有 `messages/*.json` 的 `process.steps.sort` 宣稱「師傅逐一手工揀除」與實情（粗選機、鼓風機）不符，此為線上頁面的不實工藝宣稱。本 change 的 task 2.3 會修正，但若短期內不上線，建議先單獨改這一句
 
 ## 1. 資料結構
 
-- [ ] 1.1 新增 `src/data/tea-process.ts`：`TeaKey`／`FamilyKey`／`StepKey`／`StepState`／`Sourcing` 型別；共通前後段為模組常數，分歧段為 per-tea 資料（依 `design.md` 1.2、4）
-- [ ] 1.2 每款茶加 `productId` 對應 `src/data/products.ts`，供 CTA 導流使用
-- [ ] 1.3 每款茶加 `sourcing` 欄位（`own` / `partner`）供來源徽章使用
-- [ ] 1.4 更正 `src/data/products.ts` 四季春 `origin`：「南投名間」→「南投名間松柏嶺」
-- [ ] 1.5 驗證：`npx tsc --noEmit` 無新增錯誤；分歧段順序與 design.md 1.2 表格逐格比對一致
+- [x] 1.1 新增 `src/data/tea-process.ts`：型別齊備；共通前後段為模組常數（`COMMON_OPENING`／`COMMON_CLOSING`），分歧段為 per-tea 資料
+- [x] 1.2 每款茶加 `productId` 對應 `src/data/products.ts`，並提供 `getProductFor()` 供 CTA 導流
+- [x] 1.3 每款茶加 `sourcing` 欄位（`own` / `partner`）供來源徽章使用
+- [x] 1.4 更正 `src/data/products.ts` 四季春 `origin`：「南投名間」→「南投名間松柏嶺」
+- [x] 1.5 新增 `resolveSteps()`：組出各茶完整序列並依「skipped 不佔號、optional 佔號」規則編號
+- [x] 1.6 驗證：新增 `src/__tests__/tea-process.test.ts`，21 條測試把 design.md 1.2 矩陣釘成斷言（炒菁位置、分歧段順序、焙火四態、共通段一致性、編號規則、擠壓不成工序）
+- [x] 1.7 驗證證據：`npx vitest run src/__tests__/tea-process.test.ts` 21/21 綠；`npm run test` 27 檔 337 測試全綠（原 26 檔 316 測試，無退化）；`npx tsc --noEmit` 本次異動檔零錯誤；`npm run build` 成功且 `/process` 在路由表中
+
+> **驗證環境註記**：`npm run build` 在無 `.env` 的容器會於 "Collecting page data" 階段失敗（缺 Supabase／Stripe／Sanity 設定），與程式碼無關。本次以 placeholder 環境變數實跑至完成以取得綠燈證據。
+>
+> **`npm run lint` 在本 repo 不可用**：script 仍為 `next lint`（Next 16 已移除該指令），且 repo 內無任何 eslint 設定檔。已記入 `.claude/playbooks/lessons.md`。修復屬產品決策，待店主指示——見 0.5.2。
 
 ## 2. i18n 文案
 

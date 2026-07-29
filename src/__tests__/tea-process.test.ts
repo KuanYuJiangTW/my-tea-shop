@@ -1,0 +1,203 @@
+import { describe, it, expect } from "vitest";
+
+import { products } from "@/data/products";
+import {
+  COMMON_CLOSING,
+  COMMON_OPENING,
+  getProductFor,
+  resolveSteps,
+  teaProcesses,
+  type StepKey,
+  type TeaKey,
+} from "@/data/tea-process";
+
+/**
+ * 這組測試把 openspec/changes/tea-process-multi-tea/design.md 1.2 節的矩陣
+ * 釘成可執行的斷言——製程資料是本頁的事實來源，寫錯不會有畫面異常，
+ * 只會安靜地對客人講錯自家茶怎麼做。
+ */
+
+/** 取某款茶「實際會做」的工序序列（不含 skipped） */
+function actualSteps(key: TeaKey): StepKey[] {
+  return resolveSteps(key)
+    .filter((s) => s.state !== "skipped")
+    .map((s) => s.step);
+}
+
+/** 取某款茶分歧段的顯示序列（含 skipped，用於驗證對比呈現） */
+function divergenceDisplay(key: TeaKey) {
+  return resolveSteps(key)
+    .filter((s) => s.section === "divergence")
+    .map((s) => `${s.step}:${s.state}`);
+}
+
+describe("茶款與商品的對應", () => {
+  it("五款茶皆對應到實際上架商品", () => {
+    expect(teaProcesses).toHaveLength(5);
+    for (const tea of teaProcesses) {
+      const product = getProductFor(tea.key);
+      expect(product, `${tea.key} 找不到對應商品`).toBeDefined();
+    }
+  });
+
+  it("商品目錄的每一款茶都有製程資料（無遺漏品項）", () => {
+    const mapped = teaProcesses.map((t) => t.productId).sort();
+    expect(mapped).toEqual(products.map((p) => p.id).sort());
+  });
+
+  it("四季春與紅烏龍標記為合作茶農，其餘為自家茶園", () => {
+    const sourcing = Object.fromEntries(teaProcesses.map((t) => [t.key, t.sourcing]));
+    expect(sourcing).toEqual({
+      oolong: "own",
+      jinxuan: "own",
+      black: "own",
+      sijichun: "partner",
+      redOolong: "partner",
+    });
+  });
+});
+
+describe("核心洞察：炒菁的位置決定茶種", () => {
+  it("烏龍三款的炒菁在分歧段最前", () => {
+    for (const key of ["oolong", "jinxuan", "sijichun"] as const) {
+      const divergence = resolveSteps(key).filter((s) => s.section === "divergence");
+      expect(divergence[0]?.step, `${key} 的分歧段首步應為炒菁`).toBe("fix");
+      expect(divergence[0]?.state).not.toBe("skipped");
+    }
+  });
+
+  it("蜜香紅茶沒有炒菁", () => {
+    const fix = resolveSteps("black").find((s) => s.step === "fix");
+    expect(fix?.state).toBe("skipped");
+    expect(actualSteps("black")).not.toContain("fix");
+  });
+
+  it("紅烏龍的炒菁在分歧段最後", () => {
+    const divergence = resolveSteps("redOolong").filter((s) => s.section === "divergence");
+    expect(divergence.at(-1)?.step).toBe("fix");
+    expect(divergence.at(-1)?.state).not.toBe("skipped");
+  });
+
+  it("紅烏龍與蜜香紅茶的分歧段前兩步相同（揉捻→發酵）", () => {
+    const black = actualSteps("black").filter((s) => ["roll", "ferment", "fix"].includes(s));
+    const red = actualSteps("redOolong").filter((s) => ["roll", "ferment", "fix"].includes(s));
+
+    expect(black).toEqual(["roll", "ferment"]);
+    expect(red).toEqual(["roll", "ferment", "fix"]);
+    // 紅烏龍走的是紅茶的路，只是最後多踩一腳煞車
+    expect(red.slice(0, 2)).toEqual(black);
+  });
+});
+
+describe("分歧段的顯示序列（design.md 1.2 矩陣）", () => {
+  it("烏龍三款：炒菁 → 揉捻，並顯示跳過的發酵", () => {
+    for (const key of ["oolong", "jinxuan", "sijichun"] as const) {
+      expect(divergenceDisplay(key)).toEqual([
+        "fix:common",
+        "roll:common",
+        "ferment:skipped",
+      ]);
+    }
+  });
+
+  it("蜜香紅茶：跳過的炒菁排在最前，接揉捻 → 發酵", () => {
+    expect(divergenceDisplay("black")).toEqual([
+      "fix:skipped",
+      "roll:accent",
+      "ferment:accent",
+    ]);
+  });
+
+  it("紅烏龍：揉捻 → 發酵 → 炒菁", () => {
+    expect(divergenceDisplay("redOolong")).toEqual([
+      "roll:common",
+      "ferment:accent",
+      "fix:common",
+    ]);
+  });
+});
+
+describe("共通段", () => {
+  it("五款茶的共通前段完全相同且無人跳步", () => {
+    for (const tea of teaProcesses) {
+      const opening = resolveSteps(tea.key).filter((s) => s.section === "opening");
+      expect(opening.map((s) => s.step)).toEqual([...COMMON_OPENING]);
+      expect(opening.every((s) => s.state !== "skipped"), `${tea.key} 前段不應有跳步`).toBe(true);
+    }
+  });
+
+  it("五款茶的共通後段順序相同", () => {
+    for (const tea of teaProcesses) {
+      const closing = resolveSteps(tea.key).filter((s) => s.section === "closing");
+      expect(closing.map((s) => s.step)).toEqual([...COMMON_CLOSING]);
+    }
+  });
+
+  it("布球團揉為五款茶共通——連紅茶都做成球形", () => {
+    for (const tea of teaProcesses) {
+      const ballRoll = resolveSteps(tea.key).find((s) => s.step === "ballRoll");
+      expect(ballRoll?.state, `${tea.key} 應有布球團揉`).not.toBe("skipped");
+    }
+  });
+
+  it("揀枝併在乾燥步驟，包裝為焙火之後的最後一步", () => {
+    const closing = [...COMMON_CLOSING];
+    expect(closing.indexOf("dryFinal")).toBeLessThan(closing.indexOf("roast"));
+    expect(closing.at(-1)).toBe("pack");
+    expect(closing).not.toContain("sort");
+  });
+});
+
+describe("焙火是條件性工序", () => {
+  const roastStateOf = (key: TeaKey) => resolveSteps(key).find((s) => s.step === "roast")?.state;
+
+  it("各茶款的焙火狀態符合店主實際配置", () => {
+    expect(roastStateOf("oolong")).toBe("optional"); // 焙與不焙都有，網站預設淺焙
+    expect(roastStateOf("jinxuan")).toBe("common"); // 淺焙
+    expect(roastStateOf("sijichun")).toBe("skipped"); // 不焙，生茶直接賣
+    expect(roastStateOf("black")).toBe("common"); // 淺焙
+    expect(roastStateOf("redOolong")).toBe("accent"); // 重焙
+  });
+
+  it("焙火並非所有茶款共通", () => {
+    const states = teaProcesses.map((t) => roastStateOf(t.key));
+    expect(new Set(states).size).toBeGreaterThan(1);
+  });
+});
+
+describe("步驟編號", () => {
+  it("skipped 不佔編號，其餘連續編號", () => {
+    for (const tea of teaProcesses) {
+      const steps = resolveSteps(tea.key);
+      expect(steps.filter((s) => s.state === "skipped").every((s) => s.number === null)).toBe(true);
+
+      const numbers = steps.filter((s) => s.state !== "skipped").map((s) => s.number);
+      expect(numbers).toEqual(numbers.map((_, i) => String(i + 1).padStart(2, "0")));
+    }
+  });
+
+  it("optional 佔編號——它是真的會做的一步，只是視批次決定", () => {
+    const roast = resolveSteps("oolong").find((s) => s.step === "roast");
+    expect(roast?.state).toBe("optional");
+    expect(roast?.number).not.toBeNull();
+  });
+
+  it("四季春因不焙火，總步數比高山烏龍少一步", () => {
+    expect(actualSteps("sijichun")).toHaveLength(actualSteps("oolong").length - 1);
+  });
+
+  it("紅烏龍步數最多（分歧段三步）", () => {
+    const counts = teaProcesses.map((t) => actualSteps(t.key).length);
+    expect(Math.max(...counts)).toBe(actualSteps("redOolong").length);
+  });
+});
+
+describe("擠壓不獨立成工序（設備不佔工序層級）", () => {
+  it("步驟清單中不存在擠壓步驟", () => {
+    for (const tea of teaProcesses) {
+      const keys = resolveSteps(tea.key).map((s) => s.step as string);
+      expect(keys).not.toContain("press");
+      expect(keys).not.toContain("squeeze");
+    }
+  });
+});

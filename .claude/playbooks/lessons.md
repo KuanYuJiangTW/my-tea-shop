@@ -43,3 +43,10 @@
 - 代價：假設它存在的話，GitHub 操作會反覆失敗
 - 規則：web session 的 GitHub 操作一律用 `mcp__github__*` 工具（先 ToolSearch 載入）；本機 session 先 `command -v gh` 再決定
 - 去處：已入 diagnosis.md 環境事實表與 CLAUDE.md 開場檢查
+
+## 2026-07-29 npm run lint 在本 repo 完全跑不起來（CLAUDE.md 事實過時）
+- 情境：製茶過程頁改版要照 JUDG-5 驗 lint，`npm run lint` 回「Invalid project directory provided, no such directory: <repo>/lint」；改直接跑 `npx eslint` 則回「couldn't find an eslint.config.(js|mjs|cjs)」
+- 成因：`package.json` 的 lint script 仍是 `next lint`，但本專案是 Next 16——`next lint` 已被移除，參數被當成目錄解析；且 repo 內**沒有任何 eslint 設定檔**（`eslint.config.*` 與 `.eslintrc*` 皆不存在）
+- 代價：CLAUDE.md「技術事實」與 JUDG-5 品質底線都把 `npm run lint` 列為驗證手段，照做會卡住；不知情者會誤以為是自己改壞的而白追
+- 規則：**在 lint 修好之前，不要把「lint 無新增錯誤」當成可達成的驗收條件**——改用 `npx tsc --noEmit`（過濾出自己動過的檔案）＋ `npm run test` ＋ `npm run build` 三件套。宣告完成時明說「lint 在本 repo 目前不可用」，不要靜默跳過
+- 去處：暫存於此。修復本身是產品決策（要裝 eslint 9 flat config ＋ `eslint-config-next`，並改 package.json script），未經使用者要求不擅自動手；已在 openspec change 的 tasks 列為待回報項

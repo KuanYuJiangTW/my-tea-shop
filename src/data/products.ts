@@ -86,7 +86,7 @@ export const products: Product[] = [
     name: "四季春",
     nameEn: "Four Seasons Spring",
     category: "烏龍茶",
-    origin: "南投名間",
+    origin: "南投名間松柏嶺",
     originEn: "",
     altitude: "300m",
     price: 150,
