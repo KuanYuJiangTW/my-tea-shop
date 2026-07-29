@@ -60,6 +60,28 @@ const CASES = [
     false,
   ],
   ["正常 heredoc commit", "Bash", `git commit -m "$(cat <<EOF\nfix: 修正\nEOF\n)"`, false],
+
+  // 執行包裝器：內容會被執行，不能當字面量剝掉
+  ["bash -c 包起來", "Bash", `bash -c "npm audit fix"`, true],
+  ["sh -c 包起來", "Bash", `sh -c "npm audit fix --force"`, true],
+  ["eval 執行", "Bash", `eval "npm audit fix --force"`, true],
+  ["eval 單引號", "Bash", `eval ${Q}npm audit fix${Q}`, true],
+
+  // 但「提到」執行包裝器不該被擋
+  [
+    "commit 訊息提到 eval 繞過法",
+    "Bash",
+    `git commit -m "$(cat <<EOF\n不要用 eval 繞過檢查\nEOF\n)"`,
+    false,
+  ],
+
+  // 換行與分號分隔的第二段指令
+  ["換行後的第二行", "Bash", "echo start\nnpm audit fix", true],
+  ["分號串接", "Bash", "echo a; npm audit fix", true],
+
+  // 引號配對的邊界
+  ["訊息含縮寫 don't", "Bash", `git commit -m "don't run npm audit fix"`, false],
+  ["寫入檔案時提到", "Bash", `echo "# 不要跑 npm audit fix" >> notes.md`, false],
 ];
 
 let failed = 0;

@@ -48,10 +48,15 @@ const RULES = [
  * 順序不可調換：heredoc 內文常含引號，先剝引號會把邊界弄亂。
  */
 function stripLiterals(cmd) {
-  return cmd
-    .replace(/<<-?\s*(['"]?)(\w+)\1[\s\S]*?^\s*\2\s*$/gm, " ")
-    .replace(/'[^']*'/g, " ")
-    .replace(/"(?:[^"\\]|\\.)*"/g, " ");
+  return (
+    cmd
+      // 執行包裝器（bash -c "…"、eval "…"）裡的字串是「會被執行的」，不是字面量。
+      // 先脫掉外層引號把內容留下來，否則 `bash -c "npm audit fix"` 會整段被剝掉而漏擋。
+      .replace(/\b(?:eval|(?:ba|z)?sh\s+-c)\s+(['"])([\s\S]*?)\1/g, " $2 ")
+      .replace(/<<-?\s*(['"]?)(\w+)\1[\s\S]*?^\s*\2\s*$/gm, " ")
+      .replace(/'[^']*'/g, " ")
+      .replace(/"(?:[^"\\]|\\.)*"/g, " ")
+  );
 }
 
 let input = "";
