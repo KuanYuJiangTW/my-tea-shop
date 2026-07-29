@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
 import ProcessContent from "./ProcessContent";
 import { langAlternates, jsonLdString } from "@/lib/seo";
-import { resolveSteps, teaProcesses } from "@/data/tea-process";
+import { getProductFor, resolveSteps, teaProcesses } from "@/data/tea-process";
 
 export const metadata: Metadata = {
   title: "製茶過程",
@@ -34,10 +34,11 @@ export const metadata: Metadata = {
 };
 
 export default async function ProcessPage() {
-  const [experiences, contents, t] = await Promise.all([
+  const [experiences, contents, t, locale] = await Promise.all([
     getExperienceTypes(),
     getExperienceContents(),
     getTranslations("process"),
+    getLocale(),
   ]);
 
   const activeExperiences = experiences.filter((e) => e.isActive);
@@ -47,7 +48,12 @@ export default async function ProcessPage() {
    * 說明，不是這款茶真的會做的一步，混進結構化資料等於對搜尋引擎講錯製程。
    */
   const howToJsonLd = teaProcesses.map((tea) => {
-    const teaName = t(`teas.${tea.key}.name`);
+    // HowTo 名稱取商品目錄的正式品名（規格要求與 products.ts 的 name／nameEn 一致），
+    // 頁面上的短名（teas.*.name）只用於導覽列與對照表，不進結構化資料。
+    const product = getProductFor(tea.key);
+    const teaName =
+      (locale === "en" ? product?.nameEn || product?.name : product?.name) ??
+      t(`teas.${tea.key}.name`);
     const steps = resolveSteps(tea.key).filter((s) => s.state !== "skipped");
 
     return {
