@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, Users, Clock } from "lucide-react";
@@ -25,24 +25,40 @@ export default function ExperienceCalendar({ experience }: Props) {
   const today   = new Date();
   const [year,  setYear]       = useState(today.getFullYear());
   const [month, setMonth]      = useState(today.getMonth() + 1);
-  const [sessions, setSessions]       = useState<ExperienceSession[]>([]);
-  const [loading, setLoading]         = useState(true);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
-  const fetchSessions = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res  = await fetch(`/api/experience-sessions?slug=${experience.slug}&year=${year}&month=${month}`);
-      const data = await res.json();
-      setSessions(Array.isArray(data) ? data : []);
-    } catch {
-      setSessions([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [experience.slug, year, month]);
+  /**
+   * 場次資料連同「它屬於哪個月」一起存，loading 就能在 render 時推導出來，
+   * 不需要另一個 state 也不需要在 effect 裡同步 setLoading。
+   *
+   * 原本的寫法是 effect 呼叫 fetchSessions()，而該函式開頭同步 setLoading(true)
+   * ——那會觸發連鎖 render（`react-hooks/set-state-in-effect`）。順帶修掉一個
+   * 潛在的競態：原本沒有取消機制，快速切換月份時慢的回應可能覆蓋掉新的月份資料。
+   */
+  const [fetched, setFetched] = useState<{ key: string; sessions: ExperienceSession[] }>({
+    key: "",
+    sessions: [],
+  });
 
-  useEffect(() => { fetchSessions(); }, [fetchSessions]);
+  const monthKey = `${experience.slug}:${year}-${month}`;
+  const loading  = fetched.key !== monthKey;
+  const sessions = loading ? [] : fetched.sessions;
+
+  useEffect(() => {
+    let cancelled = false;
+    const key = `${experience.slug}:${year}-${month}`;
+
+    fetch(`/api/experience-sessions?slug=${experience.slug}&year=${year}&month=${month}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setFetched({ key, sessions: Array.isArray(data) ? data : [] });
+      })
+      .catch(() => {
+        if (!cancelled) setFetched({ key, sessions: [] });
+      });
+
+    return () => { cancelled = true; };
+  }, [experience.slug, year, month]);
 
   const firstDay    = new Date(year, month - 1, 1).getDay();
   const daysInMonth = new Date(year, month, 0).getDate();
