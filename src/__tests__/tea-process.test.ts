@@ -304,14 +304,50 @@ describe("i18n：process 文案兩語系對稱", () => {
     }
   });
 
-  it("工序文案不得出現溫度或時數參數（決策 ① 方案 B）", () => {
-    // 方案 B：只寫工序與判斷依據，不寫未經確認的數值。
-    // 採摘季節的月份是季節事實而非製程參數，故僅檢查 desc/detail 的溫度與時長。
-    const banned = /\d\s*(°C|℃|度C)|\d+\s*[-–~]\s*\d+\s*(小時|分鐘|hours?|minutes?|mins?)\b/i;
+  /**
+   * 決策 ① 方案 B 的範圍**只限新增工序**——spec.md「製程參數不得虛構」明文：
+   * 「現有烏龍流程既有的參數（steps.*.detail 中的溫度與時間）SHALL 保留
+   * ——那些是已確認的自家做法」，並另立 Scenario「既有參數保留」。
+   *
+   * 這裡曾經寫反過（斷言全部工序都不得有溫度時數），把違反規格的行為釘成正確行為，
+   * 導致既有已確認參數被整批刪掉還測試全綠。兩個方向都要釘，才不會再錯任一邊。
+   */
+  // 需涵蓋小數（1.5小時）與「次」這類單位（2-4次），不能只認「數字-數字+單位」
+  const PARAM_PATTERN = /\d\s*(°C|℃)|[\d.]+\s*(小時|分鐘|次|hours?|minutes?|sessions?)/i;
+
+  /** 改版前既有、且原本就帶參數的工序——這些必須留著 */
+  const STEPS_WITH_LEGACY_PARAMS = ["witherSun", "witherIndoor", "shake", "fix", "roll", "roast"] as const;
+
+  /** 本次新增的工序——這些不得出現任何數值 */
+  const NEW_STEPS = ["ferment", "dryFirst", "ballRoll", "dryFinal", "pack"] as const;
+
+  it("既有工序的溫度與時間參數必須保留（spec: 既有參數保留）", () => {
     for (const locale of [zh, en]) {
       const steps = locale.steps as Record<string, Record<string, string>>;
-      for (const [key, copy] of Object.entries(steps)) {
-        expect(`${key}:${copy.desc} ${copy.detail}`).not.toMatch(banned);
+      for (const key of STEPS_WITH_LEGACY_PARAMS) {
+        expect(steps[key].detail).toMatch(PARAM_PATTERN);
+      }
+    }
+  });
+
+  it("新增工序不得出現溫度或時數（spec: 新增工序不出現數字）", () => {
+    for (const locale of [zh, en]) {
+      const steps = locale.steps as Record<string, Record<string, string>>;
+      for (const key of NEW_STEPS) {
+        expect(`${key}:${steps[key].desc} ${steps[key].detail}`).not.toMatch(PARAM_PATTERN);
+      }
+    }
+  });
+
+  it("每個工序的 detail 都要有可觀察的判斷依據，不得只有含糊語句", () => {
+    // spec：「發酵至適當程度」「充分乾燥」等無可觀察內容的句子 SHALL NOT 通過驗收
+    const vague = /(發酵|乾燥|萎凋|焙火)至?(適當|充分|足夠)/;
+    const zhSteps = zh.steps as Record<string, Record<string, string>>;
+    for (const [key, copy] of Object.entries(zhSteps)) {
+      expect(`${key}:${copy.detail}`).not.toMatch(vague);
+      // 每一步都要講出「怎麼判斷完成」——採摘與包裝以季節／品質標示交代，其餘須有判斷依據
+      if (key !== "pick" && key !== "pack") {
+        expect(`${key}:${copy.detail}`).toMatch(/判斷依據/);
       }
     }
   });

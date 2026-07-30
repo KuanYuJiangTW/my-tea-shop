@@ -564,6 +564,14 @@ export default function ProcessContent({ experiences, contents }: Props) {
                     ["rowFamily", (k: TeaKey) => t(`families.${getTeaProcess(k).family}.name`)],
                     ["rowOxidation", (k: TeaKey) => t(`teas.${k}.oxidation`)],
                     [
+                      // 浪菁五款茶都有，紅烏龍為 accent（重攪拌）故加重標記
+                      "rowShake",
+                      (k: TeaKey) =>
+                        resolveSteps(k).some((s) => s.step === "shake" && s.state === "accent")
+                          ? "✓✓"
+                          : "✓",
+                    ],
+                    [
                       "rowFixPosition",
                       (k: TeaKey) => {
                         const pos = fixPositionOf(k);
