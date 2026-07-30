@@ -92,12 +92,14 @@ export default function ProcessContent({ experiences, contents }: Props) {
   const resolved = useMemo(() => resolveSteps(activeTea), [activeTea]);
   const numbered = useMemo(() => resolved.filter((s) => s.number !== null), [resolved]);
 
-  /** 切換茶款後步驟數可能變少，把 activeStep 收斂回有效範圍（不動捲動位置） */
-  useEffect(() => {
-    if (!numbered.some((s) => s.number === activeStep)) {
-      setActiveStep(numbered[0]?.number ?? "01");
-    }
-  }, [numbered, activeStep]);
+  /**
+   * 切換茶款後步驟數可能變少（四季春只有 10 步），此時記著的 activeStep 可能已不存在。
+   * 這裡在 render 時推導出有效值，而不是用 effect 去 setState 修正——後者會觸發連鎖
+   * render，也讓「哪個才是真正的當前步驟」有兩個來源。
+   */
+  const effectiveStep = numbered.some((s) => s.number === activeStep)
+    ? activeStep
+    : numbered[0]?.number ?? "01";
 
   /** 文案取用：accent / optional / skipped 優先取該茶專屬文案，否則用共通文案 */
   const copyFor = useCallback(
@@ -329,7 +331,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
           {/* 下排：工序（橫向捲動——工序數已達 10–12，grid 會擠成多排） */}
           <div className="flex items-start gap-1 overflow-x-auto pb-1">
             {numbered.map((step, i) => {
-              const isActive = activeStep === step.number;
+              const isActive = effectiveStep === step.number;
               const name = t(`steps.${step.step}.name`);
               return (
                 <div key={`${step.step}-${step.number}`} className="flex items-start shrink-0 group">

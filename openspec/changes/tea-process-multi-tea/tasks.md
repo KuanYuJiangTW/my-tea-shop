@@ -29,7 +29,8 @@
 ## 0.5 另案回報（非本 change 範圍）
 
 - [ ] 0.5.1 高山烏龍既分生茶與焙茶兩種賣法，`src/data/products.ts` 未呈現此區別——可能是未被網站呈現的商品選項，待與店主確認是否另立 change
-- [ ] 0.5.2 `npm run lint` 在本 repo 完全不可用（`next lint` 已被 Next 16 移除，且無 eslint 設定檔）。修復需裝 eslint 9 flat config ＋ `eslint-config-next` 並改 package.json script——屬產品決策，待店主指示是否另立 change
+- [x] 0.5.2 `npm run lint` **已修復**（2026-07-30 經店主指示）：補 `eslint.config.mjs`、`eslint-config-next` 15.5.12 → 16.2.12 對齊 Next 16、lint script 由 `next lint` 改為 `eslint`。註：`eslint` 與 `eslint-config-next` 本來就在 devDependencies，實際缺的只有設定檔——原描述「需要裝」不準確
+- [ ] 0.5.5 **全 repo 尚有 22 個既有 lint error（28 檔，42 warnings）**，含 `CheckoutClient.tsx` 等金流高風險區。本次只修了落在自己 diff 內的 1 個，其餘未動——依鐵律 4，金流區改動前須先讀對應 openspec 規格，且範圍遠超本 change。建議另立 change 分批處理
 - [x] 0.5.3 現有 `messages/*.json` 的 `process.steps.sort` 宣稱「師傅逐一手工揀除」與實情（粗選機、鼓風機）不符。**已於 task 2.3 修正並加測試防回退**，本項結案
 - [ ] 0.5.4 `e2e/` 有 6 個 spec ＋ `playwright.config.ts`，但 `package.json` 完全沒有 `playwright` / `@playwright/test` 依賴——e2e 目前無法執行。本次驗證改用 scratchpad 獨立安裝的 playwright（未動 repo 依賴）。是否補依賴屬產品決策，待店主指示
 
@@ -45,7 +46,7 @@
 
 > **驗證環境註記**：`npm run build` 在無 `.env` 的容器會於 "Collecting page data" 階段失敗（缺 Supabase／Stripe／Sanity 設定），與程式碼無關。本次以 placeholder 環境變數實跑至完成以取得綠燈證據。
 >
-> **`npm run lint` 在本 repo 不可用**：script 仍為 `next lint`（Next 16 已移除該指令），且 repo 內無任何 eslint 設定檔。已記入 `.claude/playbooks/lessons.md`。修復屬產品決策，待店主指示——見 0.5.2。
+> **`npm run lint` 已於 2026-07-30 修復**（見 0.5.2）。第 1 節當時以 `tsc` 替代驗證，補跑 lint 後本次 diff 的檔案零 error 零 warning——詳見 6.2。
 
 ## 2. i18n 文案
 
@@ -157,7 +158,10 @@
 ## 6. 驗收
 
 - [x] 6.1 `npm run test` 全綠：27 檔 345 測試（基準 26 檔 316，本次 +1 檔 +29 測試，無退化）
-- [ ] 6.2 `npm run lint` —— **本 repo 無法執行**（見 0.5.2）。已改用 `npx tsc --noEmit` 替代：本次異動檔零錯誤（唯一錯誤在 `src/__tests__/points/admin-campaigns-audit.test.ts`，不在本次 diff 內，屬既有）
+- [x] 6.2 `npm run lint` **已可執行並已通過**（修復見 0.5.2）。本次 diff 的 5 個檔案（`ProcessContent.tsx`／`page.tsx`／`tea-process.ts`／`products.ts`／`tea-process.test.ts`）**零 error 零 warning**
+  - 依 JUDG-2 第 2 條做了機械歸屬對比（非「應該是既有的」）：以 `git diff --name-only $(git merge-base HEAD origin/main) HEAD` 取本次改動檔清單，比對 `eslint -f json` 逐檔結果 → 我的 1E／既有 22E 42W
+  - 修掉了 lint 抓到、而 `tsc` 與測試都抓不到的一個真問題：`react-hooks/set-state-in-effect`——原本用 effect 去修正切換茶款後失效的 `activeStep`，改為 render 時推導 `effectiveStep`，消除連鎖 render 與雙重事實來源
+  - 重新驗證通過：345 測試全綠、build 成功、Playwright 互動全數維持，並補測 clamping 邊界（紅烏龍第 12 步 → 切四季春 10 步，高亮回落至有效的「01 採摘」且僅一個高亮）
 - [x] 6.3 `npm run build` 成功（容器無 `.env`，以 placeholder 環境變數實跑至完成）
 - [ ] 6.4 派 `checker` 獨立驗收 —— **未執行**：本 session 的執行環境指示為「未經使用者要求不得派 subagent」，與 CLAUDE.md 鐵律 2 衝突時以前者為準。已改為主對話內逐條實跑驗證並附證據（見各節驗證表）。**若要照規格派 checker 複驗，請明示**
 - [x] 6.5 zh／en 雙語各自實跑頁面：皆 HTTP 200，server log 零 `MISSING_MESSAGE`，HTML 內零 `process.xxx` 原始 key 外露

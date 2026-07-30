@@ -71,3 +71,15 @@
 - 代價：命令靜默中斷，看起來像 build 壞掉，實際上 build 根本沒跑到
 - 規則：收埠口用 `fuser -k <port>/tcp`；真要 pkill 就讓 pattern 不出現在自己的命令列（例如 `pkill -f 'next[ ]start'`），且不要與後續步驟串在同一條命令
 - 去處：暫存於此
+
+## 2026-07-30 補記：npm run lint 已修復，前一條的替代方案過時
+- 情境：使用者要求修復 lint。實際缺的**只有設定檔**——`eslint` ^9 與 `eslint-config-next` 本來就在 devDependencies（前一條說「需要裝」不準確）。已補 `eslint.config.mjs`（flat config）、把 `eslint-config-next` 由 15.5.12 升到 16.2.12 對齊 Next 16 大版本、`package.json` 的 lint script 由已被移除的 `next lint` 改為 `eslint`
+- 代價：無。修好後 `CLAUDE.md` 技術事實與 JUDG-2「最低門檻」第 2 條重新成立，兩個檔都不必改
+- 規則：`npm run lint` 已可正常使用，JUDG-2 第 2 條照原文執行。**判斷「某工具在本 repo 壞了」時，先分清是「套件沒裝」還是「設定檔沒有」**——`npx <tool>` 的錯誤訊息會講明白（「couldn't find config」＝有裝沒設定，`ERR_MODULE_NOT_FOUND`＝沒裝），不要跳過這一步就下結論
+- 去處：本條即結案註記；前一條（2026-07-29）中仍有效的只剩「`next lint` 已被 Next 16 移除」這個事實
+
+## 2026-07-30 eslint-config-next 帶進的 react-hooks 規則抓到 tsc 抓不到的 bug
+- 情境：lint 修好後首次全 repo 掃描，65 個問題裡有 1 個落在本次新寫的 `ProcessContent.tsx`：`react-hooks/set-state-in-effect`——我用 effect 去「修正」切換茶款後失效的 `activeStep`，在 effect body 直接 setState
+- 代價：若沒 lint 就會留著。它不是型別錯誤（`tsc` 全綠）、也不會讓測試紅燈，只會安靜地多一次連鎖 render，並讓「當前步驟」有兩個事實來源
+- 規則：**用 effect + setState 去修正另一個 state 之前，先問能不能在 render 時推導**（derive，不要 sync）。這類問題 `tsc` 與單元測試都抓不到，只有 `npm run lint` 會擋
+- 去處：暫存於此
