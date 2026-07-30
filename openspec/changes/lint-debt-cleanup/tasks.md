@@ -51,14 +51,58 @@
   - **`ExperienceCalendar` 的月份切換**：需要 `/api/experience-sessions`（Supabase）。
     風險評估：**這個不是等價改寫**——`loading` 由 state 改為推導、並新增取消機制。雖然邏輯經逐行檢視、`tsc` 與測試皆綠，但**行為未經實跑確認**，上線前應在 staging 手動切換月份確認：載入中文案出現、資料正確、快速連點月份不會顯示錯月份的場次。
 
-## 批次 B｜admin 後台（未開始）
+## 批次 B｜admin 後台（已完成，2026-07-30）
 
-- [ ] B.1 `admin/(protected)/campaigns/page.tsx` — set-state-in-effect ×1
-- [ ] B.2 `admin/(protected)/coupons/page.tsx` — set-state-in-effect ×1
-- [ ] B.3 `admin/(protected)/experiences/sessions/SessionsClient.tsx` — set-state-in-effect ×1
-- [ ] B.4 `admin/(protected)/members/[id]/points/page.tsx` — set-state-in-effect ×1
+四支都是 `react-hooks/set-state-in-effect`，且都是同一個成因：**effect 直接呼叫一個會 setState 的 fetch 函式**（其中三支還在函式開頭同步 `setLoading(true)`）。
+
+統一改法：**把「取資料」與「寫入 state」拆開**——取資料抽成模組層級函式（不碰 state），effect 只在 `.then()` callback 內 setState，並加取消旗標。
+
+- [x] B.1 `admin/(protected)/campaigns/page.tsx`
+  - 抽出 `fetchCampaignList()`；`fetchCampaigns` → `refreshCampaigns`（2 處呼叫端同步更新）
+  - **保留原語意**：初版我改成非陣列時寫入 `[]`，那會把 API 錯誤顯示成「尚無點數活動」。已改回 `Array.isArray` 守衛的原行為（回傳 `null` 時不覆蓋既有清單）
+- [x] B.2 `admin/(protected)/coupons/page.tsx`
+  - 抽出 `fetchCouponList(tab)`；`fetchData` → `refreshData`（2 處呼叫端）
+  - `loading` 由 state 改為**推導**：新增 `loadedTab`，`loading = loadedTab !== tab`。切 tab 時 `loadedTab` 還是舊值，自然就是 loading，不需要在 effect 內同步 `setLoading(true)`
+- [x] B.3 `admin/(protected)/experiences/sessions/SessionsClient.tsx`
+  - 抽出 `fetchSessionList()`；`fetchSessions` → `refreshSessions`（2 處呼叫端）；移除不再需要的 `useCallback` import
+  - `loading` 保持 state（初始值本來就是 `true`，掛載時不必再設一次）
+- [x] B.4 `admin/(protected)/members/[id]/points/page.tsx` — **鐵律 4 高風險（點數＝金流性負債）**
+  - 依鐵律 4 先讀 `openspec/specs/admin-points-adjustment/spec.md`。該規格的四條 Scenario（加點、扣點、理由必填、記錄操作者）全是 **API 寫入行為**
+  - **本次完全未動寫入路徑**：`handleAdjust` 與 `/api/admin/points-adjustment` 的請求內容一字未改。只改讀取用的 effect
+  - 抽出 `fetchPointsData(userId)`（Supabase 查詢欄位、排序、`limit 100`、餘額 `reduce` 後 `max(total, 0)` 全部照原樣）與 `fetchTierHistory(userId)`
+  - **修掉自己造成的重複**：初版把 tier-history 與 Supabase 查詢同時留在 `refreshData` 與 effect 兩處。已讓兩者共用抽出的函式
+  - 順帶把 `tierHistory` 的行內型別抽成具名的 `TierHistoryRow`
+
+### B.5 驗證結果
+
+- [x] `npm run lint`：全 repo error **11 → 7**，正好是批次 B 的 4 個消失；剩餘 7 個全屬批次 A。warnings 42 → 38
+- [x] `npx tsc --noEmit` 零錯誤；`npm run test` 358 測試全綠；`npm run build` 成功
+- [ ] **B.6 admin 頁面的執行期行為未驗證**：四個路由在未登入時皆回 307 導向登入頁，容器內無法取得 admin session，頁面不會渲染。
+  - server log 的 16 個錯誤全部是 `placeholder.supabase.co` DNS 失敗（假環境變數所致），**零個來自本次改動**
+  - 風險分級：B.1／B.3 接近等價改寫（語意已刻意保留）；**B.2 與 B.4 是真的重構**（B.2 的 loading 改推導、B.4 的資料讀取抽離），上線前應在 staging 以 admin 帳號確認：
+    - 折價券頁切換「通用碼／批次券」時載入中文案正常、清單正確、快速連點不串資料
+    - 點數頁載入明細與餘額正確；**做一次加點與一次扣點**，確認調整成功後清單刷新、理由必填仍生效
+
+## X.1 ChatWidget 的 Rules of Hooks 違反（已完成，2026-07-30）
+
+- [x] X.1.1 成因確認：`if (pathname.startsWith("/admin")) return null;` 原本寫在十幾個 hook **之後**，前人以 **14 個** `eslint-disable-next-line react-hooks/rules-of-hooks` 逐行壓住
+- [x] X.1.2 拆成 wrapper：`ChatWidget` 只做 `usePathname()` 與提前 return，其餘全部移入 `ChatWidgetPanel({ pathname })`（pathname 以 prop 傳入，避免重複呼叫 hook）
+- [x] X.1.3 14 個抑制註解全部移除（檔內已無 `eslint-disable`）
+- [x] X.1.4 驗證（Playwright，390×800）：
+
+  | 檢查項 | 結果 |
+  |---|---|
+  | 首頁捲動後 FAB 出現 | ✓ |
+  | `/admin` 無 FAB（wrapper 生效） | ✓ |
+  | 首頁 → /admin → 首頁 來回，FAB 恢復 | ✓ |
+  | 點 FAB 開啟聊天面板（inner 的 hook 全數正常） | ✓ textarea 出現且可見 |
+  | console 的 hook 數量變動／hydration 錯誤 | **0** |
+
+  > 「首頁 → /admin → 首頁」正是原本違反 Rules of Hooks 最容易出事的情境，特別列為驗收項。
 
 ## 批次 A｜金流與帳務（未開始，鐵律 4：改前先讀對應規格）
+
+剩餘全部 7 個 error 都在這批。
 
 - [ ] A.1 `checkout/CheckoutClient.tsx` — set-state-in-effect ×1, immutability ×2（先讀 `openspec/specs/checkout-flow/`）
 - [ ] A.2 `account/AccountClient.tsx` — immutability ×1, purity ×1（先讀 `openspec/specs/account-page/`）
@@ -67,7 +111,7 @@
 
 ## 另案回報
 
-- [ ] X.1 **`ChatWidget.tsx` 有 11 個 `eslint-disable react-hooks/rules-of-hooks`**，成因是第 165 行 `if (pathname.startsWith("/admin")) return null;` **出現在後面所有 hook 之前**——這是真的 Rules of Hooks 違反，前人用逐行抑制壓掉而非修正。
+- [x] ~~X.1~~ **已完成，見上方「X.1 ChatWidget 的 Rules of Hooks 違反」**（實際是 14 個抑制，非 11 個）。原始記錄：**`ChatWidget.tsx` 有多個 `eslint-disable react-hooks/rules-of-hooks`**，成因是第 165 行 `if (pathname.startsWith("/admin")) return null;` **出現在後面所有 hook 之前**——這是真的 Rules of Hooks 違反，前人用逐行抑制壓掉而非修正。
   在 admin 與非 admin 路由間切換時 hook 數量會變，React 可能報錯或狀態錯亂（App Router 通常會重新掛載，故實務上少爆，但結構是脆的）。
   修法：抽成外層 wrapper——`export default function ChatWidget()` 只做 `usePathname()` 與提前 return，其餘全部移到 `<ChatWidgetInner />`。可一次移除 11 個抑制註解。
   **未在批次 C 處理**：這不在 22 個 error 內（已被抑制），且屬結構重構而非 lint 修正，需另行評估。
