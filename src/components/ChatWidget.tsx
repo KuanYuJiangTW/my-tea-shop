@@ -137,8 +137,21 @@ function renderMessageContent(text: string, lineLabel: string) {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
+/**
+ * 外層只做路由判斷。提前 return **必須**發生在其他 hook 之前，否則在 admin 與非
+ * admin 路由之間切換時 hook 數量會改變，違反 Rules of Hooks。
+ *
+ * 原本 `if (pathname.startsWith("/admin")) return null;` 寫在十幾個 hook **之後**，
+ * 前人以 14 個 `eslint-disable-next-line react-hooks/rules-of-hooks` 逐行壓住而非修正。
+ * 拆成 wrapper 後那些抑制全部移除。
+ */
 export default function ChatWidget() {
   const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
+  return <ChatWidgetPanel pathname={pathname} />;
+}
+
+function ChatWidgetPanel({ pathname }: { pathname: string }) {
   const locale = useLocale();
   const t = useTranslations("chat");
 
@@ -165,12 +178,8 @@ export default function ChatWidget() {
   // 去把 state 同步成 false。
   const fabIdle = fabIdleRaw && !isOpen && mobileFabVisible;
 
-  // 隱藏在 admin 頁面
-  if (pathname.startsWith("/admin")) return null;
-
   // ── 開啟 / 關閉動畫 ────────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleOpen = useCallback(() => {
     setIsOpen(true);
     requestAnimationFrame(() => {
@@ -178,7 +187,6 @@ export default function ChatWidget() {
     });
   }, []);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleClose = useCallback(() => {
     setIsVisible(false);
     setTimeout(() => setIsOpen(false), 200);
@@ -186,7 +194,6 @@ export default function ChatWidget() {
 
   // ── 清除對話 ───────────────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleClearChat = useCallback(() => {
     if (window.confirm(t("clearConfirm"))) {
       setMessages([]);
@@ -196,12 +203,10 @@ export default function ChatWidget() {
 
   // ── 下滑關閉（手機）────────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
   }, []);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     const diff = e.changedTouches[0].clientY - touchStartY.current;
     if (diff > 80) handleClose();
@@ -209,7 +214,6 @@ export default function ChatWidget() {
 
   // ── textarea 自動增高 ──────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     const el = e.target;
@@ -222,25 +226,21 @@ export default function ChatWidget() {
   // 不再用 effect 載入 + setInitialized——那是 effect 內同步 setState。
   // 聊天訊息只在 isOpen 為真時才進入 DOM，而 isOpen 預設 false，故 lazy init
   // 不會造成 hydration 不一致。
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     saveMessages(messages);
   }, [messages]);
 
   // 自動捲動到底
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isStreaming]);
 
   // 開啟時 focus 輸入框（手機不自動 focus 避免鍵盤彈出）
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (isOpen && !isMobile) inputRef.current?.focus();
   }, [isOpen, isMobile]);
 
   // 手機開啟時鎖定背景滾動
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (isOpen && isMobile) {
       document.body.style.overflow = "hidden";
@@ -249,7 +249,6 @@ export default function ChatWidget() {
   }, [isOpen, isMobile]);
 
   // 浮動按鈕文字標籤 4 秒後收起
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!showLabel) return;
     const timer = setTimeout(() => setShowLabel(false), 4000);
@@ -257,7 +256,6 @@ export default function ChatWidget() {
   }, [showLabel]);
 
   // 手機 FAB 呼吸式存在感：3 秒無互動後縮小降透明度
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     // 不在啟用狀態就什麼都不做——原本這裡同步 setFabIdle(false)，那會觸發連鎖
     // render。現在改由 render 時推導 fabIdle（見下方），並在 cleanup 清掉旗標。
@@ -283,7 +281,6 @@ export default function ChatWidget() {
   }, [isOpen, mobileFabVisible]);
 
   // 監聯從漢堡選單開啟聊天的事件
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const handler = () => handleOpen();
     window.addEventListener("open-chat-widget", handler);
@@ -292,7 +289,6 @@ export default function ChatWidget() {
 
   // ── 送出訊息 ──────────────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isStreaming) return;
 

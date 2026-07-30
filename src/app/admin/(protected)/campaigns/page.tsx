@@ -30,6 +30,17 @@ const CAMPAIGN_TYPES = [
   { value: "tier_specific", label: "指定等級" },
 ];
 
+/**
+ * 只取資料、不碰 state，讓呼叫端決定何時寫入。
+ * 回傳 null 表示回應不是陣列（API 錯誤），此時呼叫端**不覆蓋既有清單**——
+ * 沿用原本 `if (Array.isArray(data))` 的語意，避免把錯誤顯示成「尚無資料」。
+ */
+async function fetchCampaignList(): Promise<Campaign[] | null> {
+  const res = await fetch("/api/admin/campaigns");
+  const data = await res.json();
+  return Array.isArray(data) ? data : null;
+}
+
 function getStatus(c: Campaign): { label: string; cls: string } {
   if (!c.is_active) return { label: "已停用", cls: "bg-gray-100 text-gray-500" };
   const now = new Date();
@@ -56,14 +67,29 @@ export default function CampaignsPage() {
     setHistoryData(Array.isArray(data) ? data : []);
   }
 
-  async function fetchCampaigns() {
-    const res = await fetch("/api/admin/campaigns");
-    const data = await res.json();
-    if (Array.isArray(data)) setCampaigns(data);
-    setLoading(false);
+  /**
+   * 供表單送出、啟用切換後重新載入清單用。
+   *
+   * 註：取資料的部分抽成模組層級的 `fetchCampaignList`（不碰 state），這裡與下方的
+   * effect 都只在 `.then()` callback 內 setState——原本 effect 直接呼叫一個會 setState
+   * 的函式，屬 effect body 內同步 setState（`react-hooks/set-state-in-effect`）。
+   */
+  function refreshCampaigns() {
+    fetchCampaignList().then((list) => {
+      if (list) setCampaigns(list);
+      setLoading(false);
+    });
   }
 
-  useEffect(() => { fetchCampaigns(); }, []);
+  useEffect(() => {
+    let cancelled = false;
+    fetchCampaignList().then((list) => {
+      if (cancelled) return;
+      if (list) setCampaigns(list);
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   function resetForm() {
     setForm({ name: "", description: "", multiplier: 2, campaign_type: "global", starts_at: "", ends_at: "" });
@@ -103,12 +129,12 @@ export default function CampaignsPage() {
     if (!res.ok) { setError(data.error || "操作失敗"); return; }
 
     resetForm();
-    fetchCampaigns();
+    refreshCampaigns();
   }
 
   async function toggleActive(id: string) {
     await fetch(`/api/admin/campaigns/${id}`, { method: "DELETE" });
-    fetchCampaigns();
+    refreshCampaigns();
   }
 
   return (
