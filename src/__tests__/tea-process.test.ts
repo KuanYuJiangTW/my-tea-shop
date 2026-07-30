@@ -539,3 +539,26 @@ describe("高山烏龍焙火：製程可選，但網站販售一律淺焙", () =
     expect(detail).not.toMatch(/客人要什麼/);
   });
 });
+
+/**
+ * 共通焙火文案保留「因應客人偏好客製」的敘事（店主原話、工藝現實），
+ * 但必須同時講明管道——網站品項是固定焙度，客製要走門市或來訊。
+ * 少了後半句，金萱與蜜香紅茶的讀者會以為線上下單能指定焙度。
+ */
+describe("共通焙火文案：保留客製敘事，但講明管道", () => {
+  const zh = readMessages("zh");
+  const en = readMessages("en");
+  const roastDesc = (loc: Record<string, unknown>) =>
+    (loc.steps as Record<string, Record<string, string>>).roast.desc;
+
+  it("保留「因應客人偏好」的客製敘事", () => {
+    expect(roastDesc(zh)).toMatch(/客人偏好/);
+  });
+
+  it("同時講明網站品項為固定焙度、客製走門市或來訊", () => {
+    expect(roastDesc(zh)).toMatch(/固定焙度/);
+    expect(roastDesc(zh)).toMatch(/門市|洽詢/);
+    expect(roastDesc(en)).toMatch(/set roast level/i);
+    expect(roastDesc(en)).toMatch(/shop or by message/i);
+  });
+});
