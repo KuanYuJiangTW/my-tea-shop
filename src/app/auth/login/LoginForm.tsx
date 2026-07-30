@@ -4,7 +4,18 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import type { Provider } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
+
+/**
+ * LINE 登入是在 Supabase 後台以 Custom Provider 設定的，名稱為 `custom:line`。
+ * Supabase 的 `Provider` 型別是固定的字串聯集、不含 custom provider，因此需要斷言。
+ *
+ * 原本兩處各寫 `"custom:line" as any`——`any` 會讓整個引數失去型別檢查（連 options
+ * 都不再被檢查）。改為斷言成 `Provider` 只放掉「這個字串不在聯集內」這一件事，
+ * 其餘欄位仍受檢查。字串值完全相同，無執行期差異。
+ */
+const LINE_PROVIDER = "custom:line" as Provider;
 
 function isLineInAppBrowser() {
   if (typeof navigator === "undefined") return false;
@@ -151,9 +162,8 @@ export default function LoginForm() {
     }
     setLineLoading(true);
     const supabase = getSupabaseBrowserClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await supabase.auth.signInWithOAuth({
-      provider: "custom:line" as any,
+      provider: LINE_PROVIDER,
       options: { redirectTo: callbackUrl() },
     });
   }
@@ -162,9 +172,8 @@ export default function LoginForm() {
     setShowAndroidWarning(false);
     setLineLoading(true);
     const supabase = getSupabaseBrowserClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     supabase.auth.signInWithOAuth({
-      provider: "custom:line" as any,
+      provider: LINE_PROVIDER,
       options: { redirectTo: callbackUrl() },
     });
   }

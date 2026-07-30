@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 
 export type LightboxPhoto = {
@@ -30,19 +30,18 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
   }, []);
 
   // 鍵盤操作
-  const stableOnPrev  = useCallback(onPrev,  [onPrev]);
-  const stableOnNext  = useCallback(onNext,  [onNext]);
-  const stableOnClose = useCallback(onClose, [onClose]);
-
+  // 註：原本把三個 prop 各自包一層 `useCallback(fn, [fn])` 再放進依賴陣列，
+  // 那是空轉——以自己為唯一依賴時回傳的就是原函式，memo 不生效。直接用 prop
+  // 當依賴，行為相同且少三個無用的 hook。
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "ArrowLeft")  stableOnPrev();
-      if (e.key === "ArrowRight") stableOnNext();
-      if (e.key === "Escape")     stableOnClose();
+      if (e.key === "ArrowLeft")  onPrev();
+      if (e.key === "ArrowRight") onNext();
+      if (e.key === "Escape")     onClose();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [stableOnPrev, stableOnNext, stableOnClose]);
+  }, [onPrev, onNext, onClose]);
 
   // 滑動手勢
   function onTouchStart(e: React.TouchEvent) {
