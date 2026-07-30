@@ -1,4 +1,5 @@
-import { randomBytes } from "crypto";
+import { randomBytes, createHash } from "crypto";
+import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabase";
 
 // 後台 session token 管理（僅 Node.js runtime 使用，需 service_role）
@@ -27,6 +28,24 @@ export async function createAdminSession(token: string, ip: string): Promise<voi
 export async function deleteAdminSession(token: string): Promise<void> {
   const { error } = await supabase.from("admin_sessions").delete().eq("token", token);
   if (error) console.error("[admin-session] 刪除失敗:", error.message);
+}
+
+/**
+ * 取得目前操作者的稽核識別，供寫入 admin_id 之類的欄位使用。
+ *
+ * 為什麼不從 request body 取：body 是客端可任意填寫的內容，拿它當「誰做的」
+ * 等於讓稽核紀錄可被偽造。（原本前端傳的還是寫死的 "admin"，本來就沒有資訊量。）
+ *
+ * 目前後台是單一共用密碼，session 未綁定特定自然人，因此這裡能提供的最強識別
+ * 是「哪一次登入 session 做的」——回傳 session token 的 SHA-256 前 12 碼。
+ * 它不可由客端偽造，且可與 admin_sessions 表（含 created_at、ip）對照追出來源。
+ *
+ * 日後若改為多管理員帳號，這裡改回傳該管理員的帳號 id 即可，呼叫端不用動。
+ */
+export async function getAdminActor(): Promise<string> {
+  const token = (await cookies()).get("admin_session")?.value;
+  if (!token) return "unknown";
+  return `session:${createHash("sha256").update(token).digest("hex").slice(0, 12)}`;
 }
 
 /**

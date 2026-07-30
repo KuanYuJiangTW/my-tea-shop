@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { getValidBalance } from "@/lib/points";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
+import { getAdminActor } from "@/lib/admin-token";
 
 // POST /api/admin/points-adjustment — 手動調整點數（加/扣）
-export async function POST(req: NextRequest) {
+export const POST = withAdminAuth(async (req: NextRequest) => {
   const body = await req.json();
-  const { userId, points, adminId, adminNote } = body as {
+  const { userId, points, adminNote } = body as {
     userId: string;
     points: number;    // 正值=加點，負值=扣點
-    adminId: string;
     adminNote: string;
   };
 
+  // 操作者身分一律由 session 推導，不接受 body 傳入（可偽造，稽核紀錄會失真）
+  const adminId = await getAdminActor();
+
   // 驗證必填
-  if (!userId || points == null || !adminId) {
+  if (!userId || points == null) {
     return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
   }
   if (points === 0) {
@@ -55,4 +59,4 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ ok: true, transaction: data });
-}
+}, "adjust_points");

@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { notifyNextWaitlist } from "@/lib/waitlist";
 import { refundPoints } from "@/lib/points";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 type Params = { params: Promise<{ id: string }> };
 
 // POST /api/admin/experience-bookings/[id]/cancel
-export async function POST(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const POST = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
 
   const { data: booking, error: fetchError } = await supabase
     .from("experience_bookings")
@@ -81,4 +82,4 @@ export async function POST(_req: NextRequest, { params }: Params) {
   }
 
   return NextResponse.json({ refundAmount, daysUntil });
-}
+}, "cancel_booking");

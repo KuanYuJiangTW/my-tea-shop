@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { checkIntRange, checkText, firstError, MAX_TEXT_LEN } from "@/lib/validate";
 
 // POST /api/reviews
 // body: { bookingId, rating, comment? }
@@ -14,8 +15,17 @@ export async function POST(req: NextRequest) {
 
   const { bookingId, rating, comment } = await req.json();
 
-  if (!bookingId || typeof rating !== "number" || rating < 1 || rating > 5) {
+  if (!bookingId) {
     return NextResponse.json({ error: "參數錯誤" }, { status: 400 });
+  }
+  // rating 需為 1~5 的整數（原本只檢查數值範圍，3.7 這種會通過）；
+  // comment 需為字串且有長度上限（原本未檢型別，送數字會讓 .trim() 丟 500）
+  const err = firstError(
+    checkIntRange(rating, "評分", 1, 5, true),
+    checkText(comment, "評論內容", { max: MAX_TEXT_LEN }),
+  );
+  if (err) {
+    return NextResponse.json({ error: err }, { status: 400 });
   }
 
   // 查詢預約，確認是本人、已確認、體驗日期已過

@@ -71,7 +71,8 @@ export default function MemberPointsPage() {
     const res = await fetch("/api/admin/points-adjustment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, points: pts, adminId: "admin", adminNote: adjustNote }),
+      // 不傳 adminId：操作者身分由伺服器從 session 推導（前端傳的值可偽造）
+      body: JSON.stringify({ userId, points: pts, adminNote: adjustNote }),
     });
     const data = await res.json();
     setAdjusting(false);

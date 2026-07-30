@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 // GET /api/admin/points-export?userId=xxx — 匯出點數明細 CSV
-export async function GET(req: NextRequest) {
+export const GET = withAdminAuth(async (req: NextRequest) => {
   const userId = req.nextUrl.searchParams.get("userId");
 
   let query = supabase
@@ -42,4 +43,4 @@ export async function GET(req: NextRequest) {
       "Content-Disposition": `attachment; filename="points-export-${new Date().toISOString().slice(0, 10)}.csv"`,
     },
   });
-}
+}, "export_points"); // 大量 PII 匯出，留審計軌跡

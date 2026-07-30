@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 type Params = { params: Promise<{ id: string }> };
 
 // PATCH /api/admin/experience-sessions/[id] — 更新場次狀態
-export async function PATCH(req: NextRequest, { params }: Params) {
-  const { id }    = await params;
+export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
+  const { id }    = await (ctx as Params).params;
   const { status } = await req.json();
 
   if (!["open", "cancelled"].includes(status)) {
@@ -21,4 +22,4 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
-}
+}, "update_session");

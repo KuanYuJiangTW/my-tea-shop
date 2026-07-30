@@ -56,16 +56,52 @@
 ## JUDG-5 品質底線怎麼驗
 
 **最低門檻（全過才能 commit）**：
-1. `npm run test` 全綠；高風險區（金流、庫存、auth/2FA、RLS、cron）改動前先讀 `openspec/specs/` 對應規格
-2. `npm run lint` 無**新增**錯誤（宣稱「錯誤是既有的」→ 要用 `git stash` 前後對比證明，不能用「應該是」）
+1. 跑 `/verify`（測試＋`tsc --noEmit`＋build）全過；高風險區（金流、庫存、auth/2FA、RLS、cron）改動前先讀 `openspec/specs/` 對應規格
+2. **`npm run lint` 已失效**（Next 16 移除 `next lint`，本專案也無 `eslint.config.js`）——不要跑它、更不要去「修」它的錯誤。型別把關改由 `npx tsc --noEmit` 負責，且宣稱「錯誤是既有的」一樣要用 `git stash` 前後對比證明，不能用「應該是」
 3. diff 讀起來像周圍的 code：命名風格、註解密度一致；使用者可見字串進 `messages/`（zh-TW＋en 兩份），不硬編碼
 4. 無殘留 debug：`console.log`、註解掉的舊碼、沒登記進 WORKLOG 的 TODO
 5. 邊界條件至少想過這四個：空值／未登入／重複提交／zh 與 en 兩語系
 
 **驗的方式**：以上自查完，仍要過 dispatch.md DISP-6 的獨立驗證（checker 或 `code-review` skill medium 以上；skill 不在你的可用清單時退回 checker，見 DISP-3 注意事項）。**自查不取代獨立驗證**，它只是讓你少在 checker 面前丟臉。
 
-**正例**：新增 API route → 測試綠＋lint 對比無新增＋錯誤處理寫法對照隔壁 route＋未登入回 401 驗過＋checker PASS → 進 commit。
-**反例**：「lint 有 3 個錯，但看起來都是既有的」→ 沒對比就放行 → 違規。去跑對比，10 秒的事。
+**正例**：新增 API route → `/verify` 三項全過＋錯誤處理寫法對照隔壁 route＋未登入回 401 驗過＋checker PASS → 進 commit。
+**反例**：「tsc 有 3 個錯，但看起來都是既有的」→ 沒對比就放行 → 違規。去跑對比，10 秒的事。
+
+**安全修正另加一關**：修完要做反向驗證——暫時退回修正、確認回歸測試會紅、再改回。
+測試會過不代表測試有效（2026-07-29 sanity-webhook 就是 10 條測試全過但單位錯誤上了 production）。
+流程見 `.claude/skills/reverse-verify/SKILL.md`。
+
+## JUDG-6 收緊權限或設定之前，先查誰在用
+
+**規則**：要 revoke 權限、刪除設定、關閉某個開關之前，先把**所有呼叫點**找出來，
+並確認每個呼叫點是用哪種身分／憑證。工具：`Grep "\.rpc\(|from\(\"<表名>\""`、
+`git grep <設定名>`、資料庫層的 `pg_proc.prosrc` 與 `pg_trigger` 掃描。
+
+**為什麼**：資安報告與通用最佳實務給的是**通則**，它不知道你的專案怎麼接線。
+照抄會停機。
+
+**正例**：2026-07-28 收 RPC 的 anon 執行權限。報告 L-6 說「明確只授權 service_role」，
+但查呼叫點才發現 `validate_admin_session` 是 `src/proxy.ts` 的 Edge middleware
+**刻意**用 anon key 呼叫的（為了不把 service_role key 帶進 Edge Runtime），
+整批照做會讓後台完全登不進去 → 該函式排除在修補範圍外。
+
+**反例**：把 `decrement_stock` 的兩參數多載刪掉之前，只看了程式碼沒有呼叫點就要動手 →
+資料庫內部的 function 內文與 trigger 也可能呼叫它，掃過（皆 0 筆）才刪才對。
+**「程式碼裡沒人用」不等於「沒人用」。**
+
+## JUDG-7 引用外部規範前先查證，不憑印象
+
+**規則**：要在回覆、程式碼註解或 commit 訊息裡引用**法條、RFC、套件行為、平台規格**時，
+先查第一手來源（全國法規資料庫、RFC 原文、套件的 `.d.ts` 或實跑一次）。憑印象寫出來的
+條號與細節，錯了會被當成事實沿用下去。
+
+**正例**：2026-07-29 引用個資法。查證後修正三處：正確條號是**第 11 條第 3 項**（不是第 11 條）、
+義務是「刪除／停止處理／停止利用」**三擇一**（不是必須刪除）、施行細則第 12 條**沒有**規定
+log 保存年限（坊間流傳的「必須 5 年」是特定行業別辦法）。
+
+**反例**：看到 `verify()` 就假設回傳 boolean → 實際是 `{ valid: boolean }`，
+物件恆為 truthy，導致 2FA 任何驗證碼都通過。**套件行為要實跑一次印出型別**：
+`node -e "const {f}=require('pkg'); f(...).then(r=>console.log(typeof r, JSON.stringify(r)))"`。
 
 ## 極限與代償（誠實條款——制度做不到的事）
 
