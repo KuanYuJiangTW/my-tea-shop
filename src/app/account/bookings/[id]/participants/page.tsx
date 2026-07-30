@@ -64,7 +64,11 @@ export default function ParticipantsPage() {
   const lp = (path: string) => locale === "en" ? `/en${path}` : path;
 
   const [info, setInfo]       = useState<ParticipantInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  // 記「目前顯示的資料屬於哪個預約」，loading 就能在 render 推導——`id` 變動時
+  // loadedId 還是舊值，自然是 loading，不必在 effect 內同步 setLoading(true)。
+  // （checker 指出：原本只靠 initial state，若 id 變動而元件未重掛載，載入指示不會重新亮起）
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  const loading = loadedId !== id;
   const [error, setError]     = useState("");
 
   const [form, setForm]             = useState(emptyForm);
@@ -76,23 +80,26 @@ export default function ParticipantsPage() {
    * 寫入取回的結果。沿用原本語意：失敗時只設 error（不清空 info），
    * 成功時只設 info（不清空 error）。
    */
-  function commitInfo(result: { ok: true; info: ParticipantInfo } | { ok: false; error: string }) {
+  function commitInfo(
+    bookingId: string,
+    result: { ok: true; info: ParticipantInfo } | { ok: false; error: string },
+  ) {
     if (result.ok) setInfo(result.info);
     else setError(result.error);
-    setLoading(false);
+    setLoadedId(bookingId);
   }
 
   /** 供送出參加者資料後重新載入用 */
   async function reload() {
-    setLoading(true);
-    commitInfo(await fetchParticipantInfo(id));
+    setLoadedId(null);
+    commitInfo(id, await fetchParticipantInfo(id));
   }
 
-  // loading 初始值即為 true，掛載時不需再設一次
   useEffect(() => {
     let cancelled = false;
-    fetchParticipantInfo(id).then((result) => {
-      if (!cancelled) commitInfo(result);
+    const bookingId = id;
+    fetchParticipantInfo(bookingId).then((result) => {
+      if (!cancelled) commitInfo(bookingId, result);
     });
     return () => { cancelled = true; };
   }, [id]);

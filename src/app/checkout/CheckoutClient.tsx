@@ -173,7 +173,12 @@ export default function CheckoutClient() {
       // 一次性自動套用最佳可用券。原本是獨立 effect 在 body 內同步 setState
       // （`react-hooks/set-state-in-effect`）；改到 fetch 的 callback 內——規則允許
       // 「外部狀態變動時在 callback 裡 setState」。判斷門檻沿用 ref 的最新值。
-      if (autoAppliedRef.current) return;
+      //
+      // `data.length === 0` 一併擋掉，與原本 `availableCoupons.length === 0` 的守衛一致：
+      // 沒有券時不可鎖上一次性旗標。目前這個 effect 的 deps 是 `[]`（只跑一次），所以
+      // 鎖或不鎖沒有可觀察差異；但若日後有人把 deps 改成會重跑，少了這個守衛就會變成
+      // 真的行為回歸——第一次拿到空陣列就永久放棄自動套用。
+      if (data.length === 0 || autoAppliedRef.current) return;
       autoAppliedRef.current = true;
       const threshold = orderTotalRef.current;
       const best = (data as CouponRow[])
