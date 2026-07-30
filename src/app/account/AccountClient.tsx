@@ -354,7 +354,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
           setOrderRetryingId(null);
           return;
         }
-        if (json.url) window.location.href = json.url;
+        // 用 assign() 而非 href 賦值：語意完全相同（都導航、都推入 history），
+        // 但方法呼叫不會被 react-hooks/immutability 判為修改外部變數。
+        if (json.url) window.location.assign(json.url);
       } else {
         // ECPay retry
         const res = await fetch("/api/ecpay/retry", {
@@ -695,12 +697,6 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 const canCancel   = (isConfirmed || isPending) && sessionDate && sessionDate > new Date();
                 const isPast      = isCompleted || (isConfirmed && sessionDate && sessionDate < new Date());
                 const canReview   = isPast && !booking.has_review;
-
-                // 退款比例說明
-                const daysUntil = sessionDate
-                  ? Math.ceil((sessionDate.getTime() - Date.now()) / 86400000)
-                  : 0;
-                const refundRate = daysUntil >= 7 ? 100 : daysUntil >= 3 ? 50 : daysUntil >= 1 ? 20 : 0;
 
                 return (
                   <div key={booking.id} className="bg-white rounded-2xl border border-tea-green-pale overflow-hidden">

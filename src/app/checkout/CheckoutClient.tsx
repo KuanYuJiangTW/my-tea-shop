@@ -153,9 +153,36 @@ export default function CheckoutClient() {
   const pointsDiscount   = pointsToUse >= 10 && pointsToUse <= maxPointsAllowed ? pointsToUse : 0;
   const grandTotal       = Math.max(afterCoupon - pointsDiscount, 0);
 
+  /**
+   * 門檻（商品小計＋運費）在每次 render 都會重算，這裡用 effect（只寫 ref、不 setState）
+   * 保持最新值，供下方折價券 callback 讀取。
+   *
+   * 不在 render 期間寫 ref，也不把 totalPrice/shippingFee 直接閉包進 mount effect——
+   * 後者會捕捉到掛載當下的值，若使用者在券載入前改了數量或配送方式，判斷門檻就會用到舊金額。
+   */
+  const orderTotalRef = useRef(totalPrice + shippingFee);
+  useEffect(() => {
+    orderTotalRef.current = totalPrice + shippingFee;
+  }, [totalPrice, shippingFee]);
+
   useEffect(() => {
     fetch("/api/user/coupons").then(r => r.json()).then(data => {
-      if (Array.isArray(data)) setAvailableCoupons(data);
+      if (!Array.isArray(data)) return;
+      setAvailableCoupons(data);
+
+      // 一次性自動套用最佳可用券。原本是獨立 effect 在 body 內同步 setState
+      // （`react-hooks/set-state-in-effect`）；改到 fetch 的 callback 內——規則允許
+      // 「外部狀態變動時在 callback 裡 setState」。判斷門檻沿用 ref 的最新值。
+      if (autoAppliedRef.current) return;
+      autoAppliedRef.current = true;
+      const threshold = orderTotalRef.current;
+      const best = (data as CouponRow[])
+        .filter(c => threshold >= c.min_order_amount)
+        .sort((a, b) => b.discount_amount - a.discount_amount)[0];
+      if (best) {
+        setCouponInput(best.code);
+        setAppliedCoupon(best);
+      }
     }).catch(() => {});
     fetch("/api/user/points").then(r => r.json()).then(data => {
       if (typeof data.balance === "number") setPointsBalance(data.balance);
@@ -170,18 +197,6 @@ export default function CheckoutClient() {
       if (Array.isArray(data)) setCountries(data);
     }).catch(() => {});
   }, [region]);
-
-  useEffect(() => {
-    if (availableCoupons.length === 0 || autoAppliedRef.current) return;
-    autoAppliedRef.current = true;
-    const best = availableCoupons
-      .filter(c => totalPrice + shippingFee >= c.min_order_amount)
-      .sort((a, b) => b.discount_amount - a.discount_amount)[0];
-    if (best) {
-      setCouponInput(best.code);
-      setAppliedCoupon(best);
-    }
-  }, [availableCoupons, totalPrice, shippingFee]);
 
   async function handleApplyCoupon() {
     const code = couponInput.trim().toUpperCase();
@@ -397,7 +412,9 @@ export default function CheckoutClient() {
           if (user) {
             try { await getSupabaseBrowserClient().from("cart_items").delete().eq("user_id", user.id); } catch {}
           }
-          window.location.href = url;
+          // 用 assign() 而非 href 賦值：語意完全相同（都導航、都推入 history），
+          // 但方法呼叫不會被 react-hooks/immutability 判為修改外部變數。
+          window.location.assign(url);
         } else {
           throw new Error(t("errors.networkError"));
         }
@@ -426,7 +443,9 @@ export default function CheckoutClient() {
           if (user) {
             try { await getSupabaseBrowserClient().from("cart_items").delete().eq("user_id", user.id); } catch {}
           }
-          window.location.href = url;
+          // 用 assign() 而非 href 賦值：語意完全相同（都導航、都推入 history），
+          // 但方法呼叫不會被 react-hooks/immutability 判為修改外部變數。
+          window.location.assign(url);
         } else {
           throw new Error(t("errors.networkError"));
         }

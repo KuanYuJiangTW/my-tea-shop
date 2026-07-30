@@ -100,6 +100,57 @@
 
   > 「首頁 → /admin → 首頁」正是原本違反 Rules of Hooks 最容易出事的情境，特別列為驗收項。
 
+## 批次 A｜金流與帳務（已完成，2026-07-30）
+
+依鐵律 4，動手前已讀 `openspec/specs/checkout-flow/`、`account-page/`、`booking-participants/`。
+
+- [x] A.1 `checkout/CheckoutClient.tsx` — `immutability` ×2 + `set-state-in-effect` ×1
+  - **兩個 immutability 都是付款轉向**：`window.location.href = url`（Stripe／ECPay）。改為 `window.location.assign(url)`——同一語意的方法形式（都導航、都推入 history，與 `replace` 不同），規則不再視為修改外部變數。**URL 值與流程完全未變。**
+  - **set-state-in-effect 是「自動套用最佳折價券」**（會影響訂單金額，本批最敏感一處）。原本是獨立 effect 在 body 內同步 `setCouponInput`／`setAppliedCoupon`。改到 `/api/user/coupons` 的 `.then()` callback 內——規則允許「外部狀態變動時在 callback 裡 setState」。
+    - 為避免閉包捕捉到掛載當下的金額（使用者可能在券載入前改數量或配送方式），另加一個**只寫 ref、不 setState** 的 effect 保持門檻最新，callback 讀 `orderTotalRef.current`
+    - 語意逐項核對過：一次性旗標 `autoAppliedRef` 的設定時機、無符合券時也不再重試、`best` 的 filter/sort 條件均與原本相同
+- [x] A.2 `account/AccountClient.tsx` — `immutability` ×1 + `purity` ×1
+  - immutability 同 A.1：訂單重試的付款轉向改 `location.assign()`
+  - **purity 是死碼**：`daysUntil` 只用來算 `refundRate`，而 `refundRate` 從未被使用（lint 另有 `no-unused-vars` warning 佐證）。退款金額實際是用 `booking.refund_amount`（L727）與 `cancelBookingResult.refundAmount`（L1162）顯示。整段「退款比例說明」已刪除——同時消掉該 warning
+- [x] A.3 `account/page.tsx` — `purity` ×1
+  - 本檔是 **async Server Component**（`force-dynamic`），每 request 只跑一次，規則擔心的「re-render 結果不穩」並不成立
+  - 仍做了改善而非抑制：把「未來 30 天到期點數」的時間窗與查詢一起抽成 `fetchExpiringPoints(userId)`，查詢參數不再算在 render 流程裡
+- [x] A.4 `account/bookings/[id]/participants/page.tsx` — `set-state-in-effect` ×1
+  - `load()` 除 effect 外還被送出流程呼叫（L111），故沿用批次 B 的拆法：抽出 `fetchParticipantInfo(bookingId)`（不碰 state）＋ `commitInfo()`＋`reload()`
+  - 沿用原語意：失敗時只設 error（不清空 info）、成功時只設 info（不清空 error）
+
+### A.5 驗證結果
+
+- [x] `npm run lint`：**全 repo error 7 → 0**。整個 repo 的 lint error 至此全部清除（起點 22）
+- [x] `npx tsc --noEmit` 零錯誤；`npm run test` 27 檔 358 測試全綠；`npm run build` 成功
+- [x] **既有 hydration 錯誤已用 stash 對比證明與本次無關**：帶商品進 `/checkout` 會觸發 1 個 React #418（hydration 不一致）。把批次 A 四檔 stash 後重新 build 實測，**基準線同樣是 1 個、訊息相同** → 非本次造成。未用「應該是既有的」帶過（JUDG-2 第 2 條）
+- [ ] **A.6 結帳與帳號頁的執行期行為未驗證**：`/checkout` 在購物車有商品時會導向登入頁；`/account` 未登入回 307。容器內無法取得會員 session。
+  - 風險分級：
+    - **付款轉向（`location.assign`）**：無法端到端驗（需真實 Stripe／ECPay）。但 `assign(url)` 與 `href = url` 語意等價，且 URL 來源與判斷條件未變
+    - **折價券自動套用**：**這是真的重構**，且直接影響訂單金額。上線前務必在 staging 以有券的帳號確認：進結帳頁時自動帶入最高可用券、券碼填入輸入框、折扣反映在總計、手動改券仍可覆蓋、不符門檻時不自動套用
+    - A.3／A.4 接近等價改寫；A.2 是刪死碼
+- [ ] **A.7 另案回報｜`CartContext` 的 hydration 不一致（既有）**：`useState(loadFromStorage)` 在 SSR 回 `[]`、client 首次 render 可能有值，這是上面 #418 的根因，也是批次 C 時 `Header` 需要 `useHasHydrated` 的原因。
+  - 重現方式：`localStorage.setItem("wujuetea_cart", ...)` 後進 `/checkout`
+  - 修法方向：`CartProvider` 改為初始 `[]`，並以 `useSyncExternalStore`（或既有的 `useHasHydrated`）在 hydration 後才揭露 localStorage 內容
+  - **未在本 change 處理**：它不是 lint error（沒有規則抓它），屬獨立的 bug 修復，且會動到全站購物車狀態，需獨立評估與驗證
+
+## X.1 ChatWidget 的 Rules of Hooks 違反（已完成，2026-07-30）
+
+- [x] X.1.1 成因確認：`if (pathname.startsWith("/admin")) return null;` 原本寫在十幾個 hook **之後**，前人以 **14 個** `eslint-disable-next-line react-hooks/rules-of-hooks` 逐行壓住
+- [x] X.1.2 拆成 wrapper：`ChatWidget` 只做 `usePathname()` 與提前 return，其餘全部移入 `ChatWidgetPanel({ pathname })`（pathname 以 prop 傳入，避免重複呼叫 hook）
+- [x] X.1.3 14 個抑制註解全部移除（檔內已無 `eslint-disable`）
+- [x] X.1.4 驗證（Playwright，390×800）：
+
+  | 檢查項 | 結果 |
+  |---|---|
+  | 首頁捲動後 FAB 出現 | ✓ |
+  | `/admin` 無 FAB（wrapper 生效） | ✓ |
+  | 首頁 → /admin → 首頁 來回，FAB 恢復 | ✓ |
+  | 點 FAB 開啟聊天面板（inner 的 hook 全數正常） | ✓ textarea 出現且可見 |
+  | console 的 hook 數量變動／hydration 錯誤 | **0** |
+
+  > 「首頁 → /admin → 首頁」正是原本違反 Rules of Hooks 最容易出事的情境，特別列為驗收項。
+
 ## 批次 A｜金流與帳務（未開始，鐵律 4：改前先讀對應規格）
 
 剩餘全部 7 個 error 都在這批。
