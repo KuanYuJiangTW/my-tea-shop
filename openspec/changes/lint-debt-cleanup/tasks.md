@@ -119,6 +119,13 @@
   - `load()` 除 effect 外還被送出流程呼叫（L111），故沿用批次 B 的拆法：抽出 `fetchParticipantInfo(bookingId)`（不碰 state）＋ `commitInfo()`＋`reload()`
   - 沿用原語意：失敗時只設 error（不清空 info）、成功時只設 info（不清空 error）
 
+### A.4.5 checker 獨立驗收（DISP-6）與後續強化
+
+- [x] 已派 `checker` 獨立驗收批次 A（金流區，judgment.md DISP-6 要求）。**結果：6 條全 PASS**，含它自行重跑 stash 對比、獨立確認 #418 為既有問題、並確認「容器無 session」的限制屬實而非藉口
+- [x] checker 另指出兩處**技術性偏差**（它評為目前無害、不需即刻處理），但兩者都是留給後人的陷阱，已一併修掉：
+  - **折價券一次性旗標**：我的版本在回應為空陣列時也會鎖上 `autoAppliedRef`，原版不會。目前 fetch effect 的 deps 是 `[]`（只跑一次）故無可觀察差異，但**若日後有人把 deps 改成會重跑，就會變成真的回歸**（第一次拿到空陣列即永久放棄自動套用）。已補回 `data.length === 0` 守衛，與原版完全一致
+  - **participants 的 loading 指示**：我的版本只靠 `useState(true)` 初始值，若 `id` 變動而元件未重掛載，載入指示不會重新亮起。已改為 render 時推導（`loadedId !== id`），沿用批次 B coupons 的同一手法，徹底消除這個差異
+
 ### A.5 驗證結果
 
 - [x] `npm run lint`：**全 repo error 7 → 0**。整個 repo 的 lint error 至此全部清除（起點 22）
@@ -129,7 +136,7 @@
     - **付款轉向（`location.assign`）**：無法端到端驗（需真實 Stripe／ECPay）。但 `assign(url)` 與 `href = url` 語意等價，且 URL 來源與判斷條件未變
     - **折價券自動套用**：**這是真的重構**，且直接影響訂單金額。上線前務必在 staging 以有券的帳號確認：進結帳頁時自動帶入最高可用券、券碼填入輸入框、折扣反映在總計、手動改券仍可覆蓋、不符門檻時不自動套用
     - A.3／A.4 接近等價改寫；A.2 是刪死碼
-- [ ] **A.7 另案回報｜`CartContext` 的 hydration 不一致（既有）**：`useState(loadFromStorage)` 在 SSR 回 `[]`、client 首次 render 可能有值，這是上面 #418 的根因，也是批次 C 時 `Header` 需要 `useHasHydrated` 的原因。
+- [x] **A.7 已另立 change 並修復**：見 `openspec/changes/cart-hydration-fix/`。原始記錄：**`CartContext` 的 hydration 不一致（既有）**：`useState(loadFromStorage)` 在 SSR 回 `[]`、client 首次 render 可能有值，這是上面 #418 的根因，也是批次 C 時 `Header` 需要 `useHasHydrated` 的原因。
   - 重現方式：`localStorage.setItem("wujuetea_cart", ...)` 後進 `/checkout`
   - 修法方向：`CartProvider` 改為初始 `[]`，並以 `useSyncExternalStore`（或既有的 `useHasHydrated`）在 hydration 後才揭露 localStorage 內容
   - **未在本 change 處理**：它不是 lint error（沒有規則抓它），屬獨立的 bug 修復，且會動到全站購物車狀態，需獨立評估與驗證
