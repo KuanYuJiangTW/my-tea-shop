@@ -731,7 +731,7 @@
         "oxidation": "Light",
         "origin": "Alishan Meishan",
         "flavor": "Orchid",
-        "roast": "Light (default) / occasionally unroasted"
+        "roast": "Light (online listings)"
       },
       "jinxuan": {
         "name": "Jin Xuan",
@@ -830,8 +830,8 @@
           "skipReason": "Fixation has already stopped oxidation, so there is no separate oxidation stage — this is exactly where oolong and black tea part ways."
         },
         "roast": {
-          "desc": "High mountain oolong is sold both roasted and unroasted. What we list online is lightly roasted by default, for the added sweetness, body and consistency; only when a batch is exceptional unroasted do we leave it alone and keep its freshness and floral lift.",
-          "detail": "Temperature: 70–120°C, duration: 4–16 hours depending on style. Optional: decided by the flavour this batch is carrying and what the customer is after."
+          "desc": "High mountain oolong is made both roasted and unroasted. Everything listed online is lightly roasted — for the added sweetness, body and consistency. The unroasted version keeps its freshness and floral lift, but it depends on how a given batch turns out and the yield is unpredictable, so it is only offered in the shop or on request, never listed online.",
+          "detail": "Temperature: 70–120°C, duration: 4–16 hours depending on style. How we judge it: whether to roast at all depends on the flavour this batch is carrying; everything sold online is lightly roasted, with unroasted available on request."
         }
       },
       "jinxuan": {
