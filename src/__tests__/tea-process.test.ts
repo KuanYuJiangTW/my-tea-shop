@@ -497,3 +497,45 @@ describe("四季春為機採（店主確認，2026-07-30）", () => {
     expect(pickEn.desc).toMatch(/machine harvest/i);
   });
 });
+
+/**
+ * 高山烏龍的焙火在製程上確實是 optional（焙與不焙都做），但**網站販售一律淺焙**，
+ * 生茶只在門市或詢問時提供（2026-07-30 店主確認）。
+ *
+ * 這是對客人的販售條件宣稱：寫成「預設」或「偶有生茶」會讓人以為線上可能拿到
+ * 生茶、甚至以為可以選，與實情不符。與農藥那則同性質，故一併釘住。
+ */
+describe("高山烏龍焙火：製程可選，但網站販售一律淺焙", () => {
+  const zh = readMessages("zh");
+  const en = readMessages("en");
+  const roastOf = (loc: Record<string, unknown>) =>
+    (loc.teaSteps as Record<string, Record<string, Record<string, string>>>).oolong.roast;
+
+  it("製程狀態仍為 optional——焙與不焙都做是事實，不因販售政策而改", () => {
+    expect(resolveSteps("oolong").find((s) => s.step === "roast")?.state).toBe("optional");
+  });
+
+  it("文案須明講網站販售一律淺焙", () => {
+    const { desc, detail } = roastOf(zh);
+    expect(`${desc}${detail}`).toMatch(/網站/);
+    expect(desc).toMatch(/一律|都是/);
+    expect(en.teaSteps as object).toBeDefined();
+    expect(`${roastOf(en).desc}${roastOf(en).detail}`).toMatch(/online/i);
+  });
+
+  it("不得寫成「預設」或「偶有生茶」——會讓人以為線上可能拿到生茶或可以選", () => {
+    const { desc, detail } = roastOf(zh);
+    expect(`${desc}${detail}`).not.toMatch(/預設/);
+    expect(`${desc}${detail}`).not.toMatch(/偶有生茶/);
+    // 對照表欄位同樣不得暗示線上可選
+    const matrix = (zh.teas as Record<string, Record<string, string>>).oolong.roast;
+    expect(matrix).not.toMatch(/預設|偶有/);
+    expect(matrix).toMatch(/網站/);
+  });
+
+  it("不得暗示客人可以在網站上選焙度", () => {
+    const { detail } = roastOf(zh);
+    // 原文「選配：…以及客人要什麼」會讓人以為線上可選
+    expect(detail).not.toMatch(/客人要什麼/);
+  });
+});
