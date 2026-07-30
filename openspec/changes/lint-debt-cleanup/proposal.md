@@ -37,6 +37,12 @@
 - 不順手重構無關的程式碼——每個 commit 只包含讓某個 error 消失所必需的最小改動
 - 不改 eslint 規則設定來讓錯誤消失
 
+## 結果（2026-07-30）
+
+**三批全部完成，全 repo lint error 22 → 0。** warnings 42 → 36（依提案範圍未處理）。
+
+過程中另外修掉／發現的東西：`ExperienceCalendar` 的月份切換競態（已修）、`ChatWidget` 的 Rules of Hooks 違反與 14 個抑制註解（已修）、`AccountClient` 的退款比例死碼（已刪）、`CartContext` 的 hydration 不一致（**未修，見 tasks A.7**）。
+
 ## 驗收原則
 
 **lint 綠不等於沒改壞。**這些都是營運中的互動元件（聊天視窗、燈箱、Header、預約日曆、登入表單），`set-state-in-effect` 的修法會改變 render 與狀態時序。因此每批都須：
