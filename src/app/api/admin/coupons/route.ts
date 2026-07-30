@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
+import { checkAmount, checkArray, checkDate, checkIntRange, checkText, firstError, MAX_NAME_LEN } from "@/lib/validate";
 
 // GET /api/admin/coupons — 列表（含使用率統計）
-export async function GET(req: NextRequest) {
+export const GET = withAdminAuth(async (req: NextRequest) => {
   const type = req.nextUrl.searchParams.get("type"); // batch | universal | all
 
   if (type === "universal") {
@@ -44,10 +46,10 @@ export async function GET(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
-}
+});
 
 // POST /api/admin/coupons — 新增（批次券 or 通用碼）
-export async function POST(req: NextRequest) {
+export const POST = withAdminAuth(async (req: NextRequest) => {
   const body = await req.json();
   const { type } = body; // "batch" | "universal"
 
@@ -55,9 +57,16 @@ export async function POST(req: NextRequest) {
     // 建立通用碼模板
     const { code, name, discount_amount, min_order_amount, max_uses, max_uses_per_user, expires_at } = body;
 
-    if (!code?.trim()) return NextResponse.json({ error: "折價碼為必填" }, { status: 400 });
-    if (!discount_amount || discount_amount <= 0) return NextResponse.json({ error: "折扣金額須大於 0" }, { status: 400 });
-    if (!expires_at) return NextResponse.json({ error: "到期日為必填" }, { status: 400 });
+    const err = firstError(
+      checkText(code, "折價碼", { max: 50, required: true }),
+      checkText(name, "名稱", { max: MAX_NAME_LEN }),
+      checkAmount(discount_amount, "折扣金額", { required: true, min: 1 }),
+      checkAmount(min_order_amount, "最低消費金額"),
+      checkIntRange(max_uses, "使用次數上限", 1, 1_000_000),
+      checkIntRange(max_uses_per_user, "每人使用次數上限", 1, 1_000),
+      checkDate(expires_at, "到期日", true),
+    );
+    if (err) return NextResponse.json({ error: err }, { status: 400 });
 
     const { data, error } = await supabase.from("coupon_templates").insert({
       code: code.trim().toUpperCase(),
@@ -80,12 +89,15 @@ export async function POST(req: NextRequest) {
   // 批次發放個人折價券
   const { user_ids, discount_amount, min_order_amount, expires_days, source } = body;
 
-  if (!Array.isArray(user_ids) || user_ids.length === 0) {
-    return NextResponse.json({ error: "請選擇發放對象" }, { status: 400 });
-  }
-  if (!discount_amount || discount_amount <= 0) {
-    return NextResponse.json({ error: "折扣金額須大於 0" }, { status: 400 });
-  }
+  const batchErr = firstError(
+    // 上限 5000：一次發放過多會拖垮單一請求，也常是誤操作
+    checkArray(user_ids, "發放對象", 5_000, true),
+    checkAmount(discount_amount, "折扣金額", { required: true, min: 1 }),
+    checkAmount(min_order_amount, "最低消費金額"),
+    checkIntRange(expires_days, "有效天數", 1, 3_650),
+    checkText(source, "來源", { max: 50 }),
+  );
+  if (batchErr) return NextResponse.json({ error: batchErr }, { status: 400 });
 
   const expiresAt = new Date(Date.now() + (expires_days ?? 30) * 24 * 60 * 60 * 1000).toISOString();
 
@@ -101,4 +113,4 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabase.from("coupons").insert(coupons).select("id");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ created: data?.length ?? 0 }, { status: 201 });
-}
+}, "create_coupon");

@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { withAdminAuth } from "@/lib/admin-auth-guard";
+import { getAdminActor } from "@/lib/admin-token";
+import { checkAmount, checkArray, checkDate, checkText, firstError, MAX_NAME_LEN, MAX_TEXT_LEN } from "@/lib/validate";
 
 type Params = { params: Promise<{ id: string }> };
 
 // GET /api/admin/campaigns/[id]
-export async function GET(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const GET = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
   const { data, error } = await supabase
     .from("points_campaigns")
     .select("*")
@@ -14,11 +17,11 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
   if (error) return NextResponse.json({ error: "找不到此活動" }, { status: 404 });
   return NextResponse.json(data);
-}
+});
 
 // PATCH /api/admin/campaigns/[id] — 編輯活動
-export async function PATCH(req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
   const body = await req.json();
 
   // 不允許編輯已結束的活動
@@ -32,6 +35,17 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (new Date(existing.ends_at) < new Date()) {
     return NextResponse.json({ error: "已結束的活動不可編輯" }, { status: 409 });
   }
+
+  const err = firstError(
+    checkText(body.name, "活動名稱", { max: MAX_NAME_LEN }),
+    checkText(body.description, "活動說明", { max: MAX_TEXT_LEN }),
+    checkDate(body.starts_at, "開始時間"),
+    checkDate(body.ends_at, "結束時間"),
+    checkAmount(body.min_order_amount, "最低消費金額"),
+    checkArray(body.target_product_ids, "指定商品", 500),
+    checkArray(body.target_tier_ids, "指定會員等級", 50),
+  );
+  if (err) return NextResponse.json({ error: err }, { status: 400 });
 
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (body.name !== undefined) update.name = body.name.trim();
@@ -73,16 +87,16 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       changed_fields: changedFields,
       old_values: oldValues,
       new_values: newValues,
-      admin_id: body.adminId ?? null,
+      admin_id: await getAdminActor(), // 不用 body.adminId：客端可偽造
     });
   }
 
   return NextResponse.json(data);
-}
+}, "update_campaign");
 
 // DELETE /api/admin/campaigns/[id] — 停用（soft delete）
-export async function DELETE(req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export const DELETE = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
+  const { id } = await (ctx as Params).params;
 
   const { error } = await supabase
     .from("points_campaigns")
@@ -92,15 +106,14 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // 寫入 audit log
-  const body = await req.json().catch(() => ({}));
   await supabase.from("campaign_audit_log").insert({
     campaign_id: id,
     action: "deactivate",
     changed_fields: ["is_active"],
     old_values: { is_active: true },
     new_values: { is_active: false },
-    admin_id: body.adminId ?? null,
+    admin_id: await getAdminActor(), // 不用 body.adminId：客端可偽造
   });
 
   return NextResponse.json({ ok: true });
-}
+}, "delete_campaign");
