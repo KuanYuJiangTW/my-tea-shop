@@ -8,12 +8,23 @@ vi.mock("@/lib/supabase", () => ({
   supabase: { from: (...args: unknown[]) => mockFrom(...args) },
 }));
 
+// 此檔測 handler 邏輯，先假設已通過 withAdminAuth；
+// 授權本身由 src/__tests__/admin/route-auth-coverage.test.ts 覆蓋
+vi.mock("next/headers", () => ({
+  cookies: async () => ({ get: () => ({ value: "test-session" }) }),
+}));
+vi.mock("@/lib/admin-token", () => ({
+  validateAdminSession: async () => true,
+  getAdminActor: async () => "session:deadbeef1234",
+}));
+
 // Import handlers
 import { GET } from "@/app/api/admin/campaigns/[id]/history/route";
 import { PATCH, DELETE } from "@/app/api/admin/campaigns/[id]/route";
 
 function makeReq(method: string, body?: unknown) {
-  const opts: RequestInit = { method };
+  // 不用 DOM 的 RequestInit——它的 signal 允許 null，與 NextRequest 的定義不相容
+  const opts: { method: string; headers?: Record<string, string>; body?: string } = { method };
   if (body) {
     opts.headers = { "Content-Type": "application/json" };
     opts.body = JSON.stringify(body);
@@ -62,6 +73,28 @@ describe("campaign audit log", () => {
       action: "update",
       changed_fields: expect.arrayContaining(["name"]),
     }));
+  });
+
+  it("body 傳入的 adminId 會被忽略，稽核紀錄用 session 推導的值", async () => {
+    const existing = { id: "camp-1", name: "舊名稱", multiplier: 2, ends_at: "2099-12-31T00:00:00Z", is_active: true };
+    const insertMock = vi.fn().mockResolvedValue({ error: null });
+
+    let callIdx = 0;
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "points_campaigns") {
+        callIdx++;
+        return createChainMock(callIdx === 1 ? existing : { ...existing, name: "新名稱" }, null);
+      }
+      if (table === "campaign_audit_log") return { insert: insertMock };
+      return createChainMock(null, null);
+    });
+
+    // 攻擊者在 body 裡自稱是別人
+    await PATCH(makeReq("PATCH", { name: "新名稱", adminId: "偽造的管理員" }), params);
+
+    const written = insertMock.mock.calls[0][0];
+    expect(written.admin_id).toBe("session:deadbeef1234");
+    expect(written.admin_id).not.toBe("偽造的管理員");
   });
 
   // 7.4

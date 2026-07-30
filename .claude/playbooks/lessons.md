@@ -44,6 +44,56 @@
 - 規則：web session 的 GitHub 操作一律用 `mcp__github__*` 工具（先 ToolSearch 載入）；本機 session 先 `command -v gh` 再決定
 - 去處：已入 diagnosis.md 環境事實表與 CLAUDE.md 開場檢查
 
+## 2026-07-27 套件回傳型別改了，`if (!result)` 就成了永遠通過的假驗證
+- 情境：稽核後台 2FA，發現 `otplib` v13 的 `verify()` 回傳 `{ valid: boolean }` 物件而非 boolean；程式碼沿用舊寫法 `const isValid = await verify(...); if (!isValid)`，物件恆為 truthy，導致任何 6 位數驗證碼都通過。同一寫法散在 3 個檔，且零測試覆蓋，兩份人工資安報告都沒抓到
+- 代價：後台 2FA 形同虛設（配合固定值 `admin_pending=1` cookie，可無密碼取得完整後台權限）；上線期間一直存在
+- 規則：驗證類函式（`verify`/`validate`/`check`）接回傳值時，先在 node 實跑一次印出型別再寫判斷（`node -e "const {f}=require('pkg'); f(...).then(r=>console.log(typeof r, JSON.stringify(r)))"`）；不可假設回傳 boolean。安全判斷式必須有一條「錯誤輸入被拒絕」的回歸測試，且要暫時退回修正、確認該測試會紅，才算數
+- 去處：暫存於此（JUDG-2「完成要有證據」的具體化：安全修正的證據＝回歸測試在舊碼上失敗）
+
+## 2026-07-28 「不含惡意字串」是錯的 XSS 斷言，正確的是「惡意字串進不了 script 區塊」
+- 情境：修 cvs-callback 反射型 XSS 後寫測試，直覺寫了 `expect(html).not.toContain('window.__pwned')` 與 `expect(html).not.toContain('onload=')`——兩條都失敗。轉義後的 payload 本來就會原樣保留這些「文字」（`&lt;/script&gt;...window.__pwned`），那正是正確行為。另外 `/<div[^>]*\sonload=/` 這種正則也不可靠，因為 `[^>]*` 分不出「真屬性」與「屬性值裡的字」
+- 代價：三次來回改斷言，一度以為修正沒生效
+- 規則：驗轉義類修正時，斷言要針對「結構」不是「字串存在」——（a）數開閉標籤個數 `html.match(/<script/gi).length`；（b）取出屬性值後檢查裡面沒有未轉義的界定符 `attr).not.toContain('"')`；（c）數標籤內 `="` 出現次數＝預期屬性數；（d）解碼後與原輸入比對確認不失真。絕不用 `not.toContain('<惡意字串>')` 當主要判準
+- 去處：暫存於此（與前一條「安全修正需退回舊碼驗證測試會紅」同屬 JUDG-2 證據要求）
+
+## 2026-07-28 收緊權限前，先查「誰在用低權限身分呼叫它」
+- 情境：RLS 稽核發現 5 個 RPC 的 EXECUTE 都開放給 anon（PostgreSQL 建函式的預設行為），差點整批建議 REVOKE。實際查 `.rpc(` 呼叫點才發現 `validate_admin_session` 是 `src/proxy.ts` 的 Edge middleware 刻意用 anon key 呼叫的——它做成 SECURITY DEFINER 就是為了避免把 service_role key 帶進 Edge Runtime。整批收掉會讓後台完全登不進去
+- 代價：無（出手前查到了），但若照報告 L-6「明確只授權 service_role」照做就會停機
+- 規則：建議 REVOKE / 收緊任何權限前，先 `Grep "\.rpc\(|from\(\"<表名>\"" src` 找出全部呼叫點，並確認每個呼叫點用的是哪把 key（service_role 還是 anon）；Edge runtime 的程式碼特別容易是 anon。資安報告的通則建議不能無條件套用，要先對照本專案的實際呼叫方式
+- 去處：暫存於此
+
+## 2026-07-28 Bash tool 裡用 PowerShell here-string，commit 標題會多一個 @
+
+- 情境：本環境同時有 Bash 與 PowerShell 兩個工具。在 Bash tool 裡寫 `git commit -m @'...'@`（PowerShell here-string 語法），bash 解讀成「字元 @ 串接單引號字串」，於是 commit 標題變成 `@`、正文結尾多一個 `@`。同一個 session 內犯了兩次
+
+- 代價：兩次 amend + force-push main（第二次還得再次動用破壞性操作）
+
+- 規則：Bash tool 的多行字串一律用 heredoc `git commit -m "$(cat <<'EOF' ... EOF\n)"`；PowerShell here-string `@'...'@` 只能在 PowerShell tool 裡用。送出前先確認工具與語法配對
+
+- 去處：暫存於此
+
+## 2026-07-28 修掉一個「永遠通過」的 bug，會讓它蓋住的第二個 bug 一起浮出來
+- 情境：修好後台 2FA 的 `verify()` 型別誤用（舊碼任何驗證碼都通過）後，小江立刻回報 authenticator 的碼登不進去。查出 otplib 的 `epochTolerance` 預設是 0——只收當下那 30 秒窗，零時鐘誤差容許。這個設定從專案上線就是錯的，但因為「任何碼都會過」，它從來沒被實際考驗過。同理，當初綁定 2FA 時 setup 的確認步驟也用了同一個壞掉的 verify，代表使用者輸入任何數字都會存下 secret——資料庫裡的 secret 有可能從一開始就跟手機不一致
+- 代價：使用者被鎖在正式站後台外面；我的修正被誤認為是故障來源
+- 規則：修掉「驗證恆為通過」這類 bug 時，**當下就把同一條路徑上其他從未被真正執行過的邏輯全部檢查一遍**（時間窗／容差／長度限制／錯誤分支），並主動告知使用者「這個修正可能讓既有的隱藏問題浮現」＋提供復原手段（如何從資料庫停用該機制、如何清限流）。不要等使用者回報才查
+- 去處：暫存於此
+
+## 2026-07-28 這個專案不能跑 npm audit fix（會降級 Next.js）
+- 情境：處理資安報告 L-1「42 個相依套件漏洞」。`npm audit` 對 next 建議的修補是 `next@9.3.3 (MAJOR)`——那是**降級**，npm 找不到向前路徑時會這樣寫。`--force` 照做等於毀掉整個專案。不加 force 的 `npm audit fix` 則會改動 328 個套件（sanity 跳 12 個 minor、react 也動），修掉的漏洞數是 0（42 → 42）
+- 代價：無（dry-run 先看才發現），但若直接執行會是正式站級別的事故
+- 規則：對本專案的相依套件漏洞，一律先 `npm audit fix --dry-run` 看變更規模與修補後剩餘數量，再決定要不要跑；**永遠不要用 `--force`**。追 high/critical 時要先用 `npm explain <pkg>` 判斷它在建置期還是執行期——本專案 18 個 high/critical 中 17 個在 `@sanity/cli` 工具鏈或 PostCSS/Tailwind（建置期），唯一有執行期路徑的是 `sharp`（Next 的 optionalDependencies 卡在 `^0.34.5`，修補版 0.35.0 升不上去，屬上游問題）
+- 去處：暫存於此
+
+## 2026-07-29 用自己的錯誤假設寫測試，等於沒測——Sanity 時間戳是毫秒不是秒
+- 情境：實作 sanity-webhook 的 HMAC 驗證時，照 Stripe 的慣例假設時間戳單位是「秒」，寫了 `Number(ts) * 1000`。但 Sanity 送的是毫秒（`Date.now()`），乘完變成公元五萬年，一律判定「簽章已過期」回 401。10 條測試全過卻沒抓到——因為我的測試也用 `Math.floor(NOW/1000)` 產生秒格式的時間戳，用同一個錯誤假設去驗證錯誤的程式碼
+- 代價：小江在 Sanity 後台正確填好 Secret 後，webhook 全部 401，快取更新停擺；他來回測了兩次才從 log 找出原因
+- 規則：驗證第三方 webhook／簽章時，**測試資料必須來自該服務的實際請求，不能自己憑格式慣例產生**。做法：先讓一筆真實請求打進來，從 log 或 request dump 取出實際的標頭原文，再據以寫測試。若無法取得真實樣本，至少要在程式碼中同時容納常見的兩種單位（秒／毫秒），並各寫一條測試
+- 去處：暫存於此（與「安全修正需退回舊碼驗證測試會紅」互補：那條保證測試有效，這條保證測試的前提正確）
+
+## 2026-07-29 攔截型 hook 會誤擋「提到該指令」的正常操作
+- 情境：寫了 PreToolUse hook 攔截危險指令，寫完當下就擋住了自己——(1) 說明這個 hook 的 commit 訊息裡提到了目標字串，被擋；(2) 修好後，hook 的測試腳本因為含有測試用的字面片段，又被擋一次
+- 代價：兩次來回；若沒察覺而放著，未來每次要在文件或 commit 訊息提到該指令都會卡住，最後一定有人直接把 hook 關掉——比沒有 hook 更糟
+- 規則：寫比對指令內容的 hook 時，先剝掉「不會被執行」的區段再比對——依序移除 heredoc 內容、單引號字串、雙引號字串（順序不可換，heredoc 內文常含引號）。測試案例必須含「提到但未執行」的反例，且測試檔本身要用字串拼接避免自我觸發（見 `.claude/hooks/guard-commands.test.js`）。判準：hook 改完要能通過「用它自己的說明文字當 commit 訊息」這一關
 ## 2026-07-29 npm run lint 在本 repo 完全跑不起來（CLAUDE.md 事實過時）
 - 情境：製茶過程頁改版要照 JUDG-5 驗 lint，`npm run lint` 回「Invalid project directory provided, no such directory: <repo>/lint」；改直接跑 `npx eslint` 則回「couldn't find an eslint.config.(js|mjs|cjs)」
 - 成因：`package.json` 的 lint script 仍是 `next lint`，但本專案是 Next 16——`next lint` 已被移除，參數被當成目錄解析；且 repo 內**沒有任何 eslint 設定檔**（`eslint.config.*` 與 `.eslintrc*` 皆不存在）

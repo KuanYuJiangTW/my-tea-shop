@@ -29,7 +29,7 @@
 - [ ] npm run test 全綠（含既有測試）
 - [ ] 【功能驗收，例：cvs+訂單金額 999 → 運費 60；cvs+1000 → 運費 0】
 - [ ] 使用者可見字串進 messages/zh-TW.json 與 en.json，不硬編碼
-- [ ] npm run lint 無新增錯誤
+- [ ] npx tsc --noEmit 無新增錯誤（npm run lint 已失效，見 JUDG-5）
 回報格式：改了哪些檔（file:line 級）、每條驗收條件的證據（測試輸出貼末段 ≤10 行）、
 未盡事項或不確定處明列。禁止貼整檔。長 diff 不用貼——我會看 git diff。
 遇到規格模糊：停下來回報兩種解讀＋你的建議，不要自行猜測後硬做。
@@ -87,7 +87,7 @@
 - [ ] npm run test 全綠
 - [ ] 24h 內第二則 → 429 與明確錯誤訊息；24h 零 1 秒後 → 可發
 - [ ] 錯誤訊息進 messages/ 兩語系
-- [ ] npm run lint 無新增錯誤
+- [ ] npx tsc --noEmit 無新增錯誤（npm run lint 已失效，見 JUDG-5）
 回報格式：改動檔案 file:line、四條驗收各附證據（測試輸出末段）、不確定處明列。
 遇到規格模糊：停下回報解讀選項，不要猜。
 ```

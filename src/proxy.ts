@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
+import { verifyPendingToken } from "@/lib/admin-pending";
 
 const SUPABASE_HOST = "wrknatfejiexqlyywuzz.supabase.co";
 
@@ -94,10 +95,10 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  // /admin/verify-2fa：允許持有 admin_pending cookie 的請求通過
+  // /admin/verify-2fa：允許持有本站簽發之 admin_pending token 的請求通過
   if (pathname === "/admin/verify-2fa") {
     const pending = request.cookies.get("admin_pending")?.value;
-    if (pending === "1") {
+    if (await verifyPendingToken(pending)) {
       response.headers.set("Content-Security-Policy", buildCSP(nonce));
       return response;
     }

@@ -1,9 +1,19 @@
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+import { verifySanityWebhook } from "@/lib/sanity-webhook";
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-sanity-webhook-secret");
-  if (!secret || secret !== process.env.SANITY_WEBHOOK_SECRET) {
+  // 需要原始 body 才能驗簽，故不可先 req.json()
+  const rawBody = await req.text();
+
+  const result = verifySanityWebhook(
+    rawBody,
+    req.headers.get("sanity-webhook-signature"),
+    process.env.SANITY_WEBHOOK_SECRET,
+  );
+
+  if (!result.ok) {
+    console.warn("[sanity-webhook] 驗證失敗:", result.reason);
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

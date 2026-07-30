@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { generateAdminSessionToken, createAdminSession, deleteAdminSession } from "@/lib/admin-token";
+import { issuePendingToken, PENDING_COOKIE_MAX_AGE } from "@/lib/admin-pending";
 import { supabase } from "@/lib/supabase";
 import { getClientIp, rateLimitPeek, rateLimitBump, rateLimitReset } from "@/lib/rate-limit";
 
@@ -51,14 +52,15 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   if (totpData?.value) {
-    // 2FA 已啟用：設定暫時 pending cookie，要求進行 TOTP 驗證
+    // 2FA 已啟用：發放 HMAC 簽章的 pending token，要求進行 TOTP 驗證。
+    // 內容不可為固定值——否則攻擊者自己帶 cookie 就能跳過密碼這關。
     const res = NextResponse.json({ require2fa: true });
-    res.cookies.set("admin_pending", "1", {
+    res.cookies.set("admin_pending", await issuePendingToken(), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 10, // 10 分鐘內完成 2FA
+      maxAge: PENDING_COOKIE_MAX_AGE, // 10 分鐘內完成 2FA
     });
     return res;
   }

@@ -19,6 +19,8 @@ export default [
       "coverage/**",
       "next-env.d.ts",
       "public/**",
+      // 操作用的 Node 腳本（hook 等），非應用程式碼，且刻意使用 CommonJS
+      ".claude/**",
     ],
   },
   ...nextCoreWebVitals,
