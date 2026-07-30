@@ -849,7 +849,7 @@
       },
       "black": {
         "pick": {
-          "desc": "Honey black tea is plucked under a stricter condition than the others: the leaves must first have been bitten by the tea green leafhopper. The bush responds with a defence reaction, and that is where the honey note comes from — which means no pesticides, ever. Here the insects are a requirement, not a problem.",
+          "desc": "Honey black tea is plucked under a stricter condition than the others: the leaves must first have been bitten by the tea green leafhopper. The bush responds with a defence reaction, and that is where the honey note comes from — so here the leafhopper is a requirement rather than a problem, while other pests and diseases are still managed as usual.",
           "detail": "How we judge it: whether the leaves show signs of leafhopper bite. No bite, no honey note."
         },
         "fix": {
@@ -946,10 +946,10 @@
     },
     "craftNote": {
       "title": "Why It Is Done This Way",
-      "oolong": "At altitude there is more cloud and higher humidity, so sun withering has to follow the weather rather than a schedule. The same tea is not necessarily made the same way this year as last.",
-      "jinxuan": "Jin Xuan is only ever lightly roasted. A light roast does not remove the milky note — it turns it more buttery. It is not lost, it changes shape. Only a heavy roast would bury it.",
-      "sijichun": "Four Seasons is an early-budding cultivar that can be picked several times a year, and that is the structural reason it is affordable — not a compromise on quality. Songboling is Taiwan's main Four Seasons region, and this tea is made there.",
-      "black": "Made as an oolong on day one, as a black tea on day two, then returned to the oolong press and cloth ball rolling — it is two traditions joined together. The honey note comes from the bush's defence response to leafhopper bites, which means it cannot be grown with pesticides.",
+      "oolong": "There are more variables at altitude, so oolong depends more on craft — get the technique right and the quality holds steady. Our processing facility is not beside the tea garden but in a spot with plenty of sun, which makes sun withering straightforward. As for flavour, the weather shifts it a little from year to year: close, but genuinely not identical.",
+      "jinxuan": "Jin Xuan is only ever lightly roasted — a light roast does not remove the milky note. It takes a medium roast to turn it buttery, and that is not a loss, just a change of form; only a heavy roast buries it under the roast character.",
+      "sijichun": "Four Seasons is affordable for two structural reasons, chiefly machine harvesting — it costs far less than picking by hand — combined with an early-budding cultivar that can be picked several times a year. That is a difference in cost structure, not a compromise on quality. Songboling is Taiwan's main Four Seasons region, and this tea is made there.",
+      "black": "Made as an oolong on day one, as a black tea on day two, then returned to the oolong press and cloth ball rolling — it is two traditions joined together. The honey note comes from the bush's defence response to leafhopper bites, so what this tea needs is for the leafhoppers to stay; other pests and diseases are still managed as usual.",
       "redOolong": "It is still fixed after heavy oxidation, and that is the line between it and a black tea — oxidation is paused rather than finished, keeping the oolong sweetness. Luye is where red oolong originated, and this tea is made there.",
       "roastTitle": "Why Roasting Happens at Home",
       "roastNote": "Primary processing at the factory, refining back home on a cabinet roaster — this is how the division between primary and refined processing actually works in Taiwan. Roasting is a trade: you gain sweetness, body and consistency, and if you push too far you lose the floral top notes and the freshness. Admitting that cost is more honest than calling it 'carefully roasted'."

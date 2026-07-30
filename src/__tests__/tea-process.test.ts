@@ -360,3 +360,63 @@ describe("i18n：process 文案兩語系對稱", () => {
     expect(`${zhFinal.desc}${zhFinal.detail}`).toMatch(/鼓風機/);
   });
 });
+
+/**
+ * 店主校對後的事實更正（2026-07-30，tasks 0.10）。
+ * 這些是規劃者推論錯、店主逐條更正的內容——寫錯不會有畫面異常，
+ * 只會安靜地對客人講錯自家茶怎麼做，其中農藥那則還帶合規風險。
+ */
+describe("店主校對過的工藝取捨事實", () => {
+  const zh = readMessages("zh");
+  const en = readMessages("en");
+
+  const craft = (loc: Record<string, unknown>) =>
+    loc.craftNote as Record<string, string>;
+  const teaStep = (loc: Record<string, unknown>, tea: string, step: string) =>
+    (loc.teaSteps as Record<string, Record<string, Record<string, string>>>)[tea][step];
+
+  it("不得宣稱不用藥——實情是仍防治小綠葉蟬以外的病蟲害", () => {
+    // 這是對外的農藥宣稱，初稿寫「要蜜香就不能用藥」為誤。合規風險高，不得復發。
+    const banned = /不能用藥|不用藥|未使用農藥|無農藥|no pesticides?|pesticide[- ]free|without pesticides?/i;
+    for (const locale of [zh, en]) {
+      expect(craft(locale).black).not.toMatch(banned);
+      expect(teaStep(locale, "black", "pick").desc).not.toMatch(banned);
+    }
+  });
+
+  it("蜜香紅茶文案須說明小綠葉蟬是必要條件，且其他病蟲害照常防治", () => {
+    expect(craft(zh).black).toMatch(/小綠葉蟬/);
+    expect(craft(zh).black).toMatch(/其他病蟲害/);
+    expect(teaStep(zh, "black", "pick").desc).toMatch(/其他病蟲害/);
+  });
+
+  it("金萱：轉成奶油味的是中焙，不是淺焙", () => {
+    // 2026-07-30 店主二次更正。三階段：淺焙＝奶香保留／中焙＝轉奶油味／重焙＝被蓋過
+    const jinxuan = craft(zh).jinxuan;
+    expect(jinxuan).toMatch(/中焙/);
+    expect(jinxuan).toMatch(/淺焙不會讓奶香消失/);
+    // 不得回退成「淺焙…轉成…奶油」的說法
+    expect(jinxuan).not.toMatch(/淺焙[^。]*轉成[^。]*奶油/);
+    expect(craft(en).jinxuan).toMatch(/medium roast/i);
+  });
+
+  it("高山烏龍：須強調技術帶來穩定，不得寫成逐年做法不同", () => {
+    const oolong = craft(zh).oolong;
+    expect(oolong).toMatch(/製茶技術/);
+    expect(oolong).toMatch(/穩定/);
+    // 原文「今年跟去年的做法未必一樣」讀起來像品質不穩，不得復發
+    expect(oolong).not.toMatch(/做法未必一樣|不是照表操課/);
+  });
+
+  it("四季春：價格親民的主因是機採，不得只寫一年多採", () => {
+    const siji = craft(zh).sijichun;
+    expect(siji).toMatch(/機採/);
+    expect(siji).toMatch(/一年可採多次/);
+    expect(craft(en).sijichun).toMatch(/machine harvest/i);
+  });
+
+  it("紅烏龍：鹿野為發源地（經店主確認）", () => {
+    expect(craft(zh).redOolong).toMatch(/鹿野/);
+    expect(craft(zh).redOolong).toMatch(/發源地/);
+  });
+});

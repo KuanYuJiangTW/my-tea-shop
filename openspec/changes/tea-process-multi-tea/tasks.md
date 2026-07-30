@@ -24,15 +24,61 @@
 - [x] 0.9 **兩處文案事實已釐清**（2026-07-25 店主確認）：
   - [x] 揀枝**就是粗選機與鼓風機，無手工揀除**——現有 `steps.sort`「師傅逐一手工揀除」為不實工藝宣稱，本次必須修正
   - [x] 金萱奶香：**淺焙使奶香轉為奶油香，不會消失**；唯重焙才會被焙火味蓋掉。規劃者原推論已更正
-- [ ] 0.10 店主校對 `design.md` 1.4 節「工藝取捨」其餘各則的事實正確性（蜜香紅茶不用藥、紅烏龍炒菁分水嶺、高山烏龍看天萎凋、四季春多次採收）
+- [x] 0.10 **店主校對完成（2026-07-30），四處更正已套用並加測試釘住**：
+  - [x] **蜜香紅茶：不得寫成不用藥**——實情是仍會用藥防治小綠葉蟬以外的病蟲害。原文「要蜜香就不能用藥」是對外農藥宣稱，風險最高的一則。zh/en 的 `craftNote.black` 與 `teaSteps.black.pick.desc` 共 4 處已改寫
+  - [x] **金萱：轉成奶油味的是中焙，不是淺焙**（店主二次更正）。三階段應為 淺焙＝奶香保留／中焙＝轉奶油味／重焙＝被焙火味蓋過
+  - [x] **高山烏龍：原文讀起來像品質不穩**。改為：高山變數多所以更看重製茶技術，技術到位品質才穩定；製茶廠不在茶園旁而在日照充足處，日光萎凋好做；逐年差異只在風味（差不多但確實不一樣），不在品質
+  - [x] **四季春：主因是機採成本低**，加上品種早生一年可採多次，兩者相加才是結構性原因。原文漏了最主要的機採
+  - [x] 紅烏龍「鹿野為發源地」經店主確認**無誤**，不動
+  - [x] 已新增 6 條測試把上述事實釘死（含農藥宣稱的黑名單比對），並做變異測試確認 4 條會如期紅燈
+- [ ] 0.11 **連帶待處理（因 6.6.4 未裁決而暫停）**：四季春既為**機採**，共通段 `steps.pick` 以手採口吻寫的「一心二葉是拿捏的基準」對這款茶不成立。忠實作法是為 `sijichun` 的 `pick` 加 accent 說明機採——但這正是 6.6.4「共通段可否有 accent」爭議的同一類動作，故等該項裁決後再做
 
 ## 0.5 另案回報（非本 change 範圍）
 
 - [ ] 0.5.1 高山烏龍既分生茶與焙茶兩種賣法，`src/data/products.ts` 未呈現此區別——可能是未被網站呈現的商品選項，待與店主確認是否另立 change
 - [x] 0.5.2 `npm run lint` **已修復**（2026-07-30 經店主指示）：補 `eslint.config.mjs`、`eslint-config-next` 15.5.12 → 16.2.12 對齊 Next 16、lint script 由 `next lint` 改為 `eslint`。註：`eslint` 與 `eslint-config-next` 本來就在 devDependencies，實際缺的只有設定檔——原描述「需要裝」不準確
-- [ ] 0.5.5 **全 repo 尚有 22 個既有 lint error（28 檔，42 warnings）**，含 `CheckoutClient.tsx` 等金流高風險區。本次只修了落在自己 diff 內的 1 個，其餘未動——依鐵律 4，金流區改動前須先讀對應 openspec 規格，且範圍遠超本 change。建議另立 change 分批處理
+- [ ] 0.5.5 **全 repo 尚有 22 個既有 lint error（13 檔）＋ 42 warnings** → 店主已裁示**另立 change**（2026-07-30），本 change 不處理。清冊如下，可直接照這個分批：
+
+  依規則分類：
+
+  | 規則 | 數量 | 性質 |
+  |---|---|---|
+  | `react-hooks/set-state-in-effect` | 12 | effect 內同步 setState，造成連鎖 render。本次在 `ProcessContent.tsx` 修過同一類（改為 render 時推導），可沿用該手法 |
+  | `react-hooks/immutability` | 3 | 直接改動不可變值 |
+  | `react-hooks/use-memo` | 3 | `useCallback`/`useMemo` 首參數非 inline function |
+  | `react-hooks/purity` | 2 | render 期間有副作用 |
+  | `@typescript-eslint/no-explicit-any` | 2 | 顯式 `any` |
+
+  依檔案（**建議分三批，金流區單獨一批並先讀規格**）：
+
+  - **批次 A｜金流與帳務（高風險，鐵律 4：改前先讀 `openspec/specs/` 對應規格，改後必跑 `npm run test`）**
+    - `src/app/checkout/CheckoutClient.tsx` — set-state-in-effect×1, immutability×2
+    - `src/app/account/AccountClient.tsx` — immutability×1, purity×1
+    - `src/app/account/page.tsx` — purity×1
+    - `src/app/account/bookings/[id]/participants/page.tsx` — set-state-in-effect×1
+  - **批次 B｜admin 後台**
+    - `src/app/admin/(protected)/campaigns/page.tsx` — set-state-in-effect×1
+    - `src/app/admin/(protected)/coupons/page.tsx` — set-state-in-effect×1
+    - `src/app/admin/(protected)/experiences/sessions/SessionsClient.tsx` — set-state-in-effect×1
+    - `src/app/admin/(protected)/members/[id]/points/page.tsx` — set-state-in-effect×1
+  - **批次 C｜前台元件（風險最低，可先做暖身）**
+    - `src/components/ChatWidget.tsx` — set-state-in-effect×4（單檔最多）
+    - `src/components/ProductLightbox.tsx` — use-memo×3
+    - `src/components/Header.tsx` — set-state-in-effect×1
+    - `src/app/experiences/[slug]/ExperienceCalendar.tsx` — set-state-in-effect×1
+    - `src/app/auth/login/LoginForm.tsx` — no-explicit-any×2
+
+  重跑清冊的指令：`npx eslint -f json | python3 -c "..."`（或直接 `npm run lint`）。修的時候記得 JUDG-2 第 2 條的歸屬對比紀律
 - [x] 0.5.3 現有 `messages/*.json` 的 `process.steps.sort` 宣稱「師傅逐一手工揀除」與實情（粗選機、鼓風機）不符。**已於 task 2.3 修正並加測試防回退**，本項結案
-- [ ] 0.5.4 `e2e/` 有 6 個 spec ＋ `playwright.config.ts`，但 `package.json` 完全沒有 `playwright` / `@playwright/test` 依賴——e2e 目前無法執行。本次驗證改用 scratchpad 獨立安裝的 playwright（未動 repo 依賴）。是否補依賴屬產品決策，待店主指示
+- [x] 0.5.4 `e2e/` 無法執行一事**已寫成 `e2e/README.md`**（2026-07-30 經店主指示）：說明為何跑不起來（缺依賴、`/login` 路由不存在實際為 `/auth/login`、`data-testid` 在 `src/` 出現 0 次、需 staging 與測試帳號），並附臨時驗證做法（scratchpad 獨立安裝 playwright + 預裝瀏覽器路徑）與兩個坑（不要用 networkidle 當等待條件、不要用 `pkill -f "next start"`）
+- [ ] 0.5.6 **要真正接通 e2e 覆蓋 → 另立 change**（店主已裁示，2026-07-30）。五個步驟，有相依順序：
+  1. 補依賴：`@playwright/test` 進 devDependencies
+  2. 修路由：`/login` → `/auth/login`，其餘 `goto()` 目標逐一核對（`/admin/dashboard`、`/admin/orders` 尚未查證）
+  3. 在元件加 `data-testid`：至少 `product-card`、`add-to-cart`，及各 spec 引用到的其他選擇器
+  4. 備測試帳號與 staging 環境（測試帳號需有點數餘額），設定 `E2E_BASE_URL`／`E2E_TEST_EMAIL`／`E2E_TEST_PASSWORD`
+  5. 加 `test:e2e` npm script 並接上 CI
+
+  1→2→3 可先做；4 需店主提供環境；5 最後。**建議第一步先為 `/process` 寫 spec**——不需登入、不碰 DB，可用來證明整條 harness 通了，再回頭處理結帳與點數那幾條高風險流程
 
 ## 1. 資料結構
 
