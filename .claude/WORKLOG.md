@@ -39,12 +39,12 @@
 
 ### [2026-07-29~30] 製茶過程頁多茶款擴充（openspec: tea-process-multi-tea）
 - 目標：`/process` 從單一條烏龍流程，擴充為涵蓋店內全部 5 款實售茶的製程
-- 交付：`claude/tea-process-page-expansion-8qef3u` 共 8 個 commit（最新 `08db4d6`）
+- 交付：`claude/tea-process-page-expansion-8qef3u` 共 10 個 commit
 - 驗收條件：
   - [x] 資料結構、i18n（zh/en 對稱）、頁面實作、HowTo 結構化資料、可及性與 RWD 全數完成
   - [x] checker 獨立驗收已跑（結果與處置見下）
   - [x] 店主校對工藝取捨文案完成（四處更正已套用）
-  - [ ] **未決：6.6.4 規格自我矛盾待店主裁決**（見下）
+  - [x] 6.6.4 規格自我矛盾已由店主裁決修正措辭為「步驟組成不變」，0.11 四季春機採一併加上
   - [ ] 未做：部署後抽查 production（tasks 7.4）
 - 核心設計：不做 5 條獨立流程，改「共通前段 → 分歧段 → 共通後段」；核心敘事＝**炒菁的位置**（最前＝烏龍／無＝紅茶／最後＝紅烏龍）
 - 順手修好的既有問題：
@@ -61,10 +61,10 @@
   8. `react-hooks/set-state-in-effect`：用 effect 修正另一個 state（lint 抓到，tsc 與測試都抓不到）
 - checker 驗收結果：3 條 FAIL，查證後 2 條有效已修（第 5、6 項），1 條為**規格自我矛盾**
 - **交接注意（下一個 session 先看這段）**：
-  1. **tasks 6.6.4 待店主裁決**：規格 Scenario「切換茶款時共通段不動」與同一份規格的焙火要求（`roast` 屬共通後段卻須因茶而異）互相矛盾，也與店主校對過的 design.md 1.2 矩陣（`pick` 於蜜香紅茶為強化）矛盾。我研判應修規格措辭為「步驟組成不變」，未擅自改規格也未刪除著蜒事實。**tasks 0.11（四季春機採要不要在 pick 加 accent）等這項裁決才能動**
+  1. ~~tasks 6.6.4 規格矛盾~~ **已解**（2026-07-30 店主裁決）：`spec.md` 措辭改為「共通前後段的**步驟組成**（步驟集合與順序）保持不變」，並明文允許共通段的個別工序帶該茶專屬的 `accent`／`optional`／`skipped`，附「措辭沿革」註記避免後人重踩。0.11 四季春機採（`pick: accent` ＋ 專屬文案）一併加上。三條新測試釘住新規則
   2. **tasks 0.5.5**：全 repo 尚有 22 個既有 lint error（13 檔），店主已裁示另立 change。tasks 內有依規則與依檔案的完整清冊，已分三批（金流／admin／前台），可直接照著開工
   3. **tasks 0.5.6**：e2e 要真正接通需五步（補依賴→修路由→加 data-testid→備測試帳號→加 script＋CI），店主已裁示另立 change。現況已寫進 `e2e/README.md`。建議第一步先為 `/process` 寫 spec（不需登入、不碰 DB）
   4. tasks 0.5.1 高山烏龍生茶/焙茶兩種賣法未進 `products.ts`，仍待店主確認
   5. **農藥／有機／認證／產地／療效這類宣稱，一律不得由推論產生**（lessons.md 2026-07-30 條）
-- 驗證證據：`npm run test` 27 檔 353 測試全綠（基準 26 檔 316）；`npm run lint` 本次 diff 零 error 零 warning，並依 JUDG-2 做過機械歸屬對比；`npm run build` 成功；zh/en 實跑皆 200 且零 `MISSING_MESSAGE`；Playwright 實測四態渲染、切換不重設捲動、hash 進站、鍵盤 tabs、375px RWD、五份 HowTo 順序、更正後文案全數通過；關鍵測試均做過變異測試確認非空轉
-- 狀態：**實作完成待裁決**（僅 6.6.4 一項擋住收尾）
+- 驗證證據：`npm run test` 27 檔 358 測試全綠（基準 26 檔 316）；`npm run lint` 本次 diff 零 error 零 warning，並依 JUDG-2 做過機械歸屬對比；`npm run build` 成功；zh/en 實跑皆 200 且零 `MISSING_MESSAGE`；Playwright 實測四態渲染、切換不重設捲動、hash 進站、鍵盤 tabs、375px RWD、五份 HowTo 順序、更正後文案全數通過；關鍵測試均做過變異測試確認非空轉
+- 狀態：**實作完成**。第 0–6 節全數結案（6.2 lint 已修復並通過）；僅剩 7.4 部署後抽查 production 待合併後執行

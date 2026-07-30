@@ -120,7 +120,8 @@ export const teaProcesses: readonly TeaProcess[] = [
       { step: "roll", state: "common" },
       { step: "ferment", state: "skipped" },
     ],
-    overrides: { roast: "skipped" },
+    // pick 為 accent：四季春是機採，共通段那套「手工挑一心二葉」的說法對它不成立
+    overrides: { pick: "accent", roast: "skipped" },
   },
   {
     key: "black",

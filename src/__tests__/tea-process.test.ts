@@ -420,3 +420,80 @@ describe("店主校對過的工藝取捨事實", () => {
     expect(craft(zh).redOolong).toMatch(/發源地/);
   });
 });
+
+/**
+ * 共通段的不變量（spec 於 2026-07-30 經店主裁決改為「步驟組成不變」）。
+ * 原措辭是「卡片內容不變」，與同一份規格的焙火要求矛盾——roast 屬共通後段卻
+ * 必須因茶而異。改後的規則要同時釘住兩件事：組成不可變、狀態可以變。
+ */
+describe("共通段不變量：步驟組成不變，但允許該茶專屬狀態", () => {
+  it("五款茶的共通前後段步驟集合與順序完全一致", () => {
+    for (const tea of teaProcesses) {
+      const steps = resolveSteps(tea.key);
+      expect(steps.filter((s) => s.section === "opening").map((s) => s.step)).toEqual([
+        ...COMMON_OPENING,
+      ]);
+      expect(steps.filter((s) => s.section === "closing").map((s) => s.step)).toEqual([
+        ...COMMON_CLOSING,
+      ]);
+    }
+  });
+
+  it("共通段確實存在該茶專屬狀態——這是規格允許的，不得被抹平", () => {
+    const nonCommonInShared = teaProcesses.flatMap((tea) =>
+      resolveSteps(tea.key)
+        .filter((s) => s.section !== "divergence" && s.state !== "common")
+        .map((s) => `${tea.key}.${s.step}:${s.state}`),
+    );
+    // 店主校對確認的四處：紅茶著蜒、四季春機採、紅烏龍長時萎凋與重攪拌、焙火三態
+    expect(nonCommonInShared).toEqual(
+      expect.arrayContaining([
+        "oolong.roast:optional",
+        "sijichun.pick:accent",
+        "sijichun.roast:skipped",
+        "black.pick:accent",
+        "redOolong.witherIndoor:accent",
+        "redOolong.shake:accent",
+        "redOolong.roast:accent",
+      ]),
+    );
+  });
+
+  it("共通前段不得有任何茶款跳步（skipped 只出現在分歧段與焙火）", () => {
+    for (const tea of teaProcesses) {
+      const opening = resolveSteps(tea.key).filter((s) => s.section === "opening");
+      expect(opening.every((s) => s.state !== "skipped"), `${tea.key} 前段不應有跳步`).toBe(true);
+    }
+    const skippedSteps = new Set(
+      teaProcesses.flatMap((t) =>
+        resolveSteps(t.key).filter((s) => s.state === "skipped").map((s) => s.step),
+      ),
+    );
+    expect([...skippedSteps].sort()).toEqual(["ferment", "fix", "roast"]);
+  });
+});
+
+describe("四季春為機採（店主確認，2026-07-30）", () => {
+  const zh = readMessages("zh");
+  const en = readMessages("en");
+
+  it("四季春的採摘標為 accent——共通段的手採說法對它不成立", () => {
+    const pick = resolveSteps("sijichun").find((s) => s.step === "pick");
+    expect(pick?.state).toBe("accent");
+    // 其餘四款仍走共通採摘文案；蜜香紅茶因著蜒另為 accent
+    expect(resolveSteps("oolong").find((s) => s.step === "pick")?.state).toBe("common");
+    expect(resolveSteps("jinxuan").find((s) => s.step === "pick")?.state).toBe("common");
+    expect(resolveSteps("redOolong").find((s) => s.step === "pick")?.state).toBe("common");
+  });
+
+  it("四季春採摘文案須說明機採與成本結構", () => {
+    const pickZh = (zh.teaSteps as Record<string, Record<string, Record<string, string>>>)
+      .sijichun.pick;
+    expect(pickZh.desc).toMatch(/機採/);
+    expect(pickZh.desc).toMatch(/不是手工一心二葉/);
+    expect(pickZh.detail).toMatch(/機採/);
+    const pickEn = (en.teaSteps as Record<string, Record<string, Record<string, string>>>)
+      .sijichun.pick;
+    expect(pickEn.desc).toMatch(/machine harvest/i);
+  });
+});

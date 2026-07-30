@@ -840,6 +840,10 @@
         }
       },
       "sijichun": {
+        "pick": {
+          "desc": "Four Seasons is machine harvested — cut by a harvester rather than hand-selected one bud and two leaves at a time. Machine harvesting costs far less than picking by hand, and combined with an early-budding cultivar that can be picked several times a year, that is where the affordable price comes from. A different harvesting method, not a compromise on quality.",
+          "detail": "Harvesting method: machine. It costs far less than hand picking, and together with several harvests a year it is the structural reason Four Seasons is affordable."
+        },
         "ferment": {
           "skipReason": "Fixation has already stopped oxidation, so there is no separate oxidation stage."
         },
