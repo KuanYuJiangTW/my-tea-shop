@@ -119,7 +119,7 @@ describe("分歧段的顯示序列（design.md 1.2 矩陣）", () => {
 
   it("紅烏龍：揉捻 → 發酵 → 炒菁", () => {
     expect(divergenceDisplay("redOolong")).toEqual([
-      "roll:common",
+      "roll:accent",
       "ferment:accent",
       "fix:common",
     ]);
@@ -490,7 +490,7 @@ describe("四季春為機採（店主確認，2026-07-30）", () => {
     const pickZh = (zh.teaSteps as Record<string, Record<string, Record<string, string>>>)
       .sijichun.pick;
     expect(pickZh.desc).toMatch(/機採/);
-    expect(pickZh.desc).toMatch(/不是手工一心二葉/);
+    expect(pickZh.desc).toMatch(/不是手工照一心三葉到一心四葉的標準挑/);
     expect(pickZh.detail).toMatch(/機採/);
     const pickEn = (en.teaSteps as Record<string, Record<string, Record<string, string>>>)
       .sijichun.pick;
