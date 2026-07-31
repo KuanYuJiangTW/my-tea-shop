@@ -146,4 +146,8 @@
 - **連動更新**：四季春機採文案與 `tea-process.test.ts` 的採摘基準正規表示式、`about.galleryPhotos.picking2` 照片說明，一併對齊新基準
 - 文案修飾（店主要求，事實層面不動）：頁面標語改掉「職人的心意與百年傳承」套話、體驗預約與購買提示改為行動導向、每一步收尾改為指向「這對杯子裡的茶有什麼影響」
 - 驗證證據：`npm run test` 34 檔 465 測試全過；`tsc --noEmit` 零錯誤；`npm run build` 成功（容器無 secrets，需自備 placeholder env 才跑得起來，與改動無關）；zh `/process`、en `/en/process`、zh `/about` 實跑 200 且零 `MISSING_MESSAGE`；新舊文案逐條 grep 對照確認
+- **店主看 preview 後的第二輪回報（同日）**：
+  1. **蜜香紅茶的浪菁套到烏龍文案**——共通段浪菁通篇講「烏龍最關鍵的一步」「一款烏龍最後是清雅還是濃烈」，在紅茶頁上自相矛盾。`black.overrides` 補 `shake: "accent"` 並加專屬文案（zh/en）。教訓同紅烏龍的 `roll`：**共通段文案只要出現茶類名稱，就要回頭檢查五款茶是否都成立**
+  2. **導覽列沒置中**（改版前是置中的）——茶款列與工序列都對 `overflow-x-auto` 容器直接下 flex，內容放得下時會靠左。修法是把捲動容器與 flex 分開，內層用 `w-max mx-auto`：放得下置中、放不下才從左邊捲。**不可直接對 overflow 容器下 `justify-center`**，那會讓溢出的左半邊捲不到
+- 版面驗證證據：Playwright 實測 1920px 下茶款列與工序列中心皆為 960（＝viewport 中心）；375px 下 `scrollWidth 416 > clientWidth 343` 且 `scrollLeft 0`，確認溢出時從左起捲未被裁切；蜜香紅茶頁殘留「烏龍最關鍵的一步」計數為 0
 - 狀態：已完成

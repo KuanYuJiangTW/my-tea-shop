@@ -133,7 +133,8 @@ export const teaProcesses: readonly TeaProcess[] = [
       { step: "roll", state: "accent" },
       { step: "ferment", state: "accent" },
     ],
-    overrides: { pick: "accent" },
+    // shake 為 accent：共通段的浪菁文案通篇講「烏龍」，套在紅茶頁上會自相矛盾
+    overrides: { pick: "accent", shake: "accent" },
   },
   {
     key: "redOolong",
