@@ -120,7 +120,7 @@ export const teaProcesses: readonly TeaProcess[] = [
       { step: "roll", state: "common" },
       { step: "ferment", state: "skipped" },
     ],
-    // pick 為 accent：四季春是機採，共通段那套「手工挑一心二葉」的說法對它不成立
+    // pick 為 accent：四季春是機採，共通段那套「手工挑一心三葉到一心四葉」的說法對它不成立
     overrides: { pick: "accent", roast: "skipped" },
   },
   {
@@ -141,8 +141,10 @@ export const teaProcesses: readonly TeaProcess[] = [
     productId: 4,
     sourcing: "partner",
     // 前兩步與蜜香紅茶完全相同，末端多一道炒菁——這是它與紅茶的分水嶺
+    // roll 為 accent：共通段的揉捻文案寫的是「炒菁後趁熱揉」，紅烏龍炒菁在最後，
+    // 走的是紅茶那套先揉捻破壁再重發酵，套共通文案會講錯順序
     divergence: [
-      { step: "roll", state: "common" },
+      { step: "roll", state: "accent" },
       { step: "ferment", state: "accent" },
       { step: "fix", state: "common" },
     ],
