@@ -711,14 +711,14 @@
   },
   "process": {
     "pageTitle": "Tea Making Process",
-    "pageTagline": "From a tender leaf on the mountain to a perfect cup of tea, every step carries the craftsman's devotion and centuries of tradition",
+    "pageTagline": "Between a dew-covered leaf on the mountain and the taste in your cup lie a dozen or so steps. This page takes them apart one by one — including the trade-offs we make along the way.",
     "tableTitle": "The Craft",
     "tableNote": "STEP",
     "shopCta": "Shop Our Teas",
     "experienceCta": {
       "sectionLabel": "Tea Mountain Experience",
       "title": "Experience the Tea Mountain",
-      "tagline": "Now that you know the craft, why not live it? Step into our Ali Mountain tea gardens and feel every stage — from leaf to cup — with your own hands.",
+      "tagline": "Reading about it is one thing. Step into our Ali Mountain tea gardens and work through it yourself, from plucking to finished leaf — you will not drink tea quite the same way afterwards.",
       "viewAll": "View All Experiences",
       "bookNow": "Book Now",
       "duration": "{hours} hrs",
@@ -765,32 +765,32 @@
     "steps": {
       "pick": {
         "name": "Plucking",
-        "desc": "We pick at first light, heading up while the leaves still carry a little dew. Maturity at plucking sets the backbone of the batch: too tender and the liquor is strong but turns bitter and astringent, which makes it hard to process; too mature and it turns coarse and thin. One bud with three to four leaves is the benchmark.",
+        "desc": "We head up at first light and pick while the leaves still carry their dew. Maturity sets the backbone of the batch: too tender and the liquor comes on strong but turns bitter, and it is difficult to process; too mature and it turns coarse and thin. One bud with three to four leaves is where we draw the line.",
         "detail": "How we judge it: by how far the bud has opened, not by the date on the calendar. Even a single plot gets picked in stages."
       },
       "witherSun": {
         "name": "Sun Withering",
-        "desc": "The leaves are spread outdoors on clean cloth to release moisture and soften the cell structure, which is what draws out the first aromatic compounds. This step follows the weather, not the clock: strong sun means a thicker spread, an overcast day means more time.",
+        "desc": "The leaves are spread outdoors on clean cloth to release moisture. The cell structure softens, and the first aromatics are drawn out right here, in the sun. This step follows the weather, not the clock: strong sun means a thicker spread; an overcast day means spreading thinner, or simply taking longer.",
         "detail": "Duration: 20 minutes to a little over an hour, adjusted according to sunlight and temperature. How we judge it: when the leaf surface loses its sheen and feels supple rather than brittle, it comes indoors."
       },
       "witherIndoor": {
         "name": "Indoor Withering",
-        "desc": "The leaves move indoors and are spread on well-ventilated withering racks. Withering continues in a temperature- and humidity-controlled room, and the maker turns the leaves at intervals to keep moisture loss even while the aroma goes on developing.",
+        "desc": "The leaves move indoors, onto well-ventilated withering racks. In a temperature- and humidity-controlled room the moisture keeps working its way out, and the maker turns the leaves at intervals so every one of them loses it evenly. Less happens here than anywhere else in the process, and yet this is where the foundation of the aroma is built. It cannot be rushed.",
         "detail": "Duration: 8–12 hours, temperature maintained at 18–26°C. How we judge it: when the raw green note fades into a clean fragrance and the leaf bends without snapping."
       },
       "shake": {
         "name": "Tossing",
-        "desc": "This is one of the decisive steps in oolong. The maker tumbles the leaves so their edges bruise against one another, and oxidation starts at those breaks. Toss lightly and the oxidation stays light; toss hard and it runs deep. The enzymatic reaction it triggers is what gives the tea its distinctive floral and fruity aroma — an oolong's character is decided here.",
+        "desc": "The decisive step in oolong. The maker tumbles the leaves so their edges bruise against one another, and oxidation starts at those breaks — the enzymes wake up, and the floral and fruity notes that belong to this tea begin to form. Toss lightly and the oxidation stays light; toss hard and it runs deep. Whether an oolong ends up delicate or full-bodied is settled right here.",
         "detail": "Frequency: once every 1.5–2.5 hours, repeated 2–4 times. How we judge it: by how much of the leaf edge has turned red and how the aroma is shifting; every round is reassessed before the next."
       },
       "fix": {
         "name": "Fixation",
-        "desc": "Once the tea has reached the intended degree of oxidation, the leaves go into a high-heat iron pan. The enzymes are deactivated, oxidation stops on the spot, and the tossing draws out a toasted note, fixes the aroma and drives off the raw grassy edge. This is the brake pedal of tea making — whatever flavour the tea has reached is locked in at this moment, and there is no going back.",
+        "desc": "Once oxidation has reached the point we want, the leaves go into a high-heat iron pan. The enzymes are deactivated and oxidation stops on the spot; the grassy note is driven off, a toasted one takes its place, and the aroma is fixed where it stands. This is the brake pedal of tea making — whatever flavour this batch has reached is locked in at this moment, and there is no going back.",
         "detail": "Temperature: 260–300°C, duration: approximately 5–8 minutes. How we judge it: when the grassy note turns toasted and a handful of leaves feels soft without sticking, it comes out of the pan."
       },
       "roll": {
         "name": "Rolling",
-        "desc": "Straight out of the pan and still warm, the leaves are wrapped in cloth and rolled until they tighten into balls or strands. The rolling brings the juices to the leaf surface, so that in the pot the tea opens quickly and gives up the full flavour of the liquor.",
+        "desc": "Straight out of the pan and still warm, the leaves are wrapped in cloth and rolled — tightening into balls or strands while the juices are worked onto the leaf surface. That coating is the point: in the pot the leaves open readily, and the flavour comes out whole.",
         "detail": "Rolled continuously for 3–5 minutes. How we judge it: when the leaves have formed strands and feel tacky in the hand without weeping."
       },
       "ferment": {
@@ -805,7 +805,7 @@
       },
       "ballRoll": {
         "name": "Cloth Ball Rolling",
-        "desc": "The tea is wrapped in cloth, drawn into a ball, tightened in a press, then opened and broken up — and then it starts again. Wrap, roll, break, repeat, several passes over, until the leaves knot into a semi-ball. The shape of Taiwanese ball-rolled tea is ground out one pass at a time.",
+        "desc": "The tea is wrapped in cloth, drawn into a ball, tightened in a press, then opened and broken up — and then it starts again. Wrap, roll, break, repeat, several passes over, until the leaves knot into a semi-ball. Those tight little spheres you see in the bag are ground out one pass at a time.",
         "detail": "Equipment: press and cloth ball rolling. How we judge it: by tightness and shape, repeating until it holds."
       },
       "dryFinal": {
@@ -820,7 +820,7 @@
       },
       "pack": {
         "name": "Packaging",
-        "desc": "Once roasting is done and the flavour has landed, the tea is packed straight away — nothing is reworked after this. Vacuum-sealed foil keeps out light and air, holding the tea at its best.",
+        "desc": "As soon as the flavour has landed the tea is packed — nothing is reworked after this. Vacuum-sealed foil shuts out light and air, holding the batch at its best moment until you open it.",
         "detail": "Every batch is labelled with the tea name, origin and other details."
       }
     },
@@ -878,7 +878,7 @@
           "detail": "How we judge it: a markedly higher proportion of red leaf edge than a standard oolong."
         },
         "roll": {
-          "desc": "Red oolong rolls the way a black tea does: rolling comes first, rupturing the cells and releasing the juices to lay the ground for the heavy oxidation that follows. The order is the reverse of oolong — oolong fixes then rolls, red oolong rolls, oxidises, and only then goes into the pan.",
+          "desc": "Red oolong rolls the way a black tea does: rolling comes first, rupturing the cells and releasing the juices to lay the ground for the heavy oxidation that follows. The order is the exact reverse of an oolong — oolong fixes then rolls; red oolong rolls, oxidises, and only then goes into the pan.",
           "detail": "How we judge it: rolled until the cells are thoroughly broken and the juices show, or the heavy oxidation will not run deep."
         },
         "ferment": {
@@ -964,7 +964,7 @@
     },
     "productCta": {
       "label": "Buy this tea",
-      "hint": "You have seen how it is made — now taste the result."
+      "hint": "You have seen how it is made. Now taste it."
     },
     "howTo": {
       "name": "How {tea} Is Made"
@@ -1045,7 +1045,7 @@
       "picking2": {
         "alt": "Hand-picking tea leaves at dawn",
         "caption": "Dawn Harvest",
-        "desc": "One bud, two leaves — where quality begins"
+        "desc": "One bud with three to four leaves — where quality begins"
       },
       "wilting": {
         "alt": "Sun withering process",
