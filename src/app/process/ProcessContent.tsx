@@ -295,8 +295,12 @@ export default function ProcessContent({ experiences, contents }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           {/* 上排：茶款選擇器 */}
           <div className="mb-3">
+            {/* 捲動容器與 flex 分開：w-max + mx-auto 讓內容放得下時置中，
+                放不下時才從左邊開始捲——直接對 overflow 容器下 justify-center
+                會讓溢出的左半邊捲不到 */}
+            <div className="overflow-x-auto pb-1">
             <div
-              className="flex items-center gap-2 overflow-x-auto pb-1"
+              className="flex items-center gap-2 w-max mx-auto"
               role="tablist"
               aria-label={t("teaSelector.label")}
             >
@@ -325,11 +329,13 @@ export default function ProcessContent({ experiences, contents }: Props) {
                 );
               })}
             </div>
-            <p className="text-xs text-tea-text-light mt-1.5">{t("teaSelector.hint")}</p>
+            </div>
+            <p className="text-xs text-tea-text-light mt-1.5 text-center">{t("teaSelector.hint")}</p>
           </div>
 
           {/* 下排：工序（橫向捲動——工序數已達 10–12，grid 會擠成多排） */}
-          <div className="flex items-start gap-1 overflow-x-auto pb-1">
+          <div className="overflow-x-auto pb-1">
+          <div className="flex items-start gap-1 w-max mx-auto">
             {numbered.map((step, i) => {
               const isActive = effectiveStep === step.number;
               const name = t(`steps.${step.step}.name`);
@@ -364,6 +370,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
                 </div>
               );
             })}
+          </div>
           </div>
         </div>
       </section>

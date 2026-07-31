@@ -856,6 +856,9 @@
           "desc": "Honey black tea is plucked under a stricter condition than the others: the leaves must first have been bitten by the tea green leafhopper. The bush responds with a defence reaction, and that is where the honey note comes from — so here the leafhopper is a requirement rather than a problem, while other pests and diseases are still managed as usual.",
           "detail": "How we judge it: whether the leaves show signs of leafhopper bite. No bite, no honey note."
         },
+        "shake": {
+          "desc": "The decisive step for this black tea. The maker tumbles the leaves so their edges bruise against one another, and oxidation starts at those breaks — the enzymes wake up, and the floral and fruity notes that belong to this tea begin to form. Toss lightly and the oxidation stays light; toss hard and it runs deep. Whether this black tea ends up delicate or full-bodied is settled right here."
+        },
         "fix": {
           "skipReason": "Honey black tea skips fixation. Without that brake, the leaves can oxidise all the way through and finish as a black tea."
         },
