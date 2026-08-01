@@ -7,6 +7,7 @@ import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints } from "@/lib/points";
 import { isValidCvs, cvsSupportsCod } from "@/lib/cvs";
+import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
 
 const RL_KEY = (ip: string) => `orders:${ip}`; // 20 req/min per IP
 import type { CreateOrderRequest } from "@/types";
@@ -146,28 +147,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "請填寫 Email 以接收訂單通知" }, { status: 400 });
   };
 
-  // ── 5. 折價券驗證 ────────────────────────────────────────────────────────
+  // ── 5. 折價券驗證（支援批次券 + 通用碼）────────────────────────────────────
   let couponId: string | null = null;
   let couponDiscount = 0;
+  let couponType: "batch" | "universal" | null = null;
 
   if (body.couponCode) {
-    const { data: coupon } = await supabase
-      .from("coupons")
-      .select("id, discount_amount, min_order_amount")
-      .eq("user_id", userId)
-      .eq("code", body.couponCode)
-      .is("used_at", null)
-      .gt("expires_at", new Date().toISOString())
-      .single();
-
-    if (!coupon) {
-      return NextResponse.json({ error: "折價券無效或已使用" }, { status: 400 });
+    const couponResult = await resolveCouponCode(userId, body.couponCode);
+    if (!couponResult.valid) {
+      return NextResponse.json({ error: couponResult.error }, { status: 400 });
     }
-    if (subtotal + shippingFee < coupon.min_order_amount) {
-      return NextResponse.json({ error: `未達折價券最低消費 NT$${coupon.min_order_amount}` }, { status: 400 });
+    if (subtotal + shippingFee < couponResult.coupon.min_order_amount) {
+      return NextResponse.json({ error: `未達折價券最低消費 NT$${couponResult.coupon.min_order_amount}` }, { status: 400 });
     }
-    couponId = coupon.id;
-    couponDiscount = coupon.discount_amount;
+    couponId = couponResult.coupon.id;
+    couponDiscount = couponResult.coupon.discount_amount;
+    couponType = couponResult.coupon.type;
   }
 
   // ── 6. 點數折抵驗證（新制 1:1）───────────────────────────────────────────
@@ -234,9 +229,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "建立訂單失敗" }, { status: 500 });
   }
 
-  // 標記折價券已使用
-  if (couponId) {
+  // 標記折價券已使用。批次券寫回 coupons，通用碼記一筆 coupon_usages
+  //（取消訂單時的還原以 coupon_usages.order_id 為鍵，見 orders/[id]/cancel）
+  if (couponId && couponType === "batch") {
     await supabase.from("coupons").update({ used_at: new Date().toISOString(), order_id: data.id }).eq("id", couponId);
+  } else if (couponId && couponType === "universal") {
+    await recordCouponUsage({ templateId: couponId, userId, orderId: data.id });
   }
 
   // 若使用點數折抵，立即扣除（防止重複使用）
