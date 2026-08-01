@@ -186,4 +186,5 @@
   - **萊爾富代收的爭議是兩種服務被混為一談**：走櫃台自填單的散客店到店不代收；綠界 C2C 的代收金額是賣家在後台建單時填的，門市櫃台不經手（費率表註2「超商門市人員不會先行收取物流運費」）。小江查綠界後台確認代收欄位可填後定案
   - 萊爾富 C2C 材積比別家嚴（總重 ≧40 公克且 ≦5 公斤，7-11／全家為 10 公斤），大單會先卡在這裡，與代收無關
 - 本 session 期間獨立發現、已由他人修掉的：vitest 把 `.claude/hooks/guard-commands.test.js` 當測試檔掃進來，導致 `npm run test` 自 `cad08e0` 起一直偽紅。曾開任務卡片，rebase 時發現遠端 `0a6b08a` 已修（vitest 與 eslint 一併排除 `.claude`），卡片已撤
-- 狀態：已完成（證據：428 測試全過含新增 11 條、`tsc --noEmit` 零錯誤、`npm run build` 成功；綠界正式環境地圖探測 8 次、測試環境建單探測 7 次。以上為 rebase 前的本機驗證，rebase 後另跑一次見下）
+- rebase 到 main 之後才發現的自己的錯：貨到付款的超商重置原本寫成 useEffect，被新修好的 `npm run lint` 抓到兩個 error——(1) effect 寫在 `form` 的 useState 之前，`setForm` 處於 TDZ；(2) 移到宣告後仍違反 `react-hooks/set-state-in-effect`。改放付款方式的 onChange 事件處理器解決（`1cb6a27`）。**tsc 與 476 條測試都抓不到這兩個**，與 lessons「eslint-config-next 帶進的 react-hooks 規則抓到 tsc 抓不到的 bug」同一類
+- 狀態：已完成（證據：rebase 並 `npm ci` 同步依賴後重驗——476 測試全過（35 檔）、`tsc --noEmit` 零錯誤、`npm run lint` 0 error（36 warning 皆為既有的清償待辦）、`npm run build` 成功；綠界正式環境地圖探測 8 次、測試環境建單探測 7 次）

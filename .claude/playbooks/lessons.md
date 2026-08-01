@@ -157,3 +157,9 @@
 - 代價：先照現場經驗把萊爾富的貨到付款擋掉，改完、測完、build 完，隔一輪確認後又整套改回來——多繞一趟
 - 規則：使用者的第一手觀察與 API／文件衝突時，**不要急著二選一，先問「這是不是同一條路徑」**——同一家廠商常有散客自助版與平台串接版，兩者的能力不同。釐清方式：問使用者當時的實際操作步驟（走櫃台自填單？還是先在後台建單拿編號再去機台印？），並找出「這個能力是在哪一步被設定的」。在釐清前，可以先做兩邊都同意的部分（本例：OK 超商不管誰對都要移除），把有爭議的部分留到最後
 - 去處：暫存於此（與 JUDG-3「該不該問使用者」互補：本條是「該問什麼」）
+
+## 2026-08-01 Bash tool 會把 `git show "rev:path"` 的冒號吃掉
+- 情境：rebase 解衝突時要看遠端版本，在 Bash tool 跑 `git show "origin/main:.claude/WORKLOG.md"`，回 `fatal: ambiguous argument 'origin\main;.claude\WORKLOG.md'`——冒號變成分號、斜線變成反斜線。加不加引號都一樣，連跑兩次才想到是 Git Bash 的 MSYS 路徑轉換在作怪（它看到含冒號的字串會當成 Unix 路徑清單去轉 Windows 路徑）
+- 代價：兩次無效呼叫；錯誤訊息講的是 git 參數歧義，很容易往「引號寫錯」的方向白追
+- 規則：本環境凡是參數含冒號的 git 語法（`git show rev:path`、`git diff rev1:file rev2:file`、`git checkout rev -- path` 以外的 `rev:path` 形式）一律改用 PowerShell tool 跑；真的要留在 Bash 就前綴 `MSYS_NO_PATHCONV=1`。同理適用於任何含冒號的參數（如 `--pretty=format:%H`）
+- 去處：暫存於此（與「Bash tool 裡用 PowerShell here-string」同屬工具與語法配對問題，兩條都指向：本環境雙 shell 並存，送出前先確認語法屬於哪一邊）
