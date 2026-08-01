@@ -8,6 +8,7 @@ import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints } from "@/lib/points";
 import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { isValidCvs } from "@/lib/cvs";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
 const HASH_KEY  = process.env.ECPAY_HASH_KEY!;
@@ -76,8 +77,7 @@ export async function POST(req: NextRequest) {
   if (body.deliveryType !== "home" && body.deliveryType !== "cvs") {
     return NextResponse.json({ error: "無效的配送方式" }, { status: 400 });
   }
-  const VALID_CVS = ["seven", "family", "hilife", "ok"];
-  if (body.deliveryType === "cvs" && body.cvsInfo?.company && !VALID_CVS.includes(body.cvsInfo.company)) {
+  if (body.deliveryType === "cvs" && body.cvsInfo?.company && !isValidCvs(body.cvsInfo.company)) {
     return NextResponse.json({ error: "無效的超商類型" }, { status: 400 });
   }
   if (body.customer.name.length > MAX_LENGTHS.name)       return NextResponse.json({ error: "姓名過長" },   { status: 400 });

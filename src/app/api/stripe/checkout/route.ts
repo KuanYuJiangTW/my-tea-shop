@@ -8,6 +8,7 @@ import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints } from "@/lib/points";
 import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { isValidCvs } from "@/lib/cvs";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const RL_KEY = (ip: string) => `stripe-checkout:${ip}`;
@@ -57,8 +58,7 @@ export async function POST(req: NextRequest) {
   if (body.deliveryType !== "home" && body.deliveryType !== "cvs") {
     return NextResponse.json({ error: "Invalid delivery type" }, { status: 400 });
   }
-  const VALID_CVS = ["seven", "family", "hilife", "ok"];
-  if (body.deliveryType === "cvs" && body.cvsInfo?.company && !VALID_CVS.includes(body.cvsInfo.company)) {
+  if (body.deliveryType === "cvs" && body.cvsInfo?.company && !isValidCvs(body.cvsInfo.company)) {
     return NextResponse.json({ error: "Invalid CVS type" }, { status: 400 });
   }
   if (body.customer.name.length > MAX_LENGTHS.name)       return NextResponse.json({ error: "Name too long" },    { status: 400 });

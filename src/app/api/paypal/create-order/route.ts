@@ -7,6 +7,7 @@ import type { CreateOrderRequest } from "@/types";
 import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints, refundPoints } from "@/lib/points";
 import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
+import { isValidCvs } from "@/lib/cvs";
 
 const RL_KEY = (ip: string) => `paypal-create:${ip}`;
 
@@ -60,8 +61,7 @@ export async function POST(req: NextRequest) {
   if (body.deliveryType !== "home" && body.deliveryType !== "cvs" && body.deliveryType !== "international") {
     return NextResponse.json({ error: "Invalid delivery type" }, { status: 400 });
   }
-  const VALID_CVS = ["seven", "family", "hilife", "ok"];
-  if (body.deliveryType === "cvs" && body.cvsInfo?.company && !VALID_CVS.includes(body.cvsInfo.company)) {
+  if (body.deliveryType === "cvs" && body.cvsInfo?.company && !isValidCvs(body.cvsInfo.company)) {
     return NextResponse.json({ error: "Invalid CVS type" }, { status: 400 });
   }
   // International address validation

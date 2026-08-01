@@ -21,6 +21,7 @@ import {
   EPACKET_MAX_WEIGHT_G,
   INTERNATIONAL_FREE_SHIPPING_THRESHOLD,
 } from "@/lib/shipping-constants";
+import { cvsSupportsCod } from "@/lib/cvs";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^09\d{8}$/;
@@ -94,6 +95,16 @@ export default function CheckoutClient() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // 改選貨到付款時，若原本選的超商不代收貨款，退回預設並清掉已選門市
+  useEffect(() => {
+    if (payment !== "cod") return;
+    setForm(prev =>
+      cvsSupportsCod(prev.cvsCompany)
+        ? prev
+        : { ...prev, cvsCompany: "seven", cvsStoreId: "", cvsStoreName: "" }
+    );
+  }, [payment]);
 
   // 折價券
   type CouponRow = { id: string; code: string; discount_amount: number; min_order_amount: number; expires_at: string };
@@ -310,7 +321,7 @@ export default function CheckoutClient() {
       const res = await fetch("/api/ecpay/cvs-map", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cvsCompany: form.cvsCompany }),
+        body: JSON.stringify({ cvsCompany: form.cvsCompany, isCollection: payment === "cod" }),
       });
       if (!res.ok) throw new Error();
       const { actionUrl, params } = await res.json() as { actionUrl: string; params: Record<string, string> };
@@ -510,12 +521,13 @@ export default function CheckoutClient() {
       hasError ? "border-rose-300" : "border-tea-green-pale"
     }`;
 
+  // OK 超商已被綠界停用（電子地圖回「OK超商暫停服務」），不再列出。
+  // 貨到付款時再濾掉不代收貨款的超商（目前三家皆可代收，清單見 lib/cvs.ts）。
   const cvsOptions = [
     { value: "seven",  label: "7-ELEVEN" },
     { value: "family", label: "全家 FamilyMart" },
     { value: "hilife", label: "萊爾富 Hi-Life" },
-    { value: "ok",     label: "OK 超商" },
-  ];
+  ].filter(o => payment !== "cod" || cvsSupportsCod(o.value));
 
   if (codSuccess) {
     const cvsName = cvsOptions.find(o => o.value === form.cvsCompany)?.label ?? form.cvsCompany;
@@ -746,7 +758,9 @@ export default function CheckoutClient() {
                       <label className="block text-sm font-medium text-tea-text mb-2">{t("cvsBrand")} *</label>
                       <div ref={cvsRef} className="relative">
                         {(() => {
-                          const selected = cvsOptions.find(o => o.value === form.cvsCompany);
+                          // 切到貨到付款的那一幀，form.cvsCompany 可能還是被濾掉的超商
+                          //（重設在 effect 裡），用第一個可選項當退路，避免按鈕文字空白閃一下
+                          const selected = cvsOptions.find(o => o.value === form.cvsCompany) ?? cvsOptions[0];
                           return (
                             <>
                               <button

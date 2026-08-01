@@ -232,7 +232,7 @@
     "homeDelivery": "Home Delivery",
     "homeDeliveryDesc": "Black Cat delivery to your address",
     "cvsPickup": "Convenience Store Pickup",
-    "cvsPickupDesc": "Pick up at 7-ELEVEN, FamilyMart, Hi-Life, or OK Mart",
+    "cvsPickupDesc": "Pick up at 7-ELEVEN, FamilyMart, or Hi-Life",
     "city": "City / County",
     "selectCityPlaceholder": "Select a city",
     "address": "Street Address",

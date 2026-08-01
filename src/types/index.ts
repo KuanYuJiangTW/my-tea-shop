@@ -39,7 +39,9 @@ export interface CartItem {
 
 export type PaymentMethod = "online" | "cod" | "stripe" | "paypal";
 export type DeliveryType  = "home" | "cvs" | "international";
-export type CvsCompany    = "seven" | "family" | "hilife" | "ok";
+// OK 超商已被綠界停用（電子地圖回「OK超商暫停服務」），不再開放新訂單選取。
+// 歷史訂單可能存有 "ok"，顯示用的名稱對應表仍需保留該鍵。
+export type CvsCompany    = "seven" | "family" | "hilife";
 
 export interface InternationalAddress {
   country:      string;

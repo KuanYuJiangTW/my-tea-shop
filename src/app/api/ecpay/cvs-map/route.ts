@@ -1,17 +1,11 @@
 import { createHash, createHmac } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { CVS_SUBTYPE, cvsSupportsCod, isValidCvs } from "@/lib/cvs";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
 const HASH_KEY  = process.env.ECPAY_LOGISTICS_HASH_KEY!;
 const HASH_IV   = process.env.ECPAY_LOGISTICS_HASH_IV!;
 const MAP_URL   = "https://logistics.ecpay.com.tw/Express/map";
-
-const CVS_SUBTYPE: Record<string, string> = {
-  seven:  "UNIMARTC2C",
-  family: "FAMIC2C",
-  hilife: "HILIFEC2C",
-  ok:     "OKMARTC2C",
-};
 
 // HMAC secret for signing MerchantTradeNo
 const HMAC_SECRET = process.env.ECPAY_HASH_KEY! + process.env.ECPAY_HASH_IV!;
@@ -62,10 +56,13 @@ function buildCheckMacValue(params: Record<string, string>): string {
 }
 
 export async function POST(req: NextRequest) {
-  const { cvsCompany } = await req.json() as { cvsCompany: string };
-  const subtype = CVS_SUBTYPE[cvsCompany];
-  if (!subtype) {
+  const { cvsCompany, isCollection } = await req.json() as { cvsCompany: string; isCollection?: boolean };
+  if (!isValidCvs(cvsCompany)) {
     return NextResponse.json({ error: "無效的超商類型" }, { status: 400 });
+  }
+  // 不代收貨款的超商不得搭配貨到付款（清單見 lib/cvs.ts）
+  if (isCollection && !cvsSupportsCod(cvsCompany)) {
+    return NextResponse.json({ error: "此超商不支援貨到付款" }, { status: 400 });
   }
 
   const base     = process.env.NEXT_PUBLIC_BASE_URL!;
@@ -75,8 +72,8 @@ export async function POST(req: NextRequest) {
     MerchantID:       MERCHANT,
     MerchantTradeNo:  tradeNo,
     LogisticsType:    "CVS",
-    LogisticsSubType: subtype,
-    IsCollection:     "N",
+    LogisticsSubType: CVS_SUBTYPE[cvsCompany],
+    IsCollection:     isCollection ? "Y" : "N",
     ServerReplyURL:   `${base}/api/ecpay/cvs-callback`,
   };
   params.CheckMacValue = buildCheckMacValue(params);

@@ -155,7 +155,7 @@
 
 - **Product Browsing**: Multiple specs (150g / 75g / tea bags), real-time stock display, auto-lock when sold out
 - **Shopping Cart**: React Context state management, localStorage cache, Supabase cloud sync
-- **Checkout**: Home delivery / CVS pickup (7-ELEVEN, FamilyMart, Hi-Life, OK Mart) / international shipping, free shipping on qualifying orders
+- **Checkout**: Home delivery / CVS pickup (7-ELEVEN, FamilyMart, Hi-Life) / international shipping, free shipping on qualifying orders
 - **Payment Methods**: ECPay (credit card / ATM / CVS code), Stripe (credit card / Apple Pay / Google Pay), PayPal (international buyers), cash on delivery
 - **International Shipping**: Zone-based shipping rate calculation (ePacket max 2kg), worldwide delivery
 - **Order Tracking**: View order history and status after login, supports cancellation

@@ -6,6 +6,7 @@ import { sendOrderEmails } from "@/lib/email";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints } from "@/lib/points";
+import { isValidCvs, cvsSupportsCod } from "@/lib/cvs";
 
 const RL_KEY = (ip: string) => `orders:${ip}`; // 20 req/min per IP
 import type { CreateOrderRequest } from "@/types";
@@ -46,9 +47,13 @@ export async function POST(req: NextRequest) {
   if (body.deliveryType !== "home" && body.deliveryType !== "cvs") {
     return NextResponse.json({ error: "無效的配送方式" }, { status: 400 });
   }
-  const VALID_CVS = ["seven", "family", "hilife", "ok"];
-  if (body.deliveryType === "cvs" && body.cvsInfo?.company && !VALID_CVS.includes(body.cvsInfo.company)) {
+  if (body.deliveryType === "cvs" && body.cvsInfo?.company && !isValidCvs(body.cvsInfo.company)) {
     return NextResponse.json({ error: "無效的超商類型" }, { status: 400 });
+  }
+  // 貨到付款只能搭配可代收貨款的超商（清單見 lib/cvs.ts）
+  if (body.paymentMethod === "cod" && body.deliveryType === "cvs"
+      && body.cvsInfo?.company && !cvsSupportsCod(body.cvsInfo.company)) {
+    return NextResponse.json({ error: "此超商不支援貨到付款，請改選其他超商" }, { status: 400 });
   }
   // 長度限制
   if (body.customer.name.length > MAX_LENGTHS.name)       return NextResponse.json({ error: "姓名過長" },   { status: 400 });
