@@ -366,6 +366,24 @@
   「看起來來自瀏覽器」的 secret key 請求，而 PowerShell `Invoke-WebRequest` 的預設
   User-Agent 含 `Mozilla`。加 `-UserAgent "node"` 即 200。教訓見 lessons 同日條目
 - LINE 帳號：`@580ariqa`（風土數位，與霧抉茶的 `NEXT_PUBLIC_LINE_OFFICIAL_URL` 分開兩個變數）
+
+**v2（2026-08-02）：痛點／成果文案與案例故事頁**（commit `77125e5`）
+- 目標：v1 只有方案與價格，缺「痛點共鳴」與「成果承諾」；並補案例故事頁作為高預算客戶的說服材料
+- 交付：報價頁插入痛點區塊（5 場景＋損失註解＋轉折句）與成果區塊（4 機制利益＋ROI 試算框）；
+  新增 `/web-design/case` 案例故事頁；FAQ 加 `id="faq"`、表單 id 改 `inquiry`（供 LINE 圖文選單直達）；
+  LINE 圖文選單 1200×810 設計稿（Chrome headless 截圖，PNG 交付使用者，未進 repo）
+- **文案紅線（已寫進 spec）**：不得出現編造的客戶成效數字。使用者要求「明確的賺錢利潤數字」，
+  但無真實數據佐證的成效宣稱涉及公平交易法第 21 條，且被客人拆穿會毀掉品牌信任。改用四招替代：
+  具體痛點場景／機制性利益（「24 小時的接單員」）／「如果」框架的 ROI 試算／可驗證事實。
+  案例頁「現在」區塊的成長數字**留白**，待業主提供 GA 數據再填
+- 驗收：checker 跑到一半被 Claude 月度額度上限中斷，改由主對話逐條補驗（詳見 tasks.md 6.6）。
+  **教訓**：額度中斷不等於驗收通過；當下我一度只補了部分條件就對使用者說「全數通過」，
+  是使用者追問「真的都完成了嗎」才回頭補完區塊順序與案例頁結構兩條
+- 線上實測（部署後）：`/web-design`、`/web-design/case`、`/en/web-design/case` 皆 HTTP 200 且內容正確
+- 附帶觀察（非本次造成、未處理）：next-intl 把**整份 `messages/*.json` 序列化進每一頁 HTML**，
+  故 `/faq`、`/contact` 也含報價頁文案。全站既有行為，不影響正確性，但每頁 payload 偏大（70–110KB），
+  日後若要優化可考慮 next-intl 的 messages 分割
+- 待使用者處理：LINE 圖文選單補上案例頁與 `#faq` 兩格連結；提供 GA 數據以填案例頁成長數字
 - 狀態：已完成（證據：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤（sitemap 改動後複跑）、
   `npm run build` 成功且 `/web-design` 與 `/api/web-inquiry` 皆已註冊、checker 獨立驗收
   10/11 PASS 含文案逐字抽驗 5 處與 RLS 無 policy 複查）

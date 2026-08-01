@@ -34,4 +34,8 @@
 - [x] 6.3 `messages/zh.json`＋`en.json` 新增對應字串（zh 逐字、en 行銷語感翻譯）
 - [x] 6.4 `src/app/sitemap.ts` 加 `/web-design/case`
 - [x] 6.5 LINE 圖文選單 1200×810 設計稿 PNG＋後台設定說明（主對話自製，PNG 已交付使用者）
-- [ ] 6.6 `/verify` 全綠＋checker 對照更新後 spec 驗收＋commit/push
+- [x] 6.6 `/verify` 全綠＋驗收＋commit/push（`77125e5`）。**驗收方式與 v1 不同**：派出的
+      checker 跑到一半被 Claude 月度額度上限中斷（只完成 key 結構對稱一項），改由主對話
+      逐條補驗——區塊順序（page.tsx 行號遞增 86→108→145）、案例頁五區塊與
+      `langAlternates`／LINE 條件渲染（case/page.tsx:11,36-116）、錨點無殘留舊 id、
+      中英文紅線掃描、文案六處逐字、測試 536／tsc 零錯／build 兩路由皆註冊
