@@ -6,8 +6,10 @@ import {
   sendSessionCancelEmail,
   sendDayBeforeReminder,
   sendAdminSessionCancelNotice,
+  sendAdminPendingRefundDigest,
 } from "@/lib/email";
 import { expireWaitlistAndNotifyNext } from "@/lib/waitlist";
+import { refundBookingPoints } from "@/lib/points";
 
 // Vercel Cron: 每天 01:00 UTC（台灣時間 09:00）執行
 // 受 CRON_SECRET 保護，只有 Vercel 可以呼叫
@@ -101,7 +103,7 @@ export async function GET(req: NextRequest) {
 
       const { data: bookings } = await supabase
         .from("experience_bookings")
-        .select("id, booker_name, booker_email, participant_count, total_price")
+        .select("id, user_id, booker_name, booker_email, participant_count, total_price")
         .eq("session_id", session.id)
         .eq("status", "confirmed");
 
@@ -147,6 +149,21 @@ export async function GET(req: NextRequest) {
             refund_amount:       null, // 全額退
           })
           .in("id", bookingIds);
+
+        // 退還折抵點數。場次是店家因人數不足取消的，客人無過失，
+        // 不套用距活動時間的退款比例，一律全額退（refundRate = 1）
+        for (const booking of bookings) {
+          if (!booking.user_id) continue;
+          await refundBookingPoints({
+            userId:      booking.user_id,
+            bookingId:   booking.id,
+            refundRate:  1,
+            description: "場次取消退還點數",
+          }).catch(err => {
+            console.error(`[cron] 場次取消退點失敗 booking ${booking.id}:`, err);
+            results.confirmOrCancel.errors++;
+          });
+        }
 
         const totalRefund = bookings.reduce((s, b) => s + b.total_price, 0);
 
@@ -219,6 +236,34 @@ export async function GET(req: NextRequest) {
 
   // ── 4. 清理過期候補，通知下一位 ───────────────────────────────────────────────
   await expireWaitlistAndNotifyNext().catch(console.error);
+
+  // ── 5. 待退款對帳：現金退款是純人工，沒人提醒就會躺著 ─────────────────────────
+  const PENDING_REFUND_DAYS = 3;
+  const refundCutoff = new Date(Date.now() - PENDING_REFUND_DAYS * 24 * 60 * 60 * 1000);
+
+  const { data: pendingRefunds } = await supabase
+    .from("experience_bookings")
+    .select("id, booker_name, cancelled_at, refund_amount, total_price, session:experience_sessions(experience_types(name))")
+    .eq("refund_status", "pending")
+    .lt("cancelled_at", refundCutoff.toISOString())
+    .order("cancelled_at", { ascending: true });
+
+  if (pendingRefunds && pendingRefunds.length > 0) {
+    await sendAdminPendingRefundDigest({
+      items: pendingRefunds.map(b => ({
+        bookingId:      b.id,
+        bookerName:     b.booker_name,
+        experienceName: (b.session as unknown as { experience_types?: { name: string } } | null)
+                          ?.experience_types?.name ?? "茶藝體驗",
+        cancelledAt:    b.cancelled_at,
+        refundAmount:   b.refund_amount,
+        totalPrice:     b.total_price,
+        daysPending:    Math.floor(
+                          (Date.now() - new Date(b.cancelled_at).getTime()) / (24 * 60 * 60 * 1000)
+                        ),
+      })),
+    }).catch(console.error);
+  }
 
   console.log("Experience reminders cron result:", results);
   return NextResponse.json({ ok: true, results });

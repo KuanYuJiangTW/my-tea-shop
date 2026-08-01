@@ -107,12 +107,32 @@
 - **WHEN** 結帳時未使用點數
 - **THEN** `points_used = 0`、`points_discount = 0`
 
-### Requirement: 點數在導向金流前就扣除
-系統扣點的時機是**建立綠界結帳參數時**，而非付款成功後。
+### Requirement: 點數在導向金流前就扣除，逾期未付款由 cron 收回
+系統扣點的時機是**建立綠界結帳參數時**，而非付款成功後。客人放棄付款時
+預約會停在 `pending_payment`，因此系統 SHALL 以
+`GET /api/cron/expire-pending-bookings`（每日 03:30 UTC）清理這些孤兒預約。
 
-#### Scenario: 客人放棄付款
-- **WHEN** 客人完成結帳但未於綠界付款
-- **THEN** 預約停留在 `pending_payment`，扣除的點數在客人主動取消該預約前不會退還
+取消條件為**任一**成立：
+- `created_at` 早於 `now - 24 小時`
+- 場次時間已經過去（場次在 12 小時後開始的預約撐不到逾期就過期了，
+  只靠 24 小時規則會漏掉）
 
-> **已知缺口**：目前沒有清理逾期 `pending_payment` 預約的 cron，
-> 這些點數會無限期卡住。盤點用 `audit-experience-booking-points.sql` 第 4 段。
+#### Scenario: 逾期未付款的預約被自動取消
+- **WHEN** `status = "pending_payment"` 且符合上述任一條件
+- **THEN** 標記 `cancelled`、`cancellation_reason = "逾期未付款，系統自動取消"`、
+  `refund_amount = 0`、`refund_status = "none"`（從未付款，沒有現金要退），
+  以 `refundRate = 1` 全額退還帳本上已扣的點數，並寄取消通知信
+
+#### Scenario: 尚未逾期且場次未到
+- **WHEN** 預約建立未滿 24 小時，且場次還沒開始
+- **THEN** 不處理，保留讓客人繼續付款
+
+#### Scenario: 併發保護
+- **WHEN** cron 處理期間該預約已被客人或後台取消
+- **THEN** `update` 帶 `.eq("status", "pending_payment")` 而不中，跳過該筆，
+  不會重複退點（`refundBookingPoints` 的「減去已退」也會再擋一次）
+
+#### Scenario: pending_payment 不佔名額
+- **WHEN** 逾期預約被取消
+- **THEN** 不通知候補——DB trigger 只把 `confirmed` 計入 `current_participants`，
+  待付款預約從未佔用名額

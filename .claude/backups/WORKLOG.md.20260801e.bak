@@ -296,27 +296,3 @@
 - 狀態：已完成（證據：24 條體驗預約測試全過、反向驗證共 4 次如預期變紅後改回、
   515+ 測試全過、`tsc` 零錯誤、`build` 成功；線上資料由小江跑完 7 段 SQL 核實，
   補償已執行、複查對得上）
-
----
-
-### [2026-08-01] 體驗預約結案的三項結構性修補
-- 目標：小江指示把前一節列出的三件未處理事項照建議做掉
-- 驗收條件：
-  - [x] 逾期未付款預約自動取消 cron → 新增 `src/app/api/cron/expire-pending-bookings/route.ts`，`vercel.json` 排 03:30 UTC
-  - [x] 待退款對帳提醒 → `sendAdminPendingRefundDigest()` + `experience-reminders` 第 5 段
-  - [x] `refundPoints` 補上 `expires_at` → 退還點數不再變成永久點數（商品訂單一併受惠）
-  - [x] **順帶修掉第四個 bug**（見下）
-  - [x] 回歸測試 10 條 → `src/__tests__/bookings/expire-pending-bookings.test.ts`
-  - [x] **反向驗證兩次**：拿掉 `expires_at` → 1 紅；拿掉「場次已過期」判斷 → 1 紅；改回全綠
-  - [x] 規格對齊 → `experience-booking-points` 改寫「點數在導向金流前就扣除」那條、`booking-cancellation` 新增兩條 Requirement 並釐清舊條目
-- **第四個 bug：場次因人數不足自動取消時，點數完全沒退**
-  - `experience-reminders` 第 2 段（活動前 3 天人數未達 `min_participants`）批次把預約改 `cancelled`、寫 `refund_status = "pending"`，但**沒有任何退點動作**
-  - 這是體驗預約的**第四份**取消實作（會員取消／後台取消／場次取消／逾期取消）。它躲過了我先前的 grep——那支檔案裡根本沒出現 `points_discount`，**漏掉的東西 grep 不到**
-  - 修法：逐筆 `refundBookingPoints({ refundRate: 1 })`。場次是店家取消的，客人無過失，不套用距活動時間的比例
-- 決策紀錄：
-  - **逾期判定是「或」不是「且」**：`created_at` 早於 24 小時前 **或** 場次時間已過。只用 24 小時會漏掉「場次 12 小時後開始」的預約——它撐不到逾期，場次就先過了
-  - **併發保護用 `.eq("status", "pending_payment")` 而非先讀後寫**：cron 執行期間客人可能自己按了取消。update 不中就跳過；就算兩邊都跑到，`refundBookingPoints` 的「減去已退」會再擋一次
-  - **不做自動現金退款**。那需要綠界退款 API 與實際出款權限，屬於金流出款，不在本次授權範圍。改為提供可見性：待退款超過 3 天寄摘要信給 `ADMIN_EMAIL`，列出已等待天數與合計。信裡註明「點數已自動退回，不需人工處理」，避免管理者重複操作
-  - **退還點數的效期給 365 天**（與 `issuePoints` 一致），不繼承原始效期——`redeem` 是負值不帶 `expires_at`，追溯不到原本那批點數的剩餘期限。從退還當下重新起算對客人有利
-  - **`refundPoints` 是共用函式**，這次補 `expires_at` 讓商品訂單的退點一併修好
-- 狀態：已完成（證據：526 測試全過（39 檔）、`tsc --noEmit` 零錯誤、`npm run build` 成功且 `/api/cron/expire-pending-bookings` 已註冊、反向驗證 2 次如預期變紅後改回；`grep '"cancelled"'` 複查確認預約取消路徑共 4 處、皆已處理退點）

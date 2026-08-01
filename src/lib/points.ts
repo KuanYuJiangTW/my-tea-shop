@@ -252,6 +252,11 @@ export async function refundPoints(params: {
     order_id: orderId ?? null,
     booking_id: bookingId ?? null,
     description: description ?? "取消退還點數",
+    // 必填：getValidBalance 把 expires_at 為 null 的正向點數當成永不過期，
+    // 少了這欄，退還的點數會變成比原本更好的永久點數，慢慢累積成點數負債。
+    // 給 365 天與 issuePoints 一致——無法追溯原始 earn 的剩餘效期
+    // （redeem 是負值、不帶 expires_at），從退還當下重新起算對客人有利
+    expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
   });
 }
 

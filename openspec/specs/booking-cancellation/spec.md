@@ -14,12 +14,16 @@
 - **WHEN** `booking.status = "cancelled"`
 - **THEN** 系統回傳 HTTP 409 `{ error: "此預約無法取消" }`
 
-### Requirement: 待付款預約取消不退款
+### Requirement: 待付款預約取消沒有現金退款
 系統 SHALL 對 `status = "pending_payment"` 的預約，設定 `refund_amount = 0`，`refund_status = "none"`。
+
+> 這條只講**現金**。點數是另一回事——它在導向綠界之前就扣了，
+> 待付款取消時要**全額退還**，見下方「取消待付款預約時全額退還點數」。
 
 #### Scenario: 取消待付款預約
 - **WHEN** `booking.status = "pending_payment"`
-- **THEN** 預約更新為 `cancelled`，`refund_amount = 0`，不寄退款通知，不通知候補
+- **THEN** 預約更新為 `cancelled`，`refund_amount = 0`，不通知候補；
+  仍會寄取消確認信（信中退款金額為 0）
 
 #### Scenario: 候補通知邏輯（待付款）
 - **WHEN** 待付款預約取消
@@ -136,3 +140,41 @@
 - **WHEN** `booking.status = "pending_payment"`，帳本已扣 500 點
 - **THEN** 預約標記為 `cancelled`、`refund_amount = 0`（本來就沒付現金），
   並全額退還 500 點——不論距活動多久
+
+### Requirement: 店家端取消（場次未達開課人數）也要退還點數
+系統 SHALL 在 `GET /api/cron/experience-reminders` 因報名人數未達
+`min_participants` 而自動取消場次時，對每筆受影響的預約以 `refundRate = 1`
+退還折抵點數。
+
+> 場次是店家取消的，客人無過失，不套用距活動時間的退款比例。
+> 這條路徑原本只寫 `refund_status = "pending"`，**點數完全沒退**——
+> 它與會員取消、後台取消是三份各自獨立的實作。
+
+#### Scenario: 場次因人數不足自動取消
+- **WHEN** 活動前 3 天，該場次 `confirmed` 預約的總人數 < `min_participants`
+- **THEN** 場次與所有預約標記 `cancelled`、`refund_status = "pending"`，
+  每筆預約全額退還帳本上已扣的點數，並寄信給預約者與管理者
+
+#### Scenario: 退點失敗不中斷其他預約
+- **WHEN** 某筆預約退點時發生錯誤
+- **THEN** 記錄錯誤並計入 `results.errors`，繼續處理同場次的其他預約
+
+### Requirement: 待退款超過 3 天要提醒管理者
+現金退款是純人工流程（於綠界後台操作，再回本站後台標記 `processed`），
+系統 SHALL 每日檢查 `refund_status = "pending"` 且 `cancelled_at` 早於
+3 天前的預約，寄摘要信給 `ADMIN_EMAIL`。
+
+> 本系統**不會**自動執行現金退款——那需要綠界退款 API 與實際出款權限。
+> 這條需求只提供可見性，不碰金流。
+
+#### Scenario: 有待處理的退款
+- **WHEN** 存在 `refund_status = "pending"` 且已超過 3 天的預約
+- **THEN** 寄一封摘要信，列出訂購人、體驗、取消日、已等待天數、退款金額與合計
+
+#### Scenario: 沒有待處理的退款
+- **WHEN** 查無符合條件的預約
+- **THEN** 不寄信
+
+#### Scenario: 標記已退款後不再提醒
+- **WHEN** 管理者在後台將該筆標記為 `refund_status = "processed"`
+- **THEN** 下次檢查不再納入

@@ -1098,6 +1098,91 @@ export async function sendAdminSessionCancelNotice(data: {
   });
 }
 
+// ─── 管理者待退款對帳提醒 ──────────────────────────────────────────────────────
+
+// 現金退款目前是純人工（要去綠界後台操作，再回本站後台標記 processed）。
+// 沒有任何機制會提醒「這筆躺很久了」，這封信就是那個機制。
+export async function sendAdminPendingRefundDigest(data: {
+  items: {
+    bookingId:      string;
+    bookerName:     string;
+    experienceName: string;
+    cancelledAt:    string;
+    refundAmount:   number | null; // null = 全額退（場次取消那條路徑會寫 null）
+    totalPrice:     number;
+    daysPending:    number;
+  }[];
+}) {
+  if (data.items.length === 0) return;
+
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
+  const total = data.items.reduce((s, i) => s + (i.refundAmount ?? i.totalPrice), 0);
+  const oldest = Math.max(...data.items.map(i => i.daysPending));
+
+  const rows = data.items.map(i => {
+    const amount = i.refundAmount ?? i.totalPrice;
+    const amountLabel = i.refundAmount === null
+      ? `NT$ ${i.totalPrice.toLocaleString()}（全額）`
+      : `NT$ ${amount.toLocaleString()}`;
+    return `<tr>
+      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#3D4A42;">${escapeHtml(i.bookerName)}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#6B7B6E;">${escapeHtml(i.experienceName)}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#6B7B6E;">${i.cancelledAt.slice(0, 10)}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#dc2626;font-weight:700;">${i.daysPending} 天</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#3D4A42;font-weight:600;">${amountLabel}</td>
+    </tr>`;
+  }).join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F5F0E8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;">
+        <tr><td style="background:#B8860B;border-radius:16px 16px 0 0;padding:28px 40px;text-align:center;">
+          <div style="font-size:14px;font-weight:700;color:#ffffff;letter-spacing:2px;">💰 待退款提醒</div>
+          <div style="font-size:22px;font-weight:700;color:#ffffff;margin-top:4px;">霧抉茶後台</div>
+        </td></tr>
+        <tr><td style="background:#ffffff;padding:40px;">
+          <h2 style="margin:0 0 8px;font-size:18px;color:#3D4A42;">有 ${data.items.length} 筆退款尚未處理</h2>
+          <p style="margin:0 0 20px;font-size:13px;color:#6B7B6E;">最久的已經等了 ${oldest} 天，合計 NT$ ${total.toLocaleString()}。</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+            <tr style="background:#F5F0E8;">
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">訂購人</th>
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">體驗</th>
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">取消日</th>
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">已等待</th>
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">退款金額</th>
+            </tr>
+            ${rows}
+          </table>
+          <p style="margin:24px 0 0;font-size:13px;color:#6B7B6E;">
+            退款要在綠界後台操作，完成後回
+            <a href="${base}/admin/experiences/bookings" style="color:#B8860B;">本站後台</a>
+            把該筆標記為「已退款」，這封信才不會再提醒。
+          </p>
+          <p style="margin:12px 0 0;font-size:12px;color:#9CA89E;">
+            折抵的點數已由系統自動退回會員帳戶，不需人工處理。
+          </p>
+        </td></tr>
+        <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#9CA89E;">此為系統自動通知</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await getResend().emails.send({
+    from:    FROM,
+    to:      ADMIN,
+    subject: `【後台】${data.items.length} 筆退款待處理，最久 ${oldest} 天 — 合計 NT$ ${total.toLocaleString()}`,
+    html,
+  });
+}
+
 // ─── 候補：有名額通知 ───────────────────────────────────────────────────────────
 
 export async function sendWaitlistNotifyEmail(data: {

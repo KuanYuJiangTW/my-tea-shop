@@ -174,6 +174,7 @@
 - 情境：前一輪剛把商品訂單的取消退點改成「以 `point_transactions` 帳本為準」，還寫了 12 條回歸測試、反向驗證 6 次、跑了補償 SQL，整件事看起來收乾淨了。這輪小江問「體驗預約的結帳與取消對不對」，一查——體驗預約是**完全獨立的第二套程式碼**（`/api/bookings/[id]/cancel`、`/api/admin/experience-bookings/[id]/cancel`、`/api/ecpay/experience-checkout`），仍然照 `points_discount` 退、沒有冪等、結帳可重複扣點，一行都沒被上一輪碰到
 - 代價：無（小江問了才查），但這條路徑帶著同一個 bug 又多活了一輪。若不是被問到，下次發現可能是客人來客訴
 - 規則：**修完一個 bug，用它的「錯誤形狀」而不是它的檔名去 grep 全 repo**。本例的形狀是「讀 `points_discount` 當退還依據」與「退點沒有減去已退」，一條 `grep -rn "points_discount" src/app/api` 就會露出體驗那三支。凡是同一領域有多套並行實作（商品訂單／體驗預約／候補轉正；四條金流路徑），修 A 之後一律逐一開啟 B、C、D 確認，**不要假設它們共用同一個 helper**
+- 追記（同日）：後來為了做 cron 才打開 `experience-reminders`，發現**第四份實作**——場次因人數不足自動取消時，只寫了 `refund_status = "pending"`，點數一點都沒退。它躲過前面的 grep，因為那支檔案裡根本沒出現 `points_discount`（漏掉的東西 grep 不到）。補一條做法：**除了 grep 錯誤形狀，還要 grep 那個「狀態轉換」本身**——本例是 `status: "cancelled"`，全 repo 四處，逐一確認每處都做了該做的善後
 - 去處：暫存於此（與 2026-08-01「SELECT 少一個欄位」同源：那條講單一路徑的錯，這條講那個錯的複製品）
 
 ## 2026-08-01 我從 git 歷史推論線上帳本的內容，被 migration 打臉
