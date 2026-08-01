@@ -141,7 +141,7 @@ export const teaProcesses: readonly TeaProcess[] = [
     family: "heavyBall",
     productId: 4,
     sourcing: "partner",
-    // 前兩步與蜜香紅茶完全相同，末端多一道炒菁——這是它與紅茶的分水嶺
+    // 前兩步的順序與蜜香紅茶相同（但發酵不走完），末端多一道炒菁——這是它與紅茶的分水嶺
     // roll 為 accent：共通段的揉捻文案寫的是「炒菁後趁熱揉」，紅烏龍炒菁在最後，
     // 走的是紅茶那套先揉捻破壁再重發酵，套共通文案會講錯順序
     divergence: [

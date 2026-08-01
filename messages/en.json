@@ -785,12 +785,12 @@
       },
       "fix": {
         "name": "Fixation",
-        "desc": "Once oxidation has reached the point we want, the leaves go into a high-heat iron pan. The enzymes are deactivated and oxidation stops on the spot; the grassy note is driven off, a toasted one takes its place, and the aroma is fixed where it stands. This is the brake pedal of tea making — whatever flavour this batch has reached is locked in at this moment, and there is no going back.",
-        "detail": "Temperature: 260–300°C, duration: approximately 5–8 minutes. How we judge it: when the grassy note turns toasted and a handful of leaves feels soft without sticking, it comes out of the pan."
+        "desc": "Once oxidation has reached the point we want, the leaves go into a drum fixation machine, tumbling continuously inside a hot rotating cylinder. The enzymes are deactivated and oxidation stops on the spot; the grassy note is driven off, a toasted one takes its place, and the aroma is fixed where it stands. This is the brake pedal of tea making — whatever flavour this batch has reached is locked in at this moment, and there is no going back.",
+        "detail": "Equipment: drum fixation machine. Temperature: 260–300°C, duration: approximately 5–8 minutes. How we judge it: when the grassy note turns toasted and a handful of leaves feels soft without sticking, it comes off the machine."
       },
       "roll": {
         "name": "Rolling",
-        "desc": "Straight out of the pan and still warm, the leaves are wrapped in cloth and rolled — tightening into balls or strands while the juices are worked onto the leaf surface. That coating is the point: in the pot the leaves open readily, and the flavour comes out whole.",
+        "desc": "Straight off the machine and still warm, the leaves are wrapped in cloth and rolled — tightening into balls or strands while the juices are worked onto the leaf surface. That coating is the point: in the pot the leaves open readily, and the flavour comes out whole.",
         "detail": "Rolled continuously for 3–5 minutes. How we judge it: when the leaves have formed strands and feel tacky in the hand without weeping."
       },
       "ferment": {
@@ -881,11 +881,11 @@
           "detail": "How we judge it: a markedly higher proportion of red leaf edge than a standard oolong."
         },
         "roll": {
-          "desc": "Red oolong rolls the way a black tea does: rolling comes first, rupturing the cells and releasing the juices, and then the leaves are left to rest and oxidise fully — laying the ground for the heavy oxidation that follows. The order is the exact reverse of an oolong — oolong fixes then rolls; red oolong rolls, rests and oxidises, and only then goes into the pan.",
+          "desc": "Red oolong rolls the way a black tea does: rolling comes first, rupturing the cells and releasing the juices, and the leaves are then left to rest and oxidise. The order is the exact reverse of an oolong — oolong fixes then rolls; red oolong rolls, then oxidises, and only then is fixed.",
           "detail": "How we judge it: rolled until the cells are thoroughly broken and the juices show, or the heavy oxidation will not run deep."
         },
         "ferment": {
-          "desc": "Heavy oxidation is what gives red oolong its name, taken almost to black tea levels, and it is where the fruit and honey character forms. The first two steps here — rolling, then oxidation — are identical to honey black tea. What actually separates them is the fixation that comes after.",
+          "desc": "Heavy oxidation is what gives red oolong its name, taken almost to black tea levels, and it is where the fruit and honey character forms. The first two steps here — rolling, then oxidation — run in the same order as honey black tea, the difference being that red oolong stops the oxidation short. What actually separates them is the fixation that comes after.",
           "detail": "How we judge it: taken close to black tea depth, but stopped before it gets there."
         },
         "roast": {
