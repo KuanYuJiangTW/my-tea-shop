@@ -26,3 +26,12 @@
 ## 5. 收尾
 
 - [x] 5.1 WORKLOG 補記＋commit＋push
+
+## 6. v2：痛點／成果文案與案例故事頁（2026-08-02）
+
+- [x] 6.1 報價頁插入痛點區塊（5 場景＋轉折句）與成果區塊（4 利益＋ROI 試算框＋案例頁連結），位置：Hero 之後、三階卡之前；FAQ 加 `id="faq"`、表單加 `id="inquiry"`；文案照 copy-zh.md v2 逐字
+- [x] 6.2 `src/app/web-design/case/page.tsx` 案例故事頁（webDesignCase namespace、`langAlternates("/web-design/case")`、LINE 按鈕沿用環境變數規則）
+- [x] 6.3 `messages/zh.json`＋`en.json` 新增對應字串（zh 逐字、en 行銷語感翻譯）
+- [x] 6.4 `src/app/sitemap.ts` 加 `/web-design/case`
+- [x] 6.5 LINE 圖文選單 1200×810 設計稿 PNG＋後台設定說明（主對話自製，PNG 已交付使用者）
+- [ ] 6.6 `/verify` 全綠＋checker 對照更新後 spec 驗收＋commit/push

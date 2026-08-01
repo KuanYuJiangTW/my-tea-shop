@@ -1414,6 +1414,59 @@
       "ctaPrimary": "See pricing",
       "ctaSecondary": "Let's talk"
     },
+    "painPoints": {
+      "sectionTitle": "Sound like your evenings?",
+      "items": [
+        {
+          "scenario": "\"It's 11pm. A customer messages asking if you still have stock. You're asleep. By the time you reply at 9am, they've already ordered from somewhere else.\"",
+          "note": "A business with no website is closed every single night."
+        },
+        {
+          "scenario": "\"Someone Googles your shop's name. The first page shows a three-year-old blog review, someone else's post, and a different shop with the same name.\"",
+          "note": "Someone else is telling your story right now."
+        },
+        {
+          "scenario": "\"Peak season, the phone won't stop ringing, the desk calendar is covered in bookings — and you still double-booked.\"",
+          "note": "Manage bookings by memory, and it's only a matter of time before something breaks."
+        },
+        {
+          "scenario": "\"Your page reach keeps dropping, ads keep getting pricier, and the follower list you built still belongs to the platform.\"",
+          "note": "You're building a house on rented land — the landlord can raise the rent anytime."
+        },
+        {
+          "scenario": "\"Customers now ask AI to recommend a place first. AI has never read your website, so you're not in the answer.\"",
+          "note": "In the AI era, visibility is the new storefront location."
+        }
+      ],
+      "turn": "None of this is because you're not working hard enough — it's that your storefront is stuck a decade in the past."
+    },
+    "outcomes": {
+      "sectionTitle": "Switch to a website that works for you, and here's what you get",
+      "items": [
+        {
+          "title": "A 24-hour order taker",
+          "desc": "Customers order at midnight, payment confirms automatically, notifications send themselves. You sleep — the orders keep coming in."
+        },
+        {
+          "title": "From found to recommended",
+          "desc": "SEO gets you found on Google; AI optimization gets you recommended by AI assistants. That's exactly how Wu Jue Tea is positioned."
+        },
+        {
+          "title": "Your customer list stays yours",
+          "desc": "Members, orders, and booking records live in your own database. However the platform's algorithm changes, your customers are still yours."
+        },
+        {
+          "title": "Get your time back",
+          "desc": "Every hour spent reconciling accounts, replying to messages, and juggling bookings becomes an hour spent on your product and your customers."
+        }
+      ],
+      "roi": {
+        "title": "We don't make empty promises — do the math yourself",
+        "body": "If your website closes just 15 extra orders a month at an average order value of NT$1,000, that's NT$180,000 a year. The Growth tier costs NT$98,000 — it pays for itself in about six months, and keeps working for you every year after.",
+        "caseLine": "Wu Jue Tea's tea-garden experience bookings went from phone calls and a handwritten desk calendar to customers picking their own time slot, paying themselves, and getting reminders automatically — the time the owner got back now goes into tending the tea garden.",
+        "caseLinkText": "Read the full case story →"
+      }
+    },
     "tiers": {
       "sectionTitle": "Three tiers, from storefront to full operations",
       "starter": {
@@ -1588,5 +1641,68 @@
       "errorGeneric": "Something went wrong, please try again later"
     },
     "coursePreview": "AI website-building course in the works — leave your email in the form to be first to know when it launches."
+  },
+  "webDesignCase": {
+    "meta": {
+      "title": "Case Study: Wu Jue Tea × Terroir Digital | 40 Years of Tea, Reborn Online",
+      "description": "How did a high-mountain tea garden in Meishan, Chiayi go from phone orders to running 24 hours a day? See how Terroir Digital built Wu Jue Tea's complete digital storefront with a custom website, online booking, and AI search optimization."
+    },
+    "hero": {
+      "title": "A 40-year-old tea garden grows its own digital storefront",
+      "subtitle": "From phone orders to 24-hour automated operations — Wu Jue Tea × Terroir Digital",
+      "intro": "This isn't a hypothetical case study. Open taiwantea.store right now — every feature below is live."
+    },
+    "starting": {
+      "sectionTitle": "The Starting Point",
+      "intro": "In Taixing Village, Meishan, Chiayi — a family of three running a high-mountain tea garden for 40 years. The tea is good, and longtime customers know it. But the other half of the business was stuck:",
+      "items": [
+        "Orders confirmed one by one over phone calls and LINE messages — easy to miss when things got busy",
+        "Tea-garden experience bookings written on a desk calendar — double-bookings and mismatched cancellations during peak season",
+        "International customers wanted to buy tea, but language and payment barriers meant watching sales walk away",
+        "Search \"Alishan tea\" and their shop doesn't show up in the first three pages"
+      ]
+    },
+    "whatWeDid": {
+      "sectionTitle": "What We Built",
+      "items": [
+        {
+          "title": "Online store + 3 payment gateways (credit card, PayPal, convenience store)",
+          "desc": "Domestic and international customers can order and pay directly — no more losing late-night orders"
+        },
+        {
+          "title": "Experience booking system",
+          "desc": "Time slots, headcount, payment, and reminder emails — all automatic. The desk calendar is officially retired"
+        },
+        {
+          "title": "Bilingual website",
+          "desc": "English-speaking customers get a proper English site, professionally translated — not machine-translated"
+        },
+        {
+          "title": "Membership points program",
+          "desc": "Points earned on purchase, redeemable on the next one — a reason for customers to come back"
+        },
+        {
+          "title": "AI search readiness",
+          "desc": "llms.txt, structured data, hreflang — beyond Google, making sure AI assistants understand this business too"
+        },
+        {
+          "title": "Automated operations",
+          "desc": "Unpaid bookings auto-cancel, pending refunds auto-remind — the system looks after itself"
+        }
+      ]
+    },
+    "now": {
+      "sectionTitle": "Wu Jue Tea Today",
+      "items": [
+        "Taking orders 24 hours a day: late-night and overseas orders are already paid by the time the owner wakes up",
+        "Zero double-bookings, zero missed bookings: cancellations and refunds follow rules and run automatically",
+        "500+ automated tests guard every update — new features get added without breaking what already works"
+      ]
+    },
+    "cta": {
+      "text": "Your business can run like this too.",
+      "pricingButton": "See pricing",
+      "lineButton": "Chat with us on LINE"
+    }
   }
 }

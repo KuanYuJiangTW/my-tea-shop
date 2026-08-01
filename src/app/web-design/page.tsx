@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import InquiryFormClient from "./InquiryFormClient";
 import { langAlternates } from "@/lib/seo";
 
@@ -18,8 +19,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function WebDesignPage() {
+  const locale = await getLocale();
   const t = await getTranslations("webDesign");
   const lineUrl = process.env.NEXT_PUBLIC_LINE_ADD_URL;
+  const lp = (path: string) => (locale === "en" ? `/en${path}` : path);
 
   const heroChips = t.raw("hero.chips") as string[];
 
@@ -28,6 +31,8 @@ export default async function WebDesignPage() {
   const addonItems = t.raw("addons.items") as string[];
   const maintenanceItems = t.raw("maintenance.items") as string[];
   const termsItems = t.raw("terms.items") as string[];
+  const painPointItems = t.raw("painPoints.items") as { scenario: string; note: string }[];
+  const outcomeItems = t.raw("outcomes.items") as { title: string; desc: string }[];
 
   return (
     <div className="bg-tea-cream-light min-h-screen">
@@ -66,11 +71,70 @@ export default async function WebDesignPage() {
               {t("hero.ctaPrimary")}
             </a>
             <a
-              href="#inquiry-form"
+              href="#inquiry"
               className="bg-white hover:bg-tea-cream-light border border-tea-green text-tea-green px-8 py-3 rounded-full text-sm font-medium transition-colors"
             >
               {t("hero.ctaSecondary")}
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 痛點區塊 */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <h2 className="font-serif text-2xl md:text-3xl font-bold text-tea-text text-center mb-12">
+          {t("painPoints.sectionTitle")}
+        </h2>
+        <div className="space-y-4 mb-10">
+          {painPointItems.map((item) => (
+            <div
+              key={item.scenario}
+              className="bg-white rounded-xl border border-tea-green-pale/40 p-6"
+            >
+              <p className="text-tea-text-light italic leading-relaxed mb-2">{item.scenario}</p>
+              <p className="text-tea-green font-semibold text-sm">{item.note}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-center font-serif text-tea-text text-base md:text-lg">
+          {t("painPoints.turn")}
+        </p>
+      </section>
+
+      {/* 成果區塊 */}
+      <section className="bg-tea-green-mist/40 py-16 md:py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-serif text-2xl md:text-3xl font-bold text-tea-text text-center mb-12">
+            {t("outcomes.sectionTitle")}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            {outcomeItems.map((item) => (
+              <div
+                key={item.title}
+                className="bg-white rounded-2xl border border-tea-green-pale/40 p-6"
+              >
+                <h3 className="font-serif font-bold text-tea-text mb-2">{item.title}</h3>
+                <p className="text-sm text-tea-text-light leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-tea-text text-white rounded-2xl p-8 md:p-10 text-center">
+            <h3 className="font-serif text-xl font-bold text-tea-green-light mb-4">
+              {t("outcomes.roi.title")}
+            </h3>
+            <p className="text-sm text-tea-green-pale leading-relaxed mb-6 max-w-2xl mx-auto">
+              {t("outcomes.roi.body")}
+            </p>
+            <p className="text-sm italic text-tea-green-pale/90 leading-relaxed mb-6 max-w-2xl mx-auto border-t border-white/10 pt-6">
+              {t("outcomes.roi.caseLine")}
+            </p>
+            <Link
+              href={lp("/web-design/case")}
+              className="inline-block text-tea-green-light hover:text-white font-medium text-sm underline underline-offset-4"
+            >
+              {t("outcomes.roi.caseLinkText")}
+            </Link>
           </div>
         </div>
       </section>
@@ -182,7 +246,7 @@ export default async function WebDesignPage() {
       </section>
 
       {/* FAQ */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section id="faq" className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="font-serif text-2xl font-bold text-tea-text text-center mb-8">
           {t("faq.sectionTitle")}
         </h2>
@@ -197,7 +261,7 @@ export default async function WebDesignPage() {
       </section>
 
       {/* 諮詢表單 */}
-      <section id="inquiry-form" className="bg-tea-green-mist/40 py-16 md:py-20">
+      <section id="inquiry" className="bg-tea-green-mist/40 py-16 md:py-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="font-serif text-2xl md:text-3xl font-bold text-tea-text text-center mb-2">
             {t("form.sectionTitle")}
