@@ -361,9 +361,10 @@
     security policy`——spam 無法繞過 API route 的限流／蜜罐／白名單
   - 線上 API 非法值回 400 且不寫入
   - 小江實跑表單全流程（成功畫面、通知信、DB 記錄）回報「都沒問題」
-- **附帶發現（待小江處理）**：`.env.local` 的 `SUPABASE_SERVICE_ROLE_KEY`（`sb_secret_`
-  新格式）認證失敗 401，本機 `npm run dev` 對 DB 的寫入全都會失敗（不只報價表單）。
-  線上 Vercel 那套正常，不受影響。修法：Supabase Dashboard → API Keys 複製 secret 貼回
+- **一度誤判、已更正**：我先前報告「`.env.local` 的 `SUPABASE_SERVICE_ROLE_KEY` 失效、
+  本機寫入全掛」是**錯的**。金鑰正常。401 的真正原因是 Supabase 新版 API key 會擋下
+  「看起來來自瀏覽器」的 secret key 請求，而 PowerShell `Invoke-WebRequest` 的預設
+  User-Agent 含 `Mozilla`。加 `-UserAgent "node"` 即 200。教訓見 lessons 同日條目
 - LINE 帳號：`@580ariqa`（風土數位，與霧抉茶的 `NEXT_PUBLIC_LINE_OFFICIAL_URL` 分開兩個變數）
 - 狀態：已完成（證據：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤（sitemap 改動後複跑）、
   `npm run build` 成功且 `/web-design` 與 `/api/web-inquiry` 皆已註冊、checker 獨立驗收

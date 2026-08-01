@@ -188,3 +188,9 @@
 - 代價：一個假 FAIL 混在真 PASS 裡，要人工判讀才知道不是缺陷。危險的是下游處理：若換一個 session 收尾，很可能照著 FAIL 去「修復」，把正確的 sitemap 改動 revert 掉，而那正是讓報價頁被搜尋引擎找到的那一行
 - 規則：**從派出 checker 到它回報之間，凍結受驗檔案**。臨時發現要補的東西，二擇一：(a) 記下來，等 checker 回報完再改，改完另派一次；(b) 立刻用 `SendMessage` 通知該 checker 把新檔補進產物清單。無論哪種，回報給使用者時必須逐條點名「哪條 FAIL 是清單過時、哪條是真缺陷」，不可只說「checker 通過了」帶過
 - 去處：暫存於此（DISP-6「驗證不自驗」的補充：不自驗之外，還要在驗收期間凍結產物）
+
+## 2026-08-01 catch 裡沒印 response body，401 就被我腦補成「金鑰失效」
+- 情境：驗證線上報價頁時，用 PowerShell `Invoke-WebRequest` 帶 `SUPABASE_SERVICE_ROLE_KEY` 打 Supabase REST，拿到 401。我的 catch 只印了 `$_.Exception.Message`（＝「Response status code does not indicate success: 401」），沒印 `$_.ErrorDetails.Message`。於是我推論「金鑰被輪替過、本機失效」，寫進 WORKLOG 並叫小江去 Dashboard 重新複製金鑰
+- 代價：向使用者發出一個不存在的故障與一趟白工；錯誤結論一度寫進 WORKLOG（那正是給未來 session 看的檔）。真正原因是 Supabase 新版 API key 會擋「看起來來自瀏覽器」的 secret key 請求——PowerShell 預設 User-Agent 含 `Mozilla`，被判定為瀏覽器。body 裡寫得清清楚楚：`Forbidden use of secret API key in browser`。加 `-UserAgent "node"` 就 200
+- 規則：**HTTP 錯誤一律印出 response body 再下結論**。PowerShell 要 `$_.ErrorDetails.Message`（`$_.Exception.Message` 只有狀態碼那句廢話）；curl 用 `-i` 或 `--fail-with-body`。狀態碼只說「失敗」，body 才說「為什麼」——在拿到 body 之前，不要對失敗原因下任何斷言，更不要據此要使用者去改設定。另：本環境用 PowerShell 打任何雲端 API（Supabase／Stripe／綠界）都要顯式 `-UserAgent "node"`，預設 UA 會觸發服務端的瀏覽器防護
+- 去處：暫存於此（與 JUDG-2「完成要有證據」同源：錯誤診斷也要有證據，狀態碼不是證據）
