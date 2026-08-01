@@ -163,9 +163,3 @@
 - 代價：兩次無效呼叫；錯誤訊息講的是 git 參數歧義，很容易往「引號寫錯」的方向白追
 - 規則：本環境凡是參數含冒號的 git 語法（`git show rev:path`、`git diff rev1:file rev2:file`、`git checkout rev -- path` 以外的 `rev:path` 形式）一律改用 PowerShell tool 跑；真的要留在 Bash 就前綴 `MSYS_NO_PATHCONV=1`。同理適用於任何含冒號的參數（如 `--pretty=format:%H`）
 - 去處：暫存於此（與「Bash tool 裡用 PowerShell here-string」同屬工具與語法配對問題，兩條都指向：本環境雙 shell 並存，送出前先確認語法屬於哪一邊）
-
-## 2026-08-01 SELECT 少一個欄位，`??` 的 fallback 就從保險變成預設路徑
-- 情境：訂單取消退點寫成 `order.points_discount ?? Math.floor(order.points_used / 100)`，看起來是「有新欄位就用新的，沒有就用舊制換算」的合理防禦。但同一支路由的 `.select(...)` 沒把 `points_discount` 列進去，於是它**永遠**是 undefined，fallback 從「意外時的保險」變成「唯一會走的路」。客人用 500 點折抵，取消只退 5 點
-- 代價：正式站上不知多久，每筆會員自助取消的訂單都吃掉客人 99% 的折抵點數；三條掛著正確名字的測試全綠（它們只對本地變數做算術，從未呼叫路由），完全沒擋住
-- 規則：Supabase／任何顯式列欄位的查詢，**寫完 `??`、`?.`、`||` 的預設值之後，回頭確認那個欄位真的在 select 清單裡**。更根本的做法是別讓 fallback 靜默生效：(a) 測試的 DB mock 要「只回傳 select() 指名的欄位」，忘了 select 就會自然變紅；(b) 相容用的 fallback 要留下痕跡（log 或 metric），不要靜靜地換一條語意不同的路。同一路徑上「扣」與「還」必須引用**同一個欄位**——這裡扣的是 `points_used`，還的卻是 `points_discount`，1:1 時碰巧相等就沒人發現
-- 去處：暫存於此（與 2026-07-30「測試全綠不等於符合規格」互補：那條講測試釘錯了規格，這條講測試根本沒接上程式碼）
