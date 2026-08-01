@@ -23,6 +23,27 @@ type ParticipantInfo = {
   dueAt: string | null;
 };
 
+/**
+ * 只取資料、不碰 state，讓呼叫端決定何時寫入。
+ *
+ * 原本的 `load()` 開頭同步 `setLoading(true)`，而 effect 直接呼叫它——屬 effect body
+ * 內同步 setState（`react-hooks/set-state-in-effect`）。拆開後 effect 的 setState
+ * 只發生在 `.then()` callback 內。
+ *
+ * 刻意**不加** `.catch()`：原本 `load()` 在 fetch 被 reject 時也不會把 loading 收掉，
+ * 為求高風險區的最小差異，此處保留同樣行為，缺口另行回報（見 tasks A.5）。
+ */
+async function fetchParticipantInfo(
+  bookingId: string,
+): Promise<{ ok: true; info: ParticipantInfo } | { ok: false; error: string }> {
+  const res = await fetch(`/api/bookings/${bookingId}/participants`);
+  if (!res.ok) {
+    const j = await res.json();
+    return { ok: false, error: j.error ?? "載入失敗" };
+  }
+  return { ok: true, info: await res.json() };
+}
+
 const emptyForm = {
   name:                   "",
   idNumber:               "",
@@ -43,7 +64,11 @@ export default function ParticipantsPage() {
   const lp = (path: string) => locale === "en" ? `/en${path}` : path;
 
   const [info, setInfo]       = useState<ParticipantInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  // 記「目前顯示的資料屬於哪個預約」，loading 就能在 render 推導——`id` 變動時
+  // loadedId 還是舊值，自然是 loading，不必在 effect 內同步 setLoading(true)。
+  // （checker 指出：原本只靠 initial state，若 id 變動而元件未重掛載，載入指示不會重新亮起）
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  const loading = loadedId !== id;
   const [error, setError]     = useState("");
 
   const [form, setForm]             = useState(emptyForm);
@@ -51,19 +76,33 @@ export default function ParticipantsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  async function load() {
-    setLoading(true);
-    const res = await fetch(`/api/bookings/${id}/participants`);
-    if (!res.ok) {
-      const j = await res.json();
-      setError(j.error ?? "載入失敗");
-    } else {
-      setInfo(await res.json());
-    }
-    setLoading(false);
+  /**
+   * 寫入取回的結果。沿用原本語意：失敗時只設 error（不清空 info），
+   * 成功時只設 info（不清空 error）。
+   */
+  function commitInfo(
+    bookingId: string,
+    result: { ok: true; info: ParticipantInfo } | { ok: false; error: string },
+  ) {
+    if (result.ok) setInfo(result.info);
+    else setError(result.error);
+    setLoadedId(bookingId);
   }
 
-  useEffect(() => { load(); }, [id]);
+  /** 供送出參加者資料後重新載入用 */
+  async function reload() {
+    setLoadedId(null);
+    commitInfo(id, await fetchParticipantInfo(id));
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    const bookingId = id;
+    fetchParticipantInfo(bookingId).then((result) => {
+      if (!cancelled) commitInfo(bookingId, result);
+    });
+    return () => { cancelled = true; };
+  }, [id]);
 
   function validate(): boolean {
     const e: FormErrors = {};
@@ -108,7 +147,7 @@ export default function ParticipantsPage() {
 
     setForm(emptyForm);
     setFormErrors({});
-    await load();
+    await reload();
   }
 
   const inputCls = (err?: string) =>

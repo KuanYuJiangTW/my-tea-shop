@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
 
 interface ExpType { id: number; name: string; slug: string; }
@@ -15,6 +15,13 @@ interface Session {
 
 const TIME_SLOTS = ["10:00", "14:00"];
 
+/** 只取資料、不碰 state。沿用原本語意：回應非陣列時視為空清單 */
+async function fetchSessionList(): Promise<Session[]> {
+  const res  = await fetch("/api/admin/experience-sessions");
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
 export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading]   = useState(true);
@@ -26,15 +33,31 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
   const [time, setTime]     = useState("10:00");
   const [adding, setAdding] = useState(false);
 
-  const fetchSessions = useCallback(async () => {
+  /**
+   * 供新增／刪除場次後重新載入用。從事件處理器呼叫，setLoading 在此是允許的。
+   *
+   * 註：原本 effect 直接呼叫 fetchSessions()，而該函式開頭同步 setLoading(true)，
+   * 屬 effect body 內同步 setState（`react-hooks/set-state-in-effect`）。現在取資料
+   * 抽成模組層級的 fetchSessionList（不碰 state），effect 的 setState 只在 .then() 內。
+   */
+  function refreshSessions() {
     setLoading(true);
-    const res  = await fetch("/api/admin/experience-sessions");
-    const data = await res.json();
-    setSessions(Array.isArray(data) ? data : []);
-    setLoading(false);
-  }, []);
+    fetchSessionList().then((list) => {
+      setSessions(list);
+      setLoading(false);
+    });
+  }
 
-  useEffect(() => { fetchSessions(); }, [fetchSessions]);
+  // loading 初始值即為 true，所以掛載時不需要再設一次
+  useEffect(() => {
+    let cancelled = false;
+    fetchSessionList().then((list) => {
+      if (cancelled) return;
+      setSessions(list);
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   async function handleAdd() {
     if (!date) return setMsg({ type: "err", text: "請選擇日期" });
@@ -51,7 +74,7 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
     if (res.ok) {
       setMsg({ type: "ok", text: "場次新增成功" });
       setDate("");
-      fetchSessions();
+      refreshSessions();
     } else {
       setMsg({ type: "err", text: data.error ?? "新增失敗" });
     }
@@ -67,7 +90,7 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
     });
     if (res.ok) {
       setMsg({ type: "ok", text: "場次已取消" });
-      fetchSessions();
+      refreshSessions();
     } else {
       setMsg({ type: "err", text: "操作失敗" });
     }

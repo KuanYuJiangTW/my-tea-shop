@@ -15,13 +15,63 @@ type PointTransaction = {
   is_flagged: boolean;
 };
 
+type TierHistoryRow = {
+  id: string;
+  from_tier: string;
+  to_tier: string;
+  reason: string;
+  triggered_by: string;
+  changed_at: string;
+};
+
+/** 只讀取等級歷程，不碰 state。回傳 null 表示回應非陣列或請求失敗 */
+async function fetchTierHistory(userId: string): Promise<TierHistoryRow[] | null> {
+  try {
+    const res = await fetch(`/api/admin/members/${userId}/tier-history`);
+    const data = await res.json();
+    return Array.isArray(data) ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 只讀取點數明細與計算餘額，不碰 state——讓 effect 的 setState 落在 `.then()` callback。
+ * 查詢內容與原本 `fetchData` 內的兩個 Promise.all 完全相同（欄位、排序、limit 100、
+ * 餘額以 reduce 加總後取 max(total, 0)）。
+ */
+async function fetchPointsData(userId: string): Promise<{
+  transactions: PointTransaction[];
+  balance: number;
+}> {
+  const [txnRes, balRes] = await Promise.all([
+    supabase
+      .from("point_transactions")
+      .select("id, points, type, description, admin_note, created_at, expires_at, is_flagged")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    // 簡易計算餘額
+    supabase
+      .from("point_transactions")
+      .select("points")
+      .eq("user_id", userId),
+  ]);
+
+  const total = (balRes.data ?? []).reduce((s: number, t: { points: number }) => s + t.points, 0);
+  return {
+    transactions: txnRes.data ?? [],
+    balance: Math.max(total, 0),
+  };
+}
+
 export default function MemberPointsPage() {
   const { id: userId } = useParams<{ id: string }>();
   const [transactions, setTransactions] = useState<PointTransaction[]>([]);
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [tierHistory, setTierHistory] = useState<Array<{ id: string; from_tier: string; to_tier: string; reason: string; triggered_by: string; changed_at: string }>>([]);
+  const [tierHistory, setTierHistory] = useState<TierHistoryRow[]>([]);
 
   // 調整表單
   const [adjustPoints, setAdjustPoints] = useState("");
@@ -30,34 +80,43 @@ export default function MemberPointsPage() {
   const [adjustError, setAdjustError] = useState("");
   const [adjustSuccess, setAdjustSuccess] = useState("");
 
-  async function fetchData() {
+  /**
+   * 重新載入點數明細與等級歷程。從事件處理器呼叫時 setLoading 沒問題。
+   *
+   * 註：原本 effect 直接呼叫 fetchData()，而它開頭同步 setLoading(true)，屬 effect
+   * body 內同步 setState（`react-hooks/set-state-in-effect`）。下方 effect 改為只在
+   * 非同步 callback 內 setState，並帶取消旗標避免切換會員時舊回應覆蓋新資料。
+   *
+   * **本次未動任何點數調整（寫入）路徑**——`handleAdjust` 與 `/api/admin/points-adjustment`
+   * 完全未變，`openspec/specs/admin-points-adjustment/` 的四條 Scenario（加點、扣點、
+   * 理由必填、記錄操作者）皆不受影響。
+   */
+  function refreshData() {
     setLoading(true);
-    // Fetch tier history
-    fetch(`/api/admin/members/${userId}/tier-history`)
-      .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setTierHistory(data); })
-      .catch(() => {});
-
-    const [txnRes, balRes] = await Promise.all([
-      supabase
-        .from("point_transactions")
-        .select("id, points, type, description, admin_note, created_at, expires_at, is_flagged")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(100),
-      // 簡易計算餘額
-      supabase
-        .from("point_transactions")
-        .select("points")
-        .eq("user_id", userId),
-    ]);
-    setTransactions(txnRes.data ?? []);
-    const total = (balRes.data ?? []).reduce((s, t) => s + t.points, 0);
-    setBalance(Math.max(total, 0));
-    setLoading(false);
+    fetchTierHistory(userId).then((list) => { if (list) setTierHistory(list); });
+    fetchPointsData(userId).then(({ transactions, balance }) => {
+      setTransactions(transactions);
+      setBalance(balance);
+      setLoading(false);
+    });
   }
 
-  useEffect(() => { fetchData(); }, [userId]);
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchTierHistory(userId).then((list) => {
+      if (!cancelled && list) setTierHistory(list);
+    });
+
+    fetchPointsData(userId).then(({ transactions, balance }) => {
+      if (cancelled) return;
+      setTransactions(transactions);
+      setBalance(balance);
+      setLoading(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [userId]);
 
   async function handleAdjust(e: React.FormEvent) {
     e.preventDefault();
@@ -81,7 +140,7 @@ export default function MemberPointsPage() {
     setAdjustSuccess(`已${pts > 0 ? "加" : "扣"}${Math.abs(pts)} 點`);
     setAdjustPoints("");
     setAdjustNote("");
-    fetchData();
+    refreshData();
   }
 
   const typeLabel: Record<string, string> = {
