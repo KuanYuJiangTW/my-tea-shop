@@ -59,7 +59,19 @@ export async function POST(req: NextRequest) {
   let pointsUsed = 0;
   let pointsDiscount = 0;
 
-  if (pointsToUse > 0) {
+  // 冪等性：同一筆預約可能被重複結帳（重整、從綠界返回上一頁、換付款方式）。
+  // 帳本已有 redeem 就沿用既有折抵，不再扣一次——否則多扣的點數在取消時退不回來。
+  const { count: redeemCount } = await supabase
+    .from("point_transactions")
+    .select("id", { count: "exact", head: true })
+    .eq("booking_id", bookingId)
+    .eq("type", "redeem");
+  const alreadyDeducted = (redeemCount ?? 0) > 0;
+
+  if (alreadyDeducted) {
+    pointsUsed = booking.points_used ?? 0;
+    pointsDiscount = booking.points_discount ?? 0;
+  } else if (pointsToUse > 0) {
     const redemption = await validateRedemption(user.id, pointsToUse, booking.total_price);
     if (!redemption.valid) {
       return NextResponse.json({ error: redemption.error }, { status: 400 });
@@ -71,7 +83,7 @@ export async function POST(req: NextRequest) {
   const actualAmount = Math.max(booking.total_price - pointsDiscount, 0);
 
   // 更新 booking 的點數記錄
-  if (pointsUsed > 0) {
+  if (!alreadyDeducted && pointsUsed > 0) {
     await supabase
       .from("experience_bookings")
       .update({ points_used: pointsUsed, points_discount: pointsDiscount })

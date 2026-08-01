@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { notifyNextWaitlist } from "@/lib/waitlist";
-import { refundPoints } from "@/lib/points";
+import { refundBookingPoints } from "@/lib/points";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 type Params = { params: Promise<{ id: string }> };
@@ -25,15 +25,16 @@ export const POST = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
   }
 
   const now = new Date();
+  const wasPending = booking.status === "pending_payment";
   let refundAmount = 0;
+  let refundRate   = 0;
   let daysUntil    = 0;
 
-  if (booking.status === "confirmed") {
+  if (!wasPending) {
     const sessionDate = new Date(`${booking.session.session_date}T${booking.session.start_time}`);
     const hoursUntil  = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
     daysUntil = Math.ceil(hoursUntil / 24);
 
-    let refundRate = 0;
     if (hoursUntil >= 7 * 24)      refundRate = 1.0;
     else if (hoursUntil >= 3 * 24) refundRate = 0.5;
     else if (hoursUntil >= 24)     refundRate = 0.2;
@@ -57,27 +58,19 @@ export const POST = withAdminAuth(async (_req: NextRequest, ctx?: unknown) => {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  // 退還已折抵的點數（新制：使用 points_discount，type='refund'）
-  const wasPending = booking.status === "confirmed" ? false : true;
-  const pointsDiscountUsed = booking.points_discount ?? 0;
-  if (pointsDiscountUsed > 0) {
-    const paidAmt = booking.total_price - pointsDiscountUsed;
-    const calcRefundRate = paidAmt > 0 ? refundAmount / paidAmt : 0;
-    const pointsToReturn = wasPending
-      ? pointsDiscountUsed
-      : Math.floor(pointsDiscountUsed * calcRefundRate);
-    if (pointsToReturn > 0) {
-      await refundPoints({
-        userId: booking.user_id,
-        points: pointsToReturn,
-        bookingId: id,
-        description: "體驗預約取消退還點數",
-      });
-    }
+  // 退還已折抵的點數。退還量以 point_transactions 為準（見 refundBookingPoints），
+  // 不看 booking.points_used / points_discount——舊制那兩欄與帳本差 100 倍。
+  // 待付款：尚未成行，全額退還；已確認：按退款比例退還
+  if (booking.user_id) {
+    await refundBookingPoints({
+      userId: booking.user_id,
+      bookingId: id,
+      refundRate: wasPending ? 1 : refundRate,
+    });
   }
 
   // 通知候補者（僅已確認的預約才有佔名額，待付款不需通知）
-  if (booking.status === "confirmed") {
+  if (!wasPending) {
     notifyNextWaitlist(booking.session_id, booking.participant_count).catch(console.error);
   }
 

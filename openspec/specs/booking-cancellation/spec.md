@@ -67,32 +67,66 @@
 - **WHEN** `status = "confirmed"` 的預約成功取消
 - **THEN** 呼叫 `notifyNextWaitlist(sessionId, participantCount)`（fire-and-forget）
 
-### Requirement: 取消已確認預約時按退款比例退還折抵點數
-系統 SHALL 在取消 `status = "confirmed"` 的預約時，計算應退還點數並插入 `point_transactions`。
+### Requirement: 取消預約時依帳本退還折抵點數
+系統 SHALL 以 `refundBookingPoints()` 退還點數，退還量一律以 `point_transactions`
+為準，**不得**讀 `experience_bookings.points_used` 或 `points_discount`。
+
+> 那兩欄會隨制度漂移：舊制（`2e1da44` ~ `abae014`）是 100:1，帳本扣的是
+> `points_used`（3300），`points_discount` 只有 33，照後者退會吞掉客人 99% 的點數。
+> 完整沿革見 `openspec/specs/experience-booking-points/spec.md` 檔頭。
+
+計算式：`應退 = floor(帳本已扣總額 × refundRate) − 已退總額`。
+
+- 帳本已扣總額 = 該預約所有 `type = "redeem"` 記錄的絕對值總和
+- 已退總額 = `type = "refund"` 的總和，加上 `type = "earn"` 且 description 含
+  「取消退還」的總和（舊制的退還記錄誤寫成 `earn`）
+- 查詢 SHALL 同時比對 `booking_id` 與 `order_id` 兩個欄位
+  （`d104048` 之前的體驗記錄寫在 `order_id`）
+
+「減去已退」同時帶來冪等性：重複觸發不重複退，對被舊 bug 少退過的預約只補差額。
 
 #### Scenario: 7 天前取消（100% 退款）退還全部點數
-- **WHEN** 距活動開始 ≥ 168 小時，且 `booking.points_used > 0`
-- **THEN** 插入 `type = "earn"`、`amount = points_used`、`description = "體驗預約取消退還點數"` 的交易記錄
+- **WHEN** `status = "confirmed"`，距活動開始 ≥ 168 小時
+- **THEN** 插入 `type = "refund"`、`points = 帳本已扣總額 − 已退總額`、
+  `booking_id`、`description = "體驗預約取消退還點數"` 的交易記錄
 
 #### Scenario: 3–6 天前取消（50% 退款）退還一半點數
-- **WHEN** 距活動開始 72–167 小時，且 `booking.points_used > 0`
-- **THEN** 插入 `type = "earn"`、`amount = floor(points_used × 0.5)` 的交易記錄
+- **WHEN** `status = "confirmed"`，距活動開始 72–167 小時
+- **THEN** 退還 `floor(帳本已扣總額 × 0.5) − 已退總額`
 
 #### Scenario: 1–2 天前取消（20% 退款）退還 20% 點數
-- **WHEN** 距活動開始 24–71 小時，且 `booking.points_used > 0`
-- **THEN** 插入 `type = "earn"`、`amount = floor(points_used × 0.2)` 的交易記錄
+- **WHEN** `status = "confirmed"`，距活動開始 24–71 小時
+- **THEN** 退還 `floor(帳本已扣總額 × 0.2) − 已退總額`
 
 #### Scenario: 未滿 24 小時取消（0% 退款）不退點數
-- **WHEN** 距活動開始 < 24 小時
+- **WHEN** `status = "confirmed"`，距活動開始 < 24 小時
 - **THEN** 不插入任何點數退還記錄
 
+#### Scenario: 舊制預約（points_used ≠ points_discount）
+- **WHEN** 預約的 `points_used = 3300`、`points_discount = 33`，帳本扣了 3300
+- **THEN** 7 天前取消退還 **3300** 點（不是 33 點）
+
+#### Scenario: 已被舊 bug 少退過的預約
+- **WHEN** 帳本已扣 500、已退 5（舊 bug 退的）
+- **THEN** 補退 495 點，總計退還 500
+
+#### Scenario: 完成回饋的 earn 不算已退
+- **WHEN** 帳本有 `type = "earn"`、description 為「體驗完成回饋」的記錄
+- **THEN** 該筆不計入「已退總額」，不影響退點金額
+
 #### Scenario: 未使用點數取消
-- **WHEN** `booking.points_used = 0`
+- **WHEN** 該預約沒有任何 `redeem` 記錄
 - **THEN** 不插入任何點數交易記錄
 
-### Requirement: 取消待付款預約不處理點數
-系統 SHALL 在取消 `status = "pending_payment"` 的預約時，不執行任何點數操作。
+### Requirement: 取消待付款預約時全額退還點數
+系統 SHALL 在取消 `status = "pending_payment"` 的預約時，以 `refundRate = 1`
+全額退還帳本上已扣的點數。
+
+> 點數在導向綠界**之前**就扣掉了（見 experience-booking-points 規格），
+> 待付款預約同樣可能已扣點。退款比例是針對「已成立的預約臨時取消」的違約金，
+> 未付款的預約不適用。
 
 #### Scenario: 取消待付款預約
-- **WHEN** `booking.status = "pending_payment"`
-- **THEN** 預約標記為 `cancelled`，不插入任何 `point_transactions` 記錄
+- **WHEN** `booking.status = "pending_payment"`，帳本已扣 500 點
+- **THEN** 預約標記為 `cancelled`、`refund_amount = 0`（本來就沒付現金），
+  並全額退還 500 點——不論距活動多久

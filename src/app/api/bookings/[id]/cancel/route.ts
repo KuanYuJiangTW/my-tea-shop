@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { sendBookingCancelEmail } from "@/lib/email";
 import { notifyNextWaitlist } from "@/lib/waitlist";
-import { refundPoints } from "@/lib/points";
+import { refundBookingPoints } from "@/lib/points";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -73,22 +73,14 @@ export async function POST(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  // 退還已折抵的點數（新制：使用 points_discount，type='refund'）
-  // 待付款：全額退還；已確認：按退款比例退還
-  const pointsDiscountUsed = booking.points_discount ?? 0;
-  if (pointsDiscountUsed > 0) {
-    const pointsToReturn = wasPending
-      ? pointsDiscountUsed
-      : Math.floor(pointsDiscountUsed * refundRate);
-    if (pointsToReturn > 0) {
-      await refundPoints({
-        userId: user.id,
-        points: pointsToReturn,
-        bookingId: id,
-        description: "體驗預約取消退還點數",
-      });
-    }
-  }
+  // 退還已折抵的點數。退還量以 point_transactions 為準（見 refundBookingPoints），
+  // 不看 booking.points_used / points_discount——舊制那兩欄與帳本差 100 倍。
+  // 待付款：尚未成行，全額退還；已確認：按退款比例退還
+  await refundBookingPoints({
+    userId: user.id,
+    bookingId: id,
+    refundRate: wasPending ? 1 : refundRate,
+  });
 
   // 通知候補者（fire-and-forget）
   notifyNextWaitlist(booking.session_id, booking.participant_count).catch(console.error);

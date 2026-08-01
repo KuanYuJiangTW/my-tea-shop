@@ -303,6 +303,68 @@ export async function refundOrderPoints(params: {
   return outstanding;
 }
 
+// ─── 取消體驗預約時退還點數（以帳本為準，支援部分比例）──────────────────────
+
+/**
+ * 退還某筆體驗預約尚未退還的點數，可指定退款比例。
+ *
+ * 與 `refundOrderPoints` 同樣以 `point_transactions` 為準，不看
+ * `experience_bookings.points_used` / `points_discount`——兩者會隨制度漂移。
+ * 體驗預約的舊制（2026-04-11 `2e1da44` ~ `abae014`）是 100:1，且帳本扣的是
+ * `points_used`（3300），而 `points_discount` 只有 33。照 `points_discount`
+ * 退就會吞掉客人 99% 的點數。新制 1:1 之後三者才一致。
+ *
+ * 舊制的 redeem 記錄寫在 `order_id` 欄位（`d104048` 之後才改用 `booking_id`），
+ * 舊制的退還記錄 type 是 `earn` 而非 `refund`，兩者都要納入計算。
+ *
+ * 應退 = floor(帳本已扣總額 × refundRate) − 已退總額。
+ * 「減去已退」帶來冪等性：重複觸發時差額為 0，對被舊 bug 少退過的預約只補差額。
+ *
+ * @returns 實際退還的點數（0 代表無需退還）
+ */
+export async function refundBookingPoints(params: {
+  userId: string;
+  bookingId: string;
+  refundRate: number; // 0 ~ 1
+  description?: string;
+}): Promise<number> {
+  const { userId, bookingId, refundRate, description } = params;
+  if (refundRate <= 0) return 0;
+
+  const { data: rows } = await supabase
+    .from("point_transactions")
+    .select("points, type, description")
+    .or(`booking_id.eq.${bookingId},order_id.eq.${bookingId}`);
+
+  if (!rows || rows.length === 0) return 0;
+
+  let deducted = 0;
+  let alreadyRefunded = 0;
+  for (const r of rows as { points: number; type: string; description: string | null }[]) {
+    if (r.type === "redeem") {
+      deducted += -r.points;
+    } else if (r.type === "refund") {
+      alreadyRefunded += r.points;
+    } else if (r.type === "earn" && (r.description ?? "").includes("取消退還")) {
+      // 舊制的退還記錄誤寫成 earn，仍屬已退，不可重複發
+      alreadyRefunded += r.points;
+    }
+  }
+
+  const target = Math.floor(deducted * refundRate);
+  const outstanding = target - alreadyRefunded;
+  if (outstanding <= 0) return 0;
+
+  await refundPoints({
+    userId,
+    points: outstanding,
+    bookingId,
+    description: description ?? "體驗預約取消退還點數",
+  });
+
+  return outstanding;
+}
+
 // ─── 更新年消費 + 自動升等（atomic increment 避免 race condition）────────────
 
 async function updateMembershipSpend(userId: string, amount: number) {
