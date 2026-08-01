@@ -711,81 +711,266 @@
   },
   "process": {
     "pageTitle": "Tea Making Process",
-    "pageTagline": "From a tender leaf on the mountain to a perfect cup of tea, every step carries the craftsman's devotion and centuries of tradition",
+    "pageTagline": "Between a dew-covered leaf on the mountain and the taste in your cup lie a dozen or so steps. This page takes them apart one by one — including the trade-offs we make along the way.",
     "tableTitle": "The Craft",
     "tableNote": "STEP",
-    "otherStyles": "Different Teas, Different Craft",
-    "otherStylesDesc": "The process above uses Taiwan oolong as the example. Different tea types follow different methods — green tea skips oxidation entirely, black tea undergoes full oxidation, and white tea is only withered without rolling. Each technique is the finest expression of that tea's character.",
     "shopCta": "Shop Our Teas",
     "experienceCta": {
       "sectionLabel": "Tea Mountain Experience",
       "title": "Experience the Tea Mountain",
-      "tagline": "Now that you know the craft, why not live it? Step into our Ali Mountain tea gardens and feel every stage — from leaf to cup — with your own hands.",
+      "tagline": "Reading about it is one thing. Step into our Ali Mountain tea gardens and work through it yourself, from plucking to finished leaf — you will not drink tea quite the same way afterwards.",
       "viewAll": "View All Experiences",
       "bookNow": "Book Now",
       "duration": "{hours} hrs",
       "participants": "{min}–{max} people"
     },
-    "oxidationLabel": "Oxidation: {value}",
+    "oxidationLabel": "Oxidation {value}",
     "teas": {
       "oolong": {
-        "name": "Oolong",
-        "oxidation": "15–85%"
+        "name": "High Mountain Oolong",
+        "oxidation": "Light",
+        "origin": "Alishan Meishan",
+        "flavor": "Orchid",
+        "roast": "Light (online listings)"
       },
-      "green": {
-        "name": "Green Tea",
-        "oxidation": "0%"
+      "jinxuan": {
+        "name": "Jin Xuan",
+        "oxidation": "Light",
+        "origin": "Alishan Meishan",
+        "flavor": "Milky",
+        "roast": "Light"
+      },
+      "sijichun": {
+        "name": "Four Seasons",
+        "oxidation": "Light",
+        "origin": "Songboling, Nantou",
+        "flavor": "Floral",
+        "roast": "None (unroasted)"
       },
       "black": {
-        "name": "Black Tea",
-        "oxidation": "100%"
+        "name": "Honey Black Tea",
+        "oxidation": "Full",
+        "origin": "Alishan Meishan",
+        "flavor": "Honey",
+        "roast": "Light"
       },
-      "white": {
-        "name": "White Tea",
-        "oxidation": "Minimal"
+      "redOolong": {
+        "name": "Red Oolong",
+        "oxidation": "Heavy",
+        "origin": "Luye, Taitung",
+        "flavor": "Fruit & honey",
+        "roast": "Heavy"
       }
     },
     "steps": {
       "pick": {
-        "name": "Harvesting",
-        "desc": "At six in the morning, tea pickers climb the mountain with their tools. The best leaves are harvested at just the right maturity to bring out the fullest aroma and flavor. Hand-picking ensures only the most tender two leaves and a bud are selected.",
-        "detail": "Harvest seasons: Spring (April), Summer (June), Autumn (September), Winter (November)"
+        "name": "Plucking",
+        "desc": "We head up at first light and hand-pick the leaves while they still carry their dew. Maturity sets the backbone of the batch: too tender and the liquor comes on strong but turns bitter, and it is difficult to process; too mature and it turns coarse and thin. One bud with three to four leaves is where we draw the line, and every shoot is judged by the picker, one at a time.",
+        "detail": "How we judge it: by how far the bud has opened, not by the date on the calendar. Even a single plot gets picked in stages."
       },
       "witherSun": {
         "name": "Sun Withering",
-        "desc": "Freshly picked leaves are spread on clean cloth and exposed to sunlight for sun withering. This step removes some moisture, softens the cell structure, prepares the leaves for indoor withering, and begins to awaken the initial aromatic compounds.",
-        "detail": "Duration: 1–2 hours, adjusted according to sunlight and temperature"
+        "desc": "The leaves are spread outdoors on clean cloth to release moisture. The cell structure softens, and the first aromatics are drawn out right here, in the sun. This step follows the weather, not the clock: strong sun means a thicker spread; an overcast day means spreading thinner, or simply taking longer.",
+        "detail": "Duration: 20 minutes to a little over an hour, adjusted according to sunlight and temperature. How we judge it: when the leaf surface loses its sheen and feels supple rather than brittle, it comes indoors."
       },
       "witherIndoor": {
         "name": "Indoor Withering",
-        "desc": "The leaves are moved indoors and spread on well-ventilated withering racks. In a temperature- and humidity-controlled environment, the master periodically turns the leaves to ensure even moisture loss while aromas continue to develop.",
-        "detail": "Duration: 8–12 hours, temperature maintained at 18–26°C"
+        "desc": "The leaves move indoors, onto well-ventilated withering racks. In a temperature- and humidity-controlled room the moisture keeps working its way out, and the maker turns the leaves at intervals so every one of them loses it evenly. Less happens here than anywhere else in the process, and yet this is where the foundation of the aroma is built. It cannot be rushed.",
+        "detail": "Duration: 8–12 hours, temperature maintained at 18–26°C. How we judge it: when the raw green note fades into a clean fragrance and the leaf bends without snapping."
       },
       "shake": {
         "name": "Tossing",
-        "desc": "This is one of the most critical steps in oolong production. The master rhythmically tosses the leaves by hand or in a bamboo sieve, causing slight bruising at the leaf edges that triggers enzymatic oxidation and develops the tea's characteristic floral and fruity fragrance.",
-        "detail": "Frequency: once every 1.5–2.5 hours, repeated 2–4 times"
+        "desc": "The decisive step in oolong. The maker tumbles the leaves so their edges bruise against one another, and oxidation starts at those breaks — the enzymes wake up, and the floral and fruity notes that belong to this tea begin to form. Toss lightly and the oxidation stays light; toss hard and it runs deep. Whether an oolong ends up delicate or full-bodied is settled right here.",
+        "detail": "Frequency: once every 1.5–2.5 hours, repeated 2–4 times. How we judge it: by how much of the leaf edge has turned red and how the aroma is shifting; every round is reassessed before the next."
       },
       "fix": {
-        "name": "Stir Fixation",
-        "desc": "Once the ideal level of oxidation is reached, the leaves are tossed in a high-temperature iron wok to deactivate the enzymes and halt oxidation. This step also develops a toasted aroma, locks in the fragrance, and removes the raw grassy notes.",
-        "detail": "Temperature: 260–300°C, duration: approximately 5–8 minutes"
+        "name": "Fixation",
+        "desc": "Once oxidation has reached the point we want, the leaves go into a drum fixation machine, tumbling continuously inside a hot rotating cylinder. The enzymes are deactivated and oxidation stops on the spot; the grassy note is driven off, a toasted one takes its place, and the aroma is fixed where it stands. This is the brake pedal of tea making — whatever flavour this batch has reached is locked in at this moment, and there is no going back.",
+        "detail": "Equipment: drum fixation machine. Temperature: 260–300°C, duration: approximately 5–8 minutes. How we judge it: when the grassy note turns toasted and a handful of leaves feels soft without sticking, it comes off the machine."
       },
       "roll": {
-        "name": "Cloth Rolling",
-        "desc": "While still warm from the wok, the leaves are wrapped in cloth and rolled, compressing them into tight balls or twisted strips. This bonds the tea juices to the leaf surface so that when brewed, the leaves unfurl quickly and release their full, rounded flavor.",
-        "detail": "Repeated rolling 3–6 times, 20–30 minutes per session"
+        "name": "Rolling",
+        "desc": "Straight off the machine and still warm, the leaves are wrapped in cloth and rolled — tightening into balls or strands while the juices are worked onto the leaf surface. That coating is the point: in the pot the leaves open readily, and the flavour comes out whole.",
+        "detail": "Rolled continuously for 3–5 minutes. How we judge it: when the leaves have formed strands and feel tacky in the hand without weeping."
+      },
+      "ferment": {
+        "name": "Oxidation",
+        "desc": "After rolling breaks the cell walls, the leaves are left to oxidise fully on their own. This stage belongs to the black teas: with no fixation to stop it, oxidation runs to completion, catechins convert, the liquor turns red and the honey note emerges.",
+        "detail": "How we judge it: leaf colour shifting from green to red-brown and the aroma turning from green to honeyed. That is the only instrument panel we have here."
+      },
+      "dryFirst": {
+        "name": "First Drying",
+        "desc": "A type-A dryer brings the moisture down and holds the tea steady so it stops changing. After first drying the leaf is still loose — it takes the rolling that follows to become a ball.",
+        "detail": "Equipment: type-A dryer. How we judge it: the leaf no longer sticks to the hand but still keeps its give; it must not be dried brittle."
+      },
+      "ballRoll": {
+        "name": "Cloth Ball Rolling",
+        "desc": "The tea is wrapped in cloth, drawn into a ball, tightened in a press, then opened and broken up — and then it starts again. Wrap, roll, break, repeat, several passes over, until the leaves knot into a semi-ball. Those tight little spheres you see in the bag are ground out one pass at a time.",
+        "detail": "Equipment: press and cloth ball rolling. How we judge it: by tightness and shape, repeating until it holds."
+      },
+      "dryFinal": {
+        "name": "Drying & Stem Sorting",
+        "desc": "Once the shape is set the tea is dried down to a keeping moisture level, and sorting happens at the same time: long stems are pulled out by a coarse sorter, and a blower lifts away debris and substandard leaf. Drying and sorting are one operation, not two.",
+        "detail": "Equipment: coarse sorter for long stems, blower for debris and substandard leaf. How we judge it: the leaf snaps cleanly instead of bending back, and stem separates freely."
       },
       "roast": {
         "name": "Roasting",
-        "desc": "Precision roasting is the tea's final transformation. The master determines the roast level based on the tea's character: light roasting preserves floral notes, medium roasting adds ripe fruit tones, and heavy roasting brings out deep, rich roasted complexity. This step also reduces residual moisture to extend shelf life.",
-        "detail": "Temperature: 70–120°C, duration: 4–16 hours depending on style"
+        "desc": "Primary processing finishes at the factory; roasting happens back home, adjusted slowly in a cabinet roaster. Roasting shapes flavour — it brings sweetness and body, steadies the batch, and shores up whatever that lot is short on. Push it too far and the floral top notes and freshness are gone, so it can only ever be roasted to the right point. Every batch comes out a little different, and roasting is our last chance to tune it to what a customer wants. Everything listed online comes at a set roast level; if you want a specific roast, ask us in the shop or by message.",
+        "detail": "Temperature: 70–120°C, duration: 4–16 hours depending on style. Equipment: cabinet roaster. How we judge it: the flavour this particular batch is carrying, and what the customer is after."
       },
-      "sort": {
-        "name": "Sorting & Packaging",
-        "desc": "Once the tea is finished, the master hand-sorts each batch to remove old leaves, stems, and any impurities, ensuring consistent quality across every lot. The tea is vacuum-sealed in foil bags to preserve its aroma, so every pack you receive is as fresh as the day it was made.",
-        "detail": "Every batch comes with a quality certification label"
+      "pack": {
+        "name": "Packaging",
+        "desc": "As soon as the flavour has landed the tea is packed — nothing is reworked after this. Vacuum-sealed foil shuts out light and air, holding the batch at its best moment until you open it.",
+        "detail": "Every batch is labelled with the tea name, origin and other details."
       }
+    },
+    "teaSteps": {
+      "oolong": {
+        "ferment": {
+          "skipReason": "Fixation has already stopped oxidation, so there is no separate oxidation stage — this is exactly where oolong and black tea part ways."
+        },
+        "roast": {
+          "desc": "High mountain oolong is made both roasted and unroasted. Everything listed online is lightly roasted — for the added sweetness, body and consistency. The unroasted version keeps its freshness and floral lift, but it depends on how a given batch turns out and the yield is unpredictable, so it is only offered in the shop or on request, never listed online.",
+          "detail": "Temperature: 70–120°C, duration: 4–16 hours depending on style. How we judge it: whether to roast at all depends on the flavour this batch is carrying; everything sold online is lightly roasted, with unroasted available on request."
+        }
+      },
+      "jinxuan": {
+        "ferment": {
+          "skipReason": "Fixation has already stopped oxidation, so there is no separate oxidation stage."
+        }
+      },
+      "sijichun": {
+        "pick": {
+          "desc": "Four Seasons is machine harvested — cut by a harvester rather than hand-selected to the one-bud-three-or-four-leaves standard. Machine harvesting costs far less than picking by hand, and combined with an early-budding cultivar that can be picked several times a year, that is where the affordable price comes from. A different harvesting method, not a compromise on quality.",
+          "detail": "Harvesting method: machine. It costs far less than hand picking, and together with several harvests a year it is the structural reason Four Seasons is affordable."
+        },
+        "ferment": {
+          "skipReason": "Fixation has already stopped oxidation, so there is no separate oxidation stage."
+        },
+        "roast": {
+          "skipReason": "Four Seasons is not roasted at all — it is sold unroasted, because its unroasted floral freshness is the whole point. Generally only green-style oolongs can go without roasting."
+        }
+      },
+      "black": {
+        "pick": {
+          "desc": "Honey black tea is plucked under a stricter condition than the others: the leaves must first have been bitten by the tea green leafhopper. The bush responds with a defence reaction, and that is where the honey note comes from — so here the leafhopper is a requirement rather than a problem, while other pests and diseases are still managed as usual.",
+          "detail": "How we judge it: whether the leaves show signs of leafhopper bite. No bite, no honey note."
+        },
+        "shake": {
+          "desc": "The decisive step for this black tea. The maker tumbles the leaves so their edges bruise against one another, and oxidation starts at those breaks — the enzymes wake up, and the floral and fruity notes that belong to this tea begin to form. Toss lightly and the oxidation stays light; toss hard and it runs deep. Whether this black tea ends up delicate or full-bodied is settled right here."
+        },
+        "fix": {
+          "skipReason": "Honey black tea skips fixation. Without that brake, the leaves can oxidise all the way through and finish as a black tea."
+        },
+        "roll": {
+          "desc": "Day one follows the oolong path of withering and tossing; day two switches to black tea processing, starting with rolling to rupture the cells and release the juices so full oxidation can follow. The order is the reverse of oolong — oolong fixes then rolls, this rolls first, because there is no fixation at all.",
+          "detail": "How we judge it: rolled until the cells are thoroughly broken and the juices show, or oxidation will not run to completion."
+        },
+        "ferment": {
+          "desc": "After rolling, the leaves rest and oxidise fully — the heart of this tea. The honey note earned from the leafhopper bite is released here and the liquor turns bright red. Once oxidation is done it goes back to the oolong press and cloth ball rolling, which is why this is a ball-rolled black tea: two traditions joined end to end.",
+          "detail": "How we judge it: stopped when the leaf turns red-brown and the honey note is unmistakable."
+        }
+      },
+      "redOolong": {
+        "witherIndoor": {
+          "desc": "Red oolong gets a noticeably longer indoor withering than the others, so moisture works through more completely and the groundwork for heavy oxidation goes deeper.",
+          "detail": "How we judge it: taken further than a standard oolong, watching suppleness and how far the aroma has turned."
+        },
+        "shake": {
+          "desc": "The tossing is far heavier than a standard oolong, bruising more of the leaf edge so oxidation runs faster and deeper. The 'red' in red oolong starts here.",
+          "detail": "How we judge it: a markedly higher proportion of red leaf edge than a standard oolong."
+        },
+        "roll": {
+          "desc": "Red oolong rolls the way a black tea does: rolling comes first, rupturing the cells and releasing the juices, and the leaves are then left to rest and oxidise. The order is the exact reverse of an oolong — oolong fixes then rolls; red oolong rolls, then oxidises, and only then is fixed.",
+          "detail": "How we judge it: rolled until the cells are thoroughly broken and the juices show, or the heavy oxidation will not run deep."
+        },
+        "ferment": {
+          "desc": "Heavy oxidation is what gives red oolong its name, taken almost to black tea levels, and it is where the fruit and honey character forms. The first two steps here — rolling, then oxidation — run in the same order as honey black tea, the difference being that red oolong stops the oxidation short. What actually separates them is the fixation that comes after.",
+          "detail": "How we judge it: taken close to black tea depth, but stopped before it gets there."
+        },
+        "roast": {
+          "desc": "Red oolong is heavily roasted. Heavy oxidation followed by a heavy roast pulls the fruit character in towards honey and builds body and consistency — a completely different temperament from the lightly roasted teas.",
+          "detail": "Temperature: 70–120°C, duration: 4–16 hours depending on style. Equipment: cabinet roaster. How we judge it: roasted until the fruit note turns honeyed and the liquor feels full."
+        }
+      }
+    },
+    "divergence": {
+      "commonOpeningTitle": "Shared Opening — Day One at the Factory",
+      "commonOpeningDesc": "All five teas are identical to this point: picked, withered, tossed. Nothing has diverged yet.",
+      "divergenceTitle": "The Divergence — Where the Five Teas Split",
+      "divergenceDesc": "Every difference comes from these three slots. What matters is where fixation sits: first makes an oolong, absent makes a black tea, last makes a red oolong.",
+      "commonClosingTitle": "Shared Finish — Shaping and Refining",
+      "commonClosingDesc": "The divergence ends and all five teas return to the same equipment: first drying, ball rolling, drying and sorting, roasting, packing. Even the black tea goes through this, which is why it too is ball-rolled.",
+      "insightTitle": "The Difference Is Only in the Middle",
+      "insightDesc": "Rather than five separate processes, this is one road that forks in the middle. Understand the divergence and you understand Taiwanese tea."
+    },
+    "families": {
+      "partialBall": {
+        "name": "Partially Oxidised, Ball-Rolled",
+        "desc": "Fixation comes first and oxidation is stopped early. High mountain oolong, Jin Xuan and Four Seasons all belong here."
+      },
+      "fullBall": {
+        "name": "Fully Oxidised, Ball-Rolled",
+        "desc": "No fixation at all — oxidation runs to completion, yet it still finishes on the ball-rolling line. Unique to honey black tea."
+      },
+      "heavyBall": {
+        "name": "Heavily Oxidised, Ball-Rolled",
+        "desc": "Oxidised heavily first, with fixation held back to the very end. Red oolong's signature move."
+      }
+    },
+    "sourcing": {
+      "own": "Our own estate",
+      "partner": "Partner grower",
+      "note": "Every tea is made where that tea belongs."
+    },
+    "teaSelector": {
+      "label": "Pick a tea to see how it is made",
+      "hint": "Switching teas only changes the middle section."
+    },
+    "stepState": {
+      "accent": "Specific to this tea",
+      "skipped": "This tea skips this step",
+      "optional": "Optional"
+    },
+    "matrix": {
+      "title": "All Five Teas, Side by Side",
+      "desc": "Every difference in one table. Scroll sideways to see all columns.",
+      "rowFamily": "Process family",
+      "rowOxidation": "Oxidation",
+      "rowShake": "Tossing",
+      "rowFixPosition": "Position of fixation",
+      "rowFerment": "Separate oxidation stage",
+      "rowShape": "Shape",
+      "rowRoast": "Roast",
+      "rowOrigin": "Origin / elevation",
+      "rowSourcing": "Source",
+      "rowFlavor": "Flavour",
+      "fixFirst": "First",
+      "fixNone": "None",
+      "fixLast": "Last",
+      "yes": "Yes",
+      "no": "No",
+      "oxLight": "Light",
+      "oxFull": "Full",
+      "oxHeavy": "Heavy",
+      "shapeBall": "Ball-rolled"
+    },
+    "craftNote": {
+      "title": "Why It Is Done This Way",
+      "oolong": "There are more variables at altitude, so oolong depends more on craft — get the technique right and the quality holds steady. Our processing facility is not beside the tea garden but in a spot with plenty of sun, which makes sun withering straightforward. As for flavour, the weather shifts it a little from year to year: close, but genuinely not identical.",
+      "jinxuan": "Jin Xuan is only ever lightly roasted — a light roast does not remove the milky note. It takes a medium roast to turn it buttery, and that is not a loss, just a change of form; only a heavy roast buries it under the roast character.",
+      "sijichun": "Four Seasons is affordable for two structural reasons, chiefly machine harvesting — it costs far less than picking by hand — combined with an early-budding cultivar that can be picked several times a year. That is a difference in cost structure, not a compromise on quality. Songboling is Taiwan's main Four Seasons region, and this tea is made there.",
+      "black": "Made as an oolong on day one, as a black tea on day two, then returned to the oolong press and cloth ball rolling — it is two traditions joined together. The honey note comes from the bush's defence response to leafhopper bites, so what this tea needs is for the leafhoppers to stay; other pests and diseases are still managed as usual.",
+      "redOolong": "It is still fixed after heavy oxidation, and that is the line between it and a black tea — oxidation is paused rather than finished, keeping the oolong sweetness. Luye is where red oolong originated, and this tea is made there.",
+      "roastTitle": "Why Roasting Happens at Home",
+      "roastNote": "Primary processing at the factory, refining back home on a cabinet roaster — this is how the division between primary and refined processing actually works in Taiwan. Roasting is a trade: you gain sweetness, body and consistency, and if you push too far you lose the floral top notes and the freshness. Admitting that cost is more honest than calling it 'carefully roasted'."
+    },
+    "productCta": {
+      "label": "Buy this tea",
+      "hint": "You have seen how it is made. Now taste it."
+    },
+    "howTo": {
+      "name": "How {tea} Is Made"
     }
   },
   "about": {
@@ -863,7 +1048,7 @@
       "picking2": {
         "alt": "Hand-picking tea leaves at dawn",
         "caption": "Dawn Harvest",
-        "desc": "One bud, two leaves — where quality begins"
+        "desc": "One bud with three to four leaves — where quality begins"
       },
       "wilting": {
         "alt": "Sun withering process",
