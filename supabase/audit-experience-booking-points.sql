@@ -181,4 +181,73 @@ WHERE amount > 0;
 */
 
 
--- ── 6. 複查：補發後重跑第 1 段，應回 0 列 ───────────────────────────────────
+-- ── 6. 複查：補發後的結果，應回 0 列 ────────────────────────────────────────
+--
+-- 第 5 段本身是冪等的：refunded 已包含補發寫進去的 refund 記錄，
+-- 重跑時 amount 會算成 0 或負數而不插入，不會重複補發。
+
+WITH tx AS (
+  SELECT
+    COALESCE(booking_id::text, order_id::text)             AS ref_id,
+    user_id,
+    SUM(CASE WHEN type = 'redeem' THEN -points ELSE 0 END) AS deducted,
+    SUM(CASE WHEN type = 'refund' THEN  points ELSE 0 END)
+      + SUM(CASE WHEN type = 'earn' AND description LIKE '%取消退還%'
+                 THEN points ELSE 0 END)                   AS refunded
+  FROM point_transactions
+  WHERE booking_id IS NOT NULL OR order_id IS NOT NULL
+  GROUP BY COALESCE(booking_id::text, order_id::text), user_id
+)
+SELECT
+  b.id                              AS booking_id,
+  b.booker_email                    AS email,
+  tx.deducted                       AS 實際扣除,
+  tx.refunded                       AS 已退還,
+  FLOOR(tx.deducted * CASE
+    WHEN EXTRACT(EPOCH FROM ((s.session_date + s.start_time) - b.cancelled_at)) / 3600 >= 168 THEN 1.0
+    WHEN EXTRACT(EPOCH FROM ((s.session_date + s.start_time) - b.cancelled_at)) / 3600 >= 72  THEN 0.5
+    WHEN EXTRACT(EPOCH FROM ((s.session_date + s.start_time) - b.cancelled_at)) / 3600 >= 24  THEN 0.2
+    ELSE 0
+  END) - tx.refunded                AS 仍欠點數
+FROM experience_bookings b
+JOIN experience_sessions s ON s.id = b.session_id
+JOIN tx ON tx.ref_id = b.id::text
+WHERE b.status = 'cancelled'
+  AND tx.deducted > 0
+  AND FLOOR(tx.deducted * CASE
+    WHEN EXTRACT(EPOCH FROM ((s.session_date + s.start_time) - b.cancelled_at)) / 3600 >= 168 THEN 1.0
+    WHEN EXTRACT(EPOCH FROM ((s.session_date + s.start_time) - b.cancelled_at)) / 3600 >= 72  THEN 0.5
+    WHEN EXTRACT(EPOCH FROM ((s.session_date + s.start_time) - b.cancelled_at)) / 3600 >= 24  THEN 0.2
+    ELSE 0
+  END) > tx.refunded
+ORDER BY 仍欠點數 DESC;
+
+
+-- ── 7. 診斷：舊制預約的帳本原貌 ─────────────────────────────────────────────
+--
+-- 用來回答「當年到底扣了哪個值、寫進哪個欄位、有沒有寫成功」。
+-- LEFT JOIN 是刻意的：完全沒有帳本記錄的預約也要列出來（交易欄位為 NULL），
+-- 那代表當時的 insert 被 order_id 的 FK 擋掉而靜默失敗（見 d104048）。
+--
+-- 已知的矛盾（2026-08-01 尚未解開）：程式碼從 2e1da44 到 d104048 寫的都是
+-- `points: -pointsUsed`，但線上帳本記的是 points_discount 的量
+-- （預約記錄 600 點、帳本只扣 6）。git 歷史解釋不了，需要這段的實際輸出。
+
+SELECT
+  b.id::text                    AS booking_id,
+  b.created_at                  AS 預約時間,
+  b.status,
+  b.points_used                 AS 預約記錄使用點數,
+  b.points_discount             AS 折抵金額,
+  pt.created_at                 AS 交易時間,
+  pt.type,
+  pt.points,
+  pt.description,
+  (pt.booking_id IS NOT NULL)   AS 記在booking_id欄,
+  (pt.order_id   IS NOT NULL)   AS 記在order_id欄
+FROM experience_bookings b
+LEFT JOIN point_transactions pt
+  ON b.id::text = COALESCE(pt.booking_id::text, pt.order_id::text)
+WHERE b.points_used > 0
+  AND b.points_used <> b.points_discount
+ORDER BY b.created_at, pt.created_at;
