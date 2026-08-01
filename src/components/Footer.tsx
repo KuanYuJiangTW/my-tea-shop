@@ -106,8 +106,13 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-10 pt-8 text-center text-xs text-tea-green-pale">
-          {t("copyright")}
+        <div className="border-t border-white/10 mt-10 pt-8 text-center text-xs text-tea-green-pale space-y-3">
+          <p>
+            <Link href={lp("/web-design")} className="hover:text-tea-green-light transition-colors underline underline-offset-2">
+              {t("webDesignBadge")}
+            </Link>
+          </p>
+          <p>{t("copyright")}</p>
         </div>
       </div>
     </footer>

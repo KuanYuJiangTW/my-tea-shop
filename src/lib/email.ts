@@ -183,6 +183,127 @@ export async function sendContactEmail(data: {
   });
 }
 
+// ─── 風土數位報價頁：諮詢表單通知信 ──────────────────────────────────────────
+
+const referralSourceLabel: Record<string, string> = {
+  site:     "逛霧抉茶看到的",
+  referral: "朋友介紹",
+  search:   "搜尋找到",
+  social:   "社群看到",
+  other:    "其他",
+};
+
+const painPointLabel: Record<string, string> = {
+  noWebsite:    "還沒有網站",
+  oldWebsite:   "網站太舊想重做",
+  onlineOrders: "想開始收線上訂單",
+  booking:      "想要線上預約功能",
+  seo:          "想被 Google 和 AI 搜到",
+  other:        "其他",
+};
+
+const budgetRangeLabel: Record<string, string> = {
+  under50k:   "5 萬內",
+  "50to150k": "5–15 萬",
+  "150to300k": "15–30 萬",
+  over300k:   "30 萬以上",
+  undecided:  "還不確定",
+};
+
+const timelineLabel: Record<string, string> = {
+  within1m:   "1 個月內",
+  within3m:   "3 個月內",
+  evaluating: "還在評估",
+};
+
+export interface WebInquiryEmailData {
+  referralSource: string;
+  industryBrand:  string;
+  painPoints:     string[];
+  budgetRange:    string;
+  timeline:       string;
+  contactName:    string;
+  contactLine?:   string;
+  contactEmail?:  string;
+  contactTime?:   string;
+  locale:         string;
+}
+
+export async function sendWebInquiryEmail(data: WebInquiryEmailData) {
+  const safeName         = escapeHtml(data.contactName);
+  const safeIndustry     = escapeHtml(data.industryBrand);
+  const safeLine         = data.contactLine  ? escapeHtml(data.contactLine)  : undefined;
+  const safeEmail        = data.contactEmail ? escapeHtml(data.contactEmail) : undefined;
+  const safeContactTime  = data.contactTime  ? escapeHtml(data.contactTime)  : undefined;
+  const referralLabel    = referralSourceLabel[data.referralSource] ?? escapeHtml(data.referralSource);
+  const budgetLabel      = budgetRangeLabel[data.budgetRange] ?? escapeHtml(data.budgetRange);
+  const timelineLabelStr = timelineLabel[data.timeline] ?? escapeHtml(data.timeline);
+  const painPointsLabel  = data.painPoints.length > 0
+    ? data.painPoints.map(p => painPointLabel[p] ?? escapeHtml(p)).join("、")
+    : "（未填）";
+
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#F5F0E8;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+
+        <tr><td style="background:#7D9B84;border-radius:16px 16px 0 0;padding:28px 40px;text-align:center;">
+          <div style="font-size:14px;font-weight:700;color:#ffffff;letter-spacing:2px;">🌱 風土數位新諮詢</div>
+          <div style="font-size:22px;font-weight:700;color:#ffffff;margin-top:4px;">/web-design 報價頁</div>
+        </td></tr>
+
+        <tr><td style="background:#ffffff;padding:40px;">
+          <h2 style="margin:0 0 20px;font-size:18px;color:#3D4A42;">有新的接案諮詢</h2>
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;width:100px;">認識管道</td>
+              <td style="color:#3D4A42;font-size:13px;font-weight:600;">${referralLabel}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">產業／品牌</td>
+              <td style="color:#3D4A42;font-size:13px;">${safeIndustry}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">預算區間</td>
+              <td style="color:#3D4A42;font-size:13px;">${budgetLabel}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">上線時程</td>
+              <td style="color:#3D4A42;font-size:13px;">${timelineLabelStr}</td>
+            </tr>
+            <tr>
+              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">姓名</td>
+              <td style="color:#3D4A42;font-size:13px;font-weight:600;">${safeName}</td>
+            </tr>
+            ${safeLine ? `<tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">LINE</td><td style="color:#3D4A42;font-size:13px;">${safeLine}</td></tr>` : ""}
+            ${safeEmail ? `<tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">Email</td><td style="color:#3D4A42;font-size:13px;">${safeEmail}</td></tr>` : ""}
+            ${safeContactTime ? `<tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">方便時段</td><td style="color:#3D4A42;font-size:13px;">${safeContactTime}</td></tr>` : ""}
+          </table>
+          <h3 style="margin:0 0 10px;font-size:13px;color:#7D9B84;font-weight:700;letter-spacing:1px;">想解決的痛點</h3>
+          <div style="background:#F5F0E8;border-radius:10px;padding:20px;font-size:14px;color:#3D4A42;line-height:1.8;">${painPointsLabel}</div>
+        </td></tr>
+
+        <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#9CA89E;">請至 Supabase 後台 web_inquiries 資料表查看完整紀錄</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await getResend().emails.send({
+    from:    FROM,
+    to:      ADMIN,
+    subject: `【風土數位】新諮詢｜${safeName}（${safeIndustry}）`,
+    html,
+  });
+}
+
 // ─── 出貨通知信 ───────────────────────────────────────────────────────────────
 
 export async function sendShippingEmail(data: ShippingEmailData) {

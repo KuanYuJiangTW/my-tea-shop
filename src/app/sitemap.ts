@@ -14,6 +14,7 @@ const STATIC_PAGES: Array<{ path: string; changeFrequency: ChangeFrequency; prio
   { path: "/about",         changeFrequency: "monthly", priority: 0.7 },
   { path: "/faq",           changeFrequency: "monthly", priority: 0.6 },
   { path: "/contact",       changeFrequency: "monthly", priority: 0.6 },
+  { path: "/web-design",    changeFrequency: "monthly", priority: 0.6 },
   { path: "/privacy",       changeFrequency: "yearly",  priority: 0.3 },
   { path: "/return-policy", changeFrequency: "yearly",  priority: 0.3 },
 ];

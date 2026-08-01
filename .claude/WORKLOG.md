@@ -320,3 +320,42 @@
   - **退還點數的效期給 365 天**（與 `issuePoints` 一致），不繼承原始效期——`redeem` 是負值不帶 `expires_at`，追溯不到原本那批點數的剩餘期限。從退還當下重新起算對客人有利
   - **`refundPoints` 是共用函式**，這次補 `expires_at` 讓商品訂單的退點一併修好
 - 狀態：已完成（證據：526 測試全過（39 檔）、`tsc --noEmit` 零錯誤、`npm run build` 成功且 `/api/cron/expire-pending-bookings` 已註冊、反向驗證 2 次如預期變紅後改回；`grep '"cancelled"'` 複查確認預約取消路徑共 4 處、皆已處理退點）
+
+---
+
+### [2026-08-01] 風土數位報價頁（接案品牌上線）
+- 目標：把 taiwantea.store 當作接案 demo，新增 `/web-design` 報價頁與諮詢表單，
+  Footer 放低調入口，讓覺得網站做得好的訪客能看報價、留資料、加 LINE 聊
+- 商業決策（小江拍板，脈絡存在 memory `project_terroir_digital`）：
+  - **品牌名「風土數位 Terroir Digital」**。否決「耕雲數位」的關鍵是實查撞名——
+    台中已有耕雲科技（同為雲端／智慧農業），且「耕雲」搜尋被安祥禪學佔滿；
+    「梯田數位」同樣撞名（新北梯田科技）。風土查無同名，搜尋獨佔性乾淨
+  - **三階報價 39K／98K／250K 起**，98K 為主推（標「最多人選」）。旗艦標 250K
+    低於接案公司行情（40–80 萬）是刻意的：沒有管銷的價差就是說服力
+  - **定位：垂直敘事、通用報價**。文案主打農產與飲食品牌（對接小江中期的莊園案源），
+    但明寫通吃各產業——垂直是聚光燈不是圍牆
+- 驗收條件：
+  - [x] openspec 提案四件（proposal／design／2 份 spec／tasks）＋文案定稿 `copy-zh.md`
+  - [x] `web_inquiries` 表：六題欄位、`pain_points text[]`、**enable RLS 但不建任何 policy**
+  - [x] `POST /api/web-inquiry`：rate-limit → honeypot → 白名單驗證 → service_role insert → best-effort 寄信
+  - [x] `/web-design` 頁面（server metadata＋client 表單，照 contact 慣例拆檔）
+  - [x] Footer 徽章、雙語字串（zh/en key 完全對稱，node 腳本比對無差異）
+  - [x] 10 條回歸測試；全專案 536 測試全過（40 檔）
+  - [x] checker 獨立驗收 11 項：10 PASS，唯一 FAIL 是 sitemap.ts 未在產物清單內——
+        那是驗收派工後我才補的，屬清單過時非交付缺陷，已補列為 task 4.4
+- 決策紀錄：
+  - **不開匿名 RLS insert policy，一律走 API route + service_role**。全站查無匿名 insert
+    先例（既有 policy 都綁 `auth.uid()`）；走 API 才能套 rate-limit、honeypot 與白名單，
+    開匿名 policy 等於讓 spam 直寫 DB
+  - **寄信 best-effort**：insert 成功後才寄，寄信失敗只 log 仍回 200。信丟了可接受，
+    資料丟了不可接受
+  - **LINE 連結用 `NEXT_PUBLIC_LINE_ADD_URL`，未設定即不渲染按鈕**（小江的 LINE 還沒提供），
+    之後補環境變數即生效，不用改碼
+  - **報價文案放 `messages/` 不進 Sanity**：需雙語、改動頻率低，進 CMS 是過度設計
+  - **補了 sitemap 但刻意不動 `llms.txt`**：sitemap 收錄是純上檔；llms.txt 是告訴 AI
+    「這站是什麼」的策展文件，塞進接案服務會稀釋茶品牌的主題聚焦，投報率不划算
+- 待辦（不阻塞上線）：Supabase SQL editor 執行 `supabase/add_web_inquiries.sql`；
+  Vercel 補 `NEXT_PUBLIC_LINE_ADD_URL`
+- 狀態：已完成（證據：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤（sitemap 改動後複跑）、
+  `npm run build` 成功且 `/web-design` 與 `/api/web-inquiry` 皆已註冊、checker 獨立驗收
+  10/11 PASS 含文案逐字抽驗 5 處與 RLS 無 policy 複查）

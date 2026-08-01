@@ -39,7 +39,8 @@
       },
       "contactUs": "Contact Us",
       "address": "No. 19-2, Lane 8, Taixing Village, Meishan Township, Chiayi County",
-      "copyright": "© 2026 霧抉茶 Wu Jue Tea. All rights reserved."
+      "copyright": "© 2026 霧抉茶 Wu Jue Tea. All rights reserved.",
+      "webDesignBadge": "Site design & build by Terroir Digital — want a website like this?"
     },
     "buttons": {
       "viewAll": "View All",
@@ -1398,5 +1399,194 @@
         "q3": "Do experiences run in rain"
       }
     }
+  },
+  "webDesign": {
+    "meta": {
+      "title": "Terroir Digital | Website Design & Development Pricing",
+      "description": "Terroir Digital — every business has its own terroir. Custom websites, online booking, payment integration, AI search optimization. Three tiers from NT$39,000, and this site is our live example."
+    },
+    "hero": {
+      "eyebrow": "Terroir Digital",
+      "title": "Every business has its own terroir.",
+      "subtitle": "Your craft, your story, your customers — that's the uniqueness no one else can copy. We help you plant it online, growing it into a digital storefront that takes orders, books appointments, and gets found by Google and AI.",
+      "quote": "The Wu Jue Tea site you're browsing right now is our work.",
+      "chips": ["Bilingual system", "3 payment gateways", "Online booking system", "Membership points", "AI search optimization"],
+      "ctaPrimary": "See pricing",
+      "ctaSecondary": "Let's talk"
+    },
+    "tiers": {
+      "sectionTitle": "Three tiers, from storefront to full operations",
+      "starter": {
+        "name": "Starter · Brand Storefront",
+        "price": "From NT$39,000",
+        "suitFor": "Small shops and studios launching their first proper brand website",
+        "features": [
+          "5–8 custom-designed pages (not a template)",
+          "Fully responsive — mobile, tablet, desktop",
+          "Self-service content editing",
+          "Basic SEO + Google Business integration",
+          "Contact form",
+          "SSL and domain setup assistance",
+          "Launch walkthrough"
+        ],
+        "timeline": "Timeline: 2–3 weeks"
+      },
+      "growth": {
+        "badge": "Most popular",
+        "name": "Growth · Start Selling Online",
+        "price": "From NT$98,000",
+        "suitFor": "Established businesses ready to take orders or bookings online",
+        "features": [
+          "Everything in Starter",
+          "Online booking or cart (single payment gateway)",
+          "Membership system",
+          "Google Analytics dashboard",
+          "Advanced SEO (structured data)",
+          "Social & LINE funnel design"
+        ],
+        "timeline": "Timeline: 4–6 weeks"
+      },
+      "flagship": {
+        "name": "Flagship · Full Digital Operations",
+        "price": "From NT$250,000",
+        "note": "The site you're browsing right now is a live example of this tier.",
+        "suitFor": "Brands that run their business primarily through their website",
+        "features": [
+          "Everything in Growth",
+          "Multiple payment gateways (credit card, PayPal, convenience store)",
+          "Inventory & order management",
+          "Membership points & tiers",
+          "Bilingual international version",
+          "Booking system",
+          "Admin dashboard",
+          "AI search optimization (get recommended by AI assistants)",
+          "Automated workflows (order alerts, overdue handling)",
+          "Architecture ready for ERP expansion"
+        ],
+        "timeline": "Timeline: 8–12 weeks"
+      }
+    },
+    "addons": {
+      "sectionTitle": "Add only what you need",
+      "items": [
+        "Bilingual international version +NT$25,000",
+        "AI search optimization package +NT$15,000 (llms.txt, structured data, AI crawler support)",
+        "LINE official account integration +NT$12,000",
+        "Brand copywriting, per page +NT$3,000",
+        "Logo & brand visuals from +NT$15,000"
+      ]
+    },
+    "maintenance": {
+      "sectionTitle": "Launch is just the beginning",
+      "intro": "A website needs care, just like a tea garden.",
+      "price": "From NT$3,000/month",
+      "items": ["Managed content updates", "Security updates", "Monthly traffic reports", "Uptime monitoring"]
+    },
+    "terms": {
+      "sectionTitle": "Clear terms, no surprises",
+      "items": [
+        "Payment schedule: 40% on signing · 30% on design approval · 30% on launch",
+        "Revisions: 2 rounds included; NT$3,000+ per round after that",
+        "Quote valid for 14 days",
+        "Domain and hosting billed at cost, not included in the project fee",
+        "We take on only 2 new projects per month to protect quality"
+      ]
+    },
+    "faq": {
+      "sectionTitle": "Frequently Asked Questions",
+      "items": [
+        {
+          "q": "Why not just use a template (Wix, themes)?",
+          "a": "Templates are cheap, but they look like everyone else's, load slowly, and hit an SEO ceiling — and when the platform raises prices, you have no choice but to pay. A custom site is your asset: change whatever you want, move it wherever you want. If budget is genuinely tight, we'll tell you honestly how to get the most out of the Starter tier."
+        },
+        {
+          "q": "What's the difference between NT$39,000 and a NT$15,000 website elsewhere?",
+          "a": "The difference shows up after launch. SEO fundamentals, mobile experience, load speed, and how much you can manage yourself — what a cheap site saves you upfront, it slowly costs you in traffic and orders later."
+        },
+        {
+          "q": "I know nothing about tech — will this be painful to communicate?",
+          "a": "We speak plain language throughout. You just tell us what business outcome you want; translating that into tech is our job."
+        },
+        {
+          "q": "What if I want to add features halfway through?",
+          "a": "The quote spells out scope in black and white. New features become a separate add-on quote — no scope creep mid-project, and no surprise price hikes either."
+        },
+        {
+          "q": "Is that it once the site is done?",
+          "a": "Launch includes a hands-on walkthrough so you can manage the backend yourself. If you'd rather not worry about it, add the maintenance plan and we'll handle content updates, security, and traffic reports."
+        },
+        {
+          "q": "Why choose you over an agency?",
+          "a": "Agencies quote NT$400,000–800,000 for the same spec. We have no sales commissions or office overhead, so the savings go straight into your pocket — and the site you're looking at right now is proof of what we can build."
+        }
+      ]
+    },
+    "form": {
+      "sectionTitle": "Let's talk about your business",
+      "subtitle": "Takes a minute to fill out — we'll reply to your specific needs, no form-letter replies.",
+      "q1": {
+        "label": "How did you find us?",
+        "options": {
+          "site": "Browsing Wu Jue Tea",
+          "referral": "Friend referral",
+          "search": "Search engine",
+          "social": "Social media",
+          "other": "Other"
+        }
+      },
+      "q2": {
+        "label": "Your industry and brand name",
+        "placeholder": "e.g. Artisan bakery studio · Jane's Bakery"
+      },
+      "q3": {
+        "label": "What do you most want to solve?",
+        "options": {
+          "noWebsite": "Don't have a website yet",
+          "oldWebsite": "Website is outdated, want a redo",
+          "onlineOrders": "Want to start taking orders online",
+          "booking": "Want online booking",
+          "seo": "Want to be found on Google and AI",
+          "other": "Other"
+        }
+      },
+      "q4": {
+        "label": "Roughly what's your budget?",
+        "options": {
+          "under50k": "Under NT$50k",
+          "50to150k": "NT$50k–150k",
+          "150to300k": "NT$150k–300k",
+          "over300k": "Over NT$300k",
+          "undecided": "Not sure yet (that's fine — we'll advise you)"
+        }
+      },
+      "q5": {
+        "label": "When do you hope to launch?",
+        "options": {
+          "within1m": "Within 1 month",
+          "within3m": "Within 3 months",
+          "evaluating": "Still evaluating"
+        }
+      },
+      "q6": {
+        "nameLabel": "Your name",
+        "namePlaceholder": "Jane Doe",
+        "lineLabel": "LINE ID",
+        "linePlaceholder": "Your LINE ID",
+        "emailLabel": "Email",
+        "emailPlaceholder": "your@email.com",
+        "timeLabel": "Best time to reach you",
+        "timePlaceholder": "e.g. Weekday evenings 7–9pm (optional)"
+      },
+      "submit": "Send it, let's talk",
+      "submitting": "Sending…",
+      "successTitle": "Got it! We'll get back to you within one business day.",
+      "successLine": "Can't wait? Add us on LINE and chat right now.",
+      "lineButton": "Add LINE, chat now",
+      "sendAgain": "Submit another",
+      "errorName": "Please tell us your name",
+      "errorContact": "Please leave a LINE ID or Email so we can reach you",
+      "errorGeneric": "Something went wrong, please try again later"
+    },
+    "coursePreview": "AI website-building course in the works — leave your email in the form to be first to know when it launches."
   }
 }
