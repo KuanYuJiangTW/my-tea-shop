@@ -127,7 +127,7 @@
   1. ~~tasks 6.6.4 規格矛盾~~ **已解**（2026-07-30 店主裁決）：`spec.md` 措辭改為「共通前後段的**步驟組成**（步驟集合與順序）保持不變」，並明文允許共通段的個別工序帶該茶專屬的 `accent`／`optional`／`skipped`，附「措辭沿革」註記避免後人重踩。0.11 四季春機採（`pick: accent` ＋ 專屬文案）一併加上。三條新測試釘住新規則
   2. **tasks 0.5.5**：全 repo 尚有 22 個既有 lint error（13 檔），店主已裁示另立 change。tasks 內有依規則與依檔案的完整清冊，已分三批（金流／admin／前台），可直接照著開工
   3. **tasks 0.5.6**：e2e 要真正接通需五步（補依賴→修路由→加 data-testid→備測試帳號→加 script＋CI），店主已裁示另立 change。現況已寫進 `e2e/README.md`。建議第一步先為 `/process` 寫 spec（不需登入、不碰 DB）
-  4. tasks 0.5.1 高山烏龍生茶/焙茶兩種賣法未進 `products.ts`，仍待店主確認
+  4. ~~tasks 0.5.1 高山烏龍生茶/焙茶兩種賣法未進 `products.ts`，仍待店主確認~~ **已結案，此行過期**（2026-08-01 修正）：`tasks.md` 0.5.1 於 2026-07-30 經店主確認結案，結論是 **`products.ts` 不必改**——變體目前只有重量一維且綁在 id 位移上供結帳算運費，加焙度會變成二維變體，要動 id 配置、庫存欄位與運費計算；既然生茶不上架就不必付這個代價。當時要修的是文案（已改為明講「網站販售一律淺焙」並加 4 條測試釘住）
   5. **農藥／有機／認證／產地／療效這類宣稱，一律不得由推論產生**（lessons.md 2026-07-30 條）
 - 驗證證據：`npm run test` 27 檔 358 測試全綠（基準 26 檔 316）；`npm run lint` 本次 diff 零 error 零 warning，並依 JUDG-2 做過機械歸屬對比；`npm run build` 成功；zh/en 實跑皆 200 且零 `MISSING_MESSAGE`；Playwright 實測四態渲染、切換不重設捲動、hash 進站、鍵盤 tabs、375px RWD、五份 HowTo 順序、更正後文案全數通過；關鍵測試均做過變異測試確認非空轉
 - 狀態：**實作完成**。第 0–6 節全數結案（6.2 lint 已修復並通過）；僅剩 7.4 部署後抽查 production 待合併後執行
@@ -150,4 +150,21 @@
   1. **蜜香紅茶的浪菁套到烏龍文案**——共通段浪菁通篇講「烏龍最關鍵的一步」「一款烏龍最後是清雅還是濃烈」，在紅茶頁上自相矛盾。`black.overrides` 補 `shake: "accent"` 並加專屬文案（zh/en）。教訓同紅烏龍的 `roll`：**共通段文案只要出現茶類名稱，就要回頭檢查五款茶是否都成立**
   2. **導覽列沒置中**（改版前是置中的）——茶款列與工序列都對 `overflow-x-auto` 容器直接下 flex，內容放得下時會靠左。修法是把捲動容器與 flex 分開，內層用 `w-max mx-auto`：放得下置中、放不下才從左邊捲。**不可直接對 overflow 容器下 `justify-center`**，那會讓溢出的左半邊捲不到
 - 版面驗證證據：Playwright 實測 1920px 下茶款列與工序列中心皆為 960（＝viewport 中心）；375px 下 `scrollWidth 416 > clientWidth 343` 且 `scrollLeft 0`，確認溢出時從左起捲未被裁切；蜜香紅茶頁殘留「烏龍最關鍵的一步」計數為 0
+- 狀態：已完成
+
+### [2026-08-01] 三個 stacked PR 合併上線
+- 交付：#2 `90dab5d`、#3 `077a1d7`、#4 `5cb9808` 依序合併進 main（main 由 `d2fa997` → `5cb9808`），正式站已更新
+- 驗收條件：
+  - [x] 三個 PR 的 Vercel checks 全綠才合併
+  - [x] `git merge-base --is-ancestor` 逐一確認三個分支的內容都在 main 上
+  - [x] **tasks 7.4 部署後抽查 production 已完成**（店主實測）：`/process` 與 `/en/process` 各五份 HowTo 齊全，步數 11／11／10／11／12 中英一致；英文站印出英文品名無中文殘留；導覽列置中、五款茶頁籤、炒菁設備、蜜香紅茶浪菁、紅烏龍揉捻文案皆確認正確
+  - [x] 購物車回歸（加入／移除／改數量／清空、重新整理保留、Header 徽章一致、登入前後同步）店主實測通過
+- **合併時踩到的坑（下次做 stacked PR 必看）**：合併 #3 之後，#4 的 base **不會**自動改指 main——GitHub 只有在 base 分支被刪除時才自動 retarget。當時 #4 的 base 仍是 `claude/lint-debt-cleanup`，直接合下去會併進那條分支、根本上不了線。**必須先用 `update_pull_request` 把 base 改成 main 再合**
+- 已知的環境限制：本容器的網路政策擋掉 `*.vercel.app` 與 `taiwantea.store`（proxy 回 403 policy denial），所以 preview 與 production 的實際頁面一律無法由 agent 抽查，只能由店主看。要驗頁面內容請改用本機 `npm run build && npm start` 打 localhost
+- 驗證 production HowTo 的方法（存查）：在該頁 Console 執行
+  `[...document.querySelectorAll('script[type="application/ld+json"]')].map(s=>JSON.parse(s.textContent)).filter(x=>x['@type']==='HowTo').map(x=>[x.name,x.step.length])`
+- 尚未處理（都不擋營運）：
+  1. **Supabase Auth 的 preview redirect 白名單**：`Authentication → URL Configuration → Redirect URLs` 未含 Vercel preview 網域，導致 preview 上的 Google 登入與 Magic Link 會被導回正式站（Supabase 比對不到就退回 Site URL）。程式碼本身正確（`LoginForm.tsx:94` 用 `window.location.origin`），要加的是 `https://my-tea-shop-git-*-jiangkuanyus-projects.vercel.app/**`。**密碼登入不受影響**（走 `router.push` 相對路徑），preview 要測登入狀態請用密碼登入
+  2. tasks 0.5.5 全 repo 既有 lint error 的批次 B／C（批次 A 已於 #3 清償）
+  3. tasks 0.5.6 e2e 接通（五步，現況見 `e2e/README.md`）
 - 狀態：已完成
