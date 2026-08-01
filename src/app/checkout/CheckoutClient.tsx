@@ -96,16 +96,6 @@ export default function CheckoutClient() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 改選貨到付款時，若原本選的超商不代收貨款，退回預設並清掉已選門市
-  useEffect(() => {
-    if (payment !== "cod") return;
-    setForm(prev =>
-      cvsSupportsCod(prev.cvsCompany)
-        ? prev
-        : { ...prev, cvsCompany: "seven", cvsStoreId: "", cvsStoreName: "" }
-    );
-  }, [payment]);
-
   // 折價券
   type CouponRow = { id: string; code: string; discount_amount: number; min_order_amount: number; expires_at: string };
   const [availableCoupons, setAvailableCoupons]   = useState<CouponRow[]>([]);
@@ -129,6 +119,23 @@ export default function CheckoutClient() {
     note: "",
     internationalAddress: { country: "", countryName: "", state: "", city: "", addressLine1: "", addressLine2: "", postalCode: "" },
   });
+
+  /**
+   * 切換付款方式。改選貨到付款時，若原本選的超商不代收貨款，退回預設並清掉已選門市。
+   *
+   * 這件事刻意放在事件處理器而不是 effect：在 effect 裡同步 setState 會觸發
+   * `react-hooks/set-state-in-effect`（會導致串聯 render），而付款方式只會由使用者
+   * 點選改變，本來就有明確的事件時機。
+   */
+  function selectPayment(value: PaymentMethod) {
+    setPayment(value);
+    if (value !== "cod") return;
+    setForm(prev =>
+      cvsSupportsCod(prev.cvsCompany)
+        ? prev
+        : { ...prev, cvsCompany: "seven", cvsStoreId: "", cvsStoreName: "" }
+    );
+  }
 
   // 國際配送重量計算
   const cartWeightItems = items.map(i => {
@@ -633,7 +640,7 @@ export default function CheckoutClient() {
                   ]).map(opt => (
                     <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${opt.disabled ? "cursor-not-allowed opacity-50 border-tea-green-pale bg-gray-50" : `cursor-pointer ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}`}>
                       <input type="radio" name="payment" value={opt.value} checked={payment === opt.value}
-                        onChange={() => !opt.disabled && setPayment(opt.value)} disabled={opt.disabled} className="accent-tea-green mt-0.5" />
+                        onChange={() => !opt.disabled && selectPayment(opt.value)} disabled={opt.disabled} className="accent-tea-green mt-0.5" />
                       <div className={`mt-0.5 ${opt.disabled ? "text-gray-300" : payment === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
