@@ -354,8 +354,17 @@
   - **報價文案放 `messages/` 不進 Sanity**：需雙語、改動頻率低，進 CMS 是過度設計
   - **補了 sitemap 但刻意不動 `llms.txt`**：sitemap 收錄是純上檔；llms.txt 是告訴 AI
     「這站是什麼」的策展文件，塞進接案服務會稀釋茶品牌的主題聚焦，投報率不划算
-- 待辦（不阻塞上線）：Supabase SQL editor 執行 `supabase/add_web_inquiries.sql`；
-  Vercel 補 `NEXT_PUBLIC_LINE_ADD_URL`
+- 上線後線上驗證（2026-08-01，小江已完成建表／Vercel 環境變數／LINE 歡迎訊息）：
+  - `/web-design` HTTP 200，「風土數位」「250,000」與 LINE ID `580ariqa` 皆已嵌入
+  - `web_inquiries` 表存在（anon 查詢回 `[]` 而非 404）
+  - **RLS 實測有效**：anon key 直接 insert 被擋，`42501 new row violates row-level
+    security policy`——spam 無法繞過 API route 的限流／蜜罐／白名單
+  - 線上 API 非法值回 400 且不寫入
+  - 小江實跑表單全流程（成功畫面、通知信、DB 記錄）回報「都沒問題」
+- **附帶發現（待小江處理）**：`.env.local` 的 `SUPABASE_SERVICE_ROLE_KEY`（`sb_secret_`
+  新格式）認證失敗 401，本機 `npm run dev` 對 DB 的寫入全都會失敗（不只報價表單）。
+  線上 Vercel 那套正常，不受影響。修法：Supabase Dashboard → API Keys 複製 secret 貼回
+- LINE 帳號：`@580ariqa`（風土數位，與霧抉茶的 `NEXT_PUBLIC_LINE_OFFICIAL_URL` 分開兩個變數）
 - 狀態：已完成（證據：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤（sitemap 改動後複跑）、
   `npm run build` 成功且 `/web-design` 與 `/api/web-inquiry` 皆已註冊、checker 獨立驗收
   10/11 PASS 含文案逐字抽驗 5 處與 RLS 無 policy 複查）
