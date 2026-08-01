@@ -195,27 +195,16 @@
 - 目標：小江回報「取消訂單時點數／折價券應該要返還」，查證並修正
 - 驗收條件：
   - [x] 查證：確認兩個真 bug → 用 mock Supabase 實跑真正的路由，攔截 `refundPoints` 收到的參數
-  - [x] Bug 1 會員自助取消只退 1% 點數 → `ebfd509` 初修、`4217a62` 更正。`orders/[id]/cancel` 的 SELECT 沒撈 `points_discount`，`points_discount ?? floor(points_used/100)` 永遠落到舊制 fallback。實測 500 點只退 5 點
+  - [x] Bug 1 會員自助取消只退 1% 點數 → `ebfd509`。`orders/[id]/cancel` 的 SELECT 沒撈 `points_discount`，`points_discount ?? floor(points_used/100)` 永遠落到舊制 fallback。實測 500 點只退 5 點。改為退 `points_used`
   - [x] Bug 2 通用碼永不還原 → `ebfd509`。`orders.coupon_id` 同時存 `coupons.id` 與 `coupon_templates.id` 且無欄位分辨，原本只 update `coupons`（遇通用碼靜默 no-op）。改為同時 `coupon_usages.delete().eq("order_id", id)`，兩條取消路徑都補
   - [x] 真回歸測試 → `src/__tests__/orders/cancel-order.test.ts` 12 條。DB mock 刻意只回傳 `select()` 指名的欄位，讓「忘了 select」這類錯自然變紅
   - [x] **反向驗證三次全過**：退回退點修正 → `expected 5 to be 500`、`expected 500 to be 50000`；退回會員取消的 usages 刪除 → 2 紅；退回後台的 → 1 紅；改回全綠
   - [x] 稽核／補償 SQL → `supabase/audit-cancelled-order-refunds.sql`
-  - [x] **小江已跑完全部 7 段**。盤點結果：8 筆訂單、2 個 user_id、共 105 點。**兩個帳號都是小江自己的測試帳號（`qdbzdt2846` 與 `wfnxfy1592648`），無真實客人受影響**。補發與通用碼清理已執行
-  - [x] **我的初修是錯的，已更正** → `4217a62`。見下方決策紀錄第一條
-  - [x] 順帶發現兩項一併處理 → `1a88574`（規格全面對齊、貨到付款支援通用碼）
+  - [ ] **待小江執行**：跑該 SQL 第 1~4 段盤點，確認金額後再跑第 5、6 段補發（預設註解掉）
 - 決策紀錄：
-  - **退還依據：帳本，不是訂單欄位**（`4217a62` 更正 `ebfd509`）。初修改成退 `orders.points_used`，理由是「下單時 `deductPoints` 收到的就是它」。**這個推論在舊制訂單上是錯的**——小江跑稽核 SQL 拉出的線上資料顯示，2026-05-07 那批訂單 `points_used = 3300`、`points_discount = 33`，而 `point_transactions` 實際只扣了 33 點。照 `points_used` 退會憑空發出 3267 點，我還寫了一條測試把這個錯的語意釘死。新制 1:1 之後三者才一致，所以光看現在的訂單看不出差異
-    - 改為 `refundOrderPoints()`：退還量 =「該訂單 `redeem` 絕對值總和」−「已有的 `refund` 總和」。**帳本是唯一不隨制度漂移的依據**，且「已扣 − 已退」順帶帶來冪等性（重複觸發不重複退、對被舊 bug 退過 1% 的訂單只補差額）
-    - 教訓：這個錯是規格檔的舊制描述誤導的，見 lessons 與下方規格條目
+  - **退還一律用 `points_used` 而非 `points_discount`**：下單時 `deductPoints` 收到的就是 `points_used`，扣與還必須引用同一欄位。新制 1:1 下兩者相等，所以後台那條原本用 `points_discount` 也沒出事；已一併對齊，並加一條「兩欄位不一致時退 `points_used`」的測試釘住語意
   - **通用碼還原以 `order_id` 為鍵**：不必先判斷券的種類，兩種券都安全。若改成先查種類會需要新增欄位或多一次查詢，沒必要
   - 三條假測試（宣告本地變數再對自己做算術、從未呼叫路由）已刪除，於 `points-integration.test.ts` 留註記指向新測試檔
-  - **規格 `openspec/specs/coupon-and-points/spec.md` 全面對齊新制**（`1a88574`）。原本只改取消段，小江要求一併處理其餘舊制殘留。逐條拿程式碼對照，不憑印象：
-    - 「最少 200 點、須為 100 的倍數」→ 最低 `MIN_POINTS_USE`（10），**無倍數限制**。全 repo 搜不到 `% 100` 的檢查，那條規格是憑空寫的（比過時更糟：過時的至少曾經是真的）
-    - 「每 100 點折抵 NT$1」→ 1:1
-    - 「折抵上限 10%」→ 依會員等級 `max_discount_rate`，查 `supabase/points_system.sql` 確認 standard 0.10／silver 0.15／gold 0.20
-    - 餘額定義補上「正向點數只計未過期者」；`/api/user/points` 的「最近 20 筆」→ 實際 `limit(50)`
-    - 檔頭新增沿革警告：資料庫仍存有舊制訂單、兩欄不相等、帳本才是唯一可信依據，附 3300/33 實例。**這份規格剛剛才誤導我寫出會超額退還的程式碼，警告放檔頭是為了讓下一個人先看到**
-  - **貨到付款改為支援通用碼**（`1a88574`）。`/api/orders` 原本直接查 `coupons` 表，四條金流路徑只有它不支援通用碼。改為與其他三條一致（`resolveCouponCode` → 批次券寫 `coupons`／通用碼寫 `coupon_usages`）。取消還原以 `coupon_usages.order_id` 為鍵，故自動對得起來，不需再改
-    - **副作用需知情**：通用碼的總量 `max_uses` 現在會被貨到付款訂單一起消耗，之前的額度算是虛胖。有在跑的活動碼要回頭確認數字
-- 反向驗證累計 6 次（皆如預期變紅後改回）：退點修正 2、會員取消 usages 刪除 2、後台 usages 刪除 1（`ebfd509` 那輪 3 次）；拿掉「減去已退」、路由改回 `points_used`（`4217a62` 2 次，後者 `expected 3300 to be 33`）；拿掉 `recordCouponUsage` 分支（`1a88574` 1 次）
-- 狀態：已完成（證據：492 測試全過（37 檔）、`tsc --noEmit` 零錯誤、`npm run lint` 0 error、`npm run build` 成功；資料補償小江已跑完 7 段 SQL，複查回 0 列）
+  - 規格 `openspec/specs/coupon-and-points/spec.md` 的取消段已改寫（補通用碼、改 `type: "refund"`、明訂退還量）。**該檔其他段落仍是舊制殘留**（100 點折 NT$1、最少 200 點且須為 100 倍數），與現行 1:1 不符——未在本次一併改，屬獨立的規格對齊工作
+- 順帶發現（未處理）：`/api/orders`（貨到付款）的折價券驗證直接查 `coupons` 表、沒用 `resolveCouponCode`，所以貨到付款的客人不能用通用碼。不是 bug，但可能非本意
+- 狀態：程式碼已完成（證據：485 測試全過、`tsc --noEmit` 零錯誤、`npm run lint` 0 error、`npm run build` 成功、反向驗證三次）；資料補償待小江跑 SQL
