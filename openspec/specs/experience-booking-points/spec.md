@@ -1,15 +1,30 @@
-> **制度沿革警告（2026-08-01 更新）**
+> **制度沿革（2026-08-01 以線上資料核實，見稽核 SQL 第 7 段的實際輸出）**
 >
-> 體驗預約的點數在 `2e1da44`（2026-04-11）到 `abae014` 之間是**舊制 100:1**：
-> 每 100 點折抵 NT$1，最低 200 點且須為 100 的倍數，折抵上限固定 10%。
-> 當時扣點寫進帳本的是 `points_used`（例：扣 3300 點、`points_discount` 只有 33），
-> 且誤寫在 `point_transactions.order_id` 欄位（`d104048` 之後才改用 `booking_id`）。
+> 體驗預約的點數在 `2e1da44`（2026-04-11 09:19 +0800）到 `abae014` 之間是
+> **舊制 100:1**：每 100 點折抵 NT$1，最低 200 點且須為 100 的倍數，
+> 折抵上限固定 10%。時間線上有三個各自留下痕跡的轉折：
 >
-> **資料庫仍可能存有那批舊制預約**，`points_used` 與 `points_discount` 相差 100 倍。
-> 任何「該退多少點」的計算都必須以 `point_transactions` 為準，不可讀
-> `experience_bookings` 的那兩個欄位——這份規格的舊版本就是因為描述舊制，
-> 誤導出「取消時只退 1% 點數」的程式碼。稽核用
-> `supabase/audit-experience-booking-points.sql`。
+> 1. **`2e1da44` ~ `d104048`（4/11 10:05 +0800）**：扣點與退點都寫進
+>    `point_transactions.order_id`，該欄有 FK 指向 `orders`，**insert 靜默失敗**。
+>    線上仍存有這種只有預約、沒有任何帳本記錄的資料（`aef4f39e`）。
+>    這類預約若被取消，舊程式碼會依 `points_discount` 憑空發點——它有一筆
+>    「取消退還」卻從來沒被扣過。
+> 2. **`d104048` 之後**：改寫 `booking_id`，扣點開始成功，值是 `-points_used`。
+> 3. **`abae014` + `points_system.sql:132` 的 migration**：
+>    `UPDATE point_transactions SET points = ROUND(points/100)` 把**整個帳本**
+>    除以 100，於是舊制的 −600 變成 −6。但同一份 migration 的 backfill
+>    （第 150 行）**只處理 `orders`，沒有動 `experience_bookings`**，
+>    所以 `points_used` 至今仍是換算前的 600。
+>
+> 結果：舊制預約的 `points_used`(600) 與帳本(−6) 相差 100 倍，
+> 而 `points_discount`(6) 與帳本**碰巧一致**。
+>
+> 「碰巧一致」不是可以依賴的性質——帳本已經被 migration 單方面改寫過一次，
+> `experience_bookings` 沒跟上；下一次制度變更會再分歧一次。
+> 任何「該退多少點」的計算一律以 `point_transactions` 為準，不讀那兩個欄位。
+> 另注意舊制的退還記錄 type 寫成 `earn` 而非 `refund`（線上有 7 筆），
+> 計算「已退」時必須納入，否則補償會重複發點。
+> 稽核用 `supabase/audit-experience-booking-points.sql`。
 >
 > 以下描述的是**現行新制（1:1）**。
 

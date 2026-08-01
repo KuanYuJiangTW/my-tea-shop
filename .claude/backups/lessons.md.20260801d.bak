@@ -171,13 +171,7 @@
 - 去處：暫存於此（與 2026-07-30「測試全綠不等於符合規格」互補：那條講測試釘錯了規格，這條講測試根本沒接上程式碼）
 
 ## 2026-08-01 修好一條路徑不代表修好那個 bug——同一個錯常有第二份拷貝
-- 情境：前一輪剛把商品訂單的取消退點改成「以 `point_transactions` 帳本為準」，還寫了 12 條回歸測試、反向驗證 6 次、跑了補償 SQL，整件事看起來收乾淨了。這輪小江問「體驗預約的結帳與取消對不對」，一查——體驗預約是**完全獨立的第二套程式碼**（`/api/bookings/[id]/cancel`、`/api/admin/experience-bookings/[id]/cancel`、`/api/ecpay/experience-checkout`），仍然照 `points_discount` 退、沒有冪等、結帳可重複扣點，一行都沒被上一輪碰到
+- 情境：前一輪剛把商品訂單的取消退點改成「以 `point_transactions` 帳本為準」，還寫了 12 條回歸測試、反向驗證 6 次、跑了補償 SQL，整件事看起來收乾淨了。這輪小江問「體驗預約的結帳與取消對不對」，一查——體驗預約是**完全獨立的第二套程式碼**（`/api/bookings/[id]/cancel`、`/api/admin/experience-bookings/[id]/cancel`、`/api/ecpay/experience-checkout`），仍然照 `points_discount` 退，一行都沒被上一輪碰到。而且更糟：體驗舊制帳本扣的是 `points_used`（3300），商品訂單舊制扣的是 `points_discount`（33），**同一個「兩欄不一致」在兩條路徑上方向相反**，照抄商品訂單的結論會退錯方向
 - 代價：無（小江問了才查），但這條路徑帶著同一個 bug 又多活了一輪。若不是被問到，下次發現可能是客人來客訴
-- 規則：**修完一個 bug，用它的「錯誤形狀」而不是它的檔名去 grep 全 repo**。本例的形狀是「讀 `points_discount` 當退還依據」與「退點沒有減去已退」，一條 `grep -rn "points_discount" src/app/api` 就會露出體驗那三支。凡是同一領域有多套並行實作（商品訂單／體驗預約／候補轉正；四條金流路徑），修 A 之後一律逐一開啟 B、C、D 確認，**不要假設它們共用同一個 helper**
+- 規則：**修完一個 bug，用它的「錯誤形狀」而不是它的檔名去 grep 全 repo**。本例的形狀是「讀 `points_discount` 當退還依據」與「退點沒有減去已退」，一條 `grep -rn "points_discount" src/app/api` 就會露出體驗那三支。凡是同一領域有多套並行實作（商品訂單／體驗預約／候補轉正；四條金流路徑），修 A 之後一律逐一開啟 B、C、D 確認，**不要假設它們共用同一個 helper**。第二步：確認各路徑的歷史制度是否一致——同名欄位在不同路徑可能代表不同東西，要各自 `git log -S` 查當初實際寫進帳本的是哪個值
 - 去處：暫存於此（與 2026-08-01「SELECT 少一個欄位」同源：那條講單一路徑的錯，這條講那個錯的複製品）
-
-## 2026-08-01 我從 git 歷史推論線上帳本的內容，被 migration 打臉
-- 情境：接上條。要判斷體驗預約舊制「當年到底扣了幾點」，我去 `git show 2e1da44` 讀當時的程式碼，看到 `points: -pointsUsed`，就據此寫進規格檔頭、WORKLOG、lessons、測試註解：「體驗舊制帳本扣的是 `points_used`（3300），照 `points_discount`（33）退會吞掉客人 3267 點」，還說這與商品訂單的舊 bug**方向相反**。小江跑稽核 SQL 回來，帳本實際是 −6 而 `points_used` 是 600。查 `points_system.sql:132` 才發現新制 migration 有一句 `UPDATE point_transactions SET points = ROUND(points/100)` 把**整個帳本**改寫過，而同一份 migration 的 backfill 只處理 `orders`、沒動 `experience_bookings`
-- 代價：一個危言聳聽的錯誤結論被寫進四個地方（其中規格檔頭正是為了「不要誤導下一個 session」而寫的），還向使用者報告了不存在的災難情境，事後全部要回頭更正。程式碼修正本身沒錯（帳本法不依賴這個推論），但那是運氣不是判斷
-- 規則：**「當年寫進 DB 的是什麼」只能由 DB 回答，程式碼歷史只能回答「當年打算寫什麼」**。兩者之間隔著：insert 靜默失敗（本例 `order_id` FK 擋掉一整批）、後續 migration 改寫、手動修資料。要寫任何關於歷史資料形狀的斷言之前，先跑一段 `SELECT` 看實際列——查詢用 `LEFT JOIN` 才看得到「完全沒有記錄」這種形狀。**在拿到實際輸出之前，規格與文件裡不要寫具體數字**，寧可寫「以帳本為準，原因見稽核 SQL」。連帶檢查：找到任何一句 `UPDATE <表> SET` 的 migration，就要問「它漏掉哪張表沒一起改」——`orders` 被 backfill 而 `experience_bookings` 沒有，兩欄從此永久不一致
-- 去處：暫存於此（JUDG-2「完成要有證據」的延伸：對**過去的資料狀態**下斷言，證據只能是查詢輸出，不能是 git log）

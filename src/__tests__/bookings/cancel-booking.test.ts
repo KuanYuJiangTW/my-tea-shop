@@ -175,29 +175,31 @@ describe("會員取消體驗預約 POST /api/bookings/[id]/cancel", () => {
     expect(refunds()[0].booking_id).toBe("b-1");
   });
 
-  it("舊制預約：退帳本的實扣量，不是 points_discount 的 1%", async () => {
-    // 舊制（2e1da44 ~ abae014）是 100:1，帳本扣的是 points_used：
-    // points_used 3300、points_discount 33，帳本 −3300。
-    // 照 points_discount 退只會退 33 點，吞掉客人 3267 點。
+  it("帳本與 points_discount 不一致時，以帳本為準", async () => {
+    // 線上實際的舊制資料是 points_used 600 / points_discount 6 / 帳本 −6
+    // （points_system.sql:132 的 migration 把帳本除以 100，卻沒 backfill
+    // experience_bookings），那個形狀下 points_discount 與帳本碰巧相等。
+    // 這裡刻意造一個三者都不同的形狀：抄 points_used 會退 3300、
+    // 抄 points_discount 會退 33，只有讀帳本才會退 300。
     reset(
       { points_used: 3300, points_discount: 33 },
-      [{ points: -3300, type: "redeem", booking_id: "b-1" }],
+      [{ points: -300, type: "redeem", booking_id: "b-1" }],
     );
     await cancel();
-    expect(refunds()[0].points).toBe(3300);
+    expect(refunds()[0].points).toBe(300);
   });
 
-  it("舊制預約的 redeem 記錄寫在 order_id 欄位也要撈得到", async () => {
-    // d104048 之前，體驗的點數記錄誤寫進 order_id。
-    // 刻意讓 points_discount(33) 與帳本(3300) 不同——只查 booking_id 會撈到空帳本
-    // 而退 0 點，抄 points_discount 會退 33 點，兩種錯都會變紅
+  it("redeem 記錄寫在 order_id 欄位也要撈得到", async () => {
+    // d104048 之前，體驗的點數記錄寫的是 order_id（被 FK 擋掉而多半沒存進去，
+    // 但不能假設一筆都沒有）。刻意讓 points_discount(33) 與帳本(300) 不同——
+    // 只查 booking_id 會撈到空帳本而退 0 點，抄 points_discount 會退 33 點
     reset(
       { points_used: 3300, points_discount: 33 },
-      [{ points: -3300, type: "redeem", order_id: "b-1" }],
+      [{ points: -300, type: "redeem", order_id: "b-1" }],
     );
     await cancel();
     expect(refunds()).toHaveLength(1);
-    expect(refunds()[0].points).toBe(3300);
+    expect(refunds()[0].points).toBe(300);
   });
 
   it("3–6 天前取消：按 50% 退還", async () => {
@@ -259,6 +261,14 @@ describe("會員取消體驗預約 POST /api/bookings/[id]/cancel", () => {
     expect(refunds()).toHaveLength(0);
   });
 
+  it("帳本沒有扣點記錄時不退點，即使 points_used > 0", async () => {
+    // 線上真有這種資料（aef4f39e）：d104048 之前扣點寫 order_id 被 FK 擋掉，
+    // 預約欄位留著 300 但帳本一筆都沒有。舊寫法會依 points_discount 憑空發 3 點
+    reset({ points_used: 300, points_discount: 3 }, []);
+    await cancel();
+    expect(refunds()).toHaveLength(0);
+  });
+
   it("已取消的預約回 409，且不退點", async () => {
     reset({ status: "cancelled" });
     const res = await cancel();
@@ -293,13 +303,13 @@ describe("後台取消體驗預約 POST /api/admin/experience-bookings/[id]/canc
     expect(refunds()[0].points).toBe(500);
   });
 
-  it("舊制預約：退帳本的實扣量，不是 points_discount", async () => {
+  it("帳本與 points_discount 不一致時，以帳本為準", async () => {
     reset(
       { points_used: 3300, points_discount: 33 },
-      [{ points: -3300, type: "redeem", booking_id: "b-1" }],
+      [{ points: -300, type: "redeem", booking_id: "b-1" }],
     );
     await adminCancel();
-    expect(refunds()[0].points).toBe(3300);
+    expect(refunds()[0].points).toBe(300);
   });
 
   it("3–6 天前取消：按 50% 退還", async () => {

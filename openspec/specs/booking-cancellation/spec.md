@@ -71,9 +71,11 @@
 系統 SHALL 以 `refundBookingPoints()` 退還點數，退還量一律以 `point_transactions`
 為準，**不得**讀 `experience_bookings.points_used` 或 `points_discount`。
 
-> 那兩欄會隨制度漂移：舊制（`2e1da44` ~ `abae014`）是 100:1，帳本扣的是
-> `points_used`（3300），`points_discount` 只有 33，照後者退會吞掉客人 99% 的點數。
-> 完整沿革見 `openspec/specs/experience-booking-points/spec.md` 檔頭。
+> 那兩欄會隨制度漂移：`points_system.sql:132` 的 migration 把整個帳本除以 100，
+> 卻沒有 backfill `experience_bookings`，於是舊制預約的 `points_used`(600) 與
+> 帳本(−6) 相差 100 倍。`points_discount`(6) 目前碰巧與帳本一致，但那是
+> migration 的副作用而非設計，不可依賴。
+> 完整沿革（含線上實據）見 `openspec/specs/experience-booking-points/spec.md` 檔頭。
 
 計算式：`應退 = floor(帳本已扣總額 × refundRate) − 已退總額`。
 
@@ -102,9 +104,13 @@
 - **WHEN** `status = "confirmed"`，距活動開始 < 24 小時
 - **THEN** 不插入任何點數退還記錄
 
-#### Scenario: 舊制預約（points_used ≠ points_discount）
-- **WHEN** 預約的 `points_used = 3300`、`points_discount = 33`，帳本扣了 3300
-- **THEN** 7 天前取消退還 **3300** 點（不是 33 點）
+#### Scenario: 帳本與 experience_bookings 的欄位不一致
+- **WHEN** 預約的 `points_used = 3300`、`points_discount = 33`，帳本扣的是 300
+- **THEN** 7 天前取消退還 **300** 點——以帳本為準，兩個欄位都不看
+
+#### Scenario: 帳本完全沒有扣點記錄（舊制 FK 失敗的預約）
+- **WHEN** 預約的 `points_used > 0`，但該預約沒有任何 `redeem` 記錄
+- **THEN** 不退還任何點數（舊程式碼會依 `points_discount` 憑空發點）
 
 #### Scenario: 已被舊 bug 少退過的預約
 - **WHEN** 帳本已扣 500、已退 5（舊 bug 退的）
