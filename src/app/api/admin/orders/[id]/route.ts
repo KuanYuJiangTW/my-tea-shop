@@ -114,15 +114,19 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
     prevOrder?.order_status !== "cancelled" &&
     prevOrder?.user_id
   ) {
+    // orders.coupon_id 批次券存 coupons.id、通用碼存 coupon_templates.id，
+    // 訂單上沒有欄位分辨，故兩邊都處理：批次券靠 id 更新，通用碼靠 order_id 刪除
     if (prevOrder.coupon_id) {
       await supabase
         .from("coupons")
         .update({ used_at: null, order_id: null })
         .eq("id", prevOrder.coupon_id);
     }
+    await supabase.from("coupon_usages").delete().eq("order_id", id);
 
-    // 退還點數（新制：用 type='refund'，退還的是 points_discount 而非 points_used）
-    const pointsToRefund = (prevOrder as Record<string, unknown>).points_discount as number ?? 0;
+    // 退還點數（type='refund'）。退的是 points_used——下單時 deductPoints 收到的
+    // 就是它，退還必須與扣除同一個量。新制 1:1 下與 points_discount 相等
+    const pointsToRefund = (prevOrder as Record<string, unknown>).points_used as number ?? 0;
     if (pointsToRefund > 0) {
       await refundPoints({
         userId: prevOrder.user_id as string,

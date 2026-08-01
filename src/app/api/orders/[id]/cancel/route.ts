@@ -21,7 +21,7 @@ export async function POST(
   // 確認訂單屬於此會員
   const { data: order, error: fetchError } = await adminSupabase
     .from("orders")
-    .select("id, user_id, order_status, coupon_id, points_used, items, payment_method, payment_status")
+    .select("id, user_id, order_status, coupon_id, points_used, points_discount, items, payment_method, payment_status")
     .eq("id", id)
     .single();
 
@@ -68,16 +68,29 @@ export async function POST(
     );
   }
 
-  // 還原折價券
+  // 還原折價券。
+  //
+  // orders.coupon_id 同時存兩種東西——批次券存 coupons.id、通用碼存
+  // coupon_templates.id，訂單上沒有欄位記錄是哪一種。所以兩邊都要處理：
+  // 批次券靠 id 更新（是通用碼時對不到列，自然無副作用），通用碼則靠
+  // coupon_usages.order_id 刪除（不必先知道券的種類）。
   if (order.coupon_id) {
     await adminSupabase
       .from("coupons")
       .update({ used_at: null, order_id: null })
       .eq("id", order.coupon_id);
   }
+  await adminSupabase.from("coupon_usages").delete().eq("order_id", id);
 
-  // 還原已扣除的點數（新制：退還 points_discount，type='refund'）
-  const pointsToRefund = (order as Record<string, unknown>).points_discount as number ?? Math.floor((order.points_used ?? 0) / 100);
+  // 還原已扣除的點數。
+  //
+  // 退的是 points_used——下單時 deductPoints 收到的就是它（orders/route.ts），
+  // 退還必須與扣除同一個量。新制 1:1 下 points_discount 與它相等，但 points_used
+  // 才是「扣了幾點」的權威欄位。
+  //
+  // 這裡原本寫成 `points_discount ?? Math.floor(points_used / 100)`，而上面的
+  // SELECT 又沒撈 points_discount，於是永遠落到那個舊制換算的 fallback，只退 1%。
+  const pointsToRefund = order.points_used ?? 0;
   if (pointsToRefund > 0) {
     await refundPoints({
       userId: user.id,

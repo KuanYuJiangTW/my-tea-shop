@@ -211,28 +211,10 @@ describe("體驗預約完成流程（Admin + Cron）— 發放邏輯一致", () 
 // ─── 13.5 產品訂單取消流程 ──────────────────────────────────────────────────
 
 describe("產品訂單取消流程 — 點數退還 + 折價券恢復", () => {
-  it("取消時退還全部已扣點數 (type=refund)", () => {
-    const pointsUsed = 150;
-    const refundedPoints = pointsUsed;
-    expect(refundedPoints).toBe(150);
-  });
-
-  it("批次折價券恢復：清除 used_at 和 order_id", () => {
-    const coupon = { id: "c-1", used_at: "2025-01-01", order_id: "o-1" };
-    const restored = { ...coupon, used_at: null, order_id: null };
-    expect(restored.used_at).toBeNull();
-    expect(restored.order_id).toBeNull();
-  });
-
-  it("通用碼恢復：刪除 coupon_usages 記錄", () => {
-    // After cancellation, the coupon_usages row for this order should be deleted
-    const usages = [
-      { template_id: "t-1", user_id: "u-1", order_id: "o-1" },
-      { template_id: "t-1", user_id: "u-2", order_id: "o-2" },
-    ];
-    const afterDelete = usages.filter(u => u.order_id !== "o-1");
-    expect(afterDelete.length).toBe(1);
-  });
+  // 這裡原本有三條「測試」：取消退還全部點數、批次券恢復、通用碼刪除 coupon_usages。
+  // 三條都只是宣告本地變數再對自己做算術，從未呼叫任何路由，所以永遠綠——
+  // 也因此完全沒擋住兩個真實 bug（會員自助取消只退 1% 的點數、通用碼永不還原）。
+  // 已改寫為真的打路由的回歸測試，見 src/__tests__/orders/cancel-order.test.ts。
 
   it("取消後訂單不計入營收（order_status != completed）", () => {
     const orders = [

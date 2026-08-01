@@ -65,6 +65,14 @@ function setupOrderMock(order: unknown, updateError: unknown = null) {
         }),
       };
     }
+    if (table === "coupon_usages") {
+      // 通用碼還原：以 order_id 為鍵刪除（券的種類無法從訂單分辨）
+      return {
+        delete: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ error: null }),
+        }),
+      };
+    }
     if (table === "point_transactions") {
       return {
         insert: vi.fn().mockResolvedValue({ error: null }),

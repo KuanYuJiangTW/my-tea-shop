@@ -47,11 +47,28 @@
 - **THEN** 插入 `{ points: -pointsUsed, type: "redeem" }` 記錄
 
 ### Requirement: 取消訂單時還原折價券與點數
-系統 SHALL 在訂單取消時，將折價券 `used_at` 重設為 null，並插入點數還原記錄。
+系統 SHALL 在訂單取消時還原兩種折價券並插入點數還原記錄。會員自助取消
+（`POST /api/orders/[id]/cancel`）與後台取消（`PATCH /api/admin/orders/[id]`）
+兩條路徑 SHALL 有一致的還原行為。
 
-#### Scenario: 取消訂單還原優惠
-- **WHEN** 訂單成功取消，`coupon_id` 不為 null
-- **THEN** 折價券 `used_at = null`，若 `points_used > 0` 則插入 `{ points: +points_used, type: "earn" }` 還原記錄
+`orders.coupon_id` 同時存兩種識別碼——批次券存 `coupons.id`、通用碼存
+`coupon_templates.id`，訂單上沒有欄位分辨種類。因此還原 SHALL 兩邊都做，
+且通用碼 SHALL 以 `coupon_usages.order_id` 為鍵刪除（不需先判斷種類）。
+
+#### Scenario: 取消訂單還原批次券
+- **WHEN** 訂單成功取消，`coupon_id` 指向一張批次券
+- **THEN** 該券 `used_at = null`、`order_id = null`
+
+#### Scenario: 取消訂單還原通用碼
+- **WHEN** 訂單成功取消
+- **THEN** 刪除 `coupon_usages` 中 `order_id` 等於該訂單的記錄，使該碼不再佔用
+  `max_uses_per_user` 與 `max_uses` 額度
+
+#### Scenario: 取消訂單退還點數
+- **WHEN** 訂單成功取消且 `points_used > 0`
+- **THEN** 插入 `{ points: +points_used, type: "refund" }` 還原記錄。退還量 SHALL
+  等於下單時 `deductPoints` 扣除的量（即 `points_used`），**不得**改用
+  `points_discount`（那是折抵金額）或對其做任何比例換算
 
 ### Requirement: 使用者可查詢可用折價券與點數明細
 系統 SHALL 提供 `GET /api/user/coupons`（未使用且未過期）與 `GET /api/user/points`（餘額 + 最近 20 筆記錄）。
