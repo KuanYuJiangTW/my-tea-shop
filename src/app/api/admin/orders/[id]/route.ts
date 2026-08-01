@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendShippingEmail } from "@/lib/email";
-import { issuePoints, refundPoints } from "@/lib/points";
+import { issuePoints, refundOrderPoints } from "@/lib/points";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
 
 type Params = { params: Promise<{ id: string }> };
@@ -124,17 +124,13 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
     }
     await supabase.from("coupon_usages").delete().eq("order_id", id);
 
-    // 退還點數（type='refund'）。退的是 points_used——下單時 deductPoints 收到的
-    // 就是它，退還必須與扣除同一個量。新制 1:1 下與 points_discount 相等
-    const pointsToRefund = (prevOrder as Record<string, unknown>).points_used as number ?? 0;
-    if (pointsToRefund > 0) {
-      await refundPoints({
-        userId: prevOrder.user_id as string,
-        points: pointsToRefund,
-        orderId: id,
-        description: "訂單取消退還點數",
-      });
-    }
+    // 退還點數。退還量以 point_transactions 為準（見 refundOrderPoints），
+    // 不看 orders 的 points_used / points_discount——那兩欄會隨制度變動漂移
+    await refundOrderPoints({
+      userId: prevOrder.user_id as string,
+      orderId: id,
+      description: "訂單取消退還點數",
+    });
 
     // 還原庫存
     const shouldRestoreStock =

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase as adminSupabase } from "@/lib/supabase";
-import { refundPoints } from "@/lib/points";
+import { refundOrderPoints } from "@/lib/points";
 
 const CANCELLABLE_STATUSES = ["new"];
 
@@ -82,23 +82,13 @@ export async function POST(
   }
   await adminSupabase.from("coupon_usages").delete().eq("order_id", id);
 
-  // 還原已扣除的點數。
-  //
-  // 退的是 points_used——下單時 deductPoints 收到的就是它（orders/route.ts），
-  // 退還必須與扣除同一個量。新制 1:1 下 points_discount 與它相等，但 points_used
-  // 才是「扣了幾點」的權威欄位。
-  //
-  // 這裡原本寫成 `points_discount ?? Math.floor(points_used / 100)`，而上面的
-  // SELECT 又沒撈 points_discount，於是永遠落到那個舊制換算的 fallback，只退 1%。
-  const pointsToRefund = order.points_used ?? 0;
-  if (pointsToRefund > 0) {
-    await refundPoints({
-      userId: user.id,
-      points: pointsToRefund,
-      orderId: id,
-      description: "訂單取消退還點數",
-    });
-  }
+  // 還原已扣除的點數。退還量以 point_transactions 為準（見 refundOrderPoints），
+  // 不看 orders 的 points_used / points_discount——那兩欄會隨制度變動漂移。
+  await refundOrderPoints({
+    userId: user.id,
+    orderId: id,
+    description: "訂單取消退還點數",
+  });
 
   return NextResponse.json({ ok: true });
 }

@@ -74,7 +74,14 @@ function setupOrderMock(order: unknown, updateError: unknown = null) {
       };
     }
     if (table === "point_transactions") {
+      // refundOrderPoints 先查帳本算出「已扣 − 已退」的差額，再決定退多少
+      const ledger = (order as { points_used?: number } | null)?.points_used
+        ? [{ points: -((order as { points_used: number }).points_used), type: "redeem" }]
+        : [];
       return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: ledger, error: null }),
+        }),
         insert: vi.fn().mockResolvedValue({ error: null }),
       };
     }

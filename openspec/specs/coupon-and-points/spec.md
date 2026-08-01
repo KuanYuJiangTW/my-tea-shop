@@ -65,10 +65,21 @@
   `max_uses_per_user` 與 `max_uses` 額度
 
 #### Scenario: 取消訂單退還點數
-- **WHEN** 訂單成功取消且 `points_used > 0`
-- **THEN** 插入 `{ points: +points_used, type: "refund" }` 還原記錄。退還量 SHALL
-  等於下單時 `deductPoints` 扣除的量（即 `points_used`），**不得**改用
-  `points_discount`（那是折抵金額）或對其做任何比例換算
+- **WHEN** 訂單成功取消
+- **THEN** 退還量 SHALL 由 `point_transactions` 推導：該訂單 `type = "redeem"`
+  的絕對值總和，減去已存在的 `type = "refund"` 總和；差額大於 0 才插入
+  `{ points: 差額, type: "refund" }`
+
+系統 SHALL **不得**以 `orders.points_used` 或 `orders.points_discount` 作為
+退還依據——那兩欄會隨制度變動漂移。線上實據（2026-08-01）：舊制訂單
+`points_used = 3300`、`points_discount = 33`，而帳本實際只扣了 33 點；
+照 `points_used` 退會憑空發出 3267 點。
+
+「已扣 − 已退」的算法同時提供冪等性。
+
+#### Scenario: 重複觸發取消不重複退點
+- **WHEN** 某訂單的退點已全額完成，再次觸發取消流程
+- **THEN** 差額為 0，不插入任何新的 `refund` 記錄
 
 ### Requirement: 使用者可查詢可用折價券與點數明細
 系統 SHALL 提供 `GET /api/user/coupons`（未使用且未過期）與 `GET /api/user/points`（餘額 + 最近 20 筆記錄）。

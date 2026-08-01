@@ -255,6 +255,54 @@ export async function refundPoints(params: {
   });
 }
 
+// ─── 取消訂單時退還點數（以帳本為準）──────────────────────────────────────────
+
+/**
+ * 退還某筆訂單尚未退還的點數。
+ *
+ * 退還量以 `point_transactions` 為準，不看 `orders.points_used` 或
+ * `orders.points_discount`——那兩欄會隨制度變動漂移。2026-08-01 的線上資料裡，
+ * 舊制訂單的 `points_used = 3300`、`points_discount = 33`，而帳本實際只扣了
+ * 33 點；照 `points_used` 退就會憑空送出 3267 點。新制 1:1 之後三者才一致。
+ *
+ * 「已扣 − 已退」的算法同時帶來冪等性：重複呼叫時差額為 0，不會重複退點。
+ *
+ * @returns 實際退還的點數（0 代表無需退還）
+ */
+export async function refundOrderPoints(params: {
+  userId: string;
+  orderId: string;
+  description?: string;
+}): Promise<number> {
+  const { userId, orderId, description } = params;
+
+  const { data: rows } = await supabase
+    .from("point_transactions")
+    .select("points, type")
+    .eq("order_id", orderId);
+
+  if (!rows || rows.length === 0) return 0;
+
+  let deducted = 0;
+  let alreadyRefunded = 0;
+  for (const r of rows as { points: number; type: string }[]) {
+    if (r.type === "redeem") deducted += -r.points;
+    else if (r.type === "refund") alreadyRefunded += r.points;
+  }
+
+  const outstanding = deducted - alreadyRefunded;
+  if (outstanding <= 0) return 0;
+
+  await refundPoints({
+    userId,
+    points: outstanding,
+    orderId,
+    description: description ?? "訂單取消退還點數",
+  });
+
+  return outstanding;
+}
+
 // ─── 更新年消費 + 自動升等（atomic increment 避免 race condition）────────────
 
 async function updateMembershipSpend(userId: string, amount: number) {
