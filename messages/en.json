@@ -765,7 +765,7 @@
     "steps": {
       "pick": {
         "name": "Plucking",
-        "desc": "We head up at first light and pick while the leaves still carry their dew. Maturity sets the backbone of the batch: too tender and the liquor comes on strong but turns bitter, and it is difficult to process; too mature and it turns coarse and thin. One bud with three to four leaves is where we draw the line.",
+        "desc": "We head up at first light and hand-pick the leaves while they still carry their dew. Maturity sets the backbone of the batch: too tender and the liquor comes on strong but turns bitter, and it is difficult to process; too mature and it turns coarse and thin. One bud with three to four leaves is where we draw the line, and every shoot is judged by the picker, one at a time.",
         "detail": "How we judge it: by how far the bud has opened, not by the date on the calendar. Even a single plot gets picked in stages."
       },
       "witherSun": {
@@ -784,7 +784,7 @@
         "detail": "Frequency: once every 1.5–2.5 hours, repeated 2–4 times. How we judge it: by how much of the leaf edge has turned red and how the aroma is shifting; every round is reassessed before the next."
       },
       "fix": {
-        "name": "Stir Fixation",
+        "name": "Fixation",
         "desc": "Once oxidation has reached the point we want, the leaves go into a high-heat iron pan. The enzymes are deactivated and oxidation stops on the spot; the grassy note is driven off, a toasted one takes its place, and the aroma is fixed where it stands. This is the brake pedal of tea making — whatever flavour this batch has reached is locked in at this moment, and there is no going back.",
         "detail": "Temperature: 260–300°C, duration: approximately 5–8 minutes. How we judge it: when the grassy note turns toasted and a handful of leaves feels soft without sticking, it comes out of the pan."
       },
@@ -881,7 +881,7 @@
           "detail": "How we judge it: a markedly higher proportion of red leaf edge than a standard oolong."
         },
         "roll": {
-          "desc": "Red oolong rolls the way a black tea does: rolling comes first, rupturing the cells and releasing the juices to lay the ground for the heavy oxidation that follows. The order is the exact reverse of an oolong — oolong fixes then rolls; red oolong rolls, oxidises, and only then goes into the pan.",
+          "desc": "Red oolong rolls the way a black tea does: rolling comes first, rupturing the cells and releasing the juices, and then the leaves are left to rest and oxidise fully — laying the ground for the heavy oxidation that follows. The order is the exact reverse of an oolong — oolong fixes then rolls; red oolong rolls, rests and oxidises, and only then goes into the pan.",
           "detail": "How we judge it: rolled until the cells are thoroughly broken and the juices show, or the heavy oxidation will not run deep."
         },
         "ferment": {
