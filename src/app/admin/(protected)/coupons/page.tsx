@@ -19,32 +19,59 @@ type UniversalCoupon = {
 
 type Tab = "universal" | "batch";
 
+/**
+ * 只取資料、不碰 state。回傳 null 表示回應不是陣列（API 錯誤），
+ * 呼叫端據此決定不覆蓋既有清單。
+ */
+async function fetchCouponList(tab: Tab): Promise<unknown[] | null> {
+  const res = await fetch(`/api/admin/coupons?type=${tab}`);
+  const data = await res.json();
+  return Array.isArray(data) ? data : null;
+}
+
 export default function CouponsPage() {
   const [tab, setTab] = useState<Tab>("universal");
   const [universalList, setUniversalList] = useState<UniversalCoupon[]>([]);
   const [batchList, setBatchList] = useState<Record<string, unknown>[]>([]);
-  const [loading, setLoading] = useState(true);
+  // 記「目前顯示的清單屬於哪個 tab」，loading 就能推導出來——切換 tab 時
+  // loadedTab 還是舊值，自然是 loading，不需要在 effect 裡同步 setLoading(true)
+  const [loadedTab, setLoadedTab] = useState<Tab | null>(null);
+  const loading = loadedTab !== tab;
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
 
   // Universal form
   const [uForm, setUForm] = useState({ code: "", name: "", discount_amount: 50, min_order_amount: 0, max_uses: 100, max_uses_per_user: 1, expires_at: "" });
 
-  async function fetchData() {
-    setLoading(true);
-    if (tab === "universal") {
-      const res = await fetch("/api/admin/coupons?type=universal");
-      const data = await res.json();
-      if (Array.isArray(data)) setUniversalList(data);
-    } else {
-      const res = await fetch("/api/admin/coupons?type=batch");
-      const data = await res.json();
-      if (Array.isArray(data)) setBatchList(data);
+  /**
+   * 寫入某個 tab 的清單。取資料的部分抽成模組層級的 `fetchCouponList`（不碰 state），
+   * setState 只發生在 `.then()` callback 內——原本 effect 直接呼叫會 setState 的
+   * `fetchData()`，且該函式開頭同步 `setLoading(true)`，屬 effect body 內同步 setState。
+   *
+   * 回傳 null（回應非陣列）時不覆蓋既有清單，沿用原本 `if (Array.isArray(data))` 的語意。
+   */
+  function commitList(which: Tab, list: unknown[] | null) {
+    if (list) {
+      if (which === "universal") setUniversalList(list as UniversalCoupon[]);
+      else setBatchList(list as Record<string, unknown>[]);
     }
-    setLoading(false);
+    setLoadedTab(which);
   }
 
-  useEffect(() => { fetchData(); }, [tab]);
+  /** 供建立／作廢後重新載入當前 tab 用 */
+  function refreshData() {
+    setLoadedTab(null);
+    fetchCouponList(tab).then((list) => commitList(tab, list));
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    const which = tab;
+    fetchCouponList(which).then((list) => {
+      if (!cancelled) commitList(which, list);
+    });
+    return () => { cancelled = true; };
+  }, [tab]);
 
   async function handleCreateUniversal(e: React.FormEvent) {
     e.preventDefault();
@@ -58,12 +85,12 @@ export default function CouponsPage() {
     if (!res.ok) { setError(data.error || "建立失敗"); return; }
     setShowForm(false);
     setUForm({ code: "", name: "", discount_amount: 50, min_order_amount: 0, max_uses: 100, max_uses_per_user: 1, expires_at: "" });
-    fetchData();
+    refreshData();
   }
 
   async function toggleActive(id: string) {
     await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" });
-    fetchData();
+    refreshData();
   }
 
   return (

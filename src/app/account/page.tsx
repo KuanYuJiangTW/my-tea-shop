@@ -8,6 +8,37 @@ import AccountClient from "./AccountClient";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * 未來 30 天內即將到期的點數總額與最早到期日。
+ *
+ * 時間窗的計算與用它的查詢放在一起——原本 `Date.now()` 寫在元件本體內，被
+ * `react-hooks/purity` 擋下。本檔是 async Server Component（`force-dynamic`），
+ * 每個 request 只跑一次，該規則所擔心的「re-render 結果不穩」並不成立；但把
+ * 「查詢參數」從 render 流程移進查詢函式本身，結構上也確實更清楚。
+ */
+async function fetchExpiringPoints(userId: string): Promise<{
+  expiringPoints: number;
+  earliestExpiry: string | null;
+}> {
+  const nowMs = Date.now();
+  const now = new Date(nowMs).toISOString();
+  const thirtyDaysLater = new Date(nowMs + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data } = await adminSupabase
+    .from("point_transactions")
+    .select("points, expires_at")
+    .eq("user_id", userId)
+    .gt("points", 0)
+    .gt("expires_at", now)
+    .lte("expires_at", thirtyDaysLater);
+
+  const rows = data ?? [];
+  return {
+    expiringPoints: rows.reduce((s: number, t: { points: number }) => s + t.points, 0),
+    earliestExpiry: rows.map((t: { expires_at: string | null }) => t.expires_at).filter(Boolean).sort()[0] ?? null,
+  };
+}
+
 export default async function AccountPage() {
   const supabase = await createSupabaseServerClient();
   const [{ data: { user } }, locale] = await Promise.all([
@@ -56,20 +87,7 @@ export default async function AccountPage() {
     .single();
   const annualSpend = membership?.annual_spend ?? 0;
 
-  const thirtyDaysLater = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-  const now = new Date().toISOString();
-  const { data: expiringTxs } = await adminSupabase
-    .from("point_transactions")
-    .select("points, expires_at")
-    .eq("user_id", user.id)
-    .gt("points", 0)
-    .gt("expires_at", now)
-    .lte("expires_at", thirtyDaysLater);
-  const expiringPoints = (expiringTxs ?? []).reduce((s, t) => s + t.points, 0);
-  const earliestExpiry = (expiringTxs ?? [])
-    .map(t => t.expires_at)
-    .filter(Boolean)
-    .sort()[0] ?? null;
+  const { expiringPoints, earliestExpiry } = await fetchExpiringPoints(user.id);
 
   // 折價券（可用 + 已使用，共同顯示）
   const { data: coupons } = await adminSupabase

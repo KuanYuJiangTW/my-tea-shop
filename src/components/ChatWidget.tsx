@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -27,39 +27,41 @@ function useKeyboardHeight() {
 
 // ── 手機 FAB 顯示控制（滾過 hero 後常駐顯示）────────────────────────────────
 
+/**
+ * 捲過 hero（約 85% 視窗高）後常駐顯示。
+ *
+ * 用 `useSyncExternalStore` 而非 `useState` + effect 內同步 setState：後者會觸發
+ * 連鎖 render（`react-hooks/set-state-in-effect`）。訂閱與讀取函式放在模組層級，
+ * 避免每次 render 產生新的 subscribe 而反覆重新訂閱。
+ *
+ * 附帶好處：門檻改為每次讀取時計算，轉螢幕或改變視窗大小後會跟著更新——
+ * 原本只在掛載時算一次。
+ */
+const subscribeScroll = (onStoreChange: () => void) => {
+  window.addEventListener("scroll", onStoreChange, { passive: true });
+  return () => window.removeEventListener("scroll", onStoreChange);
+};
+const getFabVisible = () => window.scrollY >= window.innerHeight * 0.85;
+const getFabVisibleOnServer = () => false;
+
 function useMobileFabVisibility() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const threshold = window.innerHeight * 0.85;
-
-    const onScroll = () => {
-      setVisible(window.scrollY >= threshold);
-    };
-
-    if (window.scrollY >= threshold) setVisible(true);
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  return visible;
+  return useSyncExternalStore(subscribeScroll, getFabVisible, getFabVisibleOnServer);
 }
 
 // ── 響應式裝置偵測 ───────────────────────────────────────────────────────────
 
+const MOBILE_QUERY = "(max-width: 767px)";
+const subscribeIsMobile = (onStoreChange: () => void) => {
+  const mq = window.matchMedia(MOBILE_QUERY);
+  mq.addEventListener("change", onStoreChange);
+  return () => mq.removeEventListener("change", onStoreChange);
+};
+const getIsMobile = () => window.matchMedia(MOBILE_QUERY).matches;
+// SSR 時假定非行動裝置，與 hydration 前的伺服器輸出一致
+const getIsMobileOnServer = () => false;
+
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  return isMobile;
+  return useSyncExternalStore(subscribeIsMobile, getIsMobile, getIsMobileOnServer);
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -135,20 +137,33 @@ function renderMessageContent(text: string, lineLabel: string) {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
+/**
+ * 外層只做路由判斷。提前 return **必須**發生在其他 hook 之前，否則在 admin 與非
+ * admin 路由之間切換時 hook 數量會改變，違反 Rules of Hooks。
+ *
+ * 原本 `if (pathname.startsWith("/admin")) return null;` 寫在十幾個 hook **之後**，
+ * 前人以 14 個 `eslint-disable-next-line react-hooks/rules-of-hooks` 逐行壓住而非修正。
+ * 拆成 wrapper 後那些抑制全部移除。
+ */
 export default function ChatWidget() {
   const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
+  return <ChatWidgetPanel pathname={pathname} />;
+}
+
+function ChatWidgetPanel({ pathname }: { pathname: string }) {
   const locale = useLocale();
   const t = useTranslations("chat");
 
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // lazy initializer：直接從 sessionStorage 讀，不用 effect 載入
+  const [messages, setMessages] = useState<ChatMessage[]>(loadMessages);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [lastSentAt, setLastSentAt] = useState(0);
-  const [initialized, setInitialized] = useState(false);
   const [showLabel, setShowLabel] = useState(true);
-  const [fabIdle, setFabIdle] = useState(false);
+  const [fabIdleRaw, setFabIdle] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -159,12 +174,12 @@ export default function ChatWidget() {
   const mobileFabVisible = useMobileFabVisibility();
   const isMobile = useIsMobile();
 
-  // 隱藏在 admin 頁面
-  if (pathname.startsWith("/admin")) return null;
+  // idle 只在 FAB 真的處於啟用狀態時才有意義——在 render 推導，而不是用 effect
+  // 去把 state 同步成 false。
+  const fabIdle = fabIdleRaw && !isOpen && mobileFabVisible;
 
   // ── 開啟 / 關閉動畫 ────────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleOpen = useCallback(() => {
     setIsOpen(true);
     requestAnimationFrame(() => {
@@ -172,7 +187,6 @@ export default function ChatWidget() {
     });
   }, []);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleClose = useCallback(() => {
     setIsVisible(false);
     setTimeout(() => setIsOpen(false), 200);
@@ -180,7 +194,6 @@ export default function ChatWidget() {
 
   // ── 清除對話 ───────────────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleClearChat = useCallback(() => {
     if (window.confirm(t("clearConfirm"))) {
       setMessages([]);
@@ -190,12 +203,10 @@ export default function ChatWidget() {
 
   // ── 下滑關閉（手機）────────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
   }, []);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     const diff = e.changedTouches[0].clientY - touchStartY.current;
     if (diff > 80) handleClose();
@@ -203,7 +214,6 @@ export default function ChatWidget() {
 
   // ── textarea 自動增高 ──────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     const el = e.target;
@@ -211,33 +221,26 @@ export default function ChatWidget() {
     el.style.height = Math.min(el.scrollHeight, 80) + "px";
   }, []);
 
-  // 初始化：從 sessionStorage 載入
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    setMessages(loadMessages());
-    setInitialized(true);
-  }, []);
-
   // 儲存到 sessionStorage
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // 註：初始值改由 useState 的 lazy initializer 直接讀 sessionStorage（見上方宣告），
+  // 不再用 effect 載入 + setInitialized——那是 effect 內同步 setState。
+  // 聊天訊息只在 isOpen 為真時才進入 DOM，而 isOpen 預設 false，故 lazy init
+  // 不會造成 hydration 不一致。
   useEffect(() => {
-    if (initialized) saveMessages(messages);
-  }, [messages, initialized]);
+    saveMessages(messages);
+  }, [messages]);
 
   // 自動捲動到底
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isStreaming]);
 
   // 開啟時 focus 輸入框（手機不自動 focus 避免鍵盤彈出）
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (isOpen && !isMobile) inputRef.current?.focus();
   }, [isOpen, isMobile]);
 
   // 手機開啟時鎖定背景滾動
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (isOpen && isMobile) {
       document.body.style.overflow = "hidden";
@@ -246,7 +249,6 @@ export default function ChatWidget() {
   }, [isOpen, isMobile]);
 
   // 浮動按鈕文字標籤 4 秒後收起
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!showLabel) return;
     const timer = setTimeout(() => setShowLabel(false), 4000);
@@ -254,12 +256,10 @@ export default function ChatWidget() {
   }, [showLabel]);
 
   // 手機 FAB 呼吸式存在感：3 秒無互動後縮小降透明度
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    if (isOpen || !mobileFabVisible) {
-      setFabIdle(false);
-      return;
-    }
+    // 不在啟用狀態就什麼都不做——原本這裡同步 setFabIdle(false)，那會觸發連鎖
+    // render。現在改由 render 時推導 fabIdle（見下方），並在 cleanup 清掉旗標。
+    if (isOpen || !mobileFabVisible) return;
 
     let timer = setTimeout(() => setFabIdle(true), 3000);
 
@@ -275,11 +275,12 @@ export default function ChatWidget() {
       clearTimeout(timer);
       window.removeEventListener("scroll", resetIdle);
       window.removeEventListener("touchstart", resetIdle);
+      // 離開啟用狀態時清掉 idle，否則下次 FAB 再出現會立刻是縮小狀態
+      setFabIdle(false);
     };
   }, [isOpen, mobileFabVisible]);
 
   // 監聯從漢堡選單開啟聊天的事件
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const handler = () => handleOpen();
     window.addEventListener("open-chat-widget", handler);
@@ -288,7 +289,6 @@ export default function ChatWidget() {
 
   // ── 送出訊息 ──────────────────────────────────────────────────────────────
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isStreaming) return;
 

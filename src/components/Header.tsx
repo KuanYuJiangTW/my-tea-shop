@@ -12,7 +12,6 @@ import { useTranslations, useLocale } from "next-intl";
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { totalItems } = useCart();
   const { user, loading } = useAuth();
@@ -20,8 +19,6 @@ export default function Header() {
   const t = useTranslations("common");
   const locale = useLocale();
   const lp = (path: string) => locale === "en" ? `/en${path}` : path;
-
-  useEffect(() => { setMounted(true); }, []);
 
   const navLinks = [
     { href: lp("/"), label: t("nav.home") },
@@ -182,7 +179,7 @@ export default function Header() {
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <path d="M16 10a4 4 0 01-8 0" />
               </svg>
-              {mounted && totalItems > 0 && (
+              {totalItems > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 bg-tea-green text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                   {totalItems}
                 </span>

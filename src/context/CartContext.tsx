@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import type { Product, CartItem } from "@/types";
 import { useAuth } from "@/context/AuthContext";
+import { useHasHydrated } from "@/hooks/useHasHydrated";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
 function getItemStock(product: Product): number | undefined {
@@ -27,6 +28,9 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_KEY = "wujuetea_cart";
 
+/** 對外揭露前的穩定空值——每次 render 回傳同一個參考，避免下游誤判為變動 */
+const EMPTY_ITEMS: CartItem[] = [];
+
 function loadFromStorage(): CartItem[] {
   if (typeof window === "undefined") return [];
   try {
@@ -46,6 +50,20 @@ function saveToStorage(items: CartItem[]) {
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [items, setItems] = useState<CartItem[]>(loadFromStorage);
+  const hydrated = useHasHydrated();
+
+  /**
+   * 對外只在 hydration 完成後揭露 localStorage 的內容。
+   *
+   * `loadFromStorage()` 在伺服器端回傳 `[]`（無 localStorage），但在 client 首次 render
+   * 會回傳實際存的商品——兩者不一致就是 hydration 失敗（React #418），在 `/checkout`
+   * 與 `/cart` 都會發生。這裡讓首次 client render 也回傳空陣列以對齊伺服器輸出，
+   * hydration 完成後才換成真實內容。
+   *
+   * **內部一律使用真實的 `items`**：異動函式與 Supabase 同步 effect 都不可改用
+   * `visibleItems`，否則 hydration 完成前的操作會基於空陣列，等於清掉使用者的購物車。
+   */
+  const visibleItems = hydrated ? items : EMPTY_ITEMS;
 
   // 用來避免從 Supabase 載入後立刻觸發同步回去
   const skipSyncRef   = useRef(false);
@@ -180,15 +198,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     saveToStorage([]);
   };
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce(
+  // 由 visibleItems 推導，Header 徽章才會與 /cart、/checkout 顯示的內容一致
+  const totalItems = visibleItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = visibleItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
   );
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}
+      value={{ items: visibleItems, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}
     >
       {children}
     </CartContext.Provider>
