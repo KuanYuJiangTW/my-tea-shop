@@ -120,13 +120,13 @@ export default async function HomePage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 href={lp("/products")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors shadow-sm"
+                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
               >
                 {t("hero.exploreBtn")}
               </Link>
               <Link
                 href={lp("/about")}
-                className="border-2 border-tea-cream/70 text-tea-cream hover:bg-tea-cream hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors"
+                className="border-2 border-tea-cream/70 text-tea-cream hover:bg-tea-cream hover:text-tea-text px-8 py-3.5 rounded-pill font-medium transition-colors"
               >
                 {t("hero.storyBtn")}
               </Link>
@@ -175,7 +175,7 @@ export default async function HomePage() {
             </div>
 
             <div>
-              <div className="relative h-64 sm:h-80 md:h-[420px] lg:h-full lg:min-h-[480px] rounded-2xl overflow-hidden">
+              <div className="relative h-64 sm:h-80 md:h-[420px] lg:h-full lg:min-h-[480px] rounded-card overflow-hidden">
                 <Image
                   src="/images/gallery/flipped.jpg"
                   alt="做茶實景"
@@ -242,7 +242,7 @@ export default async function HomePage() {
                   <Link
                     key={exp.id}
                     href={lp(`/experiences/${exp.slug}`)}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-tea-green-pale/50"
+                    className="group bg-white rounded-card overflow-hidden shadow-resting hover:shadow-raised transition-shadow duration-base ease-standard border border-tea-green-pale/50"
                   >
                     <div className="relative h-48 overflow-hidden">
                       <Image
@@ -252,7 +252,7 @@ export default async function HomePage() {
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       {exp.requiresAdult && (
-                        <span className="absolute top-3 right-3 bg-tea-text text-tea-cream text-xs px-3 py-1 rounded-full">
+                        <span className="absolute top-3 right-3 bg-tea-text text-tea-cream text-xs px-3 py-1 rounded-pill">
                           {tc("adultOnly")}
                         </span>
                       )}
@@ -287,7 +287,7 @@ export default async function HomePage() {
               <div className="text-center mt-8">
                 <Link
                   href={lp("/experiences")}
-                  className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-full font-medium transition-colors inline-block"
+                  className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-pill font-medium transition-colors inline-block"
                 >
                   {t("experiences.viewAllCount", { count: experiences.length })}
                 </Link>
@@ -315,7 +315,7 @@ export default async function HomePage() {
             </p>
             <Link
               href={lp("/about")}
-              className="border border-tea-green-light text-tea-green-light hover:bg-tea-green-light hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors inline-block"
+              className="border border-tea-green-light text-tea-green-light hover:bg-tea-green-light hover:text-tea-text px-8 py-3.5 rounded-pill font-medium transition-colors inline-block"
             >
               {tc("buttons.learnMore")}
             </Link>
@@ -339,7 +339,7 @@ export default async function HomePage() {
             {(["pick", "wither", "roll", "roast"] as const).map((key, i) => (
               <div
                 key={key}
-                className="bg-white rounded-2xl p-5 md:p-7 text-center shadow-sm hover:shadow-md transition-shadow"
+                className="bg-white rounded-card p-5 md:p-7 text-center shadow-resting hover:shadow-raised transition-shadow duration-base ease-standard"
               >
                 <div className="text-xs text-tea-green font-medium tracking-widest mb-3">
                   {String(i + 1).padStart(2, "0")}
@@ -353,7 +353,7 @@ export default async function HomePage() {
           </div>
           <Link
             href={lp("/process")}
-            className="bg-tea-green hover:bg-tea-green-dark text-white px-9 py-3.5 rounded-full font-medium transition-colors shadow-sm"
+            className="bg-tea-green hover:bg-tea-green-dark text-white px-9 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
           >
             {t("process.exploreBtn")}
           </Link>

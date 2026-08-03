@@ -55,6 +55,43 @@ const config: Config = {
         sans: ["var(--font-latin)", "var(--font-sans)", "sans-serif"],
         serif: ["var(--font-serif)", "serif"],
       },
+
+      // ── 非顏色 token 的 utility 對照（值一律讀 CSS 變數，見 globals.css :root）──
+      // 既有的 rounded-2xl / shadow-sm / duration-200 都保留可用，這裡是「語意版」，
+      // 讓元件寫 rounded-card 而不是 rounded-2xl——語意名才帶得到 React Native。
+      borderRadius: {
+        inline: "var(--radius-inline)",
+        control: "var(--radius-control)",
+        card: "var(--radius-card)",
+        showcase: "var(--radius-showcase)",
+        pill: "var(--radius-pill)",
+      },
+      boxShadow: {
+        // 刻意不叫 `card`：`card` 已是 colors 的 key（shadcn 語意色），
+        // 兩者同名會讓 Tailwind 同時產出「陰影」與「陰影顏色」兩條 .shadow-card，
+        // 後者在後、會覆寫 --tw-shadow。目前碰巧仍成立，但那是巧合不是設計。
+        resting: "var(--shadow-resting)",
+        raised: "var(--shadow-raised)",
+        float: "var(--shadow-float)",
+        modal: "var(--shadow-modal)",
+      },
+      transitionDuration: {
+        fast: "var(--motion-fast)",
+        base: "var(--motion-base)",
+        slow: "var(--motion-slow)",
+        reveal: "var(--motion-reveal)",
+      },
+      transitionTimingFunction: {
+        standard: "var(--ease-standard)",
+        exit: "var(--ease-exit)",
+      },
+      spacing: {
+        gutter: "var(--space-gutter)",
+        card: "var(--space-card)",
+        "card-lg": "var(--space-card-lg)",
+        section: "var(--space-section)",
+        "section-lg": "var(--space-section-lg)",
+      },
     },
   },
   plugins: [],

@@ -45,10 +45,18 @@
   &:where([data-orientation="vertical"]) { @slot; }
 }
 
-@utility no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+/* 本檔原本用 `@utility`（Tailwind 4 語法）宣告這個類別，但本專案是 Tailwind 3.4，
+   該語法不會生成任何 CSS——`.no-scrollbar` 實際上不存在，ChatWidget.tsx:565 的
+   橫向捲軸一直是露出來的。改回 v3 的 @layer utilities。
+   （postcss 未裝 nesting plugin，因此 `&::-webkit-scrollbar` 要寫成平的選擇器） */
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
@@ -98,6 +106,43 @@
     --sidebar-accent-foreground: oklch(0.531 0.0476 152);
     --sidebar-border: oklch(0.9316 0.0169 88);
     --sidebar-ring: oklch(0.531 0.0476 152);
+
+    /* ───────────────────────────────────────────────────────────────────────
+       非顏色 token — 質感的實際來源
+       命名由現況反推，不是發明：先統計全站用法，再替既有的隱性慣例取名字。
+       值放這層是為了平台無關——`--radius-card: 1rem` 可用腳本導成 React Native
+       theme，`rounded-2xl` 一行都帶不走（見 WORKLOG 設計原則第 3 條）。
+       ─────────────────────────────────────────────────────────────────────── */
+
+    /* 圓角：對應 rounded-lg(100處)/xl(149)/2xl(120)/3xl(9)/full(187) 的語意分工 */
+    --radius-inline: 0.5rem;    /* 8px  內嵌訊息條、後台輸入框 */
+    --radius-control: 0.75rem;  /* 12px 表單控制元件、次要按鈕、chip */
+    --radius-card: 1rem;        /* 16px 卡片、面板 */
+    --radius-showcase: 1.5rem;  /* 24px 大型展示區塊 */
+    --radius-pill: 9999px;      /* 藥丸 CTA、徽章、頭像 */
+
+    /* 陰影：改用茶墨色 rgb(61 74 66) 而非 Tailwind 預設的純黑。
+       純黑陰影壓在米白上會透出灰調，暖色調的陰影才不會讓米白顯髒——
+       這是「看起來貴」與「看起來預設」的差別所在。 */
+    --shadow-resting: 0 1px 2px 0 rgb(61 74 66 / 0.06), 0 1px 3px 0 rgb(61 74 66 / 0.05);
+    --shadow-raised: 0 4px 12px -2px rgb(61 74 66 / 0.10), 0 2px 4px -2px rgb(61 74 66 / 0.06);
+    --shadow-float: 0 10px 24px -4px rgb(61 74 66 / 0.14), 0 4px 8px -4px rgb(61 74 66 / 0.08);
+    --shadow-modal: 0 24px 48px -12px rgb(61 74 66 / 0.22);
+
+    /* 動態：對應 duration-150/200/300/500 的既有分布 */
+    --motion-fast: 150ms;       /* 顏色、透明度等微互動 */
+    --motion-base: 200ms;       /* 標準互動（全站 transition-colors 佔 167 處） */
+    --motion-slow: 300ms;       /* 位移、展開收合 */
+    --motion-reveal: 500ms;     /* 大面積變化，如圖片 group-hover:scale */
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+    /* 間距節奏：對應 py-16 md:py-24（15 處，最主流）與 p-6/p-8 的卡片內距 */
+    --space-gutter: 1rem;       /* 16px 版面左右安全邊 */
+    --space-card: 1.5rem;       /* 24px 卡片內距 */
+    --space-card-lg: 2rem;      /* 32px 大卡片內距 */
+    --space-section: 4rem;      /* 64px 區塊垂直節奏（行動） */
+    --space-section-lg: 6rem;   /* 96px 區塊垂直節奏（桌機） */
   }
 
   body {
@@ -149,6 +194,26 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /* 尊重系統的「減少動態」設定。動態 token 一律走 CSS 變數，所以這裡改寫變數
+     就能一次收斂全站——包含既有那些寫死 duration-500 之外的所有語意用法。
+     前庭失調的使用者會因大面積 scale/位移而不適，這不是可選的細節。 */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --motion-fast: 1ms;
+      --motion-base: 1ms;
+      --motion-slow: 1ms;
+      --motion-reveal: 1ms;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
