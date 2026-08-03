@@ -444,19 +444,39 @@ Email 內聯 hex（`src/lib/email.ts:107-109`）／border-beam 前台零使用�
 - 語意 token 一律指向這兩色；既有 39 個檔案的 `tea-green`／`tea-text-light` 遷移另開一波
 
 - 驗收條件：
-  - [ ] `next/font` 收斂：移除 `globals.css:1` 的 Google Fonts CDN `@import`，
+  - [x] `next/font` 收斂：移除 `globals.css:1` 的 Google Fonts CDN `@import`，
         解決 `layout.tsx:14`（Geist）與 `globals.css:55`（Noto Sans TC）對 `--font-sans` 的雙重定義
-  - [ ] `tea-*` 灌進 shadcn 語意層（primary/secondary/muted/accent/border/ring/chart-*），
+  - [x] `tea-*` 灌進 shadcn 語意層（primary/secondary/muted/accent/border/ring/chart-*），
         深色欄位填但不啟用 `darkMode`
-  - [ ] `/verify` 三件套全過（測試＋型別＋build）
-  - [ ] before/after 對照給小江
+  - [x] `/verify` 三件套全過（測試＋型別＋build）
+  - [x] 瀏覽器實跑驗證（見下方證據）
+
+#### 實跑證據（dev server + DOM 查詢，非推論）
+- `--font-latin` = `Geist, Geist Fallback`／`--font-sans` = `Noto Sans TC, Noto Sans TC Fallback`／
+  `--font-serif` = `Noto Serif TC, Noto Serif TC Fallback`——三支各自獨立，雙重定義已解除
+- **殘留 Google Fonts 連線：0**（`document.querySelectorAll('link')` 過濾 googleapis/gstatic 為空陣列）
+- sans 鏈實測：`Geist → Geist Fallback → Noto Sans TC → Noto Sans TC Fallback → sans-serif`，
+  拉丁走 Geist、中文回退 Noto——與改動前的視覺結果一致，但現在是明確宣告而非碰巧
+- 已載入字重：Sans 400/500/600/700、Serif 400/600/700。**600 有了**（先前假造）、**300 已無**（先前白載）
+- 產出 CSS 含 749 個 `unicode-range` 宣告、涵蓋 U+4E00–U+9FFF，中文字符確實自架成功
+- next/font 額外產出 `Noto Sans TC Fallback` size-adjust 字型 → 順帶降低 CLS
+- 建置成本：70 秒、218 個 woff2、11MB（瀏覽器只抓命中 unicode-range 的分片，不影響使用者）
+
+#### 一個必須誠實說明的落差
+`components/ui/button.tsx` 與 `select.tsx` **全站零引用**（grep import 無結果），
+業務元件也 0 處使用語意 token，bare `border` 僅 1 處。
+→ **語意層改動目前的可見變化幾乎只有 body 底色（白 → 米白 #FAF7F2），
+其餘是純地基、沒有立即視覺回報**。價值在於後續元件遷移時有正確且合規的落點，
+不該把這一步當成「視覺升級」向使用者邀功。真正的視覺回報在下一波遷移
 - 待辦（本波不做，已排隊）：
   - [ ] 非顏色 token 軸（radius/shadow/space/motion）
   - [ ] favicon 與 app icon
   - [ ] `docs/design-system.md` ＋ 修 `tasks.md:26` 積分敘述（openspec 不動）
   - [ ] 既有 39 檔的 AA 遷移（`tea-green`→`tea-green-ink` 等）
   - [ ] 後台 746 處 hex 收斂（獨立一波，風險模式不同）
-  - [ ] **WORKLOG 已 13 節超過 MAINT-4 的 10 節上限**，需開精簡任務壓縮舊節
+  - [ ] **WORKLOG 已 14 節超過 MAINT-4 的 10 節上限**，需開精簡任務壓縮舊節
 - **邊界：本波只動前台與 token 層，後台 746 處 hex 不碰**。量體是前台 24 倍，
   且後台是茶農家庭每天在用的工作台，風險模式不同，混做會失控
-- 狀態：進行中
+- 狀態：本波已完成（證據：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤、`npm run build` 成功、
+  dev server 實跑 DOM 查詢確認字型鏈與 token 值如預期、Google Fonts 殘留連線為 0）。
+  commit `6951084`，已推 `origin/claude/design-system-foundation`
