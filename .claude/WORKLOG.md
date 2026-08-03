@@ -387,3 +387,76 @@
 - 狀態：已完成（證據：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤（sitemap 改動後複跑）、
   `npm run build` 成功且 `/web-design` 與 `/api/web-inquiry` 皆已註冊、checker 獨立驗收
   10/11 PASS 含文案逐字抽驗 5 處與 RLS 無 policy 複查）
+
+---
+
+### [2026-08-03] 設計系統地基：字體收斂 ＋ 品牌灌入語意 token
+- 目標：小江要「一進站就有質感」。第零階段（Fable Max 產出的產品認識報告）已完成，
+  本節記錄**查證修正**與**三個拍板**，並執行第一波地基工程（字體＋色彩語意層）
+- **前情提要：Fable 的探索紀錄不在 main 上**。commit `2da8c59` 只存在於
+  `origin/claude/design-system-discovery-884sfs`，本節即取代該紀錄（內容已整合並修正）
+
+#### 對第零階段報告的查證結果
+屬實、照單全收：色彩雙軌不相通（`globals.css:57-88` 全 `oklch(x 0 0)`，含 chart 色）／
+深色模式是未啟用 scaffold（無 `darkMode` 鍵、無 ThemeProvider）／favicon 不存在／
+Email 內聯 hex（`src/lib/email.ts:107-109`）／border-beam 前台零使用／
+積分程式碼現值（`points.ts:72` `MIN_POINTS_USE = 10`，rate 0.02–0.04、上限 0.10–0.20）
+
+**四處修正**：
+1. **openspec 規格沒有過時，過時的只有 `tasks.md:26`**。
+   `openspec/specs/coupon-and-points/spec.md` 已寫「最低使用 10 點」「倍數限制已取消」
+   並引用 `points.ts` 為單一真相。此條必須更正——CLAUDE.md 鐵律 4 要求動高風險功能前
+   先讀 openspec，若沿用「規格也過時」的結論會養成繞過規格的習慣，屬制度層損害
+2. `Header.tsx:121` 的 `border-[#EDE8DC]` 引用錯誤（該行是 /account 連結；Header 為 271 行
+   非 274）。該 class 實際集中在 admin，前台對應處是 `AccountClient.tsx:109` 的 `bg-[#EDE8DC]`
+3. 「業務元件 0 處 `dark:`」→ 業務元件確實 0 處，但全站有 13 處，全在 `components/ui/`
+   的 button/select（shadcn 原生自帶，而其 dark token 恰好是灰的）
+4. **硬編碼 hex 的規模與分布是最大漏測**：全站 777 處 `[#xxxxxx]`，
+   **admin 佔 746 處（96%）**，前台僅 31 處（另有 173 處品牌色盤外的 Tailwind 色）。
+   → 重災區是後台不是前台，且「前後台同源」原則的成本 96% 落在後台
+
+#### 拍板（小江已確認）
+- **三條設計原則成立**，第 3 條補一句：**token 必須平台無關**——設計決策存在 CSS 變數層
+  （`--radius-card`），元件只引用語意名。理由：`--radius-card: 16px` 可導成 React Native
+  theme，`rounded-2xl` 一行帶不走。現在做是改名字，App 開案再做是重寫全站
+- **預設淺色，且深色模式現在不做，只留欄位**。現況 0 個業務元件支援 `dark:`，實作等於
+  全站再走一遍；真實需求只有「後台清晨看單」。深色欄位成本近 0 先填，實作綁後台重構那波
+- **門面五件換掉 ChatWidget**：它是覆蓋層、不在轉換路徑、611 行改動成本最高、投報率最差。
+  換成**付款轉跳與 `/order/result` 的等待／過渡狀態**——客人剛付完錢最焦慮的 3 秒，
+  目前是沒設計過的白畫面
+- **報告的最大缺口：全篇只談顏色與字體，沒有非顏色 token**。但質感八成來自間距節奏、
+  字級比例、陰影克制、動態曲線。現況 `--radius` 定義了沒人用、陰影用 Tailwind 預設、
+  動態寫死 `duration-500`。此軸另開任務（見待辦）
+
+#### 本波發現的線上缺陷（對比度實測）
+用 WCAG 公式實算 tea 色階，**主 CTA 不符 AA**：
+| 組合 | 對比 | 判定 |
+|---|---|---|
+| 白字 on `tea-green #7D9B84`（首頁主 CTA `page.tsx:123`） | **3.05** | ❌ 內文不合格 |
+| 白字 on `tea-green-dark #5C7A67` | 4.74 | ✅ |
+| `text-tea-green` on cream（「查看全部」連結） | **2.85** | ❌ |
+| `text-tea-text-light` on cream（次要內文，全站大量） | **3.43** | ❌ |
+
+→ 解法：**新增兩色，不改動既有色階**（既有 `tea-*` 值全部保留，視覺零位移）：
+- `tea-green-ink #58745F`：AA 安全的互動綠（連結／圖示／按鈕底），四種淺底皆 ≥4.54
+- `tea-text-muted #637169`：低彩度次要文字色，四種淺底皆 ≥4.52。
+  彩度 0.0214 vs green-ink 的 0.0476，明顯較灰，不會被誤讀為連結
+- 語意 token 一律指向這兩色；既有 39 個檔案的 `tea-green`／`tea-text-light` 遷移另開一波
+
+- 驗收條件：
+  - [ ] `next/font` 收斂：移除 `globals.css:1` 的 Google Fonts CDN `@import`，
+        解決 `layout.tsx:14`（Geist）與 `globals.css:55`（Noto Sans TC）對 `--font-sans` 的雙重定義
+  - [ ] `tea-*` 灌進 shadcn 語意層（primary/secondary/muted/accent/border/ring/chart-*），
+        深色欄位填但不啟用 `darkMode`
+  - [ ] `/verify` 三件套全過（測試＋型別＋build）
+  - [ ] before/after 對照給小江
+- 待辦（本波不做，已排隊）：
+  - [ ] 非顏色 token 軸（radius/shadow/space/motion）
+  - [ ] favicon 與 app icon
+  - [ ] `docs/design-system.md` ＋ 修 `tasks.md:26` 積分敘述（openspec 不動）
+  - [ ] 既有 39 檔的 AA 遷移（`tea-green`→`tea-green-ink` 等）
+  - [ ] 後台 746 處 hex 收斂（獨立一波，風險模式不同）
+  - [ ] **WORKLOG 已 13 節超過 MAINT-4 的 10 節上限**，需開精簡任務壓縮舊節
+- **邊界：本波只動前台與 token 層，後台 746 處 hex 不碰**。量體是前台 24 倍，
+  且後台是茶農家庭每天在用的工作台，風險模式不同，混做會失控
+- 狀態：進行中
