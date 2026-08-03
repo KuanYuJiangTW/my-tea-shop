@@ -194,9 +194,3 @@
 - 代價：向使用者發出一個不存在的故障與一趟白工；錯誤結論一度寫進 WORKLOG（那正是給未來 session 看的檔）。真正原因是 Supabase 新版 API key 會擋「看起來來自瀏覽器」的 secret key 請求——PowerShell 預設 User-Agent 含 `Mozilla`，被判定為瀏覽器。body 裡寫得清清楚楚：`Forbidden use of secret API key in browser`。加 `-UserAgent "node"` 就 200
 - 規則：**HTTP 錯誤一律印出 response body 再下結論**。PowerShell 要 `$_.ErrorDetails.Message`（`$_.Exception.Message` 只有狀態碼那句廢話）；curl 用 `-i` 或 `--fail-with-body`。狀態碼只說「失敗」，body 才說「為什麼」——在拿到 body 之前，不要對失敗原因下任何斷言，更不要據此要使用者去改設定。另：本環境用 PowerShell 打任何雲端 API（Supabase／Stripe／綠界）都要顯式 `-UserAgent "node"`，預設 UA 會觸發服務端的瀏覽器防護
 - 去處：暫存於此（與 JUDG-2「完成要有證據」同源：錯誤診斷也要有證據，狀態碼不是證據）
-
-## 2026-08-03 用 `npx tailwindcss` CLI 驗產物，三次 probe 全是無效測試
-- 情境：加完非顏色 token（`rounded-card`、`shadow-resting` 等）後，想確認 utility 真的生成，於是 `npx tailwindcss -c tailwind.config.ts -i src/app/globals.css -o probe.css` 再 grep。連跑三次都「查無這些 utility」，我一度以為 `theme.extend` 寫錯、開始回頭改 config
-- 代價：三輪無謂的來回與一次錯誤歸因。真正原因是**該 CLI 根本沒讀 `tailwind.config.ts`**（TS config 需要 loader，CLI 這條路徑沒載到），產物裡只有 Tailwind 內建 utility。我先前看到 `.rounded-2xl`、`.p-6` 有生成就以為「config 有讀到」，但那些全是內建的——我挑的對照組沒有鑑別力
-- 規則：**驗證 Tailwind 產物一律以 `npm run build` 的 `.next` 產物為準，不要用 `npx tailwindcss` CLI**（本專案是 TS config，CLI 讀不到）。若非用不可，對照組必須挑**只有自訂 config 才會產生**的 class（如 `bg-tea-green`），不能挑內建 class——對照組挑錯等於沒有對照組
-- 去處：暫存於此（JUDG-2「完成要有證據」的補充：證據還要有鑑別力，「有東西生成」不等於「我的東西生成」）

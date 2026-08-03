@@ -469,7 +469,7 @@ Email 內聯 hex（`src/lib/email.ts:107-109`）／border-beam 前台零使用�
 其餘是純地基、沒有立即視覺回報**。價值在於後續元件遷移時有正確且合規的落點，
 不該把這一步當成「視覺升級」向使用者邀功。真正的視覺回報在下一波遷移
 - 待辦（本波不做，已排隊）：
-  - [ ] 非顏色 token 軸（radius/shadow/space/motion）
+  - [x] 非顏色 token 軸（radius/shadow/space/motion）→ 見下方「第二波」
   - [ ] favicon 與 app icon
   - [ ] `docs/design-system.md` ＋ 修 `tasks.md:26` 積分敘述（openspec 不動）
   - [ ] 既有 39 檔的 AA 遷移（`tea-green`→`tea-green-ink` 等）
@@ -480,3 +480,41 @@ Email 內聯 hex（`src/lib/email.ts:107-109`）／border-beam 前台零使用�
 - 狀態：本波已完成（證據：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤、`npm run build` 成功、
   dev server 實跑 DOM 查詢確認字型鏈與 token 值如預期、Google Fonts 殘留連線為 0）。
   commit `6951084`，已推 `origin/claude/design-system-foundation`
+
+**第二波（2026-08-03）：非顏色 token 軸**（commit `665ff90`）
+- 命名由現況反推而非發明：先統計全站用法再替隱性慣例取名
+  | 軸 | 現況分布 | token |
+  |---|---|---|
+  | 圓角 | lg 100／xl 149／2xl 120／3xl 9／full 187 | `--radius-inline/control/card/showcase/pill` |
+  | 陰影 | sm 68／md 13／lg 10／xl 11 | `--shadow-resting/raised/float/modal` |
+  | 動態 | duration 150/200/300/500；transition-colors 167 處 | `--motion-fast/base/slow/reveal` ＋ `--ease-standard/exit` |
+  | 間距 | `py-16 md:py-24` 15 處／p-6 47／p-8 35 | `--space-section/-lg/card/card-lg/gutter` |
+- **陰影改用茶墨色 `rgb(61 74 66)` 取代 Tailwind 預設純黑**。純黑壓在米白上會透出灰調，
+  暖色陰影才不會讓米白顯髒——這是「看起來貴」與「看起來預設」的實際差別
+- 首頁作為參考實作（圓角值與原本完全相同，1rem = rounded-2xl，唯一視覺變化是陰影色）
+
+**順帶修掉的三個既有問題**
+1. **`.no-scrollbar` 實際不存在**：原本用 `@utility` 宣告（Tailwind 4 語法），但本專案是
+   Tailwind **3.4.19**，該語法不生成任何 CSS。`ChatWidget.tsx:565` 的橫向捲軸一直是露出來的。
+   已改回 `@layer utilities`（postcss 未裝 nesting plugin，故 `::-webkit-scrollbar` 寫平選擇器）
+2. **boxShadow 不可用 `card` 當 key**：`card` 已是 colors 的 key，同名會產出兩條 `.shadow-card`
+   （陰影＋陰影顏色），後者在後會覆寫 `--tw-shadow`。目前碰巧仍成立但屬巧合，已改名 `resting`
+3. **新增 `prefers-reduced-motion` 支援**：動態走 CSS 變數，改寫變數即可全站收斂
+
+**同時發現、未處理（影響為零，故不動）**
+- `globals.css` 裡的 `@theme inline`／`@custom-variant`／`@utility` 全是 Tailwind 4 語法，
+  在 v3 下不生成任何東西，並原樣漏進產物 CSS（`@utility` 165 次、`@custom-variant` 27 次、
+  `@theme` 6 次）。`tw-animate-css` 整包同理
+- 影響為零的原因：這些 class 只被 `components/ui/select.tsx` 使用，而該檔**全站零引用**。
+  專案自己用的 `animate-spin/bounce/pulse` 是 v3 內建、正常運作
+- 要清理需連帶處理未使用的 shadcn 元件與 `tw-animate-css` 相依，屬獨立的死碼清除任務
+
+**方法論教訓（已記 lessons）**：驗證 Tailwind 產物時我先用 `npx tailwindcss -c tailwind.config.ts`
+跑了三次 probe 都「查無 utility」，一度以為 token 沒生效。實際是 **CLI 根本沒讀 TS config**——
+用既有的 `bg-tea-green`（線上明明有效）當對照組才發現，先前三次全是無效測試。
+Tailwind 產物一律以 `npm run build` 為準
+
+- 驗證：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤、`npm run build` 成功；
+  dev server 實跑確認卡片圓角 16px、陰影為 `rgba(61,74,66,…)` 而非純黑、
+  `transitionDuration` 0.2s、`ease` 為 `cubic-bezier(0.2,0,0,1)`、`no-scrollbar` 的
+  `scrollbarWidth` 已回傳 `none`
