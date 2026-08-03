@@ -103,12 +103,12 @@ export default function CartClient() {
           <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">
             {t("empty.title")}
           </h2>
-          <p className="text-tea-text-light mb-8">
+          <p className="text-tea-text-muted mb-8">
             {t("empty.desc")}
           </p>
           <Link
             href={lp("/products")}
-            className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors"
+            className="bg-tea-green-ink hover:bg-tea-green-deep text-white px-8 py-3.5 rounded-full font-medium transition-colors"
           >
             {t("empty.cta")}
           </Link>
@@ -188,13 +188,13 @@ export default function CartClient() {
                       <h3 className="font-serif font-bold text-tea-text">
                         {item.product.name}
                       </h3>
-                      <p className="text-xs text-tea-text-light mt-0.5">
+                      <p className="text-xs text-tea-text-muted mt-0.5">
                         {item.product.origin} · {item.product.weight}
                       </p>
                     </div>
                     <button
                       onClick={() => removeFromCart(item.product.id)}
-                      className="text-tea-text-light hover:text-red-400 transition-colors flex-shrink-0"
+                      className="text-tea-text-muted hover:text-red-400 transition-colors flex-shrink-0"
                       aria-label="移除"
                     >
                       <svg
@@ -217,7 +217,7 @@ export default function CartClient() {
                         onClick={() =>
                           updateQuantity(item.product.id, item.quantity - 1)
                         }
-                        className="w-6 h-6 flex items-center justify-center text-tea-text-light hover:text-tea-green transition-colors font-medium"
+                        className="w-6 h-6 flex items-center justify-center text-tea-text-muted hover:text-tea-green-ink transition-colors font-medium"
                       >
                         −
                       </button>
@@ -233,12 +233,12 @@ export default function CartClient() {
                           const maxQty = stock !== undefined ? Math.min(stock, 99) : 99;
                           return item.quantity >= maxQty;
                         })()}
-                        className="w-6 h-6 flex items-center justify-center text-tea-text-light hover:text-tea-green transition-colors font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-tea-text-light"
+                        className="w-6 h-6 flex items-center justify-center text-tea-text-muted hover:text-tea-green-ink transition-colors font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-tea-text-muted"
                       >
                         +
                       </button>
                     </div>
-                    <span className="font-bold text-tea-green">
+                    <span className="font-bold text-tea-green-ink">
                       NT$
                       {(item.product.price * item.quantity).toLocaleString()}
                     </span>
@@ -255,14 +255,14 @@ export default function CartClient() {
                 {t("orderSummary")}
               </h2>
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-sm text-tea-text-light">
+                <div className="flex justify-between text-sm text-tea-text-muted">
                   <span>{t("quantity")}</span>
                   <span>{t("quantityUnit", { count: totalItems })}</span>
                 </div>
-                <div className="flex justify-between text-sm text-tea-text-light">
+                <div className="flex justify-between text-sm text-tea-text-muted">
                   <span>{t("shipping")}</span>
                   {totalPrice >= 1000 ? (
-                    <span className="text-tea-green">{t("freeShipping")}</span>
+                    <span className="text-tea-green-ink">{t("freeShipping")}</span>
                   ) : (
                     <span>{t("shippingOptions")}</span>
                   )}
@@ -274,7 +274,7 @@ export default function CartClient() {
                 )}
                 <div className="border-t border-tea-green-pale pt-3 flex justify-between font-bold text-tea-text">
                   <span>{t("total")}</span>
-                  <span className="text-tea-green text-lg">
+                  <span className="text-tea-green-ink text-lg">
                     NT${totalPrice.toLocaleString()}
                   </span>
                 </div>
@@ -282,21 +282,21 @@ export default function CartClient() {
               {user ? (
                 <Link
                   href={lp("/checkout")}
-                  className="block w-full bg-tea-green hover:bg-tea-green-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
+                  className="block w-full bg-tea-green-ink hover:bg-tea-green-deep text-white text-center py-3.5 rounded-full font-medium transition-colors"
                 >
                   {t("checkout")}
                 </Link>
               ) : (
                 <Link
                   href={lp("/auth/login?redirect=" + lp("/checkout"))}
-                  className="block w-full bg-tea-green hover:bg-tea-green-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
+                  className="block w-full bg-tea-green-ink hover:bg-tea-green-deep text-white text-center py-3.5 rounded-full font-medium transition-colors"
                 >
                   {t("loginToCheckout")}
                 </Link>
               )}
               <Link
                 href={lp("/products")}
-                className="block w-full text-center text-tea-text-light hover:text-tea-green text-sm mt-4 transition-colors"
+                className="block w-full text-center text-tea-text-muted hover:text-tea-green-ink text-sm mt-4 transition-colors"
               >
                 {t("continueShopping")}
               </Link>

@@ -43,8 +43,8 @@ export default function FaqClient({ faqs, locale }: { faqs: Faq[]; locale: strin
               onClick={() => setActiveCategory(c)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 activeCategory === c
-                  ? "bg-tea-green text-white"
-                  : "bg-tea-green-mist text-tea-text-light hover:text-tea-text"
+                  ? "bg-tea-green-ink text-white"
+                  : "bg-tea-green-mist text-tea-text-muted hover:text-tea-text"
               }`}
             >
               {t(c)}
@@ -67,13 +67,13 @@ export default function FaqClient({ faqs, locale }: { faqs: Faq[]; locale: strin
               >
                 <span className="font-medium text-tea-text">{question}</span>
                 <ChevronDown
-                  className={`w-5 h-5 text-tea-green shrink-0 transition-transform ${
+                  className={`w-5 h-5 text-tea-green-ink shrink-0 transition-transform ${
                     openId === faq._id ? "rotate-180" : ""
                   }`}
                 />
               </button>
               {openId === faq._id && (
-                <div className="px-6 pb-5 text-tea-text-light text-sm leading-relaxed prose prose-sm max-w-none">
+                <div className="px-6 pb-5 text-tea-text-muted text-sm leading-relaxed prose prose-sm max-w-none">
                   <PortableText value={answer as Parameters<typeof PortableText>[0]["value"]} />
                 </div>
               )}

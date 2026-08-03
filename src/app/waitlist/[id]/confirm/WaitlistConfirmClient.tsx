@@ -85,11 +85,11 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
             <div className="text-center mb-6">
               <div className="text-3xl mb-3">✅</div>
               <h2 className="font-serif text-xl font-bold text-tea-text mb-2">已完成確認</h2>
-              <p className="text-sm text-tea-text-light">您的候補資格已確認，請至會員中心查看預約狀態。</p>
+              <p className="text-sm text-tea-text-muted">您的候補資格已確認，請至會員中心查看預約狀態。</p>
             </div>
             <button
               onClick={() => router.push(lp("/account?tab=bookings"))}
-              className="w-full bg-tea-green hover:bg-tea-green-dark text-white py-3 rounded-full font-medium transition-colors"
+              className="w-full bg-tea-green-ink hover:bg-tea-green-deep text-white py-3 rounded-full font-medium transition-colors"
             >
               查看我的預約
             </button>
@@ -99,11 +99,11 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
             <div className="text-center mb-6">
               <div className="text-3xl mb-3">⏰</div>
               <h2 className="font-serif text-xl font-bold text-tea-text mb-2">確認時間已過</h2>
-              <p className="text-sm text-tea-text-light">此名額已釋出給下一位候補者。歡迎繼續關注後續場次。</p>
+              <p className="text-sm text-tea-text-muted">此名額已釋出給下一位候補者。歡迎繼續關注後續場次。</p>
             </div>
             <button
               onClick={() => router.push(lp("/experiences"))}
-              className="w-full bg-tea-green hover:bg-tea-green-dark text-white py-3 rounded-full font-medium transition-colors"
+              className="w-full bg-tea-green-ink hover:bg-tea-green-deep text-white py-3 rounded-full font-medium transition-colors"
             >
               瀏覽其他場次
             </button>
@@ -111,9 +111,9 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
         ) : (
           <>
             <div className="mb-6">
-              <p className="text-xs text-tea-green font-semibold tracking-widest uppercase mb-1">{exp?.name ?? "茶藝體驗"}</p>
+              <p className="text-xs text-tea-green-ink font-semibold tracking-widest uppercase mb-1">{exp?.name ?? "茶藝體驗"}</p>
               <h2 className="font-serif text-2xl font-bold text-tea-text mb-4">確認參加？</h2>
-              <div className="space-y-2 text-sm text-tea-text-light mb-4">
+              <div className="space-y-2 text-sm text-tea-text-muted mb-4">
                 <div className="flex justify-between"><span>日期</span><span className="text-tea-text font-medium">{dateLabel}</span></div>
                 <div className="flex justify-between"><span>時間</span><span className="text-tea-text font-medium">{startTime.slice(0, 5)}</span></div>
                 <div className="flex justify-between"><span>人數</span><span className="text-tea-text font-medium">{entry.participant_count} 人</span></div>
@@ -132,7 +132,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
             <button
               onClick={handleConfirm}
               disabled={loading}
-              className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-50 text-white py-3.5 rounded-full font-medium transition-colors"
+              className="w-full bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-50 text-white py-3.5 rounded-full font-medium transition-colors"
             >
               {loading ? "處理中…" : `確認參加並付款 NT$ ${totalPrice.toLocaleString()}`}
             </button>

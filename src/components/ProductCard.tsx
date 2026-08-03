@@ -195,7 +195,7 @@ export default function ProductCard({ product }: { product: Product }) {
             {allSoldOut ? (
               <span className="bg-gray-800/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm">{t("outOfStock")}</span>
             ) : (
-              <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-xs px-3 py-1 rounded-full shadow-sm">{product.altitude}</span>
+              <span className="bg-white/75 backdrop-blur-sm text-tea-text-muted text-xs px-3 py-1 rounded-full shadow-sm">{product.altitude}</span>
             )}
           </div>
 
@@ -207,28 +207,28 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* 產地 */}
           <div className="flex items-center gap-1.5 mb-2">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-tea-green flex-shrink-0">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-tea-green-ink flex-shrink-0">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/>
               <circle cx="12" cy="9" r="2.5" fill="white"/>
             </svg>
-            <p className="text-xs text-tea-green font-medium tracking-wide">{isEn ? (product.originEn || product.origin) : product.origin}</p>
+            <p className="text-xs text-tea-green-ink font-medium tracking-wide">{isEn ? (product.originEn || product.origin) : product.origin}</p>
           </div>
 
           {/* 茶名 */}
-          <h3 className={`font-serif text-xl font-bold mb-1 group-hover:text-tea-green transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
+          <h3 className={`font-serif text-xl font-bold mb-1 group-hover:text-tea-green-ink transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
             {isEn ? product.nameEn : product.name}
           </h3>
-          <p className="text-xs text-tea-text-light italic mb-3">{isEn ? product.name : product.nameEn}</p>
+          <p className="text-xs text-tea-text-muted italic mb-3">{isEn ? product.name : product.nameEn}</p>
 
           {/* 描述 */}
-          <p className="text-sm text-tea-text-light leading-relaxed line-clamp-2 flex-1 mb-4">
+          <p className="text-sm text-tea-text-muted leading-relaxed line-clamp-2 flex-1 mb-4">
             {isEn ? (product.descriptionEn || product.description) : product.description}
           </p>
 
           {/* 規格選擇 */}
           {variants.length > 1 && (
             <div className="mb-4">
-              <p className="text-xs text-tea-text-light mb-2">{t("selectVariant")}</p>
+              <p className="text-xs text-tea-text-muted mb-2">{t("selectVariant")}</p>
               <div className="flex gap-2 flex-wrap">
                 {variants.map((v) => {
                   const variantSoldOut = v.stock === 0;
@@ -241,8 +241,8 @@ export default function ProductCard({ product }: { product: Product }) {
                         variantSoldOut
                           ? "border-gray-200 text-gray-300 cursor-not-allowed"
                           : selectedKey === v.key
-                          ? "border-tea-green bg-tea-green-mist text-tea-green"
-                          : "border-tea-green-pale text-tea-text-light hover:border-tea-green/50 hover:text-tea-text"
+                          ? "border-tea-green bg-tea-green-mist text-tea-green-ink"
+                          : "border-tea-green-pale text-tea-text-muted hover:border-tea-green/50 hover:text-tea-text"
                       }`}
                     >
                       <span className="font-bold text-sm leading-tight">{v.label}</span>
@@ -264,9 +264,9 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* 數量選擇 */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex flex-col">
-              <span className="text-xs text-tea-text-light font-medium">{t("quantity")}</span>
+              <span className="text-xs text-tea-text-muted font-medium">{t("quantity")}</span>
               {!selectedSoldOut && selected.stock !== undefined && (
-                <span className={`text-[10px] mt-0.5 ${selected.stock <= 10 ? "text-amber-500 font-semibold" : "text-tea-text-light"}`}>
+                <span className={`text-[10px] mt-0.5 ${selected.stock <= 10 ? "text-amber-500 font-semibold" : "text-tea-text-muted"}`}>
                   {t("stockCount", { count: selected.stock })}
                 </span>
               )}
@@ -275,7 +275,7 @@ export default function ProductCard({ product }: { product: Product }) {
               <button
                 onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.max(1, q - 1)); }}
                 disabled={selectedSoldOut || quantity <= 1}
-                className="w-7 h-7 rounded-full border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors disabled:opacity-30 disabled:cursor-default"
+                className="w-7 h-7 rounded-full border border-tea-green-pale flex items-center justify-center text-tea-text-muted hover:border-tea-green hover:text-tea-green-ink transition-colors disabled:opacity-30 disabled:cursor-default"
                 aria-label="減少數量"
               >
                 −
@@ -286,22 +286,22 @@ export default function ProductCard({ product }: { product: Product }) {
               <button
                 onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.min(maxQty, q + 1)); }}
                 disabled={selectedSoldOut || quantity >= maxQty}
-                className="w-7 h-7 rounded-full border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors disabled:opacity-30 disabled:cursor-default"
+                className="w-7 h-7 rounded-full border border-tea-green-pale flex items-center justify-center text-tea-text-muted hover:border-tea-green hover:text-tea-green-ink transition-colors disabled:opacity-30 disabled:cursor-default"
                 aria-label="增加數量"
               >
                 +
               </button>
-              <span className="text-xs text-tea-text-light">{selected.unit}</span>
+              <span className="text-xs text-tea-text-muted">{selected.unit}</span>
             </div>
           </div>
 
           {/* 價格 + 加入購物車 */}
           <div className="flex items-center justify-between pt-4 border-t border-tea-green-pale/60">
             <div className="flex flex-col">
-              <span className={`font-bold text-xl leading-none ${selectedSoldOut ? "text-tea-text/40" : "text-tea-green"}`}>
+              <span className={`font-bold text-xl leading-none ${selectedSoldOut ? "text-tea-text/40" : "text-tea-green-ink"}`}>
                 NT${selected.price.toLocaleString()}
               </span>
-              <span className="text-tea-text-light text-xs mt-0.5">/ {selected.weight}</span>
+              <span className="text-tea-text-muted text-xs mt-0.5">/ {selected.weight}</span>
             </div>
 
             {selectedSoldOut ? (
@@ -319,7 +319,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 className={`flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-full font-medium transition-all duration-200 shadow-sm ${
                   added
                     ? "bg-tea-green-pale text-tea-green-dark scale-95"
-                    : "bg-tea-green hover:bg-tea-green-dark text-white hover:shadow-md active:scale-95"
+                    : "bg-tea-green-ink hover:bg-tea-green-deep text-white hover:shadow-md active:scale-95"
                 }`}
               >
                 {added ? (

@@ -110,7 +110,7 @@ function getMemberStatusCls(orderStatus: string, paymentStatus: string): { label
   }
   const map: Record<string, { labelKey: string; cls: string }> = {
     preparing: { labelKey: "orderStatus.preparing", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-    shipped:   { labelKey: "orderStatus.shipped",   cls: "bg-tea-green text-white" },
+    shipped:   { labelKey: "orderStatus.shipped",   cls: "bg-tea-green-ink text-white" },
     completed: { labelKey: "orderStatus.completed", cls: "bg-tea-green-dark text-white" },
     cancelled: { labelKey: "orderStatus.cancelled", cls: "bg-[#E0D5D5] text-[#7A4545]" },
   };
@@ -491,7 +491,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-tea-text mb-1">{t("title")}</h1>
-          <p className="text-sm text-tea-text-light">{user.email || t("profile.noEmail")}</p>
+          <p className="text-sm text-tea-text-muted">{user.email || t("profile.noEmail")}</p>
         </div>
 
         {/* Tabs */}
@@ -507,8 +507,8 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               onClick={() => setTab(key)}
               className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
                 tab === key
-                  ? "bg-tea-green text-white shadow-sm"
-                  : "text-tea-text-light hover:text-tea-text"
+                  ? "bg-tea-green-ink text-white shadow-sm"
+                  : "text-tea-text-muted hover:text-tea-text"
               }`}
             >
               {label}
@@ -521,7 +521,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
           <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale">
             <div className="px-7 py-5 border-b border-tea-green-pale">
               <h2 className="font-semibold text-tea-text">{t("profile.title")}</h2>
-              <p className="text-xs text-tea-text-light mt-0.5">{t("profile.subtitle")}</p>
+              <p className="text-xs text-tea-text-muted mt-0.5">{t("profile.subtitle")}</p>
             </div>
 
             <form onSubmit={handleSaveProfile} className="p-7 space-y-5">
@@ -549,9 +549,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                       type="email"
                       value={user.email}
                       disabled
-                      className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text-light bg-gray-50 cursor-not-allowed"
+                      className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text-muted bg-gray-50 cursor-not-allowed"
                     />
-                    <p className="mt-1 text-xs text-tea-text-light">{t("profile.emailReadonly")}</p>
+                    <p className="mt-1 text-xs text-tea-text-muted">{t("profile.emailReadonly")}</p>
                   </>
                 ) : emailSent ? (
                   <div className="flex items-start gap-2 bg-tea-green-mist/50 border border-tea-green-pale rounded-xl px-4 py-3">
@@ -560,13 +560,13 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     </svg>
                     <div>
                       <p className="text-sm text-tea-text font-medium">{t("profile.emailVerificationSent")}</p>
-                      <p className="text-xs text-tea-text-light mt-0.5">
+                      <p className="text-xs text-tea-text-muted mt-0.5">
                         {t("profile.emailVerificationDesc", { email: emailInput })}
                       </p>
                       <button
                         type="button"
                         onClick={() => { setEmailSent(false); setEmailInput(""); }}
-                        className="mt-1.5 text-xs text-tea-green hover:text-tea-green-dark underline"
+                        className="mt-1.5 text-xs text-tea-green-ink hover:text-tea-green-deep underline"
                       >
                         {t("profile.emailReenter")}
                       </button>
@@ -587,13 +587,13 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         type="button"
                         onClick={handleBindEmail}
                         disabled={emailSaving}
-                        className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
+                        className="px-4 py-2 bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-60 text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
                       >
                         {emailSaving ? t("profile.emailBinding") : t("profile.emailBind")}
                       </button>
                     </div>
                     {emailError && <p className="text-xs text-rose-500">{emailError}</p>}
-                    <p className="text-xs text-tea-text-light">{t("profile.emailBindHint")}</p>
+                    <p className="text-xs text-tea-text-muted">{t("profile.emailBindHint")}</p>
                   </div>
                 )}
               </div>
@@ -643,12 +643,12 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-7 py-2.5 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-full text-sm font-medium transition-colors"
+                  className="px-7 py-2.5 bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-60 text-white rounded-full text-sm font-medium transition-colors"
                 >
                   {saving ? t("profile.saving") : t("profile.save")}
                 </button>
                 {saveSuccess && (
-                  <span className="text-sm text-tea-green font-medium flex items-center gap-1">
+                  <span className="text-sm text-tea-green-ink font-medium flex items-center gap-1">
                     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     {t("profile.saved")}
                   </span>
@@ -670,8 +670,8 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   </svg>
                 </div>
                 <p className="text-tea-text font-medium mb-1">{t("bookings.noBookingsTitle")}</p>
-                <p className="text-sm text-tea-text-light mb-4">{t("bookings.noBookingsDesc")}</p>
-                <Link href={lp("/experiences")} className="text-sm text-tea-green hover:text-tea-green-dark font-medium underline underline-offset-2">
+                <p className="text-sm text-tea-text-muted mb-4">{t("bookings.noBookingsDesc")}</p>
+                <Link href={lp("/experiences")} className="text-sm text-tea-green-ink hover:text-tea-green-deep font-medium underline underline-offset-2">
                   {t("bookings.browse")}
                 </Link>
               </div>
@@ -709,7 +709,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                               {t(`bookingStatus.${booking.status}`)}
                             </span>
                           </div>
-                          <div className="text-sm text-tea-text-light">
+                          <div className="text-sm text-tea-text-muted">
                             {dateLabel} {timeLabel} · {t("bookings.personCount", { count: booking.participant_count })} · NT${(booking.total_price - (booking.points_discount || 0)).toLocaleString()}
                           </div>
                           {isConfirmed && booking.participants_due_at && (
@@ -719,7 +719,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                             </div>
                           )}
                           {isCancelled && booking.refund_amount != null && (
-                            <div className="mt-1 text-xs text-tea-text-light">
+                            <div className="mt-1 text-xs text-tea-text-muted">
                               {t("bookings.refundAmount", { amount: booking.refund_amount.toLocaleString() })}
                             </div>
                           )}
@@ -728,7 +728,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           {isConfirmed && (
                             <Link
                               href={lp(`/account/bookings/${booking.id}/participants`)}
-                              className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium rounded-full transition-colors text-center"
+                              className="px-4 py-2 bg-tea-green-ink hover:bg-tea-green-deep text-white text-sm font-medium rounded-full transition-colors text-center"
                             >
                               {t("bookings.fillInfo")}
                             </Link>
@@ -737,7 +737,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                             <button
                               onClick={() => handleRetryPayment(booking.id)}
                               disabled={retryingId === booking.id}
-                              className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white text-sm font-medium rounded-full transition-colors"
+                              className="px-4 py-2 bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-60 text-white text-sm font-medium rounded-full transition-colors"
                             >
                               {retryingId === booking.id ? t("bookings.retrying") : t("bookings.retryPayment")}
                             </button>
@@ -759,7 +759,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                             </button>
                           )}
                           {isPast && booking.has_review && (
-                            <span className="text-xs text-tea-text-light px-2">{t("bookings.reviewed")}</span>
+                            <span className="text-xs text-tea-text-muted px-2">{t("bookings.reviewed")}</span>
                           )}
                         </div>
                       </div>
@@ -795,7 +795,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           <span className="font-medium text-tea-text">{expName}</span>
                           <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${wCls}`}>{wLabel}</span>
                         </div>
-                        <div className="text-sm text-tea-text-light">{dateLabel} · {t("bookings.personCount", { count: w.participant_count })}</div>
+                        <div className="text-sm text-tea-text-muted">{dateLabel} · {t("bookings.personCount", { count: w.participant_count })}</div>
                         {w.status === "notified" && w.confirm_deadline && (
                           <div className="text-xs text-blue-600 mt-1">
                             {t("waitlist.confirmBefore", { datetime: new Date(w.confirm_deadline).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }) })}
@@ -805,7 +805,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                       {w.status === "notified" && (
                         <a
                           href={lp(`/waitlist/${w.id}/confirm`)}
-                          className="px-4 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium rounded-full transition-colors"
+                          className="px-4 py-2 bg-tea-green-ink hover:bg-tea-green-deep text-white text-sm font-medium rounded-full transition-colors"
                         >
                           {t("waitlist.confirm")}
                         </a>
@@ -825,11 +825,11 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
             <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-7">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-tea-text">{t("rewards.pointsTitle")}</h2>
-                <span className="text-xs font-medium px-3 py-1 rounded-full bg-tea-green-mist text-tea-green">
+                <span className="text-xs font-medium px-3 py-1 rounded-full bg-tea-green-mist text-tea-green-ink">
                   {memberTier.name} · {t("rewards.earnRate", { rate: Math.round(memberTier.points_rate * 100) })}
                 </span>
               </div>
-              <p className="text-xs text-tea-text-light mb-4">
+              <p className="text-xs text-tea-text-muted mb-4">
                 {t("rewards.pointsDescNew", { maxRate: Math.round(memberTier.max_discount_rate * 100) })}
               </p>
 
@@ -850,7 +850,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 const retentionGap = currentTierMin - annualSpend;
                 return (
                   <div className="mb-5">
-                    <div className="flex items-center justify-between text-xs text-tea-text-light mb-1">
+                    <div className="flex items-center justify-between text-xs text-tea-text-muted mb-1">
                       <span>{t("rewards.annualSpend")}: NT${annualSpend.toLocaleString()}</span>
                       {nextTier ? <span>{t("rewards.nextTier", { name: nextTier.name, amount: nextTier.min.toLocaleString() })}</span> : <span>{t("rewards.maxTier")}</span>}
                     </div>
@@ -864,9 +864,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     )}
                     {tierHistory.length > 0 && (
                       <div className="mt-3 space-y-1">
-                        <p className="text-xs font-medium text-tea-text-light">等級變更紀錄</p>
+                        <p className="text-xs font-medium text-tea-text-muted">等級變更紀錄</p>
                         {tierHistory.map(h => (
-                          <div key={h.id} className="text-xs text-tea-text-light flex gap-2">
+                          <div key={h.id} className="text-xs text-tea-text-muted flex gap-2">
                             <span className="text-[#9CA89E]">{new Date(h.changed_at).toLocaleDateString("zh-TW")}</span>
                             <span>{h.from_tier} → {h.to_tier}</span>
                             <span className="text-[#9CA89E]">({h.reason === "upgrade" ? "升等" : h.reason === "annual_reset" ? "年度重置" : h.reason})</span>
@@ -879,8 +879,8 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               })()}
 
               <div className="flex items-end gap-2 mb-4">
-                <span className="font-serif text-5xl font-bold text-tea-green">NT${pointsBalance.toLocaleString()}</span>
-                <span className="text-tea-text-light mb-1">{t("rewards.pointsUnitNew")}</span>
+                <span className="font-serif text-5xl font-bold text-tea-green-ink">NT${pointsBalance.toLocaleString()}</span>
+                <span className="text-tea-text-muted mb-1">{t("rewards.pointsUnitNew")}</span>
               </div>
 
               {/* 到期提醒 */}
@@ -896,28 +896,28 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               )}
               {pointTransactions.length > 0 ? (
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-3">{t("rewards.recentHistory")}</p>
+                  <p className="text-xs font-semibold text-tea-text-muted uppercase tracking-wider mb-3">{t("rewards.recentHistory")}</p>
                   {pointTransactions.map(tx => (
                     <div key={tx.id} className="flex justify-between items-center py-2 border-b border-tea-green-pale/60 last:border-0">
                       <div>
                         <p className="text-sm text-tea-text">{tx.description ?? (tx.type === "earn" ? t("rewards.earnDefault") : t("rewards.redeemDefault"))}</p>
-                        <p className="text-xs text-tea-text-light">{new Date(tx.created_at).toLocaleDateString("zh-TW")}</p>
+                        <p className="text-xs text-tea-text-muted">{new Date(tx.created_at).toLocaleDateString("zh-TW")}</p>
                       </div>
-                      <span className={`text-sm font-semibold ${tx.points > 0 ? "text-tea-green" : "text-rose-500"}`}>
+                      <span className={`text-sm font-semibold ${tx.points > 0 ? "text-tea-green-ink" : "text-rose-500"}`}>
                         {tx.points > 0 ? "+" : ""}{tx.points.toLocaleString()} {t("rewards.pointsUnit")}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-tea-text-light">{t("rewards.noPoints")}</p>
+                <p className="text-sm text-tea-text-muted">{t("rewards.noPoints")}</p>
               )}
             </div>
 
             {/* 折價券 */}
             <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-7">
               <h2 className="font-semibold text-tea-text mb-1">{t("rewards.couponsTitle")}</h2>
-              <p className="text-xs text-tea-text-light mb-5">{t("rewards.couponsDesc")}</p>
+              <p className="text-xs text-tea-text-muted mb-5">{t("rewards.couponsDesc")}</p>
               {coupons.length > 0 ? (
                 <div className="space-y-3">
                   {coupons.map(c => {
@@ -928,22 +928,22 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                       <div key={c.id} className={`flex items-center justify-between p-4 rounded-xl border ${isActive ? "border-dashed border-tea-green bg-tea-green-mist/40" : "border-tea-green-pale bg-gray-50 opacity-60"}`}>
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className={`font-mono text-base font-bold tracking-widest ${isActive ? "text-tea-green" : "text-tea-text-light"}`}>{c.code}</p>
+                            <p className={`font-mono text-base font-bold tracking-widest ${isActive ? "text-tea-green-ink" : "text-tea-text-muted"}`}>{c.code}</p>
                             {isUsed    && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500">{t("rewards.couponUsed")}</span>}
                             {isExpired && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500">{t("rewards.couponExpired")}</span>}
                           </div>
-                          <p className="text-xs text-tea-text-light mt-0.5">
+                          <p className="text-xs text-tea-text-muted mt-0.5">
                             {t("rewards.couponDiscount", { amount: c.discount_amount, min: c.min_order_amount })}
                             {isUsed ? t("rewards.couponUsedOn", { date: new Date(c.used_at!).toLocaleDateString("zh-TW") }) : t("rewards.couponValidUntil", { date: new Date(c.expires_at).toLocaleDateString("zh-TW") })}
                           </p>
                         </div>
-                        <span className={`text-xl font-bold ${isActive ? "text-tea-green" : "text-tea-text-light"}`}>-${c.discount_amount}</span>
+                        <span className={`text-xl font-bold ${isActive ? "text-tea-green-ink" : "text-tea-text-muted"}`}>-${c.discount_amount}</span>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-tea-text-light">{t("rewards.noCoupons")}</p>
+                <p className="text-sm text-tea-text-muted">{t("rewards.noCoupons")}</p>
               )}
             </div>
           </div>
@@ -960,7 +960,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   </svg>
                 </div>
                 <p className="text-tea-text font-medium mb-1">{t("orders.noOrdersTitle")}</p>
-                <p className="text-sm text-tea-text-light">{t("orders.noOrdersDesc")}</p>
+                <p className="text-sm text-tea-text-muted">{t("orders.noOrdersDesc")}</p>
               </div>
             ) : (
               orderList.map((order) => {
@@ -993,12 +993,12 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                          <span className="font-mono text-xs text-tea-text-light">#{shortId(order.id)}</span>
+                          <span className="font-mono text-xs text-tea-text-muted">#{shortId(order.id)}</span>
                           <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status.cls}`}>
                             {t(status.labelKey)}
                           </span>
                         </div>
-                        <div className="text-sm text-tea-text-light">
+                        <div className="text-sm text-tea-text-muted">
                           {new Date(order.created_at).toLocaleDateString("zh-TW")} · {t("orders.itemCount", { count: itemCount })} · {order.payment_method === "cod" ? t("orders.cod") : order.payment_method === "paypal" ? "PayPal" : t("orders.online")}
                         </div>
                       </div>
@@ -1015,24 +1015,24 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                       <div className="border-t border-tea-green-pale px-6 py-4 bg-tea-cream-light/30 space-y-4">
                         {/* Items */}
                         <div>
-                          <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">{t("orders.items")}</p>
+                          <p className="text-xs font-semibold text-tea-text-muted uppercase tracking-wider mb-2">{t("orders.items")}</p>
                           <div className="space-y-1.5">
                             {order.items.map((item, i) => (
                               <div key={i} className="flex justify-between text-sm">
-                                <span className="text-tea-text-light">{item.name} × {item.quantity}</span>
+                                <span className="text-tea-text-muted">{item.name} × {item.quantity}</span>
                                 <span className="text-tea-text font-medium">NT${item.subtotal?.toLocaleString()}</span>
                               </div>
                             ))}
                             {order.shipping_fee > 0 && (
                               <div className="flex justify-between text-sm pt-1 border-t border-tea-green-pale/40">
-                                <span className="text-tea-text-light">{t("orders.shippingFee")}</span>
+                                <span className="text-tea-text-muted">{t("orders.shippingFee")}</span>
                                 <span className="text-tea-text font-medium">NT${order.shipping_fee.toLocaleString()}</span>
                               </div>
                             )}
                             {order.discount_amount > 0 && (
                               <div className="flex justify-between text-sm">
-                                <span className="text-tea-text-light">{t("orders.discount")}</span>
-                                <span className="text-tea-green font-medium">-NT${order.discount_amount.toLocaleString()}</span>
+                                <span className="text-tea-text-muted">{t("orders.discount")}</span>
+                                <span className="text-tea-green-ink font-medium">-NT${order.discount_amount.toLocaleString()}</span>
                               </div>
                             )}
                             <div className="flex justify-between text-sm font-semibold pt-1 border-t border-tea-green-pale/40">
@@ -1041,7 +1041,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                             </div>
                           </div>
                           {(canCancel) && (
-                            <p className="mt-2 text-xs text-tea-text-light">
+                            <p className="mt-2 text-xs text-tea-text-muted">
                               {t("orders.changeHint")}
                             </p>
                           )}
@@ -1049,24 +1049,24 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
                         {/* Shipping */}
                         <div>
-                          <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-1">{t("orders.shipping")}</p>
-                          <p className="text-sm text-tea-text-light">{shippingText}</p>
+                          <p className="text-xs font-semibold text-tea-text-muted uppercase tracking-wider mb-1">{t("orders.shipping")}</p>
+                          <p className="text-sm text-tea-text-muted">{shippingText}</p>
                           {/* Edit address button (home delivery only, before shipped) */}
                           {canEditAddress && (
                             <button
                               onClick={() => openEditAddress(order)}
-                              className="mt-2 text-xs text-tea-green hover:text-tea-green-dark font-medium underline underline-offset-2"
+                              className="mt-2 text-xs text-tea-green-ink hover:text-tea-green-deep font-medium underline underline-offset-2"
                             >
                               {t("orders.editAddress")}
                             </button>
                           )}
                           {/* CVS: show contact info */}
                           {isCvsPending && (
-                            <p className="mt-2 text-xs text-tea-text-light">
+                            <p className="mt-2 text-xs text-tea-text-muted">
                               {t("orders.cvsChangeHint")}
-                              <a href="tel:0972619391" className="text-tea-green hover:underline mx-1">0972-619-391</a>
+                              <a href="tel:0972619391" className="text-tea-green-ink hover:underline mx-1">0972-619-391</a>
                               {t("modal.or")}
-                              <a href="mailto:qdbzdt2846@gmail.com" className="text-tea-green hover:underline ml-1">qdbzdt2846@gmail.com</a>
+                              <a href="mailto:qdbzdt2846@gmail.com" className="text-tea-green-ink hover:underline ml-1">qdbzdt2846@gmail.com</a>
                             </p>
                           )}
                         </div>
@@ -1084,7 +1084,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                                 <button
                                   onClick={() => handleOrderRetry(order.id, order.payment_method)}
                                   disabled={orderRetryingId === order.id}
-                                  className="bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors"
+                                  className="bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-60 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors"
                                 >
                                   {orderRetryingId === order.id ? t("orders.retrying") : t("orders.retryPayment")}
                                 </button>
@@ -1116,7 +1116,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
           <div className="absolute inset-0 bg-black/40" onClick={() => { if (!cancelling) setCancelConfirmId(null); }} />
           <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
             <h3 className="font-semibold text-tea-text text-lg mb-2">{t("modal.cancelOrderTitle")}</h3>
-            <p className="text-sm text-tea-text-light mb-5">
+            <p className="text-sm text-tea-text-muted mb-5">
               {t("modal.cancelOrderDesc")}
             </p>
             {cancelError && (
@@ -1151,9 +1151,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 <>
                   <h3 className="font-semibold text-tea-text text-lg mb-2">{t("modal.cancelBookingDone")}</h3>
                   {cancelBookingWasPending ? (
-                    <p className="text-sm text-tea-text-light mb-5">{t("modal.cancelBookingPendingDesc")}</p>
+                    <p className="text-sm text-tea-text-muted mb-5">{t("modal.cancelBookingPendingDesc")}</p>
                   ) : (
-                    <p className="text-sm text-tea-text-light mb-2">
+                    <p className="text-sm text-tea-text-muted mb-2">
                       {t("modal.cancelBookingRefund")}
                       {cancelBookingResult.refundAmount > 0
                         ? <strong className="text-tea-text"> NT$ {cancelBookingResult.refundAmount.toLocaleString()}</strong>
@@ -1162,11 +1162,11 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     </p>
                   )}
                   {cancelBookingResult.refundAmount > 0 && (
-                    <p className="text-xs text-tea-text-light mb-5">{t("modal.cancelBookingRefundNote")}</p>
+                    <p className="text-xs text-tea-text-muted mb-5">{t("modal.cancelBookingRefundNote")}</p>
                   )}
                   <button
                     onClick={() => { setCancelBookingId(null); setCancelBookingResult(null); }}
-                    className="w-full px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition"
+                    className="w-full px-4 py-2.5 rounded-xl bg-tea-green-ink hover:bg-tea-green-deep text-white text-sm font-medium transition"
                   >
                     {t("modal.confirm")}
                   </button>
@@ -1175,15 +1175,15 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 <>
                   <h3 className="font-semibold text-tea-text text-lg mb-2">{t("modal.cancelBookingTitle")}</h3>
                   {cancelBookingWasPending ? (
-                    <p className="text-sm text-tea-text-light mb-4">{t("modal.cancelBookingPendingConfirmDesc")}</p>
+                    <p className="text-sm text-tea-text-muted mb-4">{t("modal.cancelBookingPendingConfirmDesc")}</p>
                   ) : (
                     <>
-                      <p className="text-sm text-tea-text-light mb-1">{t("modal.cancelBookingPolicyDesc")}</p>
+                      <p className="text-sm text-tea-text-muted mb-1">{t("modal.cancelBookingPolicyDesc")}</p>
                       <div className="bg-tea-cream-light rounded-xl px-4 py-3 mb-4 text-xs space-y-1">
-                        <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refund7days")}</span><span className="text-tea-green font-medium">{t("modal.refund100")}</span></div>
-                        <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refund3to6days")}</span><span className="text-amber-600 font-medium">{t("modal.refund50")}</span></div>
-                        <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refund1to2days")}</span><span className="text-amber-600 font-medium">{t("modal.refund20")}</span></div>
-                        <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refundUnder24h")}</span><span className="text-rose-500 font-medium">{t("modal.noRefund")}</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-muted">{t("modal.refund7days")}</span><span className="text-tea-green-ink font-medium">{t("modal.refund100")}</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-muted">{t("modal.refund3to6days")}</span><span className="text-amber-600 font-medium">{t("modal.refund50")}</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-muted">{t("modal.refund1to2days")}</span><span className="text-amber-600 font-medium">{t("modal.refund20")}</span></div>
+                        <div className="flex justify-between"><span className="text-tea-text-muted">{t("modal.refundUnder24h")}</span><span className="text-rose-500 font-medium">{t("modal.noRefund")}</span></div>
                       </div>
                     </>
                   )}
@@ -1261,7 +1261,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               <button
                 onClick={handleSubmitReview}
                 disabled={reviewSubmitting}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition disabled:opacity-60"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green-ink hover:bg-tea-green-deep text-white text-sm font-medium transition disabled:opacity-60"
               >
                 {reviewSubmitting ? t("modal.submitting") : t("modal.submitReview")}
               </button>
@@ -1276,7 +1276,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
           <div className="absolute inset-0 bg-black/40" onClick={() => { if (!savingAddress) setEditAddressOrder(null); }} />
           <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
             <h3 className="font-semibold text-tea-text text-lg mb-1">{t("modal.editAddressTitle")}</h3>
-            <p className="text-xs text-tea-text-light mb-4">{t("modal.orderNumber", { id: shortId(editAddressOrder.id) })}</p>
+            <p className="text-xs text-tea-text-muted mb-4">{t("modal.orderNumber", { id: shortId(editAddressOrder.id) })}</p>
             <form onSubmit={handleSaveAddress} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-tea-text mb-1.5">{t("modal.editAddressCity")}</label>
@@ -1314,7 +1314,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 <button
                   type="submit"
                   disabled={savingAddress}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition disabled:opacity-60"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green-ink hover:bg-tea-green-deep text-white text-sm font-medium transition disabled:opacity-60"
                 >
                   {savingAddress ? t("modal.editAddressSaving") : t("modal.editAddressSave")}
                 </button>

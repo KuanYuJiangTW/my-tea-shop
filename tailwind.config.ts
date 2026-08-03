@@ -29,6 +29,8 @@ const config: Config = {
           "green-mist": "#EBF3EE",
           "green-dark": "#5C7A67",
           "green-ink": "#58745F",   // 互動綠：連結／按鈕底／圖示，四種淺底皆 ≥4.54
+          "green-deep": "#4D6954",  // green-ink 的 hover 態。舊的 green-dark(#5C7A67) 比
+                                    // green-ink 還亮，直接沿用會讓 hover 反向變亮。白字 6.06
           cream: "#F5F0E8",
           "cream-light": "#FAF7F2",
           "cream-dark": "#EDE8DC",

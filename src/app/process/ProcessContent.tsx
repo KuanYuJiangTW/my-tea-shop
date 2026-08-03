@@ -28,18 +28,18 @@ const teaColors: Record<TeaKey, string> = {
 
 /** 每道工序的卡片底色；分歧段會另外套容器底色，故此處僅負責卡片本身 */
 const stepColors: Record<StepKey, { color: string; accent: string }> = {
-  pick: { color: "bg-tea-green-mist", accent: "text-tea-green" },
+  pick: { color: "bg-tea-green-mist", accent: "text-tea-green-ink" },
   witherSun: { color: "bg-amber-50", accent: "text-amber-600" },
   witherIndoor: { color: "bg-green-50", accent: "text-green-700" },
-  shake: { color: "bg-tea-green-mist", accent: "text-tea-green" },
+  shake: { color: "bg-tea-green-mist", accent: "text-tea-green-ink" },
   fix: { color: "bg-orange-50", accent: "text-orange-600" },
   roll: { color: "bg-tea-cream", accent: "text-tea-text" },
   ferment: { color: "bg-red-50", accent: "text-red-700" },
   dryFirst: { color: "bg-amber-50", accent: "text-amber-700" },
   ballRoll: { color: "bg-tea-cream", accent: "text-tea-text" },
-  dryFinal: { color: "bg-green-50", accent: "text-tea-green" },
+  dryFinal: { color: "bg-green-50", accent: "text-tea-green-ink" },
   roast: { color: "bg-amber-50", accent: "text-amber-700" },
-  pack: { color: "bg-tea-green-mist", accent: "text-tea-green" },
+  pack: { color: "bg-tea-green-mist", accent: "text-tea-green-ink" },
 };
 
 const teaKeys = teaProcesses.map((t) => t.key);
@@ -236,10 +236,10 @@ export default function ProcessContent({ experiences, contents }: Props) {
           <div className="absolute -bottom-16 -right-16 w-64 h-64 bg-tea-cream/50 rounded-full" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">{t("tableTitle")}</p>
+          <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-5">{t("tableTitle")}</p>
           <h1 className="font-serif text-5xl md:text-6xl font-bold text-tea-text mb-5">{t("pageTitle")}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
-          <p className="text-tea-text-light text-lg max-w-xl mx-auto leading-relaxed">{t("pageTagline")}</p>
+          <p className="text-tea-text-muted text-lg max-w-xl mx-auto leading-relaxed">{t("pageTagline")}</p>
         </div>
       </section>
 
@@ -247,7 +247,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("divergence.insightTitle")}</h2>
-          <p className="text-tea-text-light leading-relaxed max-w-2xl mx-auto mb-10">
+          <p className="text-tea-text-muted leading-relaxed max-w-2xl mx-auto mb-10">
             {t("divergence.insightDesc")}
           </p>
           <div className="flex flex-col md:flex-row items-stretch gap-3 text-left">
@@ -264,12 +264,12 @@ export default function ProcessContent({ experiences, contents }: Props) {
                   >
                     <div
                       className={`text-xs font-bold tracking-wider mb-2 ${
-                        isDivergence ? "text-tea-green" : "text-tea-text-light"
+                        isDivergence ? "text-tea-green-ink" : "text-tea-text-muted"
                       }`}
                     >
                       {t(`divergence.${section.titleKey}`)}
                     </div>
-                    <p className="text-sm text-tea-text-light leading-relaxed">
+                    <p className="text-sm text-tea-text-muted leading-relaxed">
                       {t(`divergence.${section.descKey}`)}
                     </p>
                   </div>
@@ -320,8 +320,8 @@ export default function ProcessContent({ experiences, contents }: Props) {
                     onClick={() => selectTea(tea.key)}
                     className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tea-green focus-visible:ring-offset-2 ${
                       isActive
-                        ? "bg-tea-green text-white shadow-sm"
-                        : "bg-tea-green-mist text-tea-text-light hover:bg-tea-green/20 hover:text-tea-green"
+                        ? "bg-tea-green-ink text-white shadow-sm"
+                        : "bg-tea-green-mist text-tea-text-muted hover:bg-tea-green/20 hover:text-tea-green-ink"
                     }`}
                   >
                     {t(`teas.${tea.key}.name`)}
@@ -330,7 +330,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
               })}
             </div>
             </div>
-            <p className="text-xs text-tea-text-light mt-1.5 text-center">{t("teaSelector.hint")}</p>
+            <p className="text-xs text-tea-text-muted mt-1.5 text-center">{t("teaSelector.hint")}</p>
           </div>
 
           {/* 下排：工序（橫向捲動——工序數已達 10–12，grid 會擠成多排） */}
@@ -350,15 +350,15 @@ export default function ProcessContent({ experiences, contents }: Props) {
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 motion-reduce:transition-none ${
                         isActive
-                          ? "bg-tea-green text-white scale-110 shadow-md"
-                          : "bg-tea-green-mist text-tea-green group-hover:bg-tea-green group-hover:text-white"
+                          ? "bg-tea-green-ink text-white scale-110 shadow-md"
+                          : "bg-tea-green-mist text-tea-green-ink group-hover:bg-tea-green-ink group-hover:text-white"
                       }`}
                     >
                       {step.number}
                     </div>
                     <span
                       className={`text-xs mt-2 font-medium transition-colors leading-tight text-center ${
-                        isActive ? "text-tea-green" : "text-tea-text-light group-hover:text-tea-green"
+                        isActive ? "text-tea-green-ink" : "text-tea-text-muted group-hover:text-tea-green-ink"
                       }`}
                     >
                       {name}
@@ -385,13 +385,13 @@ export default function ProcessContent({ experiences, contents }: Props) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* 來源徽章與家族 */}
           <div className="flex flex-wrap items-center gap-2 mb-10">
-            <span className="inline-flex items-center gap-1.5 bg-tea-green-mist text-tea-green text-xs font-medium px-3 py-1.5 rounded-full">
+            <span className="inline-flex items-center gap-1.5 bg-tea-green-mist text-tea-green-ink text-xs font-medium px-3 py-1.5 rounded-full">
               {t(`sourcing.${teaProcess.sourcing}`)}・{t(`teas.${activeTea}.origin`)}
             </span>
-            <span className="inline-flex items-center bg-white border border-tea-green-pale text-tea-text-light text-xs font-medium px-3 py-1.5 rounded-full">
+            <span className="inline-flex items-center bg-white border border-tea-green-pale text-tea-text-muted text-xs font-medium px-3 py-1.5 rounded-full">
               {t(`families.${teaProcess.family}.name`)}
             </span>
-            <span className="inline-flex items-center bg-white border border-tea-green-pale text-tea-text-light text-xs font-medium px-3 py-1.5 rounded-full">
+            <span className="inline-flex items-center bg-white border border-tea-green-pale text-tea-text-muted text-xs font-medium px-3 py-1.5 rounded-full">
               {t("oxidationLabel", { value: t(`teas.${activeTea}.oxidation`) })}
             </span>
           </div>
@@ -411,12 +411,12 @@ export default function ProcessContent({ experiences, contents }: Props) {
                 <div className="mb-5">
                   <h2
                     className={`font-serif text-xl font-bold mb-1 ${
-                      isDivergence ? "text-tea-green" : "text-tea-text"
+                      isDivergence ? "text-tea-green-ink" : "text-tea-text"
                     }`}
                   >
                     {t(`divergence.${section.titleKey}`)}
                   </h2>
-                  <p className="text-sm text-tea-text-light leading-relaxed">
+                  <p className="text-sm text-tea-text-muted leading-relaxed">
                     {t(`divergence.${section.descKey}`)}
                   </p>
                 </div>
@@ -449,7 +449,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
                                   </span>
                                 </>
                               ) : (
-                                <span className="text-tea-text-light text-2xl leading-none" aria-hidden="true">
+                                <span className="text-tea-text-muted text-2xl leading-none" aria-hidden="true">
                                   —
                                 </span>
                               )}
@@ -466,17 +466,17 @@ export default function ProcessContent({ experiences, contents }: Props) {
                                 {copy.name}
                               </h3>
                               {step.state !== "common" && (
-                                <span className="text-xs font-medium text-tea-green bg-white/80 px-2.5 py-1 rounded-full">
+                                <span className="text-xs font-medium text-tea-green-ink bg-white/80 px-2.5 py-1 rounded-full">
                                   {t(`stepState.${step.state}`)}
                                 </span>
                               )}
                             </div>
 
                             {skipped ? (
-                              <p className="text-tea-text-light leading-relaxed">{copy.skipReason}</p>
+                              <p className="text-tea-text-muted leading-relaxed">{copy.skipReason}</p>
                             ) : (
                               <>
-                                <p className="text-tea-text-light leading-relaxed mb-4">{copy.desc}</p>
+                                <p className="text-tea-text-muted leading-relaxed mb-4">{copy.desc}</p>
                                 <div className="inline-flex items-start gap-2 bg-white/70 rounded-2xl px-4 py-2">
                                   <svg
                                     width="14"
@@ -485,13 +485,13 @@ export default function ProcessContent({ experiences, contents }: Props) {
                                     fill="none"
                                     stroke="currentColor"
                                     strokeWidth="2"
-                                    className="text-tea-green flex-shrink-0 mt-0.5"
+                                    className="text-tea-green-ink flex-shrink-0 mt-0.5"
                                     aria-hidden="true"
                                   >
                                     <circle cx="12" cy="12" r="10" />
                                     <polyline points="12 6 12 12 16 14" />
                                   </svg>
-                                  <span className="text-xs text-tea-text-light leading-relaxed">{copy.detail}</span>
+                                  <span className="text-xs text-tea-text-muted leading-relaxed">{copy.detail}</span>
                                 </div>
                               </>
                             )}
@@ -508,10 +508,10 @@ export default function ProcessContent({ experiences, contents }: Props) {
           {/* 工藝取捨 */}
           <div className="bg-tea-cream rounded-3xl p-7 md:p-9 mt-12">
             <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">{t("craftNote.title")}</h2>
-            <p className="text-tea-text-light leading-relaxed mb-6">{t(`craftNote.${activeTea}`)}</p>
+            <p className="text-tea-text-muted leading-relaxed mb-6">{t(`craftNote.${activeTea}`)}</p>
             <div className="border-t border-tea-green-pale/60 pt-5">
               <h3 className="font-serif text-lg font-bold text-tea-text mb-2">{t("craftNote.roastTitle")}</h3>
-              <p className="text-tea-text-light leading-relaxed text-sm">{t("craftNote.roastNote")}</p>
+              <p className="text-tea-text-muted leading-relaxed text-sm">{t("craftNote.roastNote")}</p>
             </div>
           </div>
 
@@ -526,11 +526,11 @@ export default function ProcessContent({ experiences, contents }: Props) {
                 <div className="font-serif text-xl font-bold text-tea-text mb-1">
                   {isEn ? product.nameEn || product.name : product.name}
                 </div>
-                <p className="text-sm text-tea-text-light">{t("productCta.hint")}</p>
+                <p className="text-sm text-tea-text-muted">{t("productCta.hint")}</p>
               </div>
               <Link
                 href={lp("/products")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-7 py-3 rounded-full font-medium transition-colors motion-reduce:transition-none text-center shrink-0"
+                className="bg-tea-green-ink hover:bg-tea-green-deep text-white px-7 py-3 rounded-full font-medium transition-colors motion-reduce:transition-none text-center shrink-0"
               >
                 {t("productCta.label")}
               </Link>
@@ -543,7 +543,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
       <section className="py-16 bg-tea-green-mist">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-2 text-center">{t("matrix.title")}</h2>
-          <p className="text-tea-text-light text-center mb-10 max-w-xl mx-auto">{t("matrix.desc")}</p>
+          <p className="text-tea-text-muted text-center mb-10 max-w-xl mx-auto">{t("matrix.desc")}</p>
 
           <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
             <table className="w-full text-sm border-collapse min-w-[46rem]">
@@ -616,7 +616,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
                       <th
                         scope="row"
                         className={`text-left px-4 py-3 whitespace-nowrap font-medium ${
-                          isHighlight ? "text-tea-green" : "text-tea-text-light"
+                          isHighlight ? "text-tea-green-ink" : "text-tea-text-muted"
                         }`}
                       >
                         {t(`matrix.${rowKey}`)}
@@ -624,7 +624,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
                       {teaProcesses.map((tea) => (
                         <td
                           key={tea.key}
-                          className={`px-4 py-3 ${isHighlight ? "font-bold text-tea-green" : "text-tea-text"}`}
+                          className={`px-4 py-3 ${isHighlight ? "font-bold text-tea-green-ink" : "text-tea-text"}`}
                         >
                           {valueOf(tea.key)}
                         </td>
@@ -636,7 +636,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
             </table>
           </div>
 
-          <p className="text-xs text-tea-text-light text-center mt-5">{t("sourcing.note")}</p>
+          <p className="text-xs text-tea-text-muted text-center mt-5">{t("sourcing.note")}</p>
         </div>
       </section>
 
@@ -646,17 +646,17 @@ export default function ProcessContent({ experiences, contents }: Props) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">
+                <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-3">
                   {t("experienceCta.sectionLabel")}
                 </p>
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">
                   {t("experienceCta.title")}
                 </h2>
-                <p className="text-tea-text-light max-w-xl">{t("experienceCta.tagline")}</p>
+                <p className="text-tea-text-muted max-w-xl">{t("experienceCta.tagline")}</p>
               </div>
               <Link
                 href={lp("/experiences")}
-                className="hidden md:flex text-tea-green hover:text-tea-green-dark font-medium text-sm items-center gap-1 transition-colors shrink-0 ml-8"
+                className="hidden md:flex text-tea-green-ink hover:text-tea-green-deep font-medium text-sm items-center gap-1 transition-colors shrink-0 ml-8"
               >
                 {t("experienceCta.viewAll")}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -685,20 +685,20 @@ export default function ProcessContent({ experiences, contents }: Props) {
                       />
                     </div>
                     <div className="p-5">
-                      <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">
+                      <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green-ink transition-colors">
                         {isEn ? exp.nameEn || exp.name : exp.name}
                       </h3>
-                      <p className="text-tea-text-light text-sm leading-relaxed mb-4 line-clamp-2">
+                      <p className="text-tea-text-muted text-sm leading-relaxed mb-4 line-clamp-2">
                         {isEn ? content.taglineEn || content.tagline : content.tagline}
                       </p>
-                      <div className="flex items-center justify-between text-sm text-tea-text-light">
+                      <div className="flex items-center justify-between text-sm text-tea-text-muted">
                         <div className="flex items-center gap-3">
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-tea-green" />
+                            <Clock className="w-3.5 h-3.5 text-tea-green-ink" />
                             {t("experienceCta.duration", { hours: exp.durationHours })}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Users className="w-3.5 h-3.5 text-tea-green" />
+                            <Users className="w-3.5 h-3.5 text-tea-green-ink" />
                             {t("experienceCta.participants", {
                               min: exp.minParticipants,
                               max: exp.maxParticipants,
@@ -716,7 +716,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
             <div className="text-center mt-10">
               <Link
                 href={lp("/experiences")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-9 py-3.5 rounded-full font-medium transition-colors"
+                className="bg-tea-green-ink hover:bg-tea-green-deep text-white px-9 py-3.5 rounded-full font-medium transition-colors"
               >
                 {t("experienceCta.viewAll")}
               </Link>
@@ -747,7 +747,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
           </div>
           <Link
             href={lp("/products")}
-            className="bg-tea-green hover:bg-tea-green-dark text-white px-9 py-3.5 rounded-full font-medium transition-colors"
+            className="bg-tea-green-ink hover:bg-tea-green-deep text-white px-9 py-3.5 rounded-full font-medium transition-colors"
           >
             {t("shopCta")}
           </Link>

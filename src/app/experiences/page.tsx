@@ -36,10 +36,10 @@ export default async function ExperiencesPage() {
       {/* Hero */}
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-4">{t("sectionLabel")}</p>
+          <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-4">{t("sectionLabel")}</p>
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">{t("pageTitle")}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light max-w-lg mx-auto">{t("pageTagline")}</p>
+          <p className="text-tea-text-muted max-w-lg mx-auto">{t("pageTagline")}</p>
         </div>
       </div>
 
@@ -74,31 +74,31 @@ export default async function ExperiencesPage() {
                 </div>
 
                 <div className="p-6">
-                  <p className="text-tea-green text-xs tracking-widest uppercase mb-2">{exp.nameEn}</p>
-                  <h2 className="font-serif text-2xl font-bold text-tea-text mb-3 group-hover:text-tea-green transition-colors">
+                  <p className="text-tea-green-ink text-xs tracking-widest uppercase mb-2">{exp.nameEn}</p>
+                  <h2 className="font-serif text-2xl font-bold text-tea-text mb-3 group-hover:text-tea-green-ink transition-colors">
                     {isEn ? exp.nameEn : exp.name}
                   </h2>
-                  <p className="text-tea-text-light text-sm leading-relaxed mb-5">
+                  <p className="text-tea-text-muted text-sm leading-relaxed mb-5">
                     {(isEn && content.taglineEn) ? content.taglineEn : content.tagline}
                   </p>
-                  <div className="flex items-center gap-5 text-sm text-tea-text-light mb-5">
+                  <div className="flex items-center gap-5 text-sm text-tea-text-muted mb-5">
                     <span className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 text-tea-green" />
+                      <Clock className="w-4 h-4 text-tea-green-ink" />
                       {t("duration", { hours: exp.durationHours })}
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Users className="w-4 h-4 text-tea-green" />
+                      <Users className="w-4 h-4 text-tea-green-ink" />
                       {t("participants", { min: exp.minParticipants, max: exp.maxParticipants })}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs text-tea-text-light">{t("perPersonLabel")}</span>
+                      <span className="text-xs text-tea-text-muted">{t("perPersonLabel")}</span>
                       <span className="text-2xl font-bold text-tea-text ml-1">
                         NT$ {exp.price.toLocaleString()}
                       </span>
                     </div>
-                    <span className="bg-tea-green text-white text-sm px-5 py-2 rounded-full group-hover:bg-tea-green-dark transition-colors">
+                    <span className="bg-tea-green-ink text-white text-sm px-5 py-2 rounded-full group-hover:bg-tea-green-deep transition-colors">
                       {t("viewSessions")}
                     </span>
                   </div>
@@ -111,17 +111,17 @@ export default async function ExperiencesPage() {
         {/* 注意事項 */}
         <div className="mt-16 bg-tea-cream rounded-2xl p-8 border border-tea-green-pale">
           <h3 className="font-serif text-xl font-bold text-tea-text mb-4">{t("noticeTitle")}</h3>
-          <ul className="space-y-2 text-sm text-tea-text-light">
+          <ul className="space-y-2 text-sm text-tea-text-muted">
             <li>• {t("notice1")}</li>
             <li>• {t("notice2")}</li>
             <li>• {t("notice3")}</li>
             <li>• {t("notice4")}</li>
           </ul>
           <div className="mt-5 pt-5 border-t border-tea-green-pale flex items-center justify-between">
-            <p className="text-sm text-tea-text-light">{t("hasQuestions")}</p>
+            <p className="text-sm text-tea-text-muted">{t("hasQuestions")}</p>
             <Link
               href={lp("/faq")}
-              className="text-tea-green hover:text-tea-green-dark text-sm font-medium flex items-center gap-1 transition-colors"
+              className="text-tea-green-ink hover:text-tea-green-deep text-sm font-medium flex items-center gap-1 transition-colors"
             >
               {t("viewFAQ")}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

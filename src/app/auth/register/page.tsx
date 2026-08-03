@@ -136,19 +136,19 @@ function RegisterForm() {
             </svg>
           </div>
           <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">{t("success.title")}</h2>
-          <p className="text-tea-text-light text-sm leading-relaxed mb-2">
+          <p className="text-tea-text-muted text-sm leading-relaxed mb-2">
             {t.rich("success.checkEmail", { email, strong: (chunks) => <strong className="text-tea-text">{chunks}</strong> })}
           </p>
-          <p className="text-tea-text-light text-sm leading-relaxed mb-8">
+          <p className="text-tea-text-muted text-sm leading-relaxed mb-8">
             {t("success.clickLink")}
           </p>
           <Link
             href={lp("/auth/login")}
-            className="inline-block px-8 py-3 bg-tea-green hover:bg-tea-green-dark text-white rounded-full font-medium text-sm transition-colors"
+            className="inline-block px-8 py-3 bg-tea-green-ink hover:bg-tea-green-deep text-white rounded-full font-medium text-sm transition-colors"
           >
             {t("success.goLogin")}
           </Link>
-          <p className="text-xs text-tea-text-light mt-4">{t("success.checkSpam")}</p>
+          <p className="text-xs text-tea-text-muted mt-4">{t("success.checkSpam")}</p>
         </div>
       </div>
     );
@@ -168,7 +168,7 @@ function RegisterForm() {
             <span className="font-serif text-xl font-bold text-tea-text block">霧抉茶</span>
           </Link>
           <h1 className="text-2xl font-bold text-tea-text mt-4 mb-1">{t("title")}</h1>
-          <p className="text-sm text-tea-text-light">{t("subtitle")}</p>
+          <p className="text-sm text-tea-text-muted">{t("subtitle")}</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-8">
@@ -219,7 +219,7 @@ function RegisterForm() {
           {/* 分隔線 */}
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-tea-green-pale" />
-            <span className="text-xs text-tea-text-light">{t("orEmail")}</span>
+            <span className="text-xs text-tea-text-muted">{t("orEmail")}</span>
             <div className="flex-1 h-px bg-tea-green-pale" />
           </div>
 
@@ -300,18 +300,18 @@ function RegisterForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
+              className="w-full py-3 bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
             >
               {loading ? t("registering") : t("registerBtn")}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-sm text-tea-text-light mt-6">
+        <p className="text-center text-sm text-tea-text-muted mt-6">
           {t("haveAccount")}{" "}
           <Link
             href={`${lp("/auth/login")}${redirectTo !== lp("/account") ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`}
-            className="text-tea-green hover:text-tea-green-dark font-medium transition-colors"
+            className="text-tea-green-ink hover:text-tea-green-deep font-medium transition-colors"
           >
             {t("loginLink")}
           </Link>
