@@ -200,9 +200,3 @@
 - 代價：三輪無謂的來回與一次錯誤歸因。真正原因是**該 CLI 根本沒讀 `tailwind.config.ts`**（TS config 需要 loader，CLI 這條路徑沒載到），產物裡只有 Tailwind 內建 utility。我先前看到 `.rounded-2xl`、`.p-6` 有生成就以為「config 有讀到」，但那些全是內建的——我挑的對照組沒有鑑別力
 - 規則：**驗證 Tailwind 產物一律以 `npm run build` 的 `.next` 產物為準，不要用 `npx tailwindcss` CLI**（本專案是 TS config，CLI 讀不到）。若非用不可，對照組必須挑**只有自訂 config 才會產生**的 class（如 `bg-tea-green`），不能挑內建 class——對照組挑錯等於沒有對照組
 - 去處：暫存於此（JUDG-2「完成要有證據」的補充：證據還要有鑑別力，「有東西生成」不等於「我的東西生成」）
-
-## 2026-08-04 perl -pi 批次改檔後，dev server 500 且重啟無效——是 .next 的 Tailwind 快取
-- 情境：AA 遷移時用 `xargs perl -pi -e 's/.../.../g'` 一次改 39 個 tsx。之後 dev server 全站 500，錯誤是 ``ENOENT: no such file or directory, stat 'src/components/Footer.tsx'``（但該檔明明存在且可讀）。我第一反應是「perl 在 Windows 上沒給備份副檔名，把檔案刪了」
-- 代價：一次不必要的恐慌與兩輪白費的 dev server 重啟。實際上**一個檔案都沒少**（`git status` 全是 M、無 D，行數與 HEAD 一致）。真正原因是 `perl -i` 就地改檔會 unlink＋rename，Tailwind 的 `resolveChangedFiles` 剛好在那個空窗 stat 到不存在的路徑，**並把錯誤寫進 `.next` 快取**——所以 restart dev server 沒用，錯誤是從快取讀回來的
-- 規則：**批次改檔後若 dev server 報 ENOENT 但檔案存在，先 `rm -rf .next` 再重啟，不要懷疑檔案毀損**。判斷檔案有沒有真的出事，用 `git status -s | grep '^ D'`（有無刪除）＋逐檔比對 `wc -l` 與 `git show HEAD:<file> | wc -l`（有無截斷），不要憑錯誤訊息推論
-- 去處：暫存於此（與同日「對照組要有鑑別力」同源：先確認事實，再解釋現象）
