@@ -518,3 +518,19 @@ Tailwind 產物一律以 `npm run build` 為準
   dev server 實跑確認卡片圓角 16px、陰影為 `rgba(61,74,66,…)` 而非純黑、
   `transitionDuration` 0.2s、`ease` 為 `cubic-bezier(0.2,0,0,1)`、`no-scrollbar` 的
   `scrollbarWidth` 已回傳 `none`
+
+**第三波（2026-08-04）：`docs/design-system.md` ＋ 修 `tasks.md`**（commit `f26ecf9`）
+- 文件涵蓋：三條原則（含 token 平台無關的硬性條件）／色彩兩層對照／對比度基準與
+  **已知不合格清單**／字體來源與可用字重／非顏色四軸／外包交付規格／施工邊界／待遷移清單
+- **最實用的一節是「給生成工具的約束」**：附可直接貼的 prompt，明訂只出三色相階調、
+  圓角限四階、陰影限茶墨色、對比 ≥4.5、**不要輸出程式碼**。
+  這是把「用 Codex 做視覺」這件事變安全的關鍵——交付物換成圖與說明，不是 code
+- `tasks.md` 修兩處：L26（200 點／100 倍數／10% → 10 點／無倍數／依等級 10-15-20%）
+  與 L34（移除已不存在的「倍數」驗證項）。**openspec 規格未動**，它本來就是最新的
+- 文件數字已逐條複查：hex 746/31、版面慣例 54/29、tea 十二色、utility key 全在 config、
+  `select.tsx` 零引用、`border-beam` 前台無使用、所有引用路徑存在
+- 本次僅動 markdown，無程式碼改動故未跑 `/verify`（證據為上述存在性複查）
+
+**待使用者拍板**：是否把 `docs/design-system.md` 加進 `CLAUDE.md` 的路由表
+（情境「要動視覺／介面」）。依 MAINT-1，改 `CLAUDE.md` 要先問使用者。
+不加的話，未來 session 不會知道有這份文件——文件沒人讀等於沒寫。
