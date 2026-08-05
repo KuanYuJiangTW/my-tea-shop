@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Favicon：不是 Header logo 的等比縮小版。
+    Header 那顆有雙層綠＋三條 1.5px 的莖線，在 16px 會糊成一團綠色，
+    且淺色葉子放在瀏覽器的淺色分頁列上幾乎看不見。
+    這裡改為：深色底 chip（#3D4A42，品牌深色）＋單層淺綠葉（#C8DDD0，對比 6.52），
+    葉子放大到幾乎滿版，只保留一條中脈當識別特徵。深底讓它在淺色與深色分頁列都站得住。
+  -->
+  <rect width="32" height="32" rx="7" fill="#3D4A42"/>
+  <path
+    d="M16 4.2C16 4.2 4.8 12.6 4.8 20.6C4.8 25.7 9.8 29.8 16 29.8C22.2 29.8 27.2 25.7 27.2 20.6C27.2 12.6 16 4.2 16 4.2Z"
+    fill="#C8DDD0"
+  />
+  <path
+    d="M16 28V12"
+    stroke="#3D4A42"
+    stroke-width="2.6"
+    stroke-linecap="round"
+  />
+</svg>

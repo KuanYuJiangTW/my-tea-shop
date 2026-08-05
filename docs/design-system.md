@@ -226,8 +226,27 @@ tabular 數字、五態完整性**（載入／空／錯誤／成功／禁用）�
 - [ ] 門面五件打磨：ProductCard、場次日曆、金額摘要卡、Header、**付款轉跳與 `/order/result`
       的等待／過渡狀態**
 - [ ] Email 樣板脫離 token 體系（`src/lib/email.ts` 內聯 hex）
-- [ ] favicon 與 app icon（正式站目前沒有）
+- [x] ~~favicon 與 app icon~~ → 已完成，見下方「品牌識別資產」
 - [ ] 深色模式實作（綁後台重構）
+
+### 品牌識別資產
+
+| 檔案 | 用途 | 產生方式 |
+|---|---|---|
+| `src/app/favicon.ico` | 舊版瀏覽器、爬蟲慣例路徑 | 由 `icon.svg` 光柵化，內含 16/32/48 三個尺寸 |
+| `src/app/icon.svg` | 現代瀏覽器分頁列（可縮放） | 手繪 |
+| `src/app/apple-icon.tsx` | iOS 主畫面 180×180 | `ImageResponse`（同 `opengraph-image.tsx` 慣例） |
+
+**favicon 不是 Header logo 的等比縮小版**，這是刻意的。Header 那顆（`Header.tsx:63-79`）有
+雙層綠與三條 1.5px 莖線，在 16px 會糊成一團，且淺色葉子放在淺色分頁列上幾乎看不見。
+favicon 改為：深色 chip（`#3D4A42`）＋單層淺綠葉（`#C8DDD0`，對比 6.52）＋一條中脈。
+深底讓它在淺色與深色分頁列都站得住。
+
+**中脈的描邊寬度是實測出來的**：初版 1.8（於 32 viewBox）在 16px 會被抗鋸齒吃掉，
+加粗到 2.6 才在 16/32/64/180 全部可辨。改動 icon 時請重跑這個檢查，不要只看大圖好不好看。
+
+`favicon.ico` 若要重新產生（改了 `icon.svg` 之後）：用 `sharp`（Next.js 已內建相依）
+逐尺寸原生渲染再手工組 ICO 容器——直接從大圖降採樣，小尺寸會糊。
 
 ### 已知但刻意不處理
 
