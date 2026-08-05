@@ -564,3 +564,26 @@ Tailwind 產物一律以 `npm run build` 為準
 需向小江取得實際值後再落進 repo。
 
 - 驗證：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤、`npm run build` 成功
+
+**第五波（2026-08-06）：favicon 與 app icon**（commit `36a1449`）
+- 正式站先前**完全沒有** favicon（`/favicon.ico` 回 404）。補齊三件：
+  `favicon.ico`（16/32/48 三尺寸）、`icon.svg`（現代瀏覽器）、`apple-icon.tsx`（iOS 180×180）
+- **設計決策：不是 Header logo 的等比縮小版**。Header 那顆（`Header.tsx:63-79`）雙層綠＋
+  三條 1.5px 莖線，16px 下糊成一團，且淺色葉子在淺色分頁列上幾乎看不見。
+  改為深色 chip `#3D4A42` ＋ 單層淺綠葉 `#C8DDD0`（對比 6.52）＋ 一條中脈
+- **中脈寬度是實測出來的，不是估的**：初版 1.8（32 viewBox）在 16px 被抗鋸齒吃掉，
+  加粗到 2.6 才在 16/32/64/180 全部可辨。葉形也放大（原本只佔 23% 面積）。
+  方法：把 SVG 光柵化到各尺寸後掃描像素，檢查葉子中段是否存在深色斷點
+- `favicon.ico` 產法：用 `sharp`（Next.js 內建相依，不需另裝）**逐尺寸原生渲染**
+  再手工組 ICO 容器（ICONDIR + ICONDIRENTRY + 內嵌 PNG）。
+  從大圖降採樣會讓 16px 糊掉，所以用 `density` 控制每個尺寸各自渲染
+- 驗證：ICO 容器解析正常（type=1、count=3）、三尺寸皆可解碼且與目錄記載相符、
+  每張都含深底與淺葉像素；dev server 實測三個路徑皆 200 且 content-type 正確、
+  Next.js link tag 齊全；`apple-icon` 透明度 0%（滿版方形，iOS 會自己套圓角，
+  自帶圓角會被切成雙層弧線）
+- 資產說明已寫進 `docs/design-system.md` 的「品牌識別資產」一節，含重新產生的方法
+
+**仍待小江提供**：Hero 遮罩的實際值。小江表示已調整成偏好的顏色（原本太亮不夠有質感），
+但改動不在本工作區——`page.tsx:103` 仍是 `bg-tea-text/55`，`git diff` 為空，
+瀏覽器渲染值也是 `rgba(61, 74, 66, 0.55)`。取得值後要用 `docs/contrast-audit.js`
+複驗 Hero 上那五段米色文字在新遮罩下的對比。
