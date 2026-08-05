@@ -73,7 +73,10 @@
      待後台重構那一波再開。
      ───────────────────────────────────────────────────────────────────────── */
   :root {
-    --background: oklch(0.9771 0.0074 80.72);         /* cream-light #FAF7F2 — 米白茶席 */
+    /* 維持純白，與 Production 一致。原本改為 cream-light #FAF7F2（「米白茶席」），
+       但小江拍板要回到 Production 的顏色，且各 section 本來就自帶 bg-tea-cream /
+       bg-white，body 底色只在少數縫隙露出——改它的收益低於「與線上一致」的價值。 */
+    --background: oklch(1 0 0);                       /* #FFFFFF */
     --foreground: oklch(0.3949 0.0214 158.26);        /* text        #3D4A42 */
     --card: oklch(1 0 0);                             /* 白 — 卡片浮在米白之上才有層次 */
     --card-foreground: oklch(0.3949 0.0214 158.26);

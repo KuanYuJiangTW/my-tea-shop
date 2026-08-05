@@ -587,3 +587,24 @@ Tailwind 產物一律以 `npm run build` 為準
 但改動不在本工作區——`page.tsx:103` 仍是 `bg-tea-text/55`，`git diff` 為空，
 瀏覽器渲染值也是 `rgba(61, 74, 66, 0.55)`。取得值後要用 `docs/contrast-audit.js`
 複驗 Hero 上那五段米色文字在新遮罩下的對比。
+
+**第六波（2026-08-06）：顏色回退到 Production**
+- 小江看了 preview 後判斷「顏色變得有點深色」，決定把顏色調回 Production 現狀。**這個判斷是對的**：
+  AA 遷移時我一刀切——連只需 3.0 門檻的圖示、大字、裝飾也一起改深，屬過度矯正；
+  另外 `text-muted` 為避免被誤讀為連結而把彩度由 0.047 砍到 0.021，副作用是次要文字整體變灰。
+  「變深＋變灰」疊加就是他感受到的沉
+- 前置查證：`origin/main` 在分岔後**零新 commit**，故 Production ＝ 本分支改動前的狀態，基準明確。
+  另確認 Production 的 Hero 遮罩也是 `bg-tea-text/55`——小江調整過的那版**不在 git 任何地方**
+- 執行：`git revert e9971a6`（非手工改回）。好處是歷史留著，日後若要「亮度回收版」
+  （按鈕用 `green-dark` 4.74、圖示與 ≥24px 大字保留 `tea-green` 走 3.0 門檻），
+  revert 那個 revert 即可重新套用 39 檔的替換再調亮
+- 另把 `--background` 由 cream-light `#FAF7F2` 改回純白（與 Production 一致）
+- **保留未動**：字體收斂、favicon 三件套、非顏色 token（圓角／陰影／間距／動態）、
+  語意 token 基礎、`design-system.md`、`contrast-audit.js`。這些與「變深」無關，是地基
+- `tea-green-ink` 與 `tea-text-muted` 兩色**保留在色盤中**，作為日後需要合規時的落點
+- 文件處置：`design-system.md` 2.3 節把三組對比由「已知不合格、待遷移」改記為
+  **「業主拍板的已知取捨，不列入待辦」**，數據與合規落點保留，並明寫「請勿再自行修正」
+- 驗證：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤、`build` 成功；
+  **逐色比對 27 種 `tea-*` 類名的出現次數與 `origin/main` 完全相同**；
+  瀏覽器實測 body `#FFFFFF`、主 CTA `#7D9B84`、次要內文 `#6B8872` 皆回到 Production，
+  而 `rounded-pill`(9999px) 與 `shadow-resting` 仍生效
