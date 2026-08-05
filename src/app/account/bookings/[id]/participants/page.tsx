@@ -158,7 +158,7 @@ export default function ParticipantsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-tea-cream-light flex items-center justify-center">
-        <p className="text-tea-text-muted text-sm">載入中…</p>
+        <p className="text-tea-text-light text-sm">載入中…</p>
       </div>
     );
   }
@@ -167,7 +167,7 @@ export default function ParticipantsPage() {
     return (
       <div className="min-h-screen bg-tea-cream-light flex flex-col items-center justify-center gap-4 px-4">
         <p className="text-rose-500 text-sm">{error}</p>
-        <Link href={lp("/account?tab=bookings")} className="text-tea-green-ink hover:underline text-sm">返回我的預約</Link>
+        <Link href={lp("/account?tab=bookings")} className="text-tea-green hover:underline text-sm">返回我的預約</Link>
       </div>
     );
   }
@@ -182,20 +182,20 @@ export default function ParticipantsPage() {
         {/* Back */}
         <Link
           href={lp("/account?tab=bookings")}
-          className="inline-flex items-center gap-1.5 text-sm text-tea-text-muted hover:text-tea-green-ink mb-6 transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-tea-text-light hover:text-tea-green mb-6 transition-colors"
         >
           <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
           我的預約
         </Link>
 
         <h1 className="font-serif text-2xl font-bold text-tea-text mb-1">補填參加者資料</h1>
-        <p className="text-sm text-tea-text-muted mb-6">活動當天須核對身分，請確認資料正確無誤。</p>
+        <p className="text-sm text-tea-text-light mb-6">活動當天須核對身分，請確認資料正確無誤。</p>
 
         {/* Progress */}
         <div className="bg-white rounded-2xl border border-tea-green-pale p-5 mb-6">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-tea-text">填寫進度</span>
-            <span className={`text-sm font-semibold ${isComplete ? "text-tea-green-ink" : "text-amber-600"}`}>
+            <span className={`text-sm font-semibold ${isComplete ? "text-tea-green" : "text-amber-600"}`}>
               {info?.filled} / {info?.total} 人
             </span>
           </div>
@@ -206,7 +206,7 @@ export default function ParticipantsPage() {
             />
           </div>
           {info?.dueAt && (
-            <p className={`mt-2 text-xs ${isDeadlinePassed ? "text-rose-500" : "text-tea-text-muted"}`}>
+            <p className={`mt-2 text-xs ${isDeadlinePassed ? "text-rose-500" : "text-tea-text-light"}`}>
               補填截止：{new Date(info.dueAt).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric" })}
               {isDeadlinePassed && "（已截止）"}
             </p>
@@ -226,9 +226,9 @@ export default function ParticipantsPage() {
                   <div className="text-sm">
                     <p className="font-medium text-tea-text">
                       {p.name}
-                      {p.is_primary && <span className="ml-1.5 text-[10px] bg-tea-green-mist text-tea-green-ink px-1.5 py-0.5 rounded-full">訂購人</span>}
+                      {p.is_primary && <span className="ml-1.5 text-[10px] bg-tea-green-mist text-tea-green px-1.5 py-0.5 rounded-full">訂購人</span>}
                     </p>
-                    <p className="text-tea-text-muted text-xs mt-0.5">
+                    <p className="text-tea-text-light text-xs mt-0.5">
                       身分證：{p.id_number} · 生日：{p.date_of_birth} · 緊急聯絡：{p.emergency_contact_name} {p.emergency_contact_phone}
                     </p>
                   </div>
@@ -245,7 +245,7 @@ export default function ParticipantsPage() {
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
             <p className="font-semibold text-tea-text mb-1">所有參加者資料已填寫完畢！</p>
-            <p className="text-sm text-tea-text-muted">活動當天請攜帶本人身分證備查。</p>
+            <p className="text-sm text-tea-text-light">活動當天請攜帶本人身分證備查。</p>
           </div>
         ) : isDeadlinePassed ? (
           <div className="bg-rose-50 rounded-2xl border border-rose-200 p-6 text-center">
@@ -339,11 +339,11 @@ export default function ParticipantsPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-8 py-2.5 bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-60 text-white rounded-full text-sm font-medium transition-colors"
+                  className="px-8 py-2.5 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-full text-sm font-medium transition-colors"
                 >
                   {submitting ? "送出中…" : `儲存第 ${(info?.filled ?? 0) + 1} 位參加者`}
                 </button>
-                <span className="text-xs text-tea-text-muted">還需填寫 {info?.remaining} 位</span>
+                <span className="text-xs text-tea-text-light">還需填寫 {info?.remaining} 位</span>
               </div>
             </form>
           </div>

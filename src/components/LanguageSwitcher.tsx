@@ -38,7 +38,7 @@ export function QuickLocaleSwitcher() {
     <button
       onClick={handleSwitch}
       disabled={isPending}
-      className="min-w-[36px] min-h-[36px] px-2 py-1 rounded-lg border border-tea-green/30 text-xs font-bold text-tea-green-ink hover:bg-tea-green-mist transition-colors"
+      className="min-w-[36px] min-h-[36px] px-2 py-1 rounded-lg border border-tea-green/30 text-xs font-bold text-tea-green hover:bg-tea-green-mist transition-colors"
       aria-label={targetLocale === "en" ? "Switch to English" : "切換為中文"}
     >
       {label}
@@ -84,21 +84,21 @@ export default function LanguageSwitcher({ size = "compact" }: LanguageSwitcherP
         disabled={isPending}
         className={`${btnBase} ${
           locale === "zh"
-            ? "text-tea-green-ink font-bold"
-            : "text-tea-text-muted hover:text-tea-green-ink"
+            ? "text-tea-green font-bold"
+            : "text-tea-text-light hover:text-tea-green"
         }${isLarge && locale === "zh" ? " bg-tea-green-mist" : ""}`}
         aria-label="切換為中文"
       >
         中文
       </button>
-      <span className="text-tea-text-muted/40" aria-hidden="true">/</span>
+      <span className="text-tea-text-light/40" aria-hidden="true">/</span>
       <button
         onClick={() => switchLocale("en")}
         disabled={isPending}
         className={`${btnBase} ${
           locale === "en"
-            ? "text-tea-green-ink font-bold"
-            : "text-tea-text-muted hover:text-tea-green-ink"
+            ? "text-tea-green font-bold"
+            : "text-tea-text-light hover:text-tea-green"
         }${isLarge && locale === "en" ? " bg-tea-green-mist" : ""}`}
         aria-label="Switch to English"
       >

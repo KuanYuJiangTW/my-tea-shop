@@ -66,16 +66,16 @@ export default async function FaqPage() {
       {/* Hero */}
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-4">FAQ</p>
+          <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-4">FAQ</p>
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">{t("pageTitle")}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-muted">{t("pageTagline")}</p>
+          <p className="text-tea-text-light">{t("pageTagline")}</p>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         {faqs.length === 0 ? (
-          <p className="text-center text-tea-text-muted py-16">{t("loading")}</p>
+          <p className="text-center text-tea-text-light py-16">{t("loading")}</p>
         ) : (
           <FaqClient faqs={faqs} locale={locale} />
         )}
@@ -83,10 +83,10 @@ export default async function FaqPage() {
         {/* 聯絡我們 */}
         <div className="mt-12 bg-tea-cream rounded-2xl p-8 text-center border border-tea-green-pale">
           <p className="font-serif text-xl font-bold text-tea-text mb-2">{t("moreQuestions")}</p>
-          <p className="text-tea-text-muted text-sm mb-5">{t("moreQuestionsDesc")}</p>
+          <p className="text-tea-text-light text-sm mb-5">{t("moreQuestionsDesc")}</p>
           <Link
             href={lp("/contact")}
-            className="bg-tea-green-ink hover:bg-tea-green-deep text-white px-7 py-2.5 rounded-full text-sm font-medium transition-colors inline-block"
+            className="bg-tea-green hover:bg-tea-green-dark text-white px-7 py-2.5 rounded-full text-sm font-medium transition-colors inline-block"
           >
             {t("contactBtn")}
           </Link>

@@ -114,11 +114,11 @@ export default function ContactClient() {
             <div className="space-y-5">
               {infoItems.map((item) => (
                 <div key={item.label} className="flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-tea-green-mist rounded-xl flex items-center justify-center text-tea-green-ink">
+                  <div className="flex-shrink-0 w-10 h-10 bg-tea-green-mist rounded-xl flex items-center justify-center text-tea-green">
                     {item.icon}
                   </div>
                   <div>
-                    <p className="text-xs text-tea-text-muted mb-0.5">{item.label}</p>
+                    <p className="text-xs text-tea-text-light mb-0.5">{item.label}</p>
                     <p className="text-tea-text text-sm font-medium">{item.value}</p>
                   </div>
                 </div>
@@ -130,7 +130,7 @@ export default function ContactClient() {
 
           <div className="bg-tea-green-mist rounded-2xl p-6">
             <p className="font-serif text-tea-text font-semibold mb-2">{t("info.bulkTitle")}</p>
-            <p className="text-tea-text-muted text-sm leading-relaxed">
+            <p className="text-tea-text-light text-sm leading-relaxed">
               {t("info.bulkDesc")}
             </p>
           </div>
@@ -146,10 +146,10 @@ export default function ContactClient() {
                 </svg>
               </div>
               <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">{t("form.successTitle")}</h3>
-              <p className="text-tea-text-muted text-sm mb-8">{t("form.successDesc")}</p>
+              <p className="text-tea-text-light text-sm mb-8">{t("form.successDesc")}</p>
               <button
                 onClick={() => { setStatus("idle"); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                className="bg-tea-green-ink hover:bg-tea-green-deep text-white px-8 py-3 rounded-full text-sm font-medium transition-colors"
+                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-full text-sm font-medium transition-colors"
               >
                 {t("form.sendAgain")}
               </button>
@@ -160,7 +160,7 @@ export default function ContactClient() {
               className="bg-white rounded-2xl shadow-sm border border-tea-green-pale/40 p-8 space-y-5"
             >
               <h2 className="font-serif text-2xl font-bold text-tea-text mb-1">{t("form.sendTitle")}</h2>
-              <p className="text-tea-text-muted text-sm mb-4">{t("form.sendSubtitle")}</p>
+              <p className="text-tea-text-light text-sm mb-4">{t("form.sendSubtitle")}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -201,10 +201,10 @@ export default function ContactClient() {
                   <button
                     type="button"
                     onClick={() => setSubjectOpen(!subjectOpen)}
-                    className={`${inputClass} flex items-center justify-between text-left ${!form.subject ? "text-tea-text-muted/50" : "text-tea-text"}`}
+                    className={`${inputClass} flex items-center justify-between text-left ${!form.subject ? "text-tea-text-light/50" : "text-tea-text"}`}
                   >
                     <span>{subjectOptions.find(o => o.value === form.subject)?.label ?? t("form.subjectDefault")}</span>
-                    <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-muted transition-transform duration-200 ${subjectOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${subjectOpen ? "rotate-180" : ""}`} />
                   </button>
                   {subjectOpen && (
                     <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-hidden">
@@ -218,8 +218,8 @@ export default function ContactClient() {
                           }}
                           className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                             form.subject === opt.value
-                              ? "bg-tea-green-mist text-tea-green-ink font-medium"
-                              : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green-ink"
+                              ? "bg-tea-green-mist text-tea-green font-medium"
+                              : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
                           }`}
                         >
                           {opt.label}
@@ -252,7 +252,7 @@ export default function ContactClient() {
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-60 text-white py-3.5 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2"
               >
                 {status === "submitting" ? (
                   <>
@@ -273,7 +273,7 @@ export default function ContactClient() {
                 )}
               </button>
 
-              <p className="text-center text-xs text-tea-text-muted">
+              <p className="text-center text-xs text-tea-text-light">
                 {t("form.privacyNote")}
               </p>
             </form>

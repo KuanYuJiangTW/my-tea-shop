@@ -95,12 +95,12 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
         <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">{t("successTitle")}</h3>
         {lineUrl && (
           <>
-            <p className="text-tea-text-muted text-sm mb-6">{t("successLine")}</p>
+            <p className="text-tea-text-light text-sm mb-6">{t("successLine")}</p>
             <a
               href={lineUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-tea-green-ink hover:bg-tea-green-deep text-white px-8 py-3 rounded-full text-sm font-medium transition-colors mb-4"
+              className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-full text-sm font-medium transition-colors mb-4"
             >
               {t("lineButton")}
             </a>
@@ -108,7 +108,7 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
         )}
         <button
           onClick={() => { setStatus("idle"); setForm(initialForm); }}
-          className="text-tea-text-muted hover:text-tea-green-ink text-sm underline mt-2"
+          className="text-tea-text-light hover:text-tea-green text-sm underline mt-2"
         >
           {t("sendAgain")}
         </button>
@@ -146,7 +146,7 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
               onClick={() => setForm((prev) => ({ ...prev, referralSource: opt }))}
               className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                 form.referralSource === opt
-                  ? "bg-tea-green-ink text-white border-tea-green"
+                  ? "bg-tea-green text-white border-tea-green"
                   : "bg-white text-tea-text border-tea-green-pale hover:border-tea-green"
               }`}
             >
@@ -180,7 +180,7 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
               onClick={() => togglePainPoint(opt)}
               className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                 form.painPoints.includes(opt)
-                  ? "bg-tea-green-ink text-white border-tea-green"
+                  ? "bg-tea-green text-white border-tea-green"
                   : "bg-white text-tea-text border-tea-green-pale hover:border-tea-green"
               }`}
             >
@@ -201,7 +201,7 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
               onClick={() => setForm((prev) => ({ ...prev, budgetRange: opt }))}
               className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                 form.budgetRange === opt
-                  ? "bg-tea-green-ink text-white border-tea-green"
+                  ? "bg-tea-green text-white border-tea-green"
                   : "bg-white text-tea-text border-tea-green-pale hover:border-tea-green"
               }`}
             >
@@ -222,7 +222,7 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
               onClick={() => setForm((prev) => ({ ...prev, timeline: opt }))}
               className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                 form.timeline === opt
-                  ? "bg-tea-green-ink text-white border-tea-green"
+                  ? "bg-tea-green text-white border-tea-green"
                   : "bg-white text-tea-text border-tea-green-pale hover:border-tea-green"
               }`}
             >
@@ -289,7 +289,7 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="w-full bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-60 text-white py-3.5 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2"
       >
         {status === "submitting" ? (
           <>

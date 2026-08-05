@@ -140,20 +140,20 @@ export default async function ExperienceDetailPage({ params }: Props) {
             <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <span className="text-xs text-tea-text-muted">{t("perCostLabel")}</span>
+                  <span className="text-xs text-tea-text-light">{t("perCostLabel")}</span>
                   <div className="text-3xl font-bold text-tea-text">NT$ {experience.price.toLocaleString()}</div>
                 </div>
                 {experience.requiresAdult && (
                   <span className="bg-tea-text text-tea-cream text-xs px-3 py-1 rounded-full">{t("adultOnly")}</span>
                 )}
               </div>
-              <div className="border-t border-tea-green-pale pt-4 space-y-2.5 text-sm text-tea-text-muted">
+              <div className="border-t border-tea-green-pale pt-4 space-y-2.5 text-sm text-tea-text-light">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-tea-green-ink shrink-0" />
+                  <Clock className="w-4 h-4 text-tea-green shrink-0" />
                   {t("durationLabel", { hours: experience.durationHours })}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-tea-green-ink shrink-0" />
+                  <Users className="w-4 h-4 text-tea-green shrink-0" />
                   {t("participantsLabel", { min: experience.minParticipants, max: experience.maxParticipants })}
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
             {/* 簡介 */}
             {content.tagline && (
-              <p className="text-tea-text-muted leading-relaxed">{(isEn && content.taglineEn) ? content.taglineEn : content.tagline}</p>
+              <p className="text-tea-text-light leading-relaxed">{(isEn && content.taglineEn) ? content.taglineEn : content.tagline}</p>
             )}
 
             {/* 包含項目 */}
@@ -172,8 +172,8 @@ export default async function ExperienceDetailPage({ params }: Props) {
                   <h2 className="font-serif text-xl font-bold text-tea-text mb-4">{t("includes")}</h2>
                   <ul className="space-y-2.5">
                     {items.map(item => (
-                      <li key={item} className="flex items-start gap-2.5 text-sm text-tea-text-muted">
-                        <CheckCircle className="w-4 h-4 text-tea-green-ink mt-0.5 shrink-0" />
+                      <li key={item} className="flex items-start gap-2.5 text-sm text-tea-text-light">
+                        <CheckCircle className="w-4 h-4 text-tea-green mt-0.5 shrink-0" />
                         {item}
                       </li>
                     ))}
@@ -190,7 +190,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
                   <h2 className="font-serif text-xl font-bold text-tea-text mb-4">{t("notes")}</h2>
                   <ul className="space-y-2.5">
                     {items.map(note => (
-                      <li key={note} className="flex items-start gap-2.5 text-sm text-tea-text-muted">
+                      <li key={note} className="flex items-start gap-2.5 text-sm text-tea-text-light">
                         <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                         {note}
                       </li>
@@ -212,13 +212,13 @@ export default async function ExperienceDetailPage({ params }: Props) {
             {/* 退款政策 */}
             <div className="bg-tea-cream rounded-2xl p-5 border border-tea-green-pale text-sm">
               <h3 className="font-medium text-tea-text mb-3">{tb("refundPolicy.title")}</h3>
-              <ul className="space-y-1.5 text-tea-text-muted">
-                <li className="flex justify-between"><span>{tb("refundPolicy.items.7days.label")}</span><span className="text-tea-green-ink font-medium">{tb("refundPolicy.items.7days.value")}</span></li>
+              <ul className="space-y-1.5 text-tea-text-light">
+                <li className="flex justify-between"><span>{tb("refundPolicy.items.7days.label")}</span><span className="text-tea-green font-medium">{tb("refundPolicy.items.7days.value")}</span></li>
                 <li className="flex justify-between"><span>{tb("refundPolicy.items.3to6days.label")}</span><span className="text-amber-600 font-medium">{tb("refundPolicy.items.3to6days.value")}</span></li>
                 <li className="flex justify-between"><span>{tb("refundPolicy.items.1to2days.label")}</span><span className="text-amber-600 font-medium">{tb("refundPolicy.items.1to2days.value")}</span></li>
                 <li className="flex justify-between"><span>{tb("refundPolicy.items.under24h.label")}</span><span className="text-red-500 font-medium">{tb("refundPolicy.items.under24h.value")}</span></li>
               </ul>
-              <p className="mt-3 text-xs text-tea-text-muted/70">{tb("refundPolicy.changeNote")}</p>
+              <p className="mt-3 text-xs text-tea-text-light/70">{tb("refundPolicy.changeNote")}</p>
             </div>
           </div>
 

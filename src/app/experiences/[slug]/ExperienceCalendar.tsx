@@ -117,7 +117,7 @@ export default function ExperienceCalendar({ experience }: Props) {
       {/* 星期標題 */}
       <div className="grid grid-cols-7 mb-2">
         {weekdays.map(d => (
-          <div key={d} className="text-center text-xs text-tea-text-muted py-2 font-medium">
+          <div key={d} className="text-center text-xs text-tea-text-light py-2 font-medium">
             {d}
           </div>
         ))}
@@ -125,7 +125,7 @@ export default function ExperienceCalendar({ experience }: Props) {
 
       {/* 日曆格子 */}
       {loading ? (
-        <div className="h-48 flex items-center justify-center text-tea-text-muted text-sm">
+        <div className="h-48 flex items-center justify-center text-tea-text-light text-sm">
           {t("loading")}
         </div>
       ) : (
@@ -162,7 +162,7 @@ export default function ExperienceCalendar({ experience }: Props) {
               >
                 {/* 日期數字 */}
                 <span className={`text-xs font-medium leading-none mt-1 ${
-                  past ? "text-tea-text-muted" : isSelected ? "text-tea-green-ink font-bold" : "text-tea-text"
+                  past ? "text-tea-text-light" : isSelected ? "text-tea-green font-bold" : "text-tea-text"
                 }`}>
                   {day}
                 </span>
@@ -201,21 +201,21 @@ export default function ExperienceCalendar({ experience }: Props) {
                 >
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5 text-tea-green-ink shrink-0" />
+                      <Clock className="w-3.5 h-3.5 text-tea-green shrink-0" />
                       <span className="text-sm font-semibold text-tea-text">
                         {s.startTime.slice(0, 5)}
                       </span>
-                      <span className="text-xs text-tea-text-muted">
+                      <span className="text-xs text-tea-text-light">
                         {t("duration", { hours: experience.durationHours })}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 pl-5">
                       {open ? (
-                        <span className="text-xs text-tea-green-ink font-medium">
+                        <span className="text-xs text-tea-green font-medium">
                           {t("remainingSpots", { count: remaining })}
                         </span>
                       ) : s.status === "full" ? (
-                        <span className="text-xs text-tea-text-muted bg-tea-text-light/10 px-2 py-0.5 rounded-full">
+                        <span className="text-xs text-tea-text-light bg-tea-text-light/10 px-2 py-0.5 rounded-full">
                           {t("full")}
                         </span>
                       ) : (
@@ -230,8 +230,8 @@ export default function ExperienceCalendar({ experience }: Props) {
                     onClick={() => router.push(lp(`/experiences/booking/${s.id}`))}
                     className={`text-sm font-medium px-4 py-2 rounded-xl transition-colors ${
                       open
-                        ? "bg-tea-green-ink text-white hover:bg-tea-green-deep cursor-pointer"
-                        : "bg-tea-text-light/10 text-tea-text-muted cursor-not-allowed"
+                        ? "bg-tea-green text-white hover:bg-tea-green-dark cursor-pointer"
+                        : "bg-tea-text-light/10 text-tea-text-light cursor-not-allowed"
                     }`}
                   >
                     {open ? t("bookBtn") : t("unavailableBtn")}
@@ -244,7 +244,7 @@ export default function ExperienceCalendar({ experience }: Props) {
       )}
 
       {/* 圖例 */}
-      <div className="flex flex-wrap gap-3 sm:gap-4 mt-5 text-xs text-tea-text-muted">
+      <div className="flex flex-wrap gap-3 sm:gap-4 mt-5 text-xs text-tea-text-light">
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-tea-green inline-block" />
           {t("legend.available")}
@@ -260,8 +260,8 @@ export default function ExperienceCalendar({ experience }: Props) {
       </div>
 
       {/* 開課門檻提示 */}
-      <div className="mt-5 flex items-start gap-2 bg-tea-cream rounded-xl p-4 text-sm text-tea-text-muted">
-        <Users className="w-4 h-4 text-tea-green-ink mt-0.5 shrink-0" />
+      <div className="mt-5 flex items-start gap-2 bg-tea-cream rounded-xl p-4 text-sm text-tea-text-light">
+        <Users className="w-4 h-4 text-tea-green mt-0.5 shrink-0" />
         <span>
           {t("minParticipantsNotice", { min: experience.minParticipants })}
           {" "}{t("cancelNotice")}

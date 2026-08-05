@@ -547,13 +547,13 @@ export default function CheckoutClient() {
             </svg>
           </div>
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("codSuccess.title")}</h2>
-          <p className="text-tea-text-muted mb-2">{t("codSuccess.desc")}</p>
-          <p className="text-tea-text-muted text-sm mb-2">
+          <p className="text-tea-text-light mb-2">{t("codSuccess.desc")}</p>
+          <p className="text-tea-text-light text-sm mb-2">
             {t("codSuccess.deliveryLabel")}{delivery === "home" ? t("codSuccess.homeDelivery") : t("codSuccess.cvsDelivery", { name: cvsName })}
           </p>
-          <p className="text-tea-text-muted text-sm mb-2">{t("codSuccess.paymentLabel")}</p>
+          <p className="text-tea-text-light text-sm mb-2">{t("codSuccess.paymentLabel")}</p>
           {user?.email ? (
-            <p className="text-tea-text-muted text-sm mb-10">{t("codSuccess.emailSent", { email: user.email })}</p>
+            <p className="text-tea-text-light text-sm mb-10">{t("codSuccess.emailSent", { email: user.email })}</p>
           ) : (
             <p className="text-sm text-amber-600 mb-10">
               {t("codSuccess.noEmailPrefix")}{" "}
@@ -561,7 +561,7 @@ export default function CheckoutClient() {
               {" "}{t("codSuccess.noEmailSuffix")}
             </p>
           )}
-          <Link href={lp("/")} className="bg-tea-green-ink hover:bg-tea-green-deep text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+          <Link href={lp("/")} className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors">
             {t("codSuccess.backHome")}
           </Link>
         </div>
@@ -573,8 +573,8 @@ export default function CheckoutClient() {
     return (
       <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-tea-text-muted mb-6">{t("emptyCart")}</p>
-          <Link href={lp("/products")} className="bg-tea-green-ink text-white px-8 py-3.5 rounded-full font-medium">
+          <p className="text-tea-text-light mb-6">{t("emptyCart")}</p>
+          <Link href={lp("/products")} className="bg-tea-green text-white px-8 py-3.5 rounded-full font-medium">
             {t("shopNow")}
           </Link>
         </div>
@@ -610,13 +610,13 @@ export default function CheckoutClient() {
                     {user?.email ? (
                       <>
                         <input type="email" name="email" value={form.email} readOnly placeholder="your@email.com" className={inputCls() + " cursor-not-allowed opacity-70"} />
-                        <p className="mt-1 text-xs text-tea-text-muted">{t("emailReadonlyHint")}</p>
+                        <p className="mt-1 text-xs text-tea-text-light">{t("emailReadonlyHint")}</p>
                       </>
                     ) : (
                       <>
                         <input type="email" name="email" value={form.email} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, email: undefined })); }} placeholder="your@email.com" className={inputCls(!!formErrors.email)} />
                         {formErrors.email && <p className="mt-1 text-xs text-rose-500">{formErrors.email}</p>}
-                        <p className="mt-1 text-xs text-tea-text-muted">{t("emailHint")}</p>
+                        <p className="mt-1 text-xs text-tea-text-light">{t("emailHint")}</p>
                       </>
                     )}
                   </div>
@@ -641,13 +641,13 @@ export default function CheckoutClient() {
                     <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${opt.disabled ? "cursor-not-allowed opacity-50 border-tea-green-pale bg-gray-50" : `cursor-pointer ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}`}>
                       <input type="radio" name="payment" value={opt.value} checked={payment === opt.value}
                         onChange={() => !opt.disabled && selectPayment(opt.value)} disabled={opt.disabled} className="accent-tea-green mt-0.5" />
-                      <div className={`mt-0.5 ${opt.disabled ? "text-gray-300" : payment === opt.value ? "text-tea-green-ink" : "text-tea-text-muted"}`}>{opt.icon}</div>
+                      <div className={`mt-0.5 ${opt.disabled ? "text-gray-300" : payment === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <span className={`text-sm font-medium ${opt.disabled ? "text-gray-400" : "text-tea-text"}`}>{opt.label}</span>
-                          {opt.disabled && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-tea-green/10 text-tea-green-ink">{t("comingSoon")}</span>}
+                          {opt.disabled && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-tea-green/10 text-tea-green">{t("comingSoon")}</span>}
                         </div>
-                        <div className={`text-xs mt-0.5 ${opt.disabled ? "text-gray-300" : "text-tea-text-muted"}`}>{opt.desc}</div>
+                        <div className={`text-xs mt-0.5 ${opt.disabled ? "text-gray-300" : "text-tea-text-light"}`}>{opt.desc}</div>
                       </div>
                     </label>
                   ))}
@@ -680,9 +680,9 @@ export default function CheckoutClient() {
                             }
                             setFormErrors({});
                           }} className="sr-only" />
-                        <div className={`${region === opt.value ? "text-tea-green-ink" : "text-tea-text-muted"}`}>{opt.icon}</div>
+                        <div className={`${region === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
                         <div className="text-sm font-medium text-tea-text">{opt.label}</div>
-                        <div className="text-[11px] text-tea-text-muted">{opt.desc}</div>
+                        <div className="text-[11px] text-tea-text-light">{opt.desc}</div>
                       </label>
                     ))}
                   </div>
@@ -700,10 +700,10 @@ export default function CheckoutClient() {
                     <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${delivery === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}>
                       <input type="radio" name="delivery" value={opt.value} checked={delivery === opt.value}
                         onChange={() => setDelivery(opt.value)} className="accent-tea-green mt-0.5" />
-                      <div className={`mt-0.5 ${delivery === opt.value ? "text-tea-green-ink" : "text-tea-text-muted"}`}>{opt.icon}</div>
+                      <div className={`mt-0.5 ${delivery === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
                       <div>
                         <div className="text-sm font-medium text-tea-text">{opt.label}</div>
-                        <div className="text-xs text-tea-text-muted mt-0.5">{opt.desc}</div>
+                        <div className="text-xs text-tea-text-light mt-0.5">{opt.desc}</div>
                       </div>
                     </label>
                   ))}
@@ -719,10 +719,10 @@ export default function CheckoutClient() {
                         <button
                           type="button"
                           onClick={() => setCityOpen(!cityOpen)}
-                          className={`${inputCls(!!formErrors.city)} flex items-center justify-between text-left ${!form.city ? "text-tea-text-muted/60" : "text-tea-text"}`}
+                          className={`${inputCls(!!formErrors.city)} flex items-center justify-between text-left ${!form.city ? "text-tea-text-light/60" : "text-tea-text"}`}
                         >
                           <span>{form.city || t("selectCityPlaceholder")}</span>
-                          <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-muted transition-transform duration-200 ${cityOpen ? "rotate-180" : ""}`} />
+                          <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${cityOpen ? "rotate-180" : ""}`} />
                         </button>
                         {cityOpen && (
                           <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-y-auto max-h-56">
@@ -737,8 +737,8 @@ export default function CheckoutClient() {
                                 }}
                                 className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                                   form.city === c
-                                    ? "bg-tea-green-mist text-tea-green-ink font-medium"
-                                    : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green-ink"
+                                    ? "bg-tea-green-mist text-tea-green font-medium"
+                                    : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
                                 }`}
                               >
                                 {c}
@@ -776,7 +776,7 @@ export default function CheckoutClient() {
                                 className={`${inputCls()} flex items-center justify-between text-left text-tea-text`}
                               >
                                 <span>{selected?.label}</span>
-                                <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-muted transition-transform duration-200 ${cvsOpen ? "rotate-180" : ""}`} />
+                                <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${cvsOpen ? "rotate-180" : ""}`} />
                               </button>
                               {cvsOpen && (
                                 <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-hidden">
@@ -790,8 +790,8 @@ export default function CheckoutClient() {
                                       }}
                                       className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                                         form.cvsCompany === opt.value
-                                          ? "bg-tea-green-mist text-tea-green-ink font-medium"
-                                          : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green-ink"
+                                          ? "bg-tea-green-mist text-tea-green font-medium"
+                                          : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
                                       }`}
                                     >
                                       {opt.label}
@@ -810,10 +810,10 @@ export default function CheckoutClient() {
                         <div className={`flex items-center justify-between rounded-xl px-4 py-3 border ${formErrors.cvsStoreName ? "border-rose-300" : "border-tea-green"} bg-tea-green-mist/40`}>
                           <div>
                             <p className="text-sm font-medium text-tea-text">{form.cvsStoreName}</p>
-                            <p className="text-xs text-tea-text-muted mt-0.5">{t("cvsStoreId", { id: form.cvsStoreId })}</p>
+                            <p className="text-xs text-tea-text-light mt-0.5">{t("cvsStoreId", { id: form.cvsStoreId })}</p>
                           </div>
                           <button type="button" onClick={handleSelectStore}
-                            className="text-xs text-tea-green-ink hover:text-tea-green-deep font-medium whitespace-nowrap ml-4 transition-colors">
+                            className="text-xs text-tea-green hover:text-tea-green-dark font-medium whitespace-nowrap ml-4 transition-colors">
                             {t("cvsReselect")}
                           </button>
                         </div>
@@ -870,7 +870,7 @@ export default function CheckoutClient() {
                         <button
                           type="button"
                           onClick={() => setCountryOpen(!countryOpen)}
-                          className={`${inputCls(!!formErrors.intlCountry)} flex items-center justify-between text-left ${!form.internationalAddress.country ? "text-tea-text-muted/60" : "text-tea-text"}`}
+                          className={`${inputCls(!!formErrors.intlCountry)} flex items-center justify-between text-left ${!form.internationalAddress.country ? "text-tea-text-light/60" : "text-tea-text"}`}
                         >
                           <span>
                             {form.internationalAddress.country
@@ -880,7 +880,7 @@ export default function CheckoutClient() {
                                 ) ?? form.internationalAddress.country
                               : t("intlSelectCountry")}
                           </span>
-                          <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-muted transition-transform duration-200 ${countryOpen ? "rotate-180" : ""}`} />
+                          <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${countryOpen ? "rotate-180" : ""}`} />
                         </button>
                         {countryOpen && (
                           <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-y-auto max-h-56">
@@ -898,8 +898,8 @@ export default function CheckoutClient() {
                                 }}
                                 className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                                   form.internationalAddress.country === c.countryCode
-                                    ? "bg-tea-green-mist text-tea-green-ink font-medium"
-                                    : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green-ink"
+                                    ? "bg-tea-green-mist text-tea-green font-medium"
+                                    : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
                                 }`}
                               >
                                 {locale === "en" ? c.countryNameEn : c.countryName}
@@ -958,8 +958,8 @@ export default function CheckoutClient() {
                     {/* Weight & estimated days info */}
                     {selectedCountry && !isOverweight && (
                       <div className="flex flex-col gap-1 bg-tea-cream-light/80 rounded-xl p-3">
-                        <p className="text-xs text-tea-text-muted">{t("intlTotalWeight", { weight: totalWeightG.toString() })}</p>
-                        <p className="text-xs text-tea-text-muted">{t("intlEstimatedDays", { min: selectedCountry.estimatedDaysMin.toString(), max: selectedCountry.estimatedDaysMax.toString() })}</p>
+                        <p className="text-xs text-tea-text-light">{t("intlTotalWeight", { weight: totalWeightG.toString() })}</p>
+                        <p className="text-xs text-tea-text-light">{t("intlEstimatedDays", { min: selectedCountry.estimatedDaysMin.toString(), max: selectedCountry.estimatedDaysMax.toString() })}</p>
                         {totalPrice < INTERNATIONAL_FREE_SHIPPING_THRESHOLD && shippingFee > 0 && (
                           <p className="text-xs text-amber-600">{t("intlFreeShipping")}</p>
                         )}
@@ -993,7 +993,7 @@ export default function CheckoutClient() {
                 <div className="space-y-3 mb-5">
                   {items.map(item => (
                     <div key={item.product.id} className="flex justify-between text-sm">
-                      <span className="text-tea-text-muted">{item.product.name} {item.product.weight} × {item.quantity}</span>
+                      <span className="text-tea-text-light">{item.product.name} {item.product.weight} × {item.quantity}</span>
                       <span className="text-tea-text font-medium">NT${(item.product.price * item.quantity).toLocaleString()}</span>
                     </div>
                   ))}
@@ -1019,7 +1019,7 @@ export default function CheckoutClient() {
                       />
                       {availableCoupons.length > 0 && (
                         <button type="button" onClick={() => setShowCouponDropdown(v => !v)}
-                          className="px-2.5 border border-tea-green-pale rounded-lg hover:bg-tea-cream-light transition-colors text-tea-text-muted"
+                          className="px-2.5 border border-tea-green-pale rounded-lg hover:bg-tea-cream-light transition-colors text-tea-text-light"
                           title={t("coupon")}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M6 9l6 6 6-6"/>
@@ -1027,7 +1027,7 @@ export default function CheckoutClient() {
                         </button>
                       )}
                       <button type="button" onClick={handleApplyCoupon}
-                        className="px-3 py-2 bg-tea-green-ink hover:bg-tea-green-deep text-white text-xs rounded-lg transition-colors whitespace-nowrap">
+                        className="px-3 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-xs rounded-lg transition-colors whitespace-nowrap">
                         {t("applyCoupon")}
                       </button>
                     </div>
@@ -1048,8 +1048,8 @@ export default function CheckoutClient() {
                                 ${isApplied ? "bg-tea-green-mist/50" : ""}`}
                             >
                               <div>
-                                <span className="font-mono text-xs font-bold text-tea-green-ink">{c.code}</span>
-                                <span className="ml-2 text-xs text-tea-text-muted">{t("couponDiscountInfo", { amount: c.discount_amount })}</span>
+                                <span className="font-mono text-xs font-bold text-tea-green">{c.code}</span>
+                                <span className="ml-2 text-xs text-tea-text-light">{t("couponDiscountInfo", { amount: c.discount_amount })}</span>
                                 {!eligible && <span className="ml-1 text-xs text-rose-400">{t("couponMinRequired", { min: c.min_order_amount })}</span>}
                               </div>
                               {isApplied && (
@@ -1065,7 +1065,7 @@ export default function CheckoutClient() {
                   </div>
                   {couponError && <p className="mt-1 text-xs text-rose-500">{couponError}</p>}
                   {appliedCoupon && !couponError && (
-                    <p className={`mt-1 text-xs text-tea-green-ink transition-all duration-500 ${couponSuccess ? "bg-green-50 px-2 py-1 rounded-md scale-105" : ""}`}>
+                    <p className={`mt-1 text-xs text-tea-green transition-all duration-500 ${couponSuccess ? "bg-green-50 px-2 py-1 rounded-md scale-105" : ""}`}>
                       {couponSuccess ? "✓ " : ""}{t("couponAppliedMsg", { amount: appliedCoupon.discount_amount })}
                     </p>
                   )}
@@ -1076,10 +1076,10 @@ export default function CheckoutClient() {
                   <div className="mb-3 pb-3 border-b border-tea-green-pale">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-tea-text">{t("pointsRedeemLabel")}</span>
-                      <span className="text-xs text-tea-text-muted">{t("pointsBalanceLabel", { balance: pointsBalance.toLocaleString() })}</span>
+                      <span className="text-xs text-tea-text-light">{t("pointsBalanceLabel", { balance: pointsBalance.toLocaleString() })}</span>
                     </div>
                     {pointsTierName && (
-                      <p className="text-[11px] text-tea-text-muted mb-2">
+                      <p className="text-[11px] text-tea-text-light mb-2">
                         您為{pointsTierName}，本次最高可折抵 NT${maxPointsAllowed.toLocaleString()}
                       </p>
                     )}
@@ -1100,23 +1100,23 @@ export default function CheckoutClient() {
                       <button
                         type="button"
                         onClick={() => setPointsToUse(maxPointsAllowed)}
-                        className="text-xs text-tea-green-ink hover:underline whitespace-nowrap"
+                        className="text-xs text-tea-green hover:underline whitespace-nowrap"
                       >{t("pointsUseMax")}</button>
                     </div>
                     {pointsToUse > 0 && pointsToUse < 10 && (
                       <p className="mt-1 text-xs text-amber-600">{t("pointsMinWarning")}</p>
                     )}
                     {pointsDiscount > 0 && (
-                      <p className="mt-1 text-xs text-tea-green-ink animate-pulse">{t("pointsWillDiscount", { amount: pointsDiscount.toLocaleString() })}</p>
+                      <p className="mt-1 text-xs text-tea-green animate-pulse">{t("pointsWillDiscount", { amount: pointsDiscount.toLocaleString() })}</p>
                     )}
                   </div>
                 )}
 
                 <div className="mb-6 space-y-2">
-                  <div className="flex justify-between text-sm text-tea-text-muted">
+                  <div className="flex justify-between text-sm text-tea-text-light">
                     <span>{t("shippingFee")}</span>
                     {shippingFee === 0 ? (
-                      <span className="text-tea-green-ink">{t("shippingFree")}</span>
+                      <span className="text-tea-green">{t("shippingFree")}</span>
                     ) : (
                       <span className="text-tea-text">NT${shippingFee.toLocaleString()}</span>
                     )}
@@ -1128,29 +1128,29 @@ export default function CheckoutClient() {
                     <p className="text-xs text-amber-600">{t("intlFreeShipping")}</p>
                   )}
                   {couponDiscount > 0 && (
-                    <div className="flex justify-between text-sm text-tea-green-ink">
+                    <div className="flex justify-between text-sm text-tea-green">
                       <span>{t("couponDiscountLabel")}</span>
                       <span>-NT${couponDiscount.toLocaleString()}</span>
                     </div>
                   )}
                   {pointsDiscount > 0 && (
-                    <div className="flex justify-between text-sm text-tea-green-ink bg-green-50 rounded px-1 -mx-1 transition-colors duration-500">
+                    <div className="flex justify-between text-sm text-tea-green bg-green-50 rounded px-1 -mx-1 transition-colors duration-500">
                       <span>{t("pointsDiscountLabel")}</span>
                       <span className="font-semibold">-NT${pointsDiscount.toLocaleString()}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-sm text-tea-text-muted">
+                  <div className="flex justify-between text-sm text-tea-text-light">
                     <span>{t("paymentLabel")}</span>
                     <span>{payment === "paypal" ? t("paypalShort") : payment === "stripe" ? t("stripeShort") : payment === "online" ? t("onlinePaymentShort") : t("codShort")}</span>
                   </div>
                   <div className="flex justify-between font-bold text-tea-text pt-1">
                     <span>{t("totalAmount")}</span>
-                    <span className="text-tea-green-ink text-lg">NT${grandTotal.toLocaleString()}</span>
+                    <span className="text-tea-green text-lg">NT${grandTotal.toLocaleString()}</span>
                   </div>
                 </div>
                 {error && <p className="text-red-400 text-sm text-center mb-3">{error}</p>}
                 <button type="submit" disabled={submitting || (region === "international" && isOverweight)}
-                  className="w-full bg-tea-green-ink hover:bg-tea-green-deep disabled:opacity-60 text-white py-3.5 rounded-full font-medium transition-colors flex items-center justify-center gap-2">
+                  className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-full font-medium transition-colors flex items-center justify-center gap-2">
                   {submitting ? (
                     <>
                       <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1188,7 +1188,7 @@ export default function CheckoutClient() {
                     </>
                   )}
                 </button>
-                <Link href={lp("/cart")} className="block text-center text-tea-text-muted hover:text-tea-green-ink text-sm mt-4 transition-colors">
+                <Link href={lp("/cart")} className="block text-center text-tea-text-light hover:text-tea-green text-sm mt-4 transition-colors">
                   {t("backToCart")}
                 </Link>
               </div>

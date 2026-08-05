@@ -22,7 +22,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
   const lp = (path: string) => locale === "en" ? `/en${path}` : path;
 
   const REFUND_POLICY = [
-    { key: "7days",    color: "text-tea-green-ink" },
+    { key: "7days",    color: "text-tea-green" },
     { key: "3to6days", color: "text-amber-600" },
     { key: "1to2days", color: "text-amber-600" },
     { key: "under24h", color: "text-red-500" },
@@ -187,25 +187,25 @@ export default function BookingFlow({ session, userEmail }: Props) {
     <div className="max-w-2xl mx-auto">
       {/* 場次摘要 */}
       <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm mb-6">
-        <p className="text-tea-green-ink text-xs tracking-widest uppercase mb-1">{exp.nameEn}</p>
+        <p className="text-tea-green text-xs tracking-widest uppercase mb-1">{exp.nameEn}</p>
         <h2 className="font-serif text-2xl font-bold text-tea-text mb-4">{exp.name}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div className="flex items-start gap-2 text-tea-text-muted">
-            <Calendar className="w-4 h-4 text-tea-green-ink mt-0.5 shrink-0" />
+          <div className="flex items-start gap-2 text-tea-text-light">
+            <Calendar className="w-4 h-4 text-tea-green mt-0.5 shrink-0" />
             <div>
               <div className="text-xs mb-0.5">{t("sessionDate")}</div>
               <div className="font-medium text-tea-text">{dateLabel}</div>
             </div>
           </div>
-          <div className="flex items-start gap-2 text-tea-text-muted">
-            <Clock className="w-4 h-4 text-tea-green-ink mt-0.5 shrink-0" />
+          <div className="flex items-start gap-2 text-tea-text-light">
+            <Clock className="w-4 h-4 text-tea-green mt-0.5 shrink-0" />
             <div>
               <div className="text-xs mb-0.5">{t("sessionTime")}</div>
               <div className="font-medium text-tea-text">{session.startTime.slice(0, 5)}</div>
             </div>
           </div>
-          <div className="flex items-start gap-2 text-tea-text-muted">
-            <Users className="w-4 h-4 text-tea-green-ink mt-0.5 shrink-0" />
+          <div className="flex items-start gap-2 text-tea-text-light">
+            <Users className="w-4 h-4 text-tea-green mt-0.5 shrink-0" />
             <div>
               <div className="text-xs mb-0.5">{t("availableSpots")}</div>
               <div className="font-medium text-tea-text">{available} / {exp.maxParticipants}</div>
@@ -232,11 +232,11 @@ export default function BookingFlow({ session, userEmail }: Props) {
           {/* 候補人數 */}
           <div className="flex items-center gap-6 mb-5">
             <button onClick={() => setWaitlistCount(c => Math.max(1, c - 1))} disabled={waitlistCount <= 1}
-              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green-ink font-bold text-xl hover:bg-tea-green-ink hover:text-white transition-colors disabled:opacity-30">−</button>
+              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green font-bold text-xl hover:bg-tea-green hover:text-white transition-colors disabled:opacity-30">−</button>
             <span className="text-3xl font-bold text-tea-text w-8 text-center">{waitlistCount}</span>
             <button onClick={() => setWaitlistCount(c => Math.min(exp.maxParticipants, c + 1))} disabled={waitlistCount >= exp.maxParticipants}
-              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green-ink font-bold text-xl hover:bg-tea-green-ink hover:text-white transition-colors disabled:opacity-30">+</button>
-            <span className="text-sm text-tea-text-muted">{t("participantCount")}</span>
+              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green font-bold text-xl hover:bg-tea-green hover:text-white transition-colors disabled:opacity-30">+</button>
+            <span className="text-sm text-tea-text-light">{t("participantCount")}</span>
           </div>
 
           {/* 姓名電話 */}
@@ -254,7 +254,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
             {exp.requiresAdult && (
               <label className="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" checked={adultConfirmed} onChange={e => setAdult(e.target.checked)} className="mt-0.5 accent-tea-green w-4 h-4 shrink-0" />
-                <span className="text-sm text-tea-text-muted">{t("adultConfirmBasic")}</span>
+                <span className="text-sm text-tea-text-light">{t("adultConfirmBasic")}</span>
               </label>
             )}
           </div>
@@ -276,8 +276,8 @@ export default function BookingFlow({ session, userEmail }: Props) {
         <div className="bg-white rounded-2xl p-8 border border-tea-green-pale/50 shadow-sm text-center">
           <div className="text-4xl mb-4">🎋</div>
           <h3 className="font-serif text-xl font-bold text-tea-text mb-2">{t("waitlist.successTitle")}</h3>
-          <p className="text-sm text-tea-text-muted mb-6">{t("waitlist.successDesc")}</p>
-          <button onClick={() => router.push(lp("/account?tab=bookings"))} className="text-sm text-tea-green-ink hover:underline">{t("waitlist.viewWaitlist")}</button>
+          <p className="text-sm text-tea-text-light mb-6">{t("waitlist.successDesc")}</p>
+          <button onClick={() => router.push(lp("/account?tab=bookings"))} className="text-sm text-tea-green hover:underline">{t("waitlist.viewWaitlist")}</button>
         </div>
       )}
 
@@ -290,7 +290,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
           <div className="flex items-center gap-6 mb-6">
             <button
               onClick={() => setCount(c => Math.max(1, c - 1))}
-              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green-ink font-bold text-xl hover:bg-tea-green-ink hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green font-bold text-xl hover:bg-tea-green hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               disabled={count <= 1}
             >
               −
@@ -298,22 +298,22 @@ export default function BookingFlow({ session, userEmail }: Props) {
             <span className="text-3xl font-bold text-tea-text w-8 text-center">{count}</span>
             <button
               onClick={() => setCount(c => Math.min(available, c + 1))}
-              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green-ink font-bold text-xl hover:bg-tea-green-ink hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-10 h-10 rounded-full border-2 border-tea-green text-tea-green font-bold text-xl hover:bg-tea-green hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               disabled={count >= available}
             >
               +
             </button>
-            <span className="text-sm text-tea-text-muted">{t("participantCount")}</span>
+            <span className="text-sm text-tea-text-light">{t("participantCount")}</span>
           </div>
 
           {/* 費用試算 */}
           <div className="bg-tea-green-mist rounded-xl p-4 mb-6 space-y-1.5">
-            <div className="flex justify-between text-sm text-tea-text-muted">
+            <div className="flex justify-between text-sm text-tea-text-light">
               <span>{t("pricePerPerson", { price: exp.price.toLocaleString(), count })}</span>
               <span>NT$ {totalPrice.toLocaleString()}</span>
             </div>
             {pointsDiscount > 0 && (
-              <div className="flex justify-between text-sm text-tea-green-ink">
+              <div className="flex justify-between text-sm text-tea-green">
                 <span>{t("pointsDiscount", { points: validPoints })}</span>
                 <span>－NT$ {pointsDiscount.toLocaleString()}</span>
               </div>
@@ -329,7 +329,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
             <div className="mb-6">
               <label className="block text-sm font-medium text-tea-text mb-1.5">
                 {t("usePointsLabel")}
-                <span className="ml-2 text-xs font-normal text-tea-text-muted">{t("availablePoints", { balance: pointsBalance.toLocaleString(), max: maxPointsAllow.toLocaleString() })}</span>
+                <span className="ml-2 text-xs font-normal text-tea-text-light">{t("availablePoints", { balance: pointsBalance.toLocaleString(), max: maxPointsAllow.toLocaleString() })}</span>
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -345,7 +345,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
                 <button
                   type="button"
                   onClick={() => setPointsInput(String(maxPointsAllow))}
-                  className="text-xs text-tea-green-ink hover:underline whitespace-nowrap"
+                  className="text-xs text-tea-green hover:underline whitespace-nowrap"
                 >{t("pointsUseMax")}</button>
               </div>
               {pointsInput && !validPoints && parsedPoints > 0 && (
@@ -356,7 +356,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
                 </p>
               )}
               {validPoints > 0 && (
-                <p className="text-xs text-tea-green-ink mt-1">{t("pointsWillSave", { amount: validPoints.toLocaleString() })}</p>
+                <p className="text-xs text-tea-green mt-1">{t("pointsWillSave", { amount: validPoints.toLocaleString() })}</p>
               )}
             </div>
           )}
@@ -370,7 +370,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
                 onChange={e => setAdult(e.target.checked)}
                 className="mt-0.5 accent-tea-green w-4 h-4 shrink-0"
               />
-              <span className="text-sm text-tea-text-muted">{t("adultConfirm")}</span>
+              <span className="text-sm text-tea-text-light">{t("adultConfirm")}</span>
             </label>
           )}
 
@@ -379,13 +379,13 @@ export default function BookingFlow({ session, userEmail }: Props) {
             <h4 className="text-sm font-medium text-tea-text mb-3">{t("refundPolicy.title")}</h4>
             <div className="space-y-1.5">
               {REFUND_POLICY.map(p => (
-                <div key={p.key} className="flex justify-between text-xs text-tea-text-muted">
+                <div key={p.key} className="flex justify-between text-xs text-tea-text-light">
                   <span>{t(`refundPolicy.items.${p.key}.label`)}</span>
                   <span className={`font-medium ${p.color}`}>{t(`refundPolicy.items.${p.key}.value`)}</span>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-tea-text-muted/70 mt-2">
+            <p className="text-xs text-tea-text-light/70 mt-2">
               {t("refundPolicy.changeNote")}
             </p>
           </div>
@@ -393,7 +393,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
           <button
             onClick={() => setStep(2)}
             disabled={exp.requiresAdult && !adultConfirmed}
-            className="w-full bg-tea-green-ink hover:bg-tea-green-deep text-white py-3.5 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full bg-tea-green hover:bg-tea-green-dark text-white py-3.5 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {t("nextStep")}
             <ChevronRight className="w-4 h-4" />
@@ -406,7 +406,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
         <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
           <button
             onClick={() => setStep(1)}
-            className="text-sm text-tea-text-muted hover:text-tea-green-ink mb-5 flex items-center gap-1"
+            className="text-sm text-tea-text-light hover:text-tea-green mb-5 flex items-center gap-1"
           >
             {t("back")}
           </button>
@@ -446,7 +446,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
                   type="email"
                   value={userEmail}
                   disabled
-                  className="w-full border border-tea-green-pale rounded-xl px-4 py-2.5 text-sm bg-tea-green-mist text-tea-text-muted"
+                  className="w-full border border-tea-green-pale rounded-xl px-4 py-2.5 text-sm bg-tea-green-mist text-tea-text-light"
                 />
               </div>
             )}
@@ -457,7 +457,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
               </label>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-2">
                 {DIET_OPTIONS.map(({ value, label }) => (
-                  <label key={value} className="flex items-center gap-1.5 text-sm text-tea-text-muted cursor-pointer">
+                  <label key={value} className="flex items-center gap-1.5 text-sm text-tea-text-light cursor-pointer">
                     <input
                       type="checkbox"
                       className="accent-tea-green"
@@ -489,19 +489,19 @@ export default function BookingFlow({ session, userEmail }: Props) {
               onChange={e => setAgreed(e.target.checked)}
               className="mt-0.5 accent-tea-green w-4 h-4 shrink-0"
             />
-            <span className="text-sm text-tea-text-muted">
+            <span className="text-sm text-tea-text-light">
               {t("agreePolicy")}
             </span>
           </label>
 
           {/* 費用確認 */}
           <div className="bg-tea-green-mist rounded-xl p-4 mb-5 space-y-1">
-            <div className="flex justify-between text-sm text-tea-text-muted">
+            <div className="flex justify-between text-sm text-tea-text-light">
               <span>{t("pricePerPerson", { price: exp.price.toLocaleString(), count })}</span>
               <span>NT$ {totalPrice.toLocaleString()}</span>
             </div>
             {pointsDiscount > 0 && (
-              <div className="flex justify-between text-sm text-tea-green-ink">
+              <div className="flex justify-between text-sm text-tea-green">
                 <span>{t("pointsDiscount", { points: validPoints })}</span>
                 <span>－NT$ {pointsDiscount.toLocaleString()}</span>
               </div>
@@ -522,12 +522,12 @@ export default function BookingFlow({ session, userEmail }: Props) {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-tea-green-ink hover:bg-tea-green-deep text-white py-3.5 rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-tea-green hover:bg-tea-green-dark text-white py-3.5 rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? t("processing") : t("payBtn", { amount: finalPrice.toLocaleString() })}
           </button>
 
-          <p className="text-center text-xs text-tea-text-muted mt-3">
+          <p className="text-center text-xs text-tea-text-light mt-3">
             {t("participantNote")}
           </p>
         </div>
