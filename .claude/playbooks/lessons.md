@@ -206,3 +206,9 @@
 - 代價：一次不必要的恐慌與兩輪白費的 dev server 重啟。實際上**一個檔案都沒少**（`git status` 全是 M、無 D，行數與 HEAD 一致）。真正原因是 `perl -i` 就地改檔會 unlink＋rename，Tailwind 的 `resolveChangedFiles` 剛好在那個空窗 stat 到不存在的路徑，**並把錯誤寫進 `.next` 快取**——所以 restart dev server 沒用，錯誤是從快取讀回來的
 - 規則：**批次改檔後若 dev server 報 ENOENT 但檔案存在，先 `rm -rf .next` 再重啟，不要懷疑檔案毀損**。判斷檔案有沒有真的出事，用 `git status -s | grep '^ D'`（有無刪除）＋逐檔比對 `wc -l` 與 `git show HEAD:<file> | wc -l`（有無截斷），不要憑錯誤訊息推論
 - 去處：暫存於此（與同日「對照組要有鑑別力」同源：先確認事實，再解釋現象）
+
+## 2026-08-06 本機的 `python` 是 Windows Store 空殼，改檔靜默失敗還不報錯
+- 情境：用 `python - <<'PY' ... PY` 就地改 `.claude/WORKLOG.md` 的待辦勾選，連做三次（第三／四／五波收尾）。每次都沒有錯誤輸出，我就當它成功了，接著在回報裡宣告「WORKLOG 已更新」
+- 代價：**三處待辦勾選從頭到尾沒生效**，WORKLOG 對後續 session 顯示了錯誤的完成狀態。直到第四次要做 WORKLOG 精簡、發現檔案行數完全沒變才揪出來。實測 `python --version` 回 exit 49 且無任何輸出——`which python` 指向 `C:/Users/Koung/AppData/Local/Microsoft/WindowsApps/python`，那是微軟商店的安裝引導殼，沒有真的 Python
+- 規則：**本專案不要用 `python`，改檔一律用 Node（`node ./__x.mjs` 或 Edit tool）**。任何「就地改檔」的腳本執行後，必須立刻用一個會變的量去驗證（`wc -l`、`grep -c` 目標字串、或腳本自己印出替換筆數），**不能因為沒有錯誤輸出就認定成功**。批次替換腳本要主動印出「命中幾筆」，0 筆就是失敗
+- 去處：暫存於此（與 2026-08-04「對照組要有鑑別力」同源：沒報錯不等於有做到，要有一個會變的量當證據）
