@@ -102,7 +102,7 @@ type Props = {
 const CITIES = ["台北市","新北市","桃園市","台中市","台南市","高雄市","基隆市","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","屏東縣","宜蘭縣","花蓮縣","台東縣","澎湖縣","金門縣","連江縣"];
 
 // 會員端依 order_status + payment_status 組合顯示
-function getMemberStatusCls(orderStatus: string, paymentStatus: string): { labelKey: string; cls: string } {
+export function getMemberStatusCls(orderStatus: string, paymentStatus: string): { labelKey: string; cls: string } {
   if (orderStatus === "new") {
     return paymentStatus === "paid"
       ? { labelKey: "orderStatus.paid2", cls: "bg-status-done-soft text-status-done" }
@@ -113,8 +113,16 @@ function getMemberStatusCls(orderStatus: string, paymentStatus: string): { label
     shipped:   { labelKey: "orderStatus.shipped",   cls: "bg-tea-green text-white" },
     completed: { labelKey: "orderStatus.completed", cls: "bg-tea-green-dark text-white" },
     cancelled: { labelKey: "orderStatus.cancelled", cls: "bg-status-danger-soft text-status-danger" },
+    // 客人已經付過錢了，只是庫存不足待處理。先前這個狀態會 fallback 成「待付款」，
+    // 可能讓客人以為沒付成功而再付一次。用中性的「處理中」，配色同備貨中不製造警報。
+    stock_issue: { labelKey: "orderStatus.processing", cls: "bg-status-info-soft text-status-info" },
+    // 金流回報失敗＝確實還沒收到錢，顯示「待付款」語意正確（小江 2026-08-06 拍板）。
+    // 寫成明確的鍵而不是靠 fallback，讓它是一個決定而不是意外。
+    failed:      { labelKey: "orderStatus.pending2",   cls: "bg-status-idle-soft text-status-idle" },
   };
-  return map[orderStatus] ?? { labelKey: "orderStatus.pending2", cls: "bg-status-idle-soft text-status-idle" };
+  // 未知狀態一律顯示「處理中」，**不可以顯示「待付款」**——
+  // 在不確定的情況下告訴客人「你還欠錢」是最糟的猜法。
+  return map[orderStatus] ?? { labelKey: "orderStatus.processing", cls: "bg-status-info-soft text-status-info" };
 }
 
 const CVS_NAME: Record<string, string> = {
