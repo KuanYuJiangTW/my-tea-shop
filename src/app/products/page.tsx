@@ -64,7 +64,7 @@ export default async function ProductsPage() {
             {t("pageTitle")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light max-w-md mx-auto">
+          <p className="text-tea-text-light text-body-lg max-w-md mx-auto">
             {t("pageTagline")}
           </p>
         </div>

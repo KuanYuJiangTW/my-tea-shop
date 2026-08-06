@@ -39,7 +39,7 @@ export default async function ExperiencesPage() {
           <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-4">{t("sectionLabel")}</p>
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">{t("pageTitle")}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light max-w-lg mx-auto">{t("pageTagline")}</p>
+          <p className="text-tea-text-light text-body-lg max-w-lg mx-auto">{t("pageTagline")}</p>
         </div>
       </div>
 
@@ -78,7 +78,7 @@ export default async function ExperiencesPage() {
                   <h2 className="font-serif text-2xl font-bold text-tea-text mb-3 group-hover:text-tea-green transition-colors">
                     {isEn ? exp.nameEn : exp.name}
                   </h2>
-                  <p className="text-tea-text-light text-sm leading-relaxed mb-5">
+                  <p className="text-tea-text-light text-body mb-5">
                     {(isEn && content.taglineEn) ? content.taglineEn : content.tagline}
                   </p>
                   <div className="flex items-center gap-5 text-sm text-tea-text-light mb-5">
@@ -111,7 +111,8 @@ export default async function ExperiencesPage() {
         {/* 注意事項 */}
         <div className="mt-16 bg-tea-cream rounded-2xl p-8 border border-tea-green-pale">
           <h3 className="font-serif text-xl font-bold text-tea-text mb-4">{t("noticeTitle")}</h3>
-          <ul className="space-y-2 text-sm text-tea-text-light">
+          {/* 預約前必讀——依設計原則 2「交易時刻，清晰壓倒氣氛」，這類內容不該用 14px */}
+          <ul className="space-y-2 text-body text-tea-text-light">
             <li>• {t("notice1")}</li>
             <li>• {t("notice2")}</li>
             <li>• {t("notice3")}</li>

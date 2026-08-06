@@ -221,7 +221,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <p className="text-xs text-tea-text-light italic mb-3">{isEn ? product.name : product.nameEn}</p>
 
           {/* 描述 */}
-          <p className="text-sm text-tea-text-light leading-relaxed line-clamp-2 flex-1 mb-4">
+          <p className="text-body text-tea-text-light line-clamp-2 flex-1 mb-4">
             {isEn ? (product.descriptionEn || product.description) : product.description}
           </p>
 

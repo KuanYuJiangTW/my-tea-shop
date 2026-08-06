@@ -114,7 +114,7 @@ export default async function HomePage() {
             <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
               {t("hero.tagline")}
             </p>
-            <p className="text-tea-cream text-sm md:text-lg leading-relaxed mb-10 max-w-lg">
+            <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg">
               {t("hero.description")}
             </p>
             <div className="flex flex-wrap gap-4">
@@ -146,7 +146,7 @@ export default async function HomePage() {
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
                 {t("philosophy.title")}
               </h2>
-              <p className="text-tea-text-light mb-10 max-w-md">
+              <p className="text-tea-text-light text-body-lg mb-10 max-w-md">
                 {t("philosophy.tagline")}
               </p>
 
@@ -165,7 +165,7 @@ export default async function HomePage() {
                       <h3 className="font-serif text-xl font-bold text-tea-text mb-2 group-hover:text-tea-green transition-colors">
                         {t(`philosophy.items.${key}.title`)}
                       </h3>
-                      <p className="text-tea-text-light text-sm leading-relaxed">
+                      <p className="text-tea-text-light text-body">
                         {t(`philosophy.items.${key}.desc`)}
                       </p>
                     </div>
@@ -196,7 +196,7 @@ export default async function HomePage() {
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">
                 {t("featured.title")}
               </h2>
-              <p className="text-tea-text-light">{t("featured.tagline")}</p>
+              <p className="text-tea-text-light text-body-lg">{t("featured.tagline")}</p>
             </div>
             <Link
               href={lp("/products")}
@@ -220,7 +220,7 @@ export default async function HomePage() {
               <div>
                 <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">{t("experiences.sectionLabel")}</p>
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">{t("experiences.title")}</h2>
-                <p className="text-tea-text-light">{t("experiences.tagline")}</p>
+                <p className="text-tea-text-light text-body-lg">{t("experiences.tagline")}</p>
               </div>
               <Link
                 href={lp("/experiences")}
@@ -261,7 +261,7 @@ export default async function HomePage() {
                       <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">
                         {isEn ? (exp.nameEn || exp.name) : exp.name}
                       </h3>
-                      <p className="text-tea-text-light text-sm leading-relaxed mb-4 line-clamp-2">
+                      <p className="text-tea-text-light text-body mb-4 line-clamp-2">
                         {isEn ? (content.taglineEn || content.tagline) : content.tagline}
                       </p>
                       <div className="flex items-center justify-between text-sm text-tea-text-light">
@@ -307,10 +307,12 @@ export default async function HomePage() {
             <h2 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-7 leading-snug whitespace-pre-line">
               {t("brandStory.title")}
             </h2>
-            <p className="text-tea-green-pale leading-relaxed mb-4 text-sm">
+            {/* 品牌故事是整站最重要的一段敘事——四十年、一家三口。
+                原本用 text-sm(14px) 講，語氣與內容不相稱，升到 body-lg(18px/1.85) */}
+            <p className="text-tea-green-pale text-body-lg mb-4">
               {t("brandStory.p1")}
             </p>
-            <p className="text-tea-green-pale leading-relaxed mb-10 text-sm">
+            <p className="text-tea-green-pale text-body-lg mb-10">
               {t("brandStory.p2")}
             </p>
             <Link
@@ -332,7 +334,7 @@ export default async function HomePage() {
             {t("process.title")}
           </h2>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light mb-14 max-w-lg mx-auto">
+          <p className="text-tea-text-light text-body-lg mb-14 max-w-lg mx-auto">
             {t("process.tagline")}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-14">
@@ -347,7 +349,7 @@ export default async function HomePage() {
                 <div className="font-serif text-xl font-bold text-tea-text mb-2">
                   {t(`process.steps.${key}.name`)}
                 </div>
-                <div className="text-xs text-tea-text-light">{t(`process.steps.${key}.desc`)}</div>
+                <div className="text-label text-tea-text-light">{t(`process.steps.${key}.desc`)}</div>
               </div>
             ))}
           </div>

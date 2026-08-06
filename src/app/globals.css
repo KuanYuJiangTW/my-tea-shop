@@ -140,6 +140,16 @@
     --ease-standard: cubic-bezier(0.2, 0, 0, 1);
     --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 
+    /* 字級：只定義「內文端」四階。標題端已有可用的尺度，不在本波動。
+       診斷數據：前台 text-xs 210 處＋text-sm 345 處＝555，而 text-base 只有 14 處——
+       整站幾乎沒有正常閱讀大小的文字，四十年的故事用後台的字級在講。
+       行高刻意給得比 Tailwind 預設寬：預設 text-base 是 1.5，對中文敘事太緊，
+       CJK 舒適區在 1.7–1.9。放大字級與放寬行高，後者的效果不亞於前者。 */
+    --text-caption: 0.75rem;     --leading-caption: 1.6;   /* 12px 徽章、法律條款、表格註記 */
+    --text-label: 0.875rem;      --leading-label: 1.55;    /* 14px 介面標籤、按鈕、表單、表格內容 */
+    --text-body: 1rem;           --leading-body: 1.8;      /* 16px 一般內文 */
+    --text-body-lg: 1.125rem;    --leading-body-lg: 1.85;  /* 18px 敘事段落、導言 */
+
     /* 間距節奏：對應 py-16 md:py-24（15 處，最主流）與 p-6/p-8 的卡片內距 */
     --space-gutter: 1rem;       /* 16px 版面左右安全邊 */
     --space-card: 1.5rem;       /* 24px 卡片內距 */

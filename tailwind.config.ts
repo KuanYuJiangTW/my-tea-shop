@@ -71,6 +71,15 @@ const config: Config = {
         serif: ["var(--font-serif)", "serif"],
       },
 
+      // 字級只定義內文端四階；標題端沿用 Tailwind 既有尺度，不在本波動。
+      // 既有的 text-sm / text-xs 保留可用——這是漸進遷移，不是一次換掉全站。
+      fontSize: {
+        caption:   ["var(--text-caption)",  { lineHeight: "var(--leading-caption)" }],
+        label:     ["var(--text-label)",    { lineHeight: "var(--leading-label)" }],
+        body:      ["var(--text-body)",     { lineHeight: "var(--leading-body)" }],
+        "body-lg": ["var(--text-body-lg)",  { lineHeight: "var(--leading-body-lg)" }],
+      },
+
       // ── 非顏色 token 的 utility 對照（值一律讀 CSS 變數，見 globals.css :root）──
       // 既有的 rounded-2xl / shadow-sm / duration-200 都保留可用，這裡是「語意版」，
       // 讓元件寫 rounded-card 而不是 rounded-2xl——語意名才帶得到 React Native。
