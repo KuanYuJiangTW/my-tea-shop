@@ -218,3 +218,9 @@
 - 代價：預期 746 筆，實際替換 12539 筆，26 個檔案全毀（`RevenueChart` 變成 `Revenuetea-cream-darkhart`）。所幸未提交，`git checkout -- <dir>` 完整還原。真正救命的不是我謹慎，是**替換前有盤點數字可對照**——12539 vs 746 一眼就知道出事
 - 規則：**批次字串替換一律用 `split(literal).join(replacement)`，不要用正則**（不需要 pattern 就不要引入 pattern 的風險）。若非用正則不可，必須先 `console.log(re.source)` 印出實際生成的 pattern 再跑。無論哪種，都要「先數再寫」：第一遍只統計、逐項斷言實際筆數 == 事前盤點筆數，全部相符才寫檔；不符就中止
 - 去處：暫存於此（與同日「python 空殼」同源：批次操作要有一個事前已知的期望值可以對照，否則錯了也不會知道）
+
+## 2026-08-06 把 class 字串抽到共用模組，Tailwind 卻掃不到——content glob 逐目錄列舉的坑
+- 情境：狀態徽章的 class 從三個頁面抽到 `src/lib/admin-status.ts` 做單一事實來源。`tailwind.config.ts` 的 content 原本逐目錄列舉 `src/pages`、`src/components`、`src/app`——**不含 `src/lib`**。於是只被該檔引用的 `status-warn` / `status-warn-soft` 完全沒有生成
+- 代價：差一步就讓「待付款徽章沒有底色」上線。而且極難察覺——其他 status 色因為前台 `AccountClient.tsx` 也用到而正常生成，只有 admin 獨有的那一組是空的，肉眼掃過 config 與程式碼都看不出問題。抓到它的是「從建置產物 CSS 讀出每個 token 的實際 rgb 再比對」這道驗證
+- 規則：**content glob 一律寫 `./src/**/*.{js,ts,jsx,tsx,mdx}`，不要逐目錄列舉**——逐目錄等於埋一條「共用模組不可以含 class 字串」的隱含規則，沒有人會知道。另：**把 class 字串搬到新位置後，必須從建置產物確認該 class 真的生成**，不能只看程式碼改對了
+- 去處：暫存於此（與同日兩條同源：批次操作要有事前期望值可對照；這條是「期望值要落在產物上，不是原始碼上」）
