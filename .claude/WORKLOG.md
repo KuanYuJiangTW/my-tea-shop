@@ -356,6 +356,32 @@ Tailwind 產物一律以 `npm run build` 為準
 判別法：直接 `node` fetch 得通但 dev server 不通 → 環境變數繼承問題，不是網路也不是 RLS。
 解法在 `.claude/launch.json`（已 gitignore）用 `--use-system-ca`。已入 diagnosis.md 環境事實表。
 
+**第十波（2026-08-06）：淺底收斂成兩層**
+- 診斷確認：`cream #F5F0E8`／`cream-light #FAF7F2`／`white` 三層彼此只差 2%，視覺上同一片
+- 執行：全站 101 處 `bg-tea-cream-light` → `bg-tea-cream`（34 檔）。
+  `cream-light` 不從色盤移除，**改當深底上的文字色**（`text-tea-cream-light` 13 處：
+  Hero 大標、Footer、深色 CTA 段），角色從「背景層」變成「深底文字」，定義反而更乾淨
+- **一開始的方向是錯的，被實測推翻**：原本想讓 section 交替 cream/white 來強化第九波的節奏。
+  改完掃描發現首頁「本季精選」段改白底後，**三張商品卡（`bg-white`）全部同色壓同色**——
+  卡片牆等於消失。修正後的原則是**層次由「有沒有卡片」決定，不是由「要不要交替」決定**：
+  有卡片的段用 cream 讓白卡浮起來，純敘事段用 white。節奏交給間距 token，背景只管層次
+- 依此原則順帶補上四處**既有**的白壓白（不是這波造成的，但同一個病）：
+  `/products` 與 `/experiences` 的卡片牆頁底、`/about` 理念卡段、`/process` 兩段
+- 新增的驗證器值得沿用：**掃出「不透明背景 == 最近的不透明祖先背景」且像卡片的元素**。
+  這比肉眼看可靠——2% 的色差人眼分不出來，但它分得出來。九個前台頁掃到零殘留
+  （`/process` 製程卡區剩 2 處，該區用米色系當色票，改底色會與卡片衝突，留待專門處理）
+- **對比零退步的證據**：`git stash` 前後各跑一次 `contrast-audit.js`，
+  首頁「檢查 182 節點／不合格 111／疊圖片 6」**改前改後完全相同**。
+  111 項全是第六波拍板的已知取捨（`tea-green`／`tea-text-light`），沒有任何項目從合格掉到不合格
+- **踩到的坑**：PowerShell 的 `Get-ChildItem`／`Get-Content` 會把路徑裡的 `[]`
+  當萬用字元，`[slug]`／`[id]` 那 8 個檔**整批被靜默跳過**（只在 stderr 留下看似無害的
+  「does not exist, or has been filtered」）。救命的還是事前盤點：預期 101、實得 88。
+  修法是全部改用 `-LiteralPath`。同一個迴圈若 `$c` 為 null 還會把檔案寫成空的——
+  已加 `if ($null -eq $c) { throw }` 守衛。已入 lessons.md
+- 順帶修正 `design-system.md` 的文件漂移：`--background` 記載為 cream-light，
+  但第六波已改回純白（瀏覽器實測 `lab(100 0 0)`）
+- 驗證：551 測試全過（42 檔）、`tsc` 零錯誤、build 成功
+
 ---
 
 ### 下一個 session 從這裡接手
@@ -364,16 +390,15 @@ Tailwind 產物一律以 `npm run build` 為準
 551 測試全過（42 檔）、`tsc` 零錯誤、build 成功。**尚未開 PR、未動 main**（小江未要求）。
 
 **排隊中的工作**（依建議順序）：
-1. **淺底收斂成兩層** ← 建議下一項。`cream #F5F0E8` / `cream-light #FAF7F2` / `white` 三層
-   明度差僅 2%，視覺上是同一片，等於白做了三段變化。收成兩層，第九波做的快慢節奏才看得出來。
-   只動 section 的 `bg-` class，但底色一變所有壓在上面的文字對比都會變，需重跑 `docs/contrast-audit.js`
-2. 門面四件打磨（ProductCard 360／ExperienceCalendar 272／Header 271／`/order/result` 328）——
-   需等字級與淺底 token 定案，否則會改兩次
-3. CheckoutClient 打磨（1210 行、金流頁，**獨立排**，依鐵律 4 先讀 openspec ＋ 改完必跑測試）
-4. Email 樣板脫離內聯 hex（`src/lib/email.ts` 1550 行、492 處 hex、32 種色值，
+1. **門面四件打磨** ← 建議下一項（ProductCard 360／ExperienceCalendar 272／Header 271／
+   `/order/result` 328）。字級（第九波）與淺底（第十波）都已定案，可以動了。
+   一併處理第十波留下的三個小尾巴：`/process` 製程卡區 2 處白壓白（該區用米色系當色票，
+   要連卡片配色一起重想）、`/contact` 的 input 是純 `bg-white` 而其他頁是 `bg-tea-cream/50`（不一致）
+2. CheckoutClient 打磨（1210 行、金流頁，**獨立排**，依鐵律 4 先讀 openspec ＋ 改完必跑測試）
+3. Email 樣板脫離內聯 hex（`src/lib/email.ts` 1550 行、492 處 hex、32 種色值，
    已漂移：混入非品牌色、大小寫不一致、`#E8E0D2` vs `#E8E0D4` 疑似手誤）
-5. 綠色降密度（`tea-green` 系列 621 處 vs `tea-cream` 98 處，綠色被當成預設色用）——
-   621 個主觀判斷，排最後；前面做完後對品牌的感覺可能改變
+4. 綠色降密度（`tea-green` 系列 621 處 vs `tea-cream` 現已 130+ 處，綠色仍被當成預設色用）——
+   數百個主觀判斷，排最後；前面做完後對品牌的感覺可能改變
 
 **待小江提供／拍板**：
 - **Hero 遮罩的實際值**。小江表示調整過（原本太亮），但改動不在 git 任何地方——

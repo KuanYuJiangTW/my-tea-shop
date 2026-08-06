@@ -100,6 +100,12 @@
 - 規則：**content glob 一律寫 `./src/**/*.{js,ts,jsx,tsx,mdx}`，不要逐目錄列舉**——逐目錄等於埋一條「共用模組不可以含 class 字串」的隱含規則，沒有人會知道。另：**把 class 字串搬到新位置後，必須從建置產物確認該 class 真的生成**，不能只看程式碼改對了
 - 去處：暫存於此（與同日兩條同源：批次操作要有事前期望值可對照；這條是「期望值要落在產物上，不是原始碼上」）
 
+## 2026-08-06 PowerShell 把路徑裡的 `[slug]` 當萬用字元，8 個檔被靜默跳過
+- 情境：全站 101 處 `bg-tea-cream-light` → `bg-tea-cream` 的批次替換。用 `Get-ChildItem` 取檔案清單再 `Get-Content $_.FullName` 逐檔讀寫。App Router 的動態路由目錄 `[slug]`／`[id]`／`[sessionId]` 在 PowerShell 裡是**字元類別萬用字元**，`Get-Content` 於是找不到檔案
+- 代價：8 個檔（含 `experiences/[slug]/page.tsx`、`orders/[id]/page.tsx`）完全沒被改到，只在 stderr 留下一行看似無害的「does not exist, or has been filtered by the -Include or -Exclude parameter」——**指令沒有非零退出，摘要也顯示「檔案數: 26」**。抓到它的只有事前盤點：預期 101、實得 88。更危險的是同一個迴圈裡 `Get-Content` 失敗會讓 `$c` 為 null，而 `[System.IO.File]::WriteAllText(path, $null)` 會**把檔案寫成空的**——這次僥倖沒發生（迴圈在更早的一行就出錯跳過了），但那是運氣不是設計
+- 規則：**PowerShell 碰檔案路徑一律用 `-LiteralPath`**（`Get-Content`／`Test-Path`／`Remove-Item`／`Copy-Item` 皆同），本專案是 App Router，`[...]` 目錄到處都是。**批次寫檔前先擋空值**：`if ($null -eq $c) { throw "讀檔失敗: $path" }`，不要讓 null 流進 `WriteAllText`
+- 去處：暫存於此（JUDG-8「先數再改」的第二次奏效：這次和正則毀 26 檔那次一樣，救命的都是事前期望值；差別是這次的失敗模式是「靜默少做」而不是「大聲做錯」，更難察覺）
+
 ## 已歸檔（2026-08-06 精簡，共 18 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
