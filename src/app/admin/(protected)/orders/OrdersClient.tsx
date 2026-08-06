@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { ORDER_STATUS, PAYMENT_STATUS, statusBadge } from "@/lib/admin-status";
 
 type Order = {
   id: string;
@@ -27,19 +28,6 @@ const STATUS_OPTIONS = [
   { value: "completed", label: "已完成" },
   { value: "cancelled", label: "已取消" },
 ];
-
-const ORDER_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  new:       { label: "新訂單", cls: "bg-tea-cream-dark text-[#7A6855]" },
-  preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-  shipped:   { label: "已出貨", cls: "bg-tea-green text-white" },
-  completed: { label: "已完成", cls: "bg-tea-green-dark text-white" },
-  cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
-};
-
-const PAYMENT_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  pending: { label: "待付款", cls: "bg-[#FEF3C7] text-[#92400E]" },
-  paid:    { label: "已付款", cls: "bg-tea-green-pale text-[#3D6B46]" },
-};
 
 function shortId(id: string) {
   return id.replace(/-/g, "").slice(0, 10).toUpperCase();
@@ -152,8 +140,8 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
               </thead>
               <tbody className="divide-y divide-tea-cream">
                 {filtered.map((order) => {
-                  const os = ORDER_STATUS_LABEL[order.order_status] ?? ORDER_STATUS_LABEL.new;
-                  const ps = PAYMENT_STATUS_LABEL[order.payment_status] ?? PAYMENT_STATUS_LABEL.pending;
+                  const os = statusBadge(ORDER_STATUS, order.order_status);
+                  const ps = statusBadge(PAYMENT_STATUS, order.payment_status);
                   return (
                     <tr
                       key={order.id}

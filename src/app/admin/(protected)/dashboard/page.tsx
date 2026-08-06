@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import { ORDER_STATUS, BOOKING_STATUS, statusBadge } from "@/lib/admin-status";
 import RevenueChart from "./RevenueChart";
 import type { MonthRevenue } from "./RevenueChart";
 
@@ -233,20 +234,6 @@ async function getStats() {
   };
 }
 
-const ORDER_STATUS: Record<string, { label: string; cls: string }> = {
-  new:       { label: "新訂單", cls: "bg-tea-cream-dark text-[#7A6855]" },
-  preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-  shipped:   { label: "已出貨", cls: "bg-tea-green text-white" },
-  completed: { label: "已完成", cls: "bg-tea-green-dark text-white" },
-  cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
-};
-
-const EXP_STATUS: Record<string, { label: string; cls: string }> = {
-  confirmed: { label: "已確認", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-  pending:   { label: "待付款", cls: "bg-tea-cream-dark text-[#7A6855]" },
-  cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
-};
-
 function shortId(id: string) {
   return id.replace(/-/g, "").slice(0, 10).toUpperCase();
 }
@@ -435,7 +422,7 @@ export default async function DashboardPage() {
               <div className="px-5 py-8 text-center text-sm text-[#9CA89E]">目前尚無訂單</div>
             ) : (
               recentOrders.map((order) => {
-                const status = ORDER_STATUS[order.order_status as string] ?? ORDER_STATUS.new;
+                const status = statusBadge(ORDER_STATUS, order.order_status as string);
                 const itemCount = Array.isArray(order.items) ? order.items.length : 0;
                 return (
                   <Link
@@ -482,7 +469,7 @@ export default async function DashboardPage() {
             ) : (
               recentExp.map((b) => {
                 const session = b.session as unknown as { session_date: string; experience_types: { name: string } } | null;
-                const status  = EXP_STATUS[b.status as string] ?? EXP_STATUS.pending;
+                const status  = statusBadge(BOOKING_STATUS, b.status as string);
                 return (
                   <Link
                     key={b.id}

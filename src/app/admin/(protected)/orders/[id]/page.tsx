@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ORDER_STATUS, PAYMENT_STATUS, statusBadge } from "@/lib/admin-status";
 import OrderActions from "./OrderActions";
 
 export const dynamic = "force-dynamic";
@@ -26,19 +27,6 @@ type OrderItem = {
   subtotal: number;
 };
 
-const ORDER_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  new:       { label: "新訂單",  cls: "bg-tea-cream-dark text-[#7A6855]" },
-  preparing: { label: "備貨中",  cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-  shipped:   { label: "已出貨",  cls: "bg-tea-green text-white" },
-  completed: { label: "已完成",  cls: "bg-tea-green-dark text-white" },
-  cancelled: { label: "已取消",  cls: "bg-[#E0D5D5] text-[#7A4545]" },
-};
-
-const PAYMENT_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  pending: { label: "待付款", cls: "bg-[#FEF3C7] text-[#92400E]" },
-  paid:    { label: "已付款", cls: "bg-tea-green-pale text-[#3D6B46]" },
-};
-
 const CVS_NAME: Record<string, string> = {
   seven: "7-ELEVEN", family: "全家", hilife: "萊爾富", ok: "OK 超商",
 };
@@ -62,8 +50,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   const shipping = order.shipping_address as ShippingAddress;
   const items = order.items as OrderItem[];
-  const orderStatus  = ORDER_STATUS_LABEL[order.order_status]   ?? ORDER_STATUS_LABEL.new;
-  const paymentStatus = PAYMENT_STATUS_LABEL[order.payment_status] ?? PAYMENT_STATUS_LABEL.pending;
+  const orderStatus   = statusBadge(ORDER_STATUS, order.order_status);
+  const paymentStatus = statusBadge(PAYMENT_STATUS, order.payment_status);
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl">
