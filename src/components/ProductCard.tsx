@@ -136,7 +136,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col border border-tea-green-pale/40 hover:scale-[1.03] hover:-translate-y-1">
+      <div className="bg-white rounded-card overflow-hidden shadow-resting hover:shadow-raised transition-all duration-slow ease-standard group flex flex-col border border-tea-green-pale/40 hover:scale-[1.03] hover:-translate-y-1">
 
         {/* 圖片區 */}
         <div
@@ -151,18 +151,18 @@ export default function ProductCard({ product }: { product: Product }) {
                 src={product.image}
                 alt={product.name}
                 fill
-                className={`object-cover transition-opacity duration-500 ${product.image2 ? "group-hover:opacity-0" : ""}`}
+                className={`object-cover transition-opacity duration-reveal ease-standard ${product.image2 ? "group-hover:opacity-0" : ""}`}
               />
               {product.image2 && (
                 <Image
                   src={product.image2}
                   alt={`${product.name} 第二張`}
                   fill
-                  className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-reveal ease-standard"
                 />
               )}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                <div className="bg-black/30 backdrop-blur-sm rounded-full p-2.5">
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-slow ease-standard pointer-events-none">
+                <div className="bg-tea-text/40 backdrop-blur-sm rounded-pill p-2.5">
                   <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
@@ -172,20 +172,22 @@ export default function ProductCard({ product }: { product: Product }) {
             </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
+              {/* 無圖時的佔位茶葉。顏色走 fill-/stroke- utility，不寫死 hex——
+                  SVG 屬性上的 hex 是色盤遷移時最容易漏掉的一種 */}
               <svg width="100" height="100" viewBox="0 0 100 100" fill="none"
-                className="opacity-25 group-hover:opacity-35 transition-opacity duration-300 group-hover:scale-110 transform">
-                <path d="M50 10C50 10 22 30 22 55C22 70.46 34.54 83 50 83C65.46 83 78 70.46 78 55C78 30 50 10 50 10Z" fill="#3D4A42"/>
-                <path d="M50 24C50 24 34 40 34 55C34 61.63 41.37 69 50 69C58.63 69 66 61.63 66 55C66 40 50 24 50 24Z" fill="#7D9B84"/>
-                <line x1="50" y1="83" x2="50" y2="94" stroke="#3D4A42" strokeWidth="4" strokeLinecap="round"/>
-                <path d="M50 55 Q38 45 30 35" stroke="#3D4A42" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5"/>
-                <path d="M50 55 Q62 45 70 35" stroke="#3D4A42" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5"/>
+                className="opacity-25 group-hover:opacity-35 transition-opacity duration-slow ease-standard group-hover:scale-110 transform">
+                <path d="M50 10C50 10 22 30 22 55C22 70.46 34.54 83 50 83C65.46 83 78 70.46 78 55C78 30 50 10 50 10Z" className="fill-tea-text"/>
+                <path d="M50 24C50 24 34 40 34 55C34 61.63 41.37 69 50 69C58.63 69 66 61.63 66 55C66 40 50 24 50 24Z" className="fill-tea-green"/>
+                <line x1="50" y1="83" x2="50" y2="94" className="stroke-tea-text" strokeWidth="4" strokeLinecap="round"/>
+                <path d="M50 55 Q38 45 30 35" className="stroke-tea-text" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5"/>
+                <path d="M50 55 Q62 45 70 35" className="stroke-tea-text" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5"/>
               </svg>
             </div>
           )}
 
           {/* 類別標籤 */}
           <div className="absolute top-3 left-3">
-            <span className="bg-white/75 backdrop-blur-sm text-tea-text text-xs px-3 py-1 rounded-full font-medium shadow-sm">
+            <span className="bg-white/75 backdrop-blur-sm text-tea-text text-caption px-3 py-1 rounded-pill font-medium shadow-resting">
               {product.category === "烏龍茶" ? t("categoryOolong") : t("categoryBlack")}
             </span>
           </div>
@@ -193,9 +195,9 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* 海拔 / 售完 */}
           <div className="absolute top-3 right-3">
             {allSoldOut ? (
-              <span className="bg-gray-800/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm">{t("outOfStock")}</span>
+              <span className="bg-tea-text/80 backdrop-blur-sm text-white text-caption px-3 py-1 rounded-pill font-medium shadow-resting">{t("outOfStock")}</span>
             ) : (
-              <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-xs px-3 py-1 rounded-full shadow-sm">{product.altitude}</span>
+              <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-caption px-3 py-1 rounded-pill shadow-resting">{product.altitude}</span>
             )}
           </div>
 
@@ -211,14 +213,14 @@ export default function ProductCard({ product }: { product: Product }) {
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/>
               <circle cx="12" cy="9" r="2.5" fill="white"/>
             </svg>
-            <p className="text-xs text-tea-green font-medium tracking-wide">{isEn ? (product.originEn || product.origin) : product.origin}</p>
+            <p className="text-caption text-tea-green font-medium tracking-wide">{isEn ? (product.originEn || product.origin) : product.origin}</p>
           </div>
 
           {/* 茶名 */}
           <h3 className={`font-serif text-xl font-bold mb-1 group-hover:text-tea-green transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
             {isEn ? product.nameEn : product.name}
           </h3>
-          <p className="text-xs text-tea-text-light italic mb-3">{isEn ? product.name : product.nameEn}</p>
+          <p className="text-caption text-tea-text-light italic mb-3">{isEn ? product.name : product.nameEn}</p>
 
           {/* 描述 */}
           <p className="text-body text-tea-text-light line-clamp-2 flex-1 mb-4">
@@ -228,7 +230,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* 規格選擇 */}
           {variants.length > 1 && (
             <div className="mb-4">
-              <p className="text-xs text-tea-text-light mb-2">{t("selectVariant")}</p>
+              <p className="text-caption text-tea-text-light mb-2">{t("selectVariant")}</p>
               <div className="flex gap-2 flex-wrap">
                 {variants.map((v) => {
                   const variantSoldOut = v.stock === 0;
@@ -237,20 +239,20 @@ export default function ProductCard({ product }: { product: Product }) {
                       key={v.key}
                       onClick={(e) => { e.stopPropagation(); if (!variantSoldOut) selectVariant(v.key); }}
                       disabled={variantSoldOut}
-                      className={`flex flex-col items-center px-3 py-2 rounded-xl border text-xs font-medium transition-all duration-150 min-w-[60px] ${
+                      className={`flex flex-col items-center px-3 py-2 rounded-control border text-caption font-medium transition-all duration-fast ease-standard min-w-[60px] ${
                         variantSoldOut
-                          ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                          ? "border-tea-cream-dark text-tea-text-faint cursor-not-allowed"
                           : selectedKey === v.key
                           ? "border-tea-green bg-tea-green-mist text-tea-green"
                           : "border-tea-green-pale text-tea-text-light hover:border-tea-green/50 hover:text-tea-text"
                       }`}
                     >
-                      <span className="font-bold text-sm leading-tight">{v.label}</span>
+                      <span className="font-bold text-label leading-tight">{v.label}</span>
                       <span className="text-[10px] opacity-70 leading-tight">
                         {variantSoldOut ? t("outOfStock") : v.hint}
                       </span>
                       {!variantSoldOut && v.stock !== undefined && (
-                        <span className={`text-[10px] leading-tight mt-0.5 ${v.stock <= 10 ? "text-amber-500 font-semibold" : "opacity-50"}`}>
+                        <span className={`text-[10px] leading-tight mt-0.5 ${v.stock <= 10 ? "text-status-warn font-semibold" : "opacity-50"}`}>
                           {t("stockLeft", { count: v.stock })}
                         </span>
                       )}
@@ -264,9 +266,9 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* 數量選擇 */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex flex-col">
-              <span className="text-xs text-tea-text-light font-medium">{t("quantity")}</span>
+              <span className="text-caption text-tea-text-light font-medium">{t("quantity")}</span>
               {!selectedSoldOut && selected.stock !== undefined && (
-                <span className={`text-[10px] mt-0.5 ${selected.stock <= 10 ? "text-amber-500 font-semibold" : "text-tea-text-light"}`}>
+                <span className={`text-[10px] mt-0.5 ${selected.stock <= 10 ? "text-status-warn font-semibold" : "text-tea-text-light"}`}>
                   {t("stockCount", { count: selected.stock })}
                 </span>
               )}
@@ -275,23 +277,23 @@ export default function ProductCard({ product }: { product: Product }) {
               <button
                 onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.max(1, q - 1)); }}
                 disabled={selectedSoldOut || quantity <= 1}
-                className="w-7 h-7 rounded-full border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors disabled:opacity-30 disabled:cursor-default"
+                className="w-7 h-7 rounded-pill border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors duration-base ease-standard disabled:opacity-30 disabled:cursor-default"
                 aria-label="減少數量"
               >
                 −
               </button>
-              <span className="w-7 text-center text-sm font-semibold text-tea-text tabular-nums">
+              <span className="w-7 text-center text-label font-semibold text-tea-text tabular-nums">
                 {quantity}
               </span>
               <button
                 onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.min(maxQty, q + 1)); }}
                 disabled={selectedSoldOut || quantity >= maxQty}
-                className="w-7 h-7 rounded-full border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors disabled:opacity-30 disabled:cursor-default"
+                className="w-7 h-7 rounded-pill border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors duration-base ease-standard disabled:opacity-30 disabled:cursor-default"
                 aria-label="增加數量"
               >
                 +
               </button>
-              <span className="text-xs text-tea-text-light">{selected.unit}</span>
+              <span className="text-caption text-tea-text-light">{selected.unit}</span>
             </div>
           </div>
 
@@ -301,11 +303,11 @@ export default function ProductCard({ product }: { product: Product }) {
               <span className={`font-bold text-xl leading-none ${selectedSoldOut ? "text-tea-text/40" : "text-tea-green"}`}>
                 NT${selected.price.toLocaleString()}
               </span>
-              <span className="text-tea-text-light text-xs mt-0.5">/ {selected.weight}</span>
+              <span className="text-tea-text-light text-caption mt-0.5">/ {selected.weight}</span>
             </div>
 
             {selectedSoldOut ? (
-              <button disabled className="flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-full font-medium bg-gray-100 text-gray-400 cursor-not-allowed">
+              <button disabled className="flex items-center gap-1.5 text-label px-5 py-2.5 rounded-pill font-medium bg-tea-cream-dark text-tea-text-faint cursor-not-allowed">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                   <line x1="8" y1="8" x2="16" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -316,10 +318,10 @@ export default function ProductCard({ product }: { product: Product }) {
             ) : (
               <button
                 onClick={handleAdd}
-                className={`flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-full font-medium transition-all duration-200 shadow-sm ${
+                className={`flex items-center gap-1.5 text-label px-5 py-2.5 rounded-pill font-medium transition-all duration-base ease-standard shadow-resting ${
                   added
                     ? "bg-tea-green-pale text-tea-green-dark scale-95"
-                    : "bg-tea-green hover:bg-tea-green-dark text-white hover:shadow-md active:scale-95"
+                    : "bg-tea-green hover:bg-tea-green-dark text-white hover:shadow-raised active:scale-95"
                 }`}
               >
                 {added ? (
