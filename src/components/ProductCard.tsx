@@ -241,7 +241,7 @@ export default function ProductCard({ product }: { product: Product }) {
                       disabled={variantSoldOut}
                       className={`flex flex-col items-center px-3 py-2 rounded-control border text-caption font-medium transition-all duration-fast ease-standard min-w-[60px] ${
                         variantSoldOut
-                          ? "border-tea-cream-dark text-tea-text-faint cursor-not-allowed"
+                          ? "border-tea-cream-dark text-tea-text-light/60 cursor-not-allowed"
                           : selectedKey === v.key
                           ? "border-tea-green bg-tea-green-mist text-tea-green"
                           : "border-tea-green-pale text-tea-text-light hover:border-tea-green/50 hover:text-tea-text"
@@ -307,7 +307,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </div>
 
             {selectedSoldOut ? (
-              <button disabled className="flex items-center gap-1.5 text-label px-5 py-2.5 rounded-pill font-medium bg-tea-cream-dark text-tea-text-faint cursor-not-allowed">
+              <button disabled className="flex items-center gap-1.5 text-label px-5 py-2.5 rounded-pill font-medium bg-tea-cream-dark text-tea-text-light cursor-not-allowed">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                   <line x1="8" y1="8" x2="16" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
