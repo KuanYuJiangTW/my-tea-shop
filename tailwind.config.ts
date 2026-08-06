@@ -115,6 +115,7 @@ const config: Config = {
         "card-lg": "var(--space-card-lg)",
         section: "var(--space-section)",
         "section-lg": "var(--space-section-lg)",
+        "section-xl": "var(--space-section-xl)",
       },
     },
   },

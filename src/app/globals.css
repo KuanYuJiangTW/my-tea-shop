@@ -156,6 +156,9 @@
     --space-card-lg: 2rem;      /* 32px 大卡片內距 */
     --space-section: 4rem;      /* 64px 區塊垂直節奏（行動） */
     --space-section-lg: 6rem;   /* 96px 區塊垂直節奏（桌機） */
+    --space-section-xl: 8rem;   /* 128px「慢段」用——敘事型段落需要留白才慢得下來。
+                                   均勻的節奏等於沒有節奏：首頁原本 5 段全是 py-16 md:py-24，
+                                   讀起來像模板。快慢交替才有起伏 */
   }
 
   body {

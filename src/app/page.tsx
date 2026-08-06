@@ -102,7 +102,7 @@ export default async function HomePage() {
         />
         <div className="absolute inset-0 bg-tea-text/55" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
           <div className="max-w-2xl">
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
               {t("hero.subtitle")}
@@ -136,7 +136,9 @@ export default async function HomePage() {
       </section>
 
       {/* 品茶哲學 */}
-      <section className="py-16 md:py-24 bg-tea-cream">
+      {/* 慢段：品茶哲學是敘事不是商品，留白讓它慢下來。
+          快慢交替見 globals.css --space-section-xl 的註解 */}
+      <section className="py-section-lg md:py-section-xl bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="flex flex-col justify-center">
@@ -189,7 +191,8 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 md:py-24 bg-tea-cream-light">
+      {/* 快段：商業區塊要效率，維持原節奏 */}
+      <section className="py-section md:py-section-lg bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
             <div>
@@ -214,7 +217,7 @@ export default async function HomePage() {
 
       {/* 茶山體驗 */}
       {experiences.length > 0 && (
-        <section className="py-16 md:py-24 bg-white">
+        <section className="py-section md:py-section-lg bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
@@ -298,7 +301,8 @@ export default async function HomePage() {
       )}
 
       {/* Brand Story */}
-      <section className="py-16 md:py-24 bg-tea-text">
+      {/* 慢段：品牌故事是情緒高點，也是唯一的深色錨點 */}
+      <section className="py-section-lg md:py-section-xl bg-tea-text">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mb-14">
             <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
@@ -328,7 +332,7 @@ export default async function HomePage() {
       </section>
 
       {/* Process Teaser */}
-      <section className="py-16 md:py-24 bg-tea-cream">
+      <section className="py-section md:py-section-lg bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
             {t("process.title")}
