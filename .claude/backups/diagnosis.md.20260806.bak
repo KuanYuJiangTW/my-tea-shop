@@ -17,10 +17,8 @@
 | repo 內 `.claude/agents/*.md` 會自動載入為可用 subagent | 制度化的派工角色放這裡，每個 session 都拿得到 |
 | Playwright 瀏覽器已預裝（`/opt/pw-browsers`） | 不要跑 `playwright install` |
 | 對外 HTTPS 走 agent proxy | TLS 錯誤時看 `/root/.ccr/README.md`，不要關閉憑證驗證 |
-| **本機（Windows）：Avast 攔截 HTTPS，`preview_start` 的子行程拿不到 `NODE_EXTRA_CA_CERTS`** | 連 Supabase 會 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`，頁面靜默變成「共 0 款茶品」——**看起來像沒資料，其實是連不上**。解法：`.claude/launch.json` 用 `cmd /c "set NODE_OPTIONS=--use-system-ca && npm run dev"`（讀 Windows 憑證庫，不寫死 Avast 路徑）。該檔已被 gitignore，屬本機設定不進 repo |
 
 **事實來源（2026-07-05 查證的 citation）**：
-- Avast/CA 那條為 2026-08-06 實測：從 Bash（有繼承環境變數）啟動 dev server → 「共 5 款茶品」且 0 個 TLS 錯誤；從 `preview_start` 啟動 → 「共 0 款」且日誌滿是憑證錯誤；改 launch.json 加 `--use-system-ca` 後 preview 也正常。判別法：直接 `node` fetch 得通但 dev server 不通 → 就是環境變數繼承問題，不是網路或 RLS
 - agents frontmatter（name/description 必填；tools/model/effort 等選填）、model 別名、effort 值域 `low|medium|high|xhigh|max`（預設 inherit）：https://code.claude.com/docs/en/sub-agents.md
 - `@path` import 為 eager、最深 4 層、純文字路徑不會載入：https://code.claude.com/docs/en/memory.md
 - web 容器暫時性、只有 repo 內容跨 session、repo 內 agents 自動載入：https://code.claude.com/docs/en/claude-code-on-the-web.md
