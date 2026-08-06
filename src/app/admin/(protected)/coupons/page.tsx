@@ -166,10 +166,10 @@ export default function CouponsPage() {
       )}
 
       {loading ? (
-        <p className="text-sm text-[#9CA89E]">載入中...</p>
+        <p className="text-sm text-tea-text-faint">載入中...</p>
       ) : tab === "universal" ? (
         universalList.length === 0 ? (
-          <p className="text-sm text-[#9CA89E]">尚無通用碼折價券</p>
+          <p className="text-sm text-tea-text-faint">尚無通用碼折價券</p>
         ) : (
           <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
             <table className="w-full text-sm">
@@ -213,7 +213,7 @@ export default function CouponsPage() {
         )
       ) : (
         batchList.length === 0 ? (
-          <p className="text-sm text-[#9CA89E]">尚無批次券</p>
+          <p className="text-sm text-tea-text-faint">尚無批次券</p>
         ) : (
           <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
             <table className="w-full text-sm">
@@ -231,13 +231,13 @@ export default function CouponsPage() {
                   <tr key={i} className="hover:bg-tea-cream-light">
                     <td className="px-4 py-3 font-mono text-xs text-tea-text-light">{c.code as string}</td>
                     <td className="px-4 py-3 text-right">NT${c.discount_amount as number}</td>
-                    <td className="px-4 py-3 text-xs text-[#9CA89E]">{c.source as string}</td>
+                    <td className="px-4 py-3 text-xs text-tea-text-faint">{c.source as string}</td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${c.used_at ? "bg-gray-100 text-gray-500" : "bg-green-50 text-green-700"}`}>
                         {c.used_at ? "已使用" : "未使用"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-[#9CA89E]">{new Date(c.expires_at as string).toLocaleDateString("zh-TW")}</td>
+                    <td className="px-4 py-3 text-xs text-tea-text-faint">{new Date(c.expires_at as string).toLocaleDateString("zh-TW")}</td>
                   </tr>
                 ))}
               </tbody>

@@ -200,10 +200,10 @@ export default function MemberPointsPage() {
           <div className="space-y-1">
             {tierHistory.map(h => (
               <div key={h.id} className="text-xs text-tea-text flex gap-3">
-                <span className="text-[#9CA89E] w-24 flex-shrink-0">{new Date(h.changed_at).toLocaleDateString("zh-TW")}</span>
+                <span className="text-tea-text-faint w-24 flex-shrink-0">{new Date(h.changed_at).toLocaleDateString("zh-TW")}</span>
                 <span className="font-medium">{h.from_tier} → {h.to_tier}</span>
                 <span className="text-tea-text-light">{h.reason}</span>
-                <span className="text-[#9CA89E]">by {h.triggered_by}</span>
+                <span className="text-tea-text-faint">by {h.triggered_by}</span>
               </div>
             ))}
           </div>
@@ -216,9 +216,9 @@ export default function MemberPointsPage() {
           <h2 className="text-sm font-semibold text-tea-text">點數明細</h2>
         </div>
         {loading ? (
-          <div className="px-4 py-8 text-center text-sm text-[#9CA89E]">載入中...</div>
+          <div className="px-4 py-8 text-center text-sm text-tea-text-faint">載入中...</div>
         ) : transactions.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-[#9CA89E]">尚無記錄</div>
+          <div className="px-4 py-8 text-center text-sm text-tea-text-faint">尚無記錄</div>
         ) : (
           <div className="divide-y divide-tea-cream">
             {transactions.map(t => (
@@ -236,13 +236,13 @@ export default function MemberPointsPage() {
                     {t.is_flagged && <span className="text-xs text-red-500">⚠</span>}
                   </div>
                   <div className="text-sm text-tea-text mt-0.5 truncate">{t.description}</div>
-                  {t.admin_note && <div className="text-xs text-[#9CA89E]">備註：{t.admin_note}</div>}
+                  {t.admin_note && <div className="text-xs text-tea-text-faint">備註：{t.admin_note}</div>}
                 </div>
                 <div className="text-right flex-shrink-0">
                   <div className={`text-sm font-semibold ${t.points >= 0 ? "text-green-700" : "text-red-600"}`}>
                     {t.points > 0 ? "+" : ""}{t.points}
                   </div>
-                  <div className="text-xs text-[#9CA89E]">
+                  <div className="text-xs text-tea-text-faint">
                     {new Date(t.created_at).toLocaleDateString("zh-TW")}
                   </div>
                 </div>

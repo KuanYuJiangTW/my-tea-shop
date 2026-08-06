@@ -81,7 +81,7 @@ export default function LoginForm() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-[#9CA89E] mt-6">霧抉茶管理後台 · 僅供授權人員使用</p>
+        <p className="text-center text-xs text-tea-text-faint mt-6">霧抉茶管理後台 · 僅供授權人員使用</p>
       </div>
     </div>
   );

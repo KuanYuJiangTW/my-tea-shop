@@ -105,16 +105,16 @@ const CITIES = ["台北市","新北市","桃園市","台中市","台南市","高
 function getMemberStatusCls(orderStatus: string, paymentStatus: string): { labelKey: string; cls: string } {
   if (orderStatus === "new") {
     return paymentStatus === "paid"
-      ? { labelKey: "orderStatus.paid2", cls: "bg-[#C8DDD0] text-[#3D6B46]" }
-      : { labelKey: "orderStatus.pending2", cls: "bg-[#EDE8DC] text-[#7A6855]" };
+      ? { labelKey: "orderStatus.paid2", cls: "bg-status-done-soft text-status-done" }
+      : { labelKey: "orderStatus.pending2", cls: "bg-status-idle-soft text-status-idle" };
   }
   const map: Record<string, { labelKey: string; cls: string }> = {
-    preparing: { labelKey: "orderStatus.preparing", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
+    preparing: { labelKey: "orderStatus.preparing", cls: "bg-status-info-soft text-status-info" },
     shipped:   { labelKey: "orderStatus.shipped",   cls: "bg-tea-green text-white" },
     completed: { labelKey: "orderStatus.completed", cls: "bg-tea-green-dark text-white" },
-    cancelled: { labelKey: "orderStatus.cancelled", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+    cancelled: { labelKey: "orderStatus.cancelled", cls: "bg-status-danger-soft text-status-danger" },
   };
-  return map[orderStatus] ?? { labelKey: "orderStatus.pending2", cls: "bg-[#EDE8DC] text-[#7A6855]" };
+  return map[orderStatus] ?? { labelKey: "orderStatus.pending2", cls: "bg-status-idle-soft text-status-idle" };
 }
 
 const CVS_NAME: Record<string, string> = {
@@ -138,9 +138,9 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function bookingStatusCls(status: BookingRow["status"]): string {
   const map: Record<string, string> = {
     pending_payment: "bg-yellow-100 text-yellow-800",
-    confirmed:       "bg-[#C8DDD0] text-[#3D6B46]",
+    confirmed:       "bg-status-done-soft text-status-done",
     completed:       "bg-emerald-100 text-emerald-700",
-    cancelled:       "bg-[#E0D5D5] text-[#7A4545]",
+    cancelled:       "bg-status-danger-soft text-status-danger",
   };
   return map[status] ?? "bg-gray-100 text-gray-600";
 }
@@ -867,9 +867,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         <p className="text-xs font-medium text-tea-text-light">等級變更紀錄</p>
                         {tierHistory.map(h => (
                           <div key={h.id} className="text-xs text-tea-text-light flex gap-2">
-                            <span className="text-[#9CA89E]">{new Date(h.changed_at).toLocaleDateString("zh-TW")}</span>
+                            <span className="text-tea-text-faint">{new Date(h.changed_at).toLocaleDateString("zh-TW")}</span>
                             <span>{h.from_tier} → {h.to_tier}</span>
-                            <span className="text-[#9CA89E]">({h.reason === "upgrade" ? "升等" : h.reason === "annual_reset" ? "年度重置" : h.reason})</span>
+                            <span className="text-tea-text-faint">({h.reason === "upgrade" ? "升等" : h.reason === "annual_reset" ? "年度重置" : h.reason})</span>
                           </div>
                         ))}
                       </div>

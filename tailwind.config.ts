@@ -1,11 +1,12 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  // 掃整個 src，不要逐目錄列舉。
+  // 原本只列 pages/components/app，於是把 class 字串抽到 src/lib/admin-status.ts
+  // 之後，只被該檔引用的 class（status-warn / status-warn-soft）完全不會生成——
+  // 徽章會變成沒有底色。逐目錄列舉等於在「共用模組不可含 class 字串」這件事上
+  // 埋一個沒有人知道的隱含規則。
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   safelist: [
     "from-amber-100", "to-yellow-200",
     "from-green-100", "to-emerald-200",
@@ -35,6 +36,20 @@ const config: Config = {
           text: "#3D4A42",
           "text-light": "#6B8872",
           "text-muted": "#637169",  // 次要內文：四種淺底皆 ≥4.52，彩度低於 green-ink 不會被誤讀為連結
+          "text-faint": "#9CA89E",  // 第三層：空狀態與載入提示（「目前尚無訂單」）。
+                                    // 比 text-light 再淡一階，讓「沒有東西」退到最後面
+        },
+
+        // 狀態語意色 —— 刻意不放進 tea-*。
+        // 狀態需要與品牌色可區辨，本來就該在色盤外；把它們混進 tea-* 會讓
+        // 「這個綠是品牌還是狀態」變成每次都要重想的問題。
+        // `-soft` 是底色、無後綴是文字色，成對使用：bg-status-warn-soft text-status-warn
+        status: {
+          idle: "#7A6855",          "idle-soft": "#EDE8DC",   // 新訂單、待處理
+          info: "#2D5A47",          "info-soft": "#D5E8DA",   // 備貨中、已確認
+          warn: "#92400E",          "warn-soft": "#FEF3C7",   // 待付款、庫存不足
+          danger: "#7A4545",        "danger-soft": "#E0D5D5", // 已取消、付款失敗
+          done: "#3D6B46",          "done-soft": "#C8DDD0",   // 已付款
         },
         background: "var(--background)",
         foreground: "var(--foreground)",

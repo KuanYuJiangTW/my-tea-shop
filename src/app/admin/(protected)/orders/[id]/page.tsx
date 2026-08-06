@@ -56,7 +56,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   return (
     <div className="p-6 lg:p-8 max-w-4xl">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs text-[#9CA89E] mb-6">
+      <div className="flex items-center gap-2 text-xs text-tea-text-faint mb-6">
         <Link href="/admin/orders" className="hover:text-tea-green transition">訂單管理</Link>
         <span>/</span>
         <span className="text-tea-text font-mono">#{shortId(order.id)}</span>
@@ -76,7 +76,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               {paymentStatus.label}
             </span>
           </div>
-          <p className="text-sm text-[#9CA89E]">
+          <p className="text-sm text-tea-text-faint">
             建立於 {new Date(order.created_at).toLocaleString("zh-TW")}
           </p>
         </div>
@@ -111,7 +111,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <div className="p-5">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-xs text-[#9CA89E] border-b border-tea-cream">
+                  <tr className="text-xs text-tea-text-faint border-b border-tea-cream">
                     <th className="text-left pb-2 font-medium">品項</th>
                     <th className="text-center pb-2 font-medium">數量</th>
                     <th className="text-right pb-2 font-medium">單價</th>
@@ -230,7 +230,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="flex justify-between gap-2 text-sm">
-      <span className="text-[#9CA89E] flex-shrink-0">{label}</span>
+      <span className="text-tea-text-faint flex-shrink-0">{label}</span>
       <span className={`text-tea-text text-right ${mono ? "font-mono text-xs" : ""}`}>{value}</span>
     </div>
   );

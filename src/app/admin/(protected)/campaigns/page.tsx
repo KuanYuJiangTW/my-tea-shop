@@ -195,9 +195,9 @@ export default function CampaignsPage() {
       )}
 
       {loading ? (
-        <p className="text-sm text-[#9CA89E]">載入中...</p>
+        <p className="text-sm text-tea-text-faint">載入中...</p>
       ) : campaigns.length === 0 ? (
-        <p className="text-sm text-[#9CA89E]">尚無點數活動</p>
+        <p className="text-sm text-tea-text-faint">尚無點數活動</p>
       ) : (
         <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
           <table className="w-full text-sm">
@@ -221,7 +221,7 @@ export default function CampaignsPage() {
                     <td className="px-4 py-3 text-tea-green font-bold">{c.multiplier}x</td>
                     <td className="px-4 py-3 text-tea-text-light">{CAMPAIGN_TYPES.find(t => t.value === c.campaign_type)?.label ?? c.campaign_type}</td>
                     <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.cls}`}>{status.label}</span></td>
-                    <td className="px-4 py-3 text-xs text-[#9CA89E]">
+                    <td className="px-4 py-3 text-xs text-tea-text-faint">
                       {new Date(c.starts_at).toLocaleDateString("zh-TW")} ~ {new Date(c.ends_at).toLocaleDateString("zh-TW")}
                     </td>
                     <td className="px-4 py-3 text-right space-x-2">
@@ -236,13 +236,13 @@ export default function CampaignsPage() {
                     <tr>
                       <td colSpan={6} className="bg-tea-cream-light px-4 py-3">
                         {historyData.length === 0 ? (
-                          <p className="text-xs text-[#9CA89E]">尚無變更記錄</p>
+                          <p className="text-xs text-tea-text-faint">尚無變更記錄</p>
                         ) : (
                           <div className="space-y-2">
                             <p className="text-xs font-medium text-tea-text-light mb-1">變更歷史</p>
                             {historyData.map(h => (
                               <div key={h.id} className="text-xs text-tea-text border-l-2 border-tea-green pl-3">
-                                <span className="text-[#9CA89E]">{new Date(h.changed_at).toLocaleString("zh-TW")}</span>
+                                <span className="text-tea-text-faint">{new Date(h.changed_at).toLocaleString("zh-TW")}</span>
                                 {" "}
                                 <span className="font-medium">{h.action === "deactivate" ? "停用活動" : "修改欄位"}</span>
                                 {h.changed_fields?.length > 0 && (

@@ -203,7 +203,7 @@ export default function AdminCalendarClient({
               </span>
             );
           })}
-          <span className="flex items-center gap-1.5 ml-auto text-[#9CA89E]">
+          <span className="flex items-center gap-1.5 ml-auto text-tea-text-faint">
             點擊日期格子可新增場次
           </span>
         </div>

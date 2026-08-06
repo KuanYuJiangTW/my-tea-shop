@@ -93,7 +93,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
             {opt.label}
             {counts[opt.value] !== undefined && (
               <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] ${
-                filter === opt.value ? "bg-white/20 text-white" : "bg-tea-cream-dark text-[#7A6855]"
+                filter === opt.value ? "bg-white/20 text-white" : "bg-status-idle-soft text-status-idle"
               }`}>
                 {counts[opt.value] ?? 0}
               </span>
@@ -105,7 +105,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
       {/* Search */}
       <div className="mb-4">
         <div className="relative">
-          <svg viewBox="0 0 24 24" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 fill-[#9CA89E]">
+          <svg viewBox="0 0 24 24" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 fill-tea-text-faint">
             <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
           </svg>
           <input
@@ -121,7 +121,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
       {/* Table */}
       <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-sm text-[#9CA89E]">
+          <div className="py-16 text-center text-sm text-tea-text-faint">
             {search || filter !== "all" ? "找不到符合條件的訂單" : "目前尚無訂單"}
           </div>
         ) : (
@@ -153,7 +153,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                       </td>
                       <td className="px-4 py-3">
                         <div className="font-medium text-tea-text">{order.customer_name}</div>
-                        <div className="text-xs text-[#9CA89E]">{order.customer_email}</div>
+                        <div className="text-xs text-tea-text-faint">{order.customer_email}</div>
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
                         <span className="text-xs text-tea-text-light">
@@ -178,7 +178,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                       <td className="px-4 py-3 text-right font-semibold text-tea-text">
                         NT${order.total_amount.toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-right text-xs text-[#9CA89E]">
+                      <td className="px-4 py-3 text-right text-xs text-tea-text-faint">
                         {new Date(order.created_at).toLocaleDateString("zh-TW")}
                       </td>
                     </tr>

@@ -140,7 +140,7 @@ export default function OrderActions({
 
   if (actions.length === 0) {
     return (
-      <div className="text-sm text-[#9CA89E] px-4 py-2 bg-tea-cream-light rounded-xl border border-tea-cream-dark">
+      <div className="text-sm text-tea-text-faint px-4 py-2 bg-tea-cream-light rounded-xl border border-tea-cream-dark">
         {orderStatus === "completed" ? "訂單已完成" : "訂單已取消"}
       </div>
     );

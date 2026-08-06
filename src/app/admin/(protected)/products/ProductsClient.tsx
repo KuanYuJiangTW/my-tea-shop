@@ -177,7 +177,7 @@ function ImageUploader({
           </div>
         ))}
         {gallery.length < MAX_IMAGES && (
-          <label className={`w-20 h-20 rounded-lg border-2 border-dashed border-tea-green-light flex flex-col items-center justify-center text-[#9CA89E] text-xs cursor-pointer hover:border-tea-green hover:text-tea-green transition ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+          <label className={`w-20 h-20 rounded-lg border-2 border-dashed border-tea-green-light flex flex-col items-center justify-center text-tea-text-faint text-xs cursor-pointer hover:border-tea-green hover:text-tea-green transition ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
             <span className="text-xl mb-0.5">{uploading ? "⏳" : "+"}</span>
             <span>{uploading ? "上傳中" : "選圖片"}</span>
             <input
@@ -192,7 +192,7 @@ function ImageUploader({
         )}
       </div>
       {uploadError && <p className="text-xs text-rose-500">{uploadError}</p>}
-      <p className="text-xs text-[#9CA89E]">最多 {MAX_IMAGES} 張，每張不超過 5MB。第一張為封面圖。</p>
+      <p className="text-xs text-tea-text-faint">最多 {MAX_IMAGES} 張，每張不超過 5MB。第一張為封面圖。</p>
     </div>
   );
 }
@@ -451,7 +451,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
   }
 
   function stockColor(stock: number | null) {
-    if (stock === null) return "text-[#9CA89E]";
+    if (stock === null) return "text-tea-text-faint";
     if (stock === 0) return "text-rose-400";
     if (stock <= 5) return "text-amber-500";
     return "text-tea-text";
@@ -498,7 +498,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         <div className="mb-6 bg-white rounded-2xl border border-tea-green-light shadow-md overflow-hidden">
           <div className="px-5 py-4 border-b border-tea-cream bg-tea-cream-light">
             <h2 className="text-sm font-semibold text-tea-text">新增商品</h2>
-            <p className="text-xs text-[#9CA89E] mt-0.5">填入商品資料後點擊「建立商品」，再開啟上架開關即可上架。</p>
+            <p className="text-xs text-tea-text-faint mt-0.5">填入商品資料後點擊「建立商品」，再開啟上架開關即可上架。</p>
           </div>
 
           <div className="px-5 py-4 space-y-5">
@@ -520,7 +520,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     }`}
                   />
                   {createErrors.slug && <p className="text-xs text-rose-500 mt-1">{createErrors.slug}</p>}
-                  <p className="text-xs text-[#9CA89E] mt-1">英文小寫 + 數字 + 連字號，系統內部識別用</p>
+                  <p className="text-xs text-tea-text-faint mt-1">英文小寫 + 數字 + 連字號，系統內部識別用</p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-tea-text mb-1">
@@ -583,7 +583,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     ))}
                   </div>
-                  <p className="text-xs text-[#9CA89E] mt-1">
+                  <p className="text-xs text-tea-text-faint mt-1">
                     已選：{COLOR_OPTIONS.find((o) => o.value === createForm.color)?.label ?? "未選"}
                   </p>
                 </div>
@@ -626,7 +626,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="bg-tea-cream-light rounded-xl border border-tea-cream-dark p-3">
                   <p className="text-xs font-bold text-tea-text mb-2">150g 散茶</p>
-                  <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                  <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                   <input
                     type="number" min="0"
                     value={createForm.stock_quantity}
@@ -637,7 +637,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 </div>
                 <div className="bg-tea-cream-light rounded-xl border border-tea-cream-dark p-3">
                   <p className="text-xs font-bold text-tea-text mb-2">75g 散茶</p>
-                  <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                  <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                   <input
                     type="number" min="0"
                     value={createForm.price_75g}
@@ -645,7 +645,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     placeholder="未設定"
                     className="w-full px-2.5 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-2"
                   />
-                  <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                  <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                   <input
                     type="number" min="0"
                     value={createForm.stock_75g}
@@ -656,7 +656,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 </div>
                 <div className="bg-tea-cream-light rounded-xl border border-tea-cream-dark p-3">
                   <p className="text-xs font-bold text-tea-text mb-2">茶包 15入 × 3g</p>
-                  <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                  <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                   <input
                     type="number" min="0"
                     value={createForm.price_tea_bag}
@@ -664,7 +664,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     placeholder="未設定"
                     className="w-full px-2.5 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-2"
                   />
-                  <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                  <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                   <input
                     type="number" min="0"
                     value={createForm.stock_tea_bag}
@@ -724,7 +724,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                   ) : (
                     <div>
                       <span className="font-medium text-tea-text">{product.name || product.slug}</span>
-                      <span className="text-xs text-[#9CA89E] ml-2">{product.name_en} · {product.weight}</span>
+                      <span className="text-xs text-tea-text-faint ml-2">{product.name_en} · {product.weight}</span>
                     </div>
                   )}
                 </div>
@@ -809,7 +809,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       { field: "weight"   as const, label: "重量規格", placeholder: "例如：150g / 75g" },
                     ] as { field: keyof EditState; label: string; placeholder: string }[]).map(({ field, label, placeholder }) => (
                       <div key={field}>
-                        <label className="block text-xs text-[#9CA89E] mb-1">{label}</label>
+                        <label className="block text-xs text-tea-text-faint mb-1">{label}</label>
                         <input
                           type="text"
                           placeholder={placeholder}
@@ -820,7 +820,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       </div>
                     ))}
                     <div className="sm:col-span-2">
-                      <label className="block text-xs text-[#9CA89E] mb-1">商品描述</label>
+                      <label className="block text-xs text-tea-text-faint mb-1">商品描述</label>
                       <textarea
                         rows={2}
                         placeholder="簡短描述商品特色…"
@@ -830,7 +830,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs text-[#9CA89E] mb-1">商品描述（英文）</label>
+                      <label className="block text-xs text-tea-text-faint mb-1">商品描述（英文）</label>
                       <textarea
                         rows={2}
                         placeholder="Brief description in English…"
@@ -840,7 +840,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs text-[#9CA89E] mb-2">商品圖片</label>
+                      <label className="block text-xs text-tea-text-faint mb-2">商品圖片</label>
                       <ImageUploader
                         slug={product.slug}
                         gallery={draft.gallery}
@@ -848,7 +848,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs text-[#9CA89E] mb-2">商品卡背景色</label>
+                      <label className="block text-xs text-tea-text-faint mb-2">商品卡背景色</label>
                       <div className="flex flex-wrap gap-2">
                         {COLOR_OPTIONS.map((opt) => (
                           <button
@@ -864,7 +864,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                           />
                         ))}
                       </div>
-                      <p className="text-xs text-[#9CA89E] mt-1">
+                      <p className="text-xs text-tea-text-faint mt-1">
                         已選：{COLOR_OPTIONS.find((o) => o.value === draft.color)?.label ?? "未選"}
                       </p>
                     </div>
@@ -880,14 +880,14 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
                       <p className="text-xs font-bold text-tea-text mb-3">150g 散茶</p>
-                      <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                      <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                       <input
                         type="number" min="0"
                         value={draft.price}
                         onChange={(e) => updateField(product.id, "price", e.target.value)}
                         className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-3"
                       />
-                      <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                      <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                       <input
                         type="number" min="0"
                         value={draft.stock_quantity}
@@ -898,7 +898,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     </div>
                     <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
                       <p className="text-xs font-bold text-tea-text mb-3">75g 散茶</p>
-                      <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                      <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                       <input
                         type="number" min="0"
                         value={draft.price_75g}
@@ -906,7 +906,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-3"
                         placeholder="未設定"
                       />
-                      <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                      <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                       <input
                         type="number" min="0"
                         value={draft.stock_75g}
@@ -917,7 +917,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     </div>
                     <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
                       <p className="text-xs font-bold text-tea-text mb-3">茶包 15入 × 3g</p>
-                      <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                      <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                       <input
                         type="number" min="0"
                         value={draft.price_tea_bag}
@@ -925,7 +925,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-3"
                         placeholder="未設定"
                       />
-                      <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                      <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                       <input
                         type="number" min="0"
                         value={draft.stock_tea_bag}
@@ -982,7 +982,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     { label: "茶包", price: product.price_tea_bag,  stock: product.stock_tea_bag },
                   ].map(({ label, price, stock }) => (
                     <div key={label} className="flex items-center gap-2 text-xs">
-                      <span className="text-[#9CA89E] font-medium w-8">{label}</span>
+                      <span className="text-tea-text-faint font-medium w-8">{label}</span>
                       <span className="text-tea-text font-semibold">
                         {price != null ? `NT$${price.toLocaleString()}` : "—"}
                       </span>
@@ -998,7 +998,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         })}
       </div>
 
-      <p className="text-xs text-[#9CA89E] mt-4">
+      <p className="text-xs text-tea-text-faint mt-4">
         * 庫存 0 = 售完（紅色）；≤5 = 庫存偏低（橘色）；空白 = 不限。售價空白表示不顯示此規格。
       </p>
 

@@ -19,21 +19,21 @@ export type StatusBadge = { label: string; cls: string };
 
 /** 訂單狀態 `orders.order_status` */
 export const ORDER_STATUS: Record<string, StatusBadge> = {
-  new:         { label: "新訂單", cls: "bg-tea-cream-dark text-[#7A6855]" },
-  preparing:   { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
+  new:         { label: "新訂單", cls: "bg-status-idle-soft text-status-idle" },
+  preparing:   { label: "備貨中", cls: "bg-status-info-soft text-status-info" },
   shipped:     { label: "已出貨", cls: "bg-tea-green text-white" },
   completed:   { label: "已完成", cls: "bg-tea-green-dark text-white" },
-  cancelled:   { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+  cancelled:   { label: "已取消", cls: "bg-status-danger-soft text-status-danger" },
   // 以下兩個是本次補上的。付款成功後庫存不足 → stock_issue（需人工處理，用警示琥珀）；
   // 金流回報失敗 → failed（終態，與已取消同組紅）
-  stock_issue: { label: "庫存不足", cls: "bg-[#FEF3C7] text-[#92400E]" },
-  failed:      { label: "付款失敗", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+  stock_issue: { label: "庫存不足", cls: "bg-status-warn-soft text-status-warn" },
+  failed:      { label: "付款失敗", cls: "bg-status-danger-soft text-status-danger" },
 };
 
 /** 付款狀態 `orders.payment_status` */
 export const PAYMENT_STATUS: Record<string, StatusBadge> = {
-  pending: { label: "待付款", cls: "bg-[#FEF3C7] text-[#92400E]" },
-  paid:    { label: "已付款", cls: "bg-tea-green-pale text-[#3D6B46]" },
+  pending: { label: "待付款", cls: "bg-status-warn-soft text-status-warn" },
+  paid:    { label: "已付款", cls: "bg-status-done-soft text-status-done" },
 };
 
 /** 體驗預約狀態 `experience_bookings.status` */
@@ -41,10 +41,10 @@ export const BOOKING_STATUS: Record<string, StatusBadge> = {
   // 舊表的 key 是 `pending`，但全 repo 從未寫入該值（型別與實作都是 pending_payment）。
   // 也就是說那個 key 從來沒被直接命中過，只是剛好被當成 fallback 用。
   // 配色沿用原本 fallback 呈現的樣子，避免這次修正順帶改變外觀。
-  pending_payment: { label: "待付款", cls: "bg-tea-cream-dark text-[#7A6855]" },
-  confirmed:       { label: "已確認", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
+  pending_payment: { label: "待付款", cls: "bg-status-idle-soft text-status-idle" },
+  confirmed:       { label: "已確認", cls: "bg-status-info-soft text-status-info" },
   completed:       { label: "已完成", cls: "bg-tea-green-dark text-white" },
-  cancelled:       { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
+  cancelled:       { label: "已取消", cls: "bg-status-danger-soft text-status-danger" },
 };
 
 /**

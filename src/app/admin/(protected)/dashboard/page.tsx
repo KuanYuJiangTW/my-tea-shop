@@ -419,7 +419,7 @@ export default async function DashboardPage() {
           </div>
           <div className="divide-y divide-tea-cream">
             {recentOrders.length === 0 ? (
-              <div className="px-5 py-8 text-center text-sm text-[#9CA89E]">目前尚無訂單</div>
+              <div className="px-5 py-8 text-center text-sm text-tea-text-faint">目前尚無訂單</div>
             ) : (
               recentOrders.map((order) => {
                 const status = statusBadge(ORDER_STATUS, order.order_status as string);
@@ -438,13 +438,13 @@ export default async function DashboardPage() {
                         </span>
                       </div>
                       <div className="text-sm font-medium text-tea-text truncate">{order.customer_name as string}</div>
-                      <div className="text-xs text-[#9CA89E]">{itemCount} 件商品</div>
+                      <div className="text-xs text-tea-text-faint">{itemCount} 件商品</div>
                     </div>
                     <div className="text-right flex-shrink-0">
                       <div className="text-sm font-semibold text-tea-text">
                         NT${(order.total_amount as number).toLocaleString()}
                       </div>
-                      <div className="text-xs text-[#9CA89E]">
+                      <div className="text-xs text-tea-text-faint">
                         {new Date(order.created_at as string).toLocaleDateString("zh-TW")}
                       </div>
                     </div>
@@ -465,7 +465,7 @@ export default async function DashboardPage() {
           </div>
           <div className="divide-y divide-tea-cream">
             {recentExp.length === 0 ? (
-              <div className="px-5 py-8 text-center text-sm text-[#9CA89E]">目前尚無預約</div>
+              <div className="px-5 py-8 text-center text-sm text-tea-text-faint">目前尚無預約</div>
             ) : (
               recentExp.map((b) => {
                 const session = b.session as unknown as { session_date: string; experience_types: { name: string } } | null;
@@ -483,7 +483,7 @@ export default async function DashboardPage() {
                         </span>
                       </div>
                       <div className="text-sm font-medium text-tea-text truncate">{b.contact_name as string}</div>
-                      <div className="text-xs text-[#9CA89E] truncate">
+                      <div className="text-xs text-tea-text-faint truncate">
                         {session?.experience_types?.name ?? "—"} · {session?.session_date ?? "—"} · {b.participant_count as number} 人
                       </div>
                     </div>
@@ -491,7 +491,7 @@ export default async function DashboardPage() {
                       <div className="text-sm font-semibold text-tea-text">
                         NT${(b.total_price as number).toLocaleString()}
                       </div>
-                      <div className="text-xs text-[#9CA89E]">
+                      <div className="text-xs text-tea-text-faint">
                         {new Date(b.created_at as string).toLocaleDateString("zh-TW")}
                       </div>
                     </div>
@@ -510,21 +510,21 @@ export default async function DashboardPage() {
           className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream-light transition group"
         >
           <div className="text-sm font-medium text-tea-text mb-1 group-hover:text-tea-green-dark">待出貨訂單</div>
-          <div className="text-xs text-[#9CA89E]">查看需要出貨的訂單</div>
+          <div className="text-xs text-tea-text-faint">查看需要出貨的訂單</div>
         </Link>
         <Link
           href="/admin/products"
           className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream-light transition group"
         >
           <div className="text-sm font-medium text-tea-text mb-1 group-hover:text-tea-green-dark">管理產品</div>
-          <div className="text-xs text-[#9CA89E]">調整庫存、價格與上下架</div>
+          <div className="text-xs text-tea-text-faint">調整庫存、價格與上下架</div>
         </Link>
         <Link
           href="/admin/experiences/bookings"
           className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream-light transition group"
         >
           <div className="text-sm font-medium text-tea-text mb-1 group-hover:text-tea-green-dark">體驗管理</div>
-          <div className="text-xs text-[#9CA89E]">查看體驗預約與場次</div>
+          <div className="text-xs text-tea-text-faint">查看體驗預約與場次</div>
         </Link>
       </div>
     </div>
