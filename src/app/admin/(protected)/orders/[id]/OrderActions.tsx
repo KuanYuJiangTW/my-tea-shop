@@ -140,16 +140,16 @@ export default function OrderActions({
 
   if (actions.length === 0) {
     return (
-      <div className="text-sm text-[#9CA89E] px-4 py-2 bg-[#FAF7F2] rounded-xl border border-[#EDE8DC]">
+      <div className="text-sm text-[#9CA89E] px-4 py-2 bg-tea-cream-light rounded-xl border border-tea-cream-dark">
         {orderStatus === "completed" ? "訂單已完成" : "訂單已取消"}
       </div>
     );
   }
 
   const variantCls: Record<string, string> = {
-    primary: "bg-white hover:bg-[#F5F0E8] text-[#3D4A42] border border-[#EDE8DC]",
-    danger:  "bg-[#F5EDE8] hover:bg-[#EDD5CC] text-[#7A4545] border border-[#EDE0DA]",
-    success: "bg-[#7D9B84] hover:bg-[#5C7A67] text-white shadow-sm",
+    primary: "bg-white hover:bg-tea-cream text-tea-text border border-tea-cream-dark",
+    danger:  "bg-tea-cream hover:bg-[#EDD5CC] text-[#7A4545] border border-[#EDE0DA]",
+    success: "bg-tea-green hover:bg-tea-green-dark text-white shadow-sm",
   };
 
   return (
@@ -173,14 +173,14 @@ export default function OrderActions({
       {/* Ship Confirmation Modal */}
       {showShipModal && pendingAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
-          <div className="bg-white rounded-2xl border border-[#EDE8DC] shadow-xl w-full max-w-md p-6">
-            <h3 className="text-base font-bold text-[#3D4A42] mb-1">確認出貨</h3>
-            <p className="text-sm text-[#6B8872] mb-4">
+          <div className="bg-white rounded-2xl border border-tea-cream-dark shadow-xl w-full max-w-md p-6">
+            <h3 className="text-base font-bold text-tea-text mb-1">確認出貨</h3>
+            <p className="text-sm text-tea-text-light mb-4">
               將自動寄送出貨通知 Email 給 <strong>{customerEmail}</strong>
             </p>
 
             <div className="mb-4">
-              <label className="block text-xs font-medium text-[#6B8872] mb-1.5 uppercase tracking-wide">
+              <label className="block text-xs font-medium text-tea-text-light mb-1.5 uppercase tracking-wide">
                 出貨備註（選填，會顯示在 Email 中）
               </label>
               <input
@@ -188,20 +188,20 @@ export default function OrderActions({
                 value={trackingNote}
                 onChange={(e) => setTrackingNote(e.target.value)}
                 placeholder="例：黑貓宅急便，單號 1234567890"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#EDE8DC] bg-[#FAF7F2] text-sm text-[#3D4A42] placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] focus:border-transparent"
+                className="w-full px-4 py-2.5 rounded-xl border border-tea-cream-dark bg-tea-cream-light text-sm text-tea-text placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green focus:border-transparent"
               />
             </div>
 
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => { setShowShipModal(false); setPendingAction(null); }}
-                className="px-4 py-2 rounded-xl text-sm text-[#6B8872] hover:bg-[#F5F0E8] transition"
+                className="px-4 py-2 rounded-xl text-sm text-tea-text-light hover:bg-tea-cream transition"
               >
                 取消
               </button>
               <button
                 onClick={() => doUpdate(pendingAction, true)}
-                className="px-4 py-2 rounded-xl text-sm font-medium bg-[#7D9B84] hover:bg-[#5C7A67] text-white transition"
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-tea-green hover:bg-tea-green-dark text-white transition"
               >
                 確認出貨並寄信
               </button>

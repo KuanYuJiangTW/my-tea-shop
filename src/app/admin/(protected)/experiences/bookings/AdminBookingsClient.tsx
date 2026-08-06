@@ -149,24 +149,24 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
   }
 
   return (
-    <div className="p-6 md:p-8 min-h-screen bg-[#F9F6F1]">
+    <div className="p-6 md:p-8 min-h-screen bg-tea-cream-light">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#3D4A42] font-serif">預約名單</h1>
-          <p className="text-sm text-[#6B8872] mt-0.5">
+          <h1 className="text-2xl font-bold text-tea-text font-serif">預約名單</h1>
+          <p className="text-sm text-tea-text-light mt-0.5">
             {sessionId ? "篩選特定場次" : "所有預約紀錄"}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={handleExportCsv}
-            className="text-sm text-[#6B8872] hover:text-[#3D4A42] border border-[#C8DDD0] hover:border-[#6B8872] px-3 py-1.5 rounded-lg transition-colors"
+            className="text-sm text-tea-text-light hover:text-tea-text border border-tea-green-pale hover:border-tea-text-light px-3 py-1.5 rounded-lg transition-colors"
           >
             匯出 CSV
           </button>
           <Link
             href="/admin/experiences"
-            className="text-sm text-[#6B8872] hover:text-[#3D4A42] transition-colors"
+            className="text-sm text-tea-text-light hover:text-tea-text transition-colors"
           >
             ← 回月曆
           </Link>
@@ -180,7 +180,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
           placeholder="搜尋姓名或電話…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="px-4 py-2 rounded-full border border-[#C8DDD0] text-sm text-[#3D4A42] placeholder-[#A8C0AE] bg-white focus:outline-none focus:ring-2 focus:ring-[#7D9B84] w-full sm:w-56"
+          className="px-4 py-2 rounded-full border border-tea-green-pale text-sm text-tea-text placeholder-tea-green-light bg-white focus:outline-none focus:ring-2 focus:ring-tea-green w-full sm:w-56"
         />
       </div>
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -196,8 +196,8 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
             href={`?status=${opt.value}${sessionId ? `&session=${sessionId}` : ""}`}
             className={`px-4 py-2 rounded-full text-sm transition-colors ${
               status === opt.value
-                ? "bg-[#7D9B84] text-white"
-                : "bg-white border border-[#C8DDD0] text-[#6B8872] hover:bg-[#EBF3EE]"
+                ? "bg-tea-green text-white"
+                : "bg-white border border-tea-green-pale text-tea-text-light hover:bg-tea-green-mist"
             }`}
           >
             {opt.label}
@@ -206,29 +206,29 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
       </div>
 
       {/* 名單表格 */}
-      <div className="bg-white rounded-2xl border border-[#EDE8DC] shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-tea-cream-dark shadow-sm overflow-hidden">
         {filteredBookings.length === 0 ? (
-          <div className="p-12 text-center text-sm text-[#6B8872]">
+          <div className="p-12 text-center text-sm text-tea-text-light">
             {search.trim() ? "無符合的搜尋結果" : "尚無預約紀錄"}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[900px]">
               <thead>
-                <tr className="bg-[#F9F6F1] text-left">
-                  <th className="px-6 py-3 text-xs font-medium text-[#6B8872]">場次</th>
-                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">訂購人</th>
-                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">電話</th>
-                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">人數</th>
-                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">金額</th>
-                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">參加者資料</th>
-                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">狀態</th>
-                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">退款</th>
-                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">特殊需求</th>
-                  <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">操作</th>
+                <tr className="bg-tea-cream-light text-left">
+                  <th className="px-6 py-3 text-xs font-medium text-tea-text-light">場次</th>
+                  <th className="px-4 py-3 text-xs font-medium text-tea-text-light">訂購人</th>
+                  <th className="px-4 py-3 text-xs font-medium text-tea-text-light">電話</th>
+                  <th className="px-4 py-3 text-xs font-medium text-tea-text-light">人數</th>
+                  <th className="px-4 py-3 text-xs font-medium text-tea-text-light">金額</th>
+                  <th className="px-4 py-3 text-xs font-medium text-tea-text-light">參加者資料</th>
+                  <th className="px-4 py-3 text-xs font-medium text-tea-text-light">狀態</th>
+                  <th className="px-4 py-3 text-xs font-medium text-tea-text-light">退款</th>
+                  <th className="px-4 py-3 text-xs font-medium text-tea-text-light">特殊需求</th>
+                  <th className="px-4 py-3 text-xs font-medium text-tea-text-light">操作</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F5F0E8]">
+              <tbody className="divide-y divide-tea-cream">
                 {filteredBookings.map((b) => {
                   const filledCount = b.participants?.length ?? 0;
                   const needFill    = b.participant_count - filledCount;
@@ -245,22 +245,22 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                   const isAwaitingComplete = isConfirmed && isPastSession;
 
                   return (
-                    <tr key={b.id} className={`hover:bg-[#F9F6F1] transition-colors ${needsRefund ? "bg-orange-50" : isAwaitingComplete ? "bg-amber-50" : ""}`}>
+                    <tr key={b.id} className={`hover:bg-tea-cream-light transition-colors ${needsRefund ? "bg-orange-50" : isAwaitingComplete ? "bg-amber-50" : ""}`}>
                       <td className="px-6 py-3.5">
-                        <div className="font-medium text-[#3D4A42]">
+                        <div className="font-medium text-tea-text">
                           {(b.session?.experience_types as { name: string } | null)?.name ?? "—"}
                         </div>
-                        <div className="text-xs text-[#6B8872]">
+                        <div className="text-xs text-tea-text-light">
                           {b.session?.session_date} {b.session?.start_time?.slice(0, 5)}
                         </div>
                       </td>
                       <td className="px-4 py-3.5">
-                        <div className="font-medium text-[#3D4A42]">{b.booker_name}</div>
-                        <div className="text-xs text-[#6B8872]">{b.booker_email}</div>
+                        <div className="font-medium text-tea-text">{b.booker_name}</div>
+                        <div className="text-xs text-tea-text-light">{b.booker_email}</div>
                       </td>
-                      <td className="px-4 py-3.5 text-[#6B8872]">{b.booker_phone}</td>
-                      <td className="px-4 py-3.5 text-[#3D4A42] font-medium">{b.participant_count} 人</td>
-                      <td className="px-4 py-3.5 text-[#3D4A42]">NT$ {b.total_price.toLocaleString()}</td>
+                      <td className="px-4 py-3.5 text-tea-text-light">{b.booker_phone}</td>
+                      <td className="px-4 py-3.5 text-tea-text font-medium">{b.participant_count} 人</td>
+                      <td className="px-4 py-3.5 text-tea-text">NT$ {b.total_price.toLocaleString()}</td>
                       <td className="px-4 py-3.5">
                         <span className={`text-xs ${
                           isOverdue ? "text-red-500 font-medium"
@@ -276,7 +276,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                           {statusLabel[b.status] ?? b.status}
                         </span>
                         {isCancelled && b.cancellation_reason && (
-                          <div className="text-xs text-[#6B8872] mt-1 max-w-[120px] truncate" title={b.cancellation_reason}>
+                          <div className="text-xs text-tea-text-light mt-1 max-w-[120px] truncate" title={b.cancellation_reason}>
                             {b.cancellation_reason}
                           </div>
                         )}
@@ -288,7 +288,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                               {refundStatusLabel[refundSt]}
                             </span>
                             {b.refund_amount != null && b.refund_amount > 0 && (
-                              <div className="text-xs text-[#6B8872]">
+                              <div className="text-xs text-tea-text-light">
                                 NT$ {b.refund_amount.toLocaleString()}
                               </div>
                             )}
@@ -296,17 +296,17 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                               <button
                                 onClick={() => markRefundProcessed(b.id)}
                                 disabled={processing === b.id}
-                                className="block text-xs text-white bg-[#7D9B84] hover:bg-[#5C7A67] disabled:opacity-50 px-2.5 py-1 rounded-full transition-colors"
+                                className="block text-xs text-white bg-tea-green hover:bg-tea-green-dark disabled:opacity-50 px-2.5 py-1 rounded-full transition-colors"
                               >
                                 {processing === b.id ? "處理中…" : "標記已退款"}
                               </button>
                             )}
                           </div>
                         ) : (
-                          <span className="text-xs text-[#6B8872]">—</span>
+                          <span className="text-xs text-tea-text-light">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3.5 text-xs text-[#6B8872] max-w-[120px] truncate">
+                      <td className="px-4 py-3.5 text-xs text-tea-text-light max-w-[120px] truncate">
                         {b.dietary_notes || "—"}
                       </td>
                       <td className="px-4 py-3.5">
@@ -345,28 +345,28 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
           <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
             {cancelResult ? (
               <>
-                <h3 className="font-semibold text-[#3D4A42] text-lg mb-2">預約已取消</h3>
-                <p className="text-sm text-[#6B8872] mb-1">
+                <h3 className="font-semibold text-tea-text text-lg mb-2">預約已取消</h3>
+                <p className="text-sm text-tea-text-light mb-1">
                   退款金額：
                   {cancelResult.refundAmount > 0
-                    ? <strong className="text-[#3D4A42]"> NT$ {cancelResult.refundAmount.toLocaleString()}</strong>
+                    ? <strong className="text-tea-text"> NT$ {cancelResult.refundAmount.toLocaleString()}</strong>
                     : <span> 不退款</span>
                   }
                 </p>
                 {cancelResult.refundAmount > 0 && (
-                  <p className="text-xs text-[#6B8872] mb-4">退款狀態已設為「待退款」，請完成退款後標記已退款。</p>
+                  <p className="text-xs text-tea-text-light mb-4">退款狀態已設為「待退款」，請完成退款後標記已退款。</p>
                 )}
                 <button
                   onClick={() => { setCancelId(null); setCancelResult(null); }}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#7D9B84] hover:bg-[#5C7A67] text-white text-sm font-medium transition"
+                  className="w-full px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition"
                 >
                   確認
                 </button>
               </>
             ) : (
               <>
-                <h3 className="font-semibold text-[#3D4A42] text-lg mb-2">代為取消預約？</h3>
-                <p className="text-sm text-[#6B8872] mb-4">
+                <h3 className="font-semibold text-tea-text text-lg mb-2">代為取消預約？</h3>
+                <p className="text-sm text-tea-text-light mb-4">
                   此操作將取消預約並依退款政策計算退款金額，取消後無法復原。
                 </p>
                 {cancelError && (
@@ -376,7 +376,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                   <button
                     onClick={() => setCancelId(null)}
                     disabled={cancelling}
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-[#C8DDD0] text-sm font-medium text-[#3D4A42] hover:bg-[#F9F6F1] transition disabled:opacity-50"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
                   >
                     返回
                   </button>

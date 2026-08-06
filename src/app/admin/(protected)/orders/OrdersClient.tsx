@@ -29,16 +29,16 @@ const STATUS_OPTIONS = [
 ];
 
 const ORDER_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  new:       { label: "新訂單", cls: "bg-[#EDE8DC] text-[#7A6855]" },
+  new:       { label: "新訂單", cls: "bg-tea-cream-dark text-[#7A6855]" },
   preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-  shipped:   { label: "已出貨", cls: "bg-[#7D9B84] text-white" },
-  completed: { label: "已完成", cls: "bg-[#5C7A67] text-white" },
+  shipped:   { label: "已出貨", cls: "bg-tea-green text-white" },
+  completed: { label: "已完成", cls: "bg-tea-green-dark text-white" },
   cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
 };
 
 const PAYMENT_STATUS_LABEL: Record<string, { label: string; cls: string }> = {
   pending: { label: "待付款", cls: "bg-[#FEF3C7] text-[#92400E]" },
-  paid:    { label: "已付款", cls: "bg-[#C8DDD0] text-[#3D6B46]" },
+  paid:    { label: "已付款", cls: "bg-tea-green-pale text-[#3D6B46]" },
 };
 
 function shortId(id: string) {
@@ -86,26 +86,26 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
     <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#3D4A42] font-serif">訂單管理</h1>
-        <p className="text-sm text-[#6B8872] mt-1">共 {initialOrders.length} 筆訂單</p>
+        <h1 className="text-2xl font-bold text-tea-text font-serif">訂單管理</h1>
+        <p className="text-sm text-tea-text-light mt-1">共 {initialOrders.length} 筆訂單</p>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-1 flex-wrap mb-4 bg-white rounded-xl border border-[#EDE8DC] p-1">
+      <div className="flex gap-1 flex-wrap mb-4 bg-white rounded-xl border border-tea-cream-dark p-1">
         {STATUS_OPTIONS.map((opt) => (
           <button
             key={opt.value}
             onClick={() => setFilter(opt.value)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               filter === opt.value
-                ? "bg-[#7D9B84] text-white shadow-sm"
-                : "text-[#6B8872] hover:text-[#3D4A42] hover:bg-[#F5F0E8]"
+                ? "bg-tea-green text-white shadow-sm"
+                : "text-tea-text-light hover:text-tea-text hover:bg-tea-cream"
             }`}
           >
             {opt.label}
             {counts[opt.value] !== undefined && (
               <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] ${
-                filter === opt.value ? "bg-white/20 text-white" : "bg-[#EDE8DC] text-[#7A6855]"
+                filter === opt.value ? "bg-white/20 text-white" : "bg-tea-cream-dark text-[#7A6855]"
               }`}>
                 {counts[opt.value] ?? 0}
               </span>
@@ -125,13 +125,13 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
             placeholder="搜尋姓名、Email 或訂單編號…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-[#EDE8DC] bg-white text-sm text-[#3D4A42] placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-tea-cream-dark bg-white text-sm text-tea-text placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green focus:border-transparent"
           />
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-[#EDE8DC] overflow-hidden">
+      <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-16 text-center text-sm text-[#9CA89E]">
             {search || filter !== "all" ? "找不到符合條件的訂單" : "目前尚無訂單"}
@@ -140,40 +140,40 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#EDE8DC] bg-[#FAF7F2]">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B8872] uppercase tracking-wider">訂單</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B8872] uppercase tracking-wider">客戶</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B8872] uppercase tracking-wider hidden md:table-cell">配送</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B8872] uppercase tracking-wider hidden sm:table-cell">付款</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B8872] uppercase tracking-wider">狀態</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#6B8872] uppercase tracking-wider">金額</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#6B8872] uppercase tracking-wider">日期</th>
+                <tr className="border-b border-tea-cream-dark bg-tea-cream-light">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider">訂單</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider">客戶</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider hidden md:table-cell">配送</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider hidden sm:table-cell">付款</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider">狀態</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider">金額</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider">日期</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F5F0E8]">
+              <tbody className="divide-y divide-tea-cream">
                 {filtered.map((order) => {
                   const os = ORDER_STATUS_LABEL[order.order_status] ?? ORDER_STATUS_LABEL.new;
                   const ps = PAYMENT_STATUS_LABEL[order.payment_status] ?? PAYMENT_STATUS_LABEL.pending;
                   return (
                     <tr
                       key={order.id}
-                      className="hover:bg-[#FAF7F2] transition cursor-pointer"
+                      className="hover:bg-tea-cream-light transition cursor-pointer"
                       onClick={() => window.location.href = `/admin/orders/${order.id}`}
                     >
                       <td className="px-4 py-3">
-                        <span className="font-mono text-xs text-[#6B8872]">#{shortId(order.id)}</span>
+                        <span className="font-mono text-xs text-tea-text-light">#{shortId(order.id)}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-medium text-[#3D4A42]">{order.customer_name}</div>
+                        <div className="font-medium text-tea-text">{order.customer_name}</div>
                         <div className="text-xs text-[#9CA89E]">{order.customer_email}</div>
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
-                        <span className="text-xs text-[#6B8872]">
+                        <span className="text-xs text-tea-text-light">
                           {formatShipping(order.shipping_address)}
                         </span>
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell">
-                        <span className="text-xs text-[#6B8872]">
+                        <span className="text-xs text-tea-text-light">
                           {order.payment_method === "cod" ? "貨到付款" : order.payment_method === "paypal" ? "PayPal" : "線上付款"}
                         </span>
                       </td>
@@ -187,7 +187,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right font-semibold text-[#3D4A42]">
+                      <td className="px-4 py-3 text-right font-semibold text-tea-text">
                         NT${order.total_amount.toLocaleString()}
                       </td>
                       <td className="px-4 py-3 text-right text-xs text-[#9CA89E]">

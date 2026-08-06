@@ -109,18 +109,18 @@ export default function AdminCalendarClient({
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-[#EDE8DC] shadow-sm p-6">
+      <div className="bg-white rounded-2xl border border-tea-cream-dark shadow-sm p-6">
         {/* 月份導航 */}
         <div className="flex items-center justify-between mb-5">
-          <Link href={prevMonth} className="p-2 rounded-xl hover:bg-[#EBF3EE] transition-colors text-[#3D4A42]">←</Link>
-          <h2 className="font-serif text-lg font-bold text-[#3D4A42]">{year} 年 {month} 月</h2>
-          <Link href={nextMonth} className="p-2 rounded-xl hover:bg-[#EBF3EE] transition-colors text-[#3D4A42]">→</Link>
+          <Link href={prevMonth} className="p-2 rounded-xl hover:bg-tea-green-mist transition-colors text-tea-text">←</Link>
+          <h2 className="font-serif text-lg font-bold text-tea-text">{year} 年 {month} 月</h2>
+          <Link href={nextMonth} className="p-2 rounded-xl hover:bg-tea-green-mist transition-colors text-tea-text">→</Link>
         </div>
 
         {/* 星期標題 */}
         <div className="grid grid-cols-7 mb-2">
           {WEEKDAYS.map(d => (
-            <div key={d} className="text-center text-xs text-[#6B8872] py-2 font-medium">{d}</div>
+            <div key={d} className="text-center text-xs text-tea-text-light py-2 font-medium">{d}</div>
           ))}
         </div>
 
@@ -139,10 +139,10 @@ export default function AdminCalendarClient({
                 key={day}
                 onClick={() => !isPast && openModal(dateStr)}
                 className={`min-h-[60px] sm:min-h-[80px] rounded-xl p-1.5 border transition-colors ${
-                  isToday  ? "border-[#7D9B84] bg-[#EBF3EE]" : "border-[#EDE8DC]"
-                } ${isPast ? "opacity-50 cursor-default" : "cursor-pointer hover:bg-[#F5FAF6]"}`}
+                  isToday  ? "border-tea-green bg-tea-green-mist" : "border-tea-cream-dark"
+                } ${isPast ? "opacity-50 cursor-default" : "cursor-pointer hover:bg-tea-cream-light"}`}
               >
-                <div className={`text-xs font-medium text-right mb-1 ${isToday ? "text-[#5C7A67]" : "text-[#3D4A42]"}`}>
+                <div className={`text-xs font-medium text-right mb-1 ${isToday ? "text-tea-green-dark" : "text-tea-text"}`}>
                   {day}
                 </div>
 
@@ -151,7 +151,7 @@ export default function AdminCalendarClient({
                     ? "bg-red-400"
                     : s.status === "full"
                     ? "bg-gray-400"
-                    : (EXP_COLORS[s.experience_types?.slug] ?? "bg-[#7D9B84]");
+                    : (EXP_COLORS[s.experience_types?.slug] ?? "bg-tea-green");
                   return (
                     <Link
                       key={s.id}
@@ -179,7 +179,7 @@ export default function AdminCalendarClient({
 
                 {/* 點空白區域提示 */}
                 {!isPast && daySess.length === 0 && (
-                  <div className="flex items-center justify-center h-8 text-[#C8DDD0] text-lg">+</div>
+                  <div className="flex items-center justify-center h-8 text-tea-green-pale text-lg">+</div>
                 )}
               </div>
             );
@@ -187,7 +187,7 @@ export default function AdminCalendarClient({
         </div>
 
         {/* 圖例 */}
-        <div className="flex flex-wrap gap-2 sm:gap-4 mt-5 text-xs text-[#6B8872]">
+        <div className="flex flex-wrap gap-2 sm:gap-4 mt-5 text-xs text-tea-text-light">
           {Object.entries(EXP_COLORS).map(([slug, color]) => {
             const names: Record<string, string> = {
               "tea-ceremony": "茶藝體驗",
@@ -211,21 +211,21 @@ export default function AdminCalendarClient({
 
       {/* ── 取消場次按鈕（浮動在月曆外，透過 sessions list） ── */}
       {sessions.filter(s => s.status === "open").length > 0 && (
-        <div className="bg-white rounded-2xl border border-[#EDE8DC] shadow-sm overflow-hidden mt-4">
-          <div className="px-6 py-3 border-b border-[#EDE8DC]">
-            <p className="text-sm font-semibold text-[#3D4A42]">本月開放場次</p>
+        <div className="bg-white rounded-2xl border border-tea-cream-dark shadow-sm overflow-hidden mt-4">
+          <div className="px-6 py-3 border-b border-tea-cream-dark">
+            <p className="text-sm font-semibold text-tea-text">本月開放場次</p>
           </div>
           <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[420px]">
-            <tbody className="divide-y divide-[#F5F0E8]">
+            <tbody className="divide-y divide-tea-cream">
               {sessions
                 .filter(s => s.status === "open")
                 .map(s => (
-                  <tr key={s.id} className="hover:bg-[#F9F6F1] transition-colors">
-                    <td className="px-6 py-3 font-medium text-[#3D4A42]">{s.session_date}</td>
-                    <td className="px-4 py-3 text-[#6B8872]">{s.start_time.slice(0, 5)}</td>
-                    <td className="px-4 py-3 text-[#3D4A42]">{s.experience_types?.name}</td>
-                    <td className="px-4 py-3 text-[#6B8872]">{s.current_participants} 人</td>
+                  <tr key={s.id} className="hover:bg-tea-cream-light transition-colors">
+                    <td className="px-6 py-3 font-medium text-tea-text">{s.session_date}</td>
+                    <td className="px-4 py-3 text-tea-text-light">{s.start_time.slice(0, 5)}</td>
+                    <td className="px-4 py-3 text-tea-text">{s.experience_types?.name}</td>
+                    <td className="px-4 py-3 text-tea-text-light">{s.current_participants} 人</td>
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => handleCancel(s.id)}
@@ -248,16 +248,16 @@ export default function AdminCalendarClient({
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
           <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <h3 className="font-semibold text-[#3D4A42] text-lg mb-1">新增場次</h3>
-            <p className="text-sm text-[#6B8872] mb-5">{modalDate}</p>
+            <h3 className="font-semibold text-tea-text text-lg mb-1">新增場次</h3>
+            <p className="text-sm text-tea-text-light mb-5">{modalDate}</p>
 
             <div className="space-y-4 mb-5">
               <div>
-                <label className="text-xs text-[#6B8872] mb-1.5 block">體驗類型</label>
+                <label className="text-xs text-tea-text-light mb-1.5 block">體驗類型</label>
                 <select
                   value={expId}
                   onChange={e => setExpId(Number(e.target.value))}
-                  className="w-full border border-[#C8DDD0] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7D9B84]/30"
+                  className="w-full border border-tea-green-pale rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30"
                 >
                   {expTypes.map(t => (
                     <option key={t.id} value={t.id}>{t.name}</option>
@@ -265,11 +265,11 @@ export default function AdminCalendarClient({
                 </select>
               </div>
               <div>
-                <label className="text-xs text-[#6B8872] mb-1.5 block">時段</label>
+                <label className="text-xs text-tea-text-light mb-1.5 block">時段</label>
                 <select
                   value={time}
                   onChange={e => setTime(e.target.value)}
-                  className="w-full border border-[#C8DDD0] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7D9B84]/30"
+                  className="w-full border border-tea-green-pale rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30"
                 >
                   {TIME_SLOTS.map(t => (
                     <option key={t} value={t}>{t}</option>
@@ -286,14 +286,14 @@ export default function AdminCalendarClient({
               <button
                 onClick={closeModal}
                 disabled={adding}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-[#C8DDD0] text-sm font-medium text-[#3D4A42] hover:bg-[#F9F6F1] transition disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
               >
                 取消
               </button>
               <button
                 onClick={handleAdd}
                 disabled={adding}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-[#7D9B84] hover:bg-[#5C7A67] text-white text-sm font-medium transition disabled:opacity-60"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green hover:bg-tea-green-dark text-white text-sm font-medium transition disabled:opacity-60"
               >
                 {adding ? "新增中…" : "確認新增"}
               </button>

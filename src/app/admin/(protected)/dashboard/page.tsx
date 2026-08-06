@@ -234,16 +234,16 @@ async function getStats() {
 }
 
 const ORDER_STATUS: Record<string, { label: string; cls: string }> = {
-  new:       { label: "新訂單", cls: "bg-[#EDE8DC] text-[#7A6855]" },
+  new:       { label: "新訂單", cls: "bg-tea-cream-dark text-[#7A6855]" },
   preparing: { label: "備貨中", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-  shipped:   { label: "已出貨", cls: "bg-[#7D9B84] text-white" },
-  completed: { label: "已完成", cls: "bg-[#5C7A67] text-white" },
+  shipped:   { label: "已出貨", cls: "bg-tea-green text-white" },
+  completed: { label: "已完成", cls: "bg-tea-green-dark text-white" },
   cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
 };
 
 const EXP_STATUS: Record<string, { label: string; cls: string }> = {
   confirmed: { label: "已確認", cls: "bg-[#D5E8DA] text-[#2D5A47]" },
-  pending:   { label: "待付款", cls: "bg-[#EDE8DC] text-[#7A6855]" },
+  pending:   { label: "待付款", cls: "bg-tea-cream-dark text-[#7A6855]" },
   cancelled: { label: "已取消", cls: "bg-[#E0D5D5] text-[#7A4545]" },
 };
 
@@ -267,7 +267,7 @@ export default async function DashboardPage() {
       value: todayOrders,
       unit: "筆",
       icon: (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#7D9B84]">
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-tea-green">
           <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
         </svg>
       ),
@@ -277,7 +277,7 @@ export default async function DashboardPage() {
       value: todayExp,
       unit: "筆",
       icon: (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#7D9B84]">
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-tea-green">
           <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
         </svg>
       ),
@@ -287,7 +287,7 @@ export default async function DashboardPage() {
       value: `NT$${monthProductRevenue.toLocaleString()}`,
       unit: "",
       icon: (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#7D9B84]">
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-tea-green">
           <path d="M17 8C8 10 5.9 16.17 3.82 19.8L5.71 21l1-1.5A4.49 4.49 0 0 0 8 20c4 0 4-2 8-2s4 2 8 2v-2c-4 0-4-2-8-2c-.65 0-1.2.05-1.7.12C14.93 12.12 16 10 17 8z" />
         </svg>
       ),
@@ -307,7 +307,7 @@ export default async function DashboardPage() {
       value: `NT$${monthTotalRevenue.toLocaleString()}`,
       unit: "",
       icon: (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#7D9B84]">
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-tea-green">
           <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
         </svg>
       ),
@@ -327,7 +327,7 @@ export default async function DashboardPage() {
       value: pendingShipment,
       unit: "筆",
       icon: (
-        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#7D9B84]">
+        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-tea-green">
           <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
         </svg>
       ),
@@ -388,8 +388,8 @@ export default async function DashboardPage() {
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#3D4A42] font-serif">儀表板</h1>
-        <p className="text-sm text-[#6B8872] mt-1">
+        <h1 className="text-2xl font-bold text-tea-text font-serif">儀表板</h1>
+        <p className="text-sm text-tea-text-light mt-1">
           {new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
         </p>
       </div>
@@ -397,40 +397,40 @@ export default async function DashboardPage() {
       {/* Stats Cards — 2 欄手機 / 3 欄平板 / 4 欄桌機 */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
         {stats.map((stat) => (
-          <div key={stat.label} className="bg-white rounded-2xl border border-[#EDE8DC] p-4 min-w-0">
+          <div key={stat.label} className="bg-white rounded-2xl border border-tea-cream-dark p-4 min-w-0">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] sm:text-xs font-medium text-[#6B8872] uppercase tracking-wider truncate pr-1">
+              <span className="text-[10px] sm:text-xs font-medium text-tea-text-light uppercase tracking-wider truncate pr-1">
                 {stat.label}
               </span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#EBF3EE] flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-tea-green-mist flex items-center justify-center flex-shrink-0">
                 {stat.icon}
               </div>
             </div>
-            <div className="text-base sm:text-2xl font-bold text-[#3D4A42] break-all leading-tight">
+            <div className="text-base sm:text-2xl font-bold text-tea-text break-all leading-tight">
               {stat.value}
-              {stat.unit && <span className="text-xs sm:text-sm font-normal text-[#6B8872] ml-1">{stat.unit}</span>}
+              {stat.unit && <span className="text-xs sm:text-sm font-normal text-tea-text-light ml-1">{stat.unit}</span>}
             </div>
           </div>
         ))}
       </div>
 
       {/* 近 6 個月營收趨勢圖 */}
-      <div className="bg-white rounded-2xl border border-[#EDE8DC] p-5 mb-4">
-        <h2 className="font-semibold text-[#3D4A42] text-sm mb-4">近 6 個月營收趨勢</h2>
+      <div className="bg-white rounded-2xl border border-tea-cream-dark p-5 mb-4">
+        <h2 className="font-semibold text-tea-text text-sm mb-4">近 6 個月營收趨勢</h2>
         <RevenueChart data={chartData} />
       </div>
 
       {/* Recent Orders & Recent Experience Bookings */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* 最新商品訂單 */}
-        <div className="bg-white rounded-2xl border border-[#EDE8DC] overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#EDE8DC]">
-            <h2 className="font-semibold text-[#3D4A42] text-sm">最新訂單</h2>
-            <Link href="/admin/orders" className="text-xs text-[#7D9B84] hover:text-[#5C7A67] font-medium transition">
+        <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-tea-cream-dark">
+            <h2 className="font-semibold text-tea-text text-sm">最新訂單</h2>
+            <Link href="/admin/orders" className="text-xs text-tea-green hover:text-tea-green-dark font-medium transition">
               查看全部 →
             </Link>
           </div>
-          <div className="divide-y divide-[#F5F0E8]">
+          <div className="divide-y divide-tea-cream">
             {recentOrders.length === 0 ? (
               <div className="px-5 py-8 text-center text-sm text-[#9CA89E]">目前尚無訂單</div>
             ) : (
@@ -441,20 +441,20 @@ export default async function DashboardPage() {
                   <Link
                     key={order.id}
                     href={`/admin/orders/${order.id}`}
-                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-[#FAF7F2] transition"
+                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-tea-cream-light transition"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                        <span className="text-xs font-mono text-[#6B8872]">#{shortId(order.id as string)}</span>
+                        <span className="text-xs font-mono text-tea-text-light">#{shortId(order.id as string)}</span>
                         <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status.cls}`}>
                           {status.label}
                         </span>
                       </div>
-                      <div className="text-sm font-medium text-[#3D4A42] truncate">{order.customer_name as string}</div>
+                      <div className="text-sm font-medium text-tea-text truncate">{order.customer_name as string}</div>
                       <div className="text-xs text-[#9CA89E]">{itemCount} 件商品</div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <div className="text-sm font-semibold text-[#3D4A42]">
+                      <div className="text-sm font-semibold text-tea-text">
                         NT${(order.total_amount as number).toLocaleString()}
                       </div>
                       <div className="text-xs text-[#9CA89E]">
@@ -469,14 +469,14 @@ export default async function DashboardPage() {
         </div>
 
         {/* 最近體驗預約 */}
-        <div className="bg-white rounded-2xl border border-[#EDE8DC] overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#EDE8DC]">
-            <h2 className="font-semibold text-[#3D4A42] text-sm">最近體驗預約</h2>
-            <Link href="/admin/experiences/bookings" className="text-xs text-[#7D9B84] hover:text-[#5C7A67] font-medium transition">
+        <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-tea-cream-dark">
+            <h2 className="font-semibold text-tea-text text-sm">最近體驗預約</h2>
+            <Link href="/admin/experiences/bookings" className="text-xs text-tea-green hover:text-tea-green-dark font-medium transition">
               查看全部 →
             </Link>
           </div>
-          <div className="divide-y divide-[#F5F0E8]">
+          <div className="divide-y divide-tea-cream">
             {recentExp.length === 0 ? (
               <div className="px-5 py-8 text-center text-sm text-[#9CA89E]">目前尚無預約</div>
             ) : (
@@ -487,7 +487,7 @@ export default async function DashboardPage() {
                   <Link
                     key={b.id}
                     href="/admin/experiences/bookings"
-                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-[#FAF7F2] transition"
+                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-tea-cream-light transition"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
@@ -495,13 +495,13 @@ export default async function DashboardPage() {
                           {status.label}
                         </span>
                       </div>
-                      <div className="text-sm font-medium text-[#3D4A42] truncate">{b.contact_name as string}</div>
+                      <div className="text-sm font-medium text-tea-text truncate">{b.contact_name as string}</div>
                       <div className="text-xs text-[#9CA89E] truncate">
                         {session?.experience_types?.name ?? "—"} · {session?.session_date ?? "—"} · {b.participant_count as number} 人
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <div className="text-sm font-semibold text-[#3D4A42]">
+                      <div className="text-sm font-semibold text-tea-text">
                         NT${(b.total_price as number).toLocaleString()}
                       </div>
                       <div className="text-xs text-[#9CA89E]">
@@ -520,23 +520,23 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Link
           href="/admin/orders?status=pending"
-          className="bg-white rounded-2xl border border-[#EDE8DC] p-5 hover:border-[#A3BFA8] hover:bg-[#FAF7F2] transition group"
+          className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream-light transition group"
         >
-          <div className="text-sm font-medium text-[#3D4A42] mb-1 group-hover:text-[#5C7A67]">待出貨訂單</div>
+          <div className="text-sm font-medium text-tea-text mb-1 group-hover:text-tea-green-dark">待出貨訂單</div>
           <div className="text-xs text-[#9CA89E]">查看需要出貨的訂單</div>
         </Link>
         <Link
           href="/admin/products"
-          className="bg-white rounded-2xl border border-[#EDE8DC] p-5 hover:border-[#A3BFA8] hover:bg-[#FAF7F2] transition group"
+          className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream-light transition group"
         >
-          <div className="text-sm font-medium text-[#3D4A42] mb-1 group-hover:text-[#5C7A67]">管理產品</div>
+          <div className="text-sm font-medium text-tea-text mb-1 group-hover:text-tea-green-dark">管理產品</div>
           <div className="text-xs text-[#9CA89E]">調整庫存、價格與上下架</div>
         </Link>
         <Link
           href="/admin/experiences/bookings"
-          className="bg-white rounded-2xl border border-[#EDE8DC] p-5 hover:border-[#A3BFA8] hover:bg-[#FAF7F2] transition group"
+          className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream-light transition group"
         >
-          <div className="text-sm font-medium text-[#3D4A42] mb-1 group-hover:text-[#5C7A67]">體驗管理</div>
+          <div className="text-sm font-medium text-tea-text mb-1 group-hover:text-tea-green-dark">體驗管理</div>
           <div className="text-xs text-[#9CA89E]">查看體驗預約與場次</div>
         </Link>
       </div>

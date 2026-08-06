@@ -125,18 +125,18 @@ export default function AdminSidebar() {
   }
 
   return (
-    <aside className="w-14 sm:w-56 flex-shrink-0 bg-[#3D4A42] flex flex-col h-full">
+    <aside className="w-14 sm:w-56 flex-shrink-0 bg-tea-text flex flex-col h-full">
       {/* Brand */}
       <div className="px-2 sm:px-6 py-6 border-b border-[#4D5E55] flex justify-center sm:justify-start">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#7D9B84] flex items-center justify-center flex-shrink-0">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#EBF3EE]">
+          <div className="w-8 h-8 rounded-lg bg-tea-green flex items-center justify-center flex-shrink-0">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-tea-green-mist">
               <path d="M17 8C8 10 5.9 16.17 3.82 19.8L5.71 21l1-1.5A4.49 4.49 0 0 0 8 20c4 0 4-2 8-2s4 2 8 2v-2c-4 0-4-2-8-2c-.65 0-1.2.05-1.7.12C14.93 12.12 16 10 17 8z" />
             </svg>
           </div>
           <div className="hidden sm:block">
-            <div className="text-[#EBF3EE] font-bold text-sm tracking-wider font-serif">霧抉茶</div>
-            <div className="text-[#7D9B84] text-[10px] tracking-widest uppercase">Admin</div>
+            <div className="text-tea-green-mist font-bold text-sm tracking-wider font-serif">霧抉茶</div>
+            <div className="text-tea-green text-[10px] tracking-widest uppercase">Admin</div>
           </div>
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function AdminSidebar() {
         {navGroups.map((group, gi) => (
           <div key={gi}>
             {group.title && (
-              <p className="hidden sm:block px-3 mb-1 text-[#7D9B84] text-[10px] tracking-widest uppercase">
+              <p className="hidden sm:block px-3 mb-1 text-tea-green text-[10px] tracking-widest uppercase">
                 {group.title}
               </p>
             )}
@@ -159,9 +159,9 @@ export default function AdminSidebar() {
                     target="_blank"
                     rel="noopener noreferrer"
                     title={item.label}
-                    className="flex items-center justify-center sm:justify-start gap-3 px-2 sm:px-3 py-2.5 rounded-xl text-sm text-[#A3BFA8] hover:bg-[#4D5E55] hover:text-[#EBF3EE] transition-all"
+                    className="flex items-center justify-center sm:justify-start gap-3 px-2 sm:px-3 py-2.5 rounded-xl text-sm text-tea-green-light hover:bg-[#4D5E55] hover:text-tea-green-mist transition-all"
                   >
-                    <span className="text-[#7D9B84] flex-shrink-0">{item.icon}</span>
+                    <span className="text-tea-green flex-shrink-0">{item.icon}</span>
                     <span className="hidden sm:flex flex-1 items-center gap-1">
                       {item.label}
                       <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current opacity-60 ml-auto">
@@ -176,11 +176,11 @@ export default function AdminSidebar() {
                     title={item.label}
                     className={`flex items-center justify-center sm:justify-start gap-3 px-2 sm:px-3 py-2.5 rounded-xl text-sm transition-all ${
                       isActive(item.href)
-                        ? "bg-[#7D9B84] text-white font-medium"
-                        : "text-[#A3BFA8] hover:bg-[#4D5E55] hover:text-[#EBF3EE]"
+                        ? "bg-tea-green text-white font-medium"
+                        : "text-tea-green-light hover:bg-[#4D5E55] hover:text-tea-green-mist"
                     }`}
                   >
-                    <span className={`flex-shrink-0 ${isActive(item.href) ? "text-white" : "text-[#7D9B84]"}`}>
+                    <span className={`flex-shrink-0 ${isActive(item.href) ? "text-white" : "text-tea-green"}`}>
                       {item.icon}
                     </span>
                     <span className="hidden sm:block">{item.label}</span>
@@ -197,9 +197,9 @@ export default function AdminSidebar() {
         <button
           onClick={handleLogout}
           title="登出"
-          className="flex items-center justify-center sm:justify-start gap-3 w-full px-2 sm:px-3 py-2.5 rounded-xl text-sm text-[#A3BFA8] hover:bg-[#4D5E55] hover:text-[#EBF3EE] transition-all"
+          className="flex items-center justify-center sm:justify-start gap-3 w-full px-2 sm:px-3 py-2.5 rounded-xl text-sm text-tea-green-light hover:bg-[#4D5E55] hover:text-tea-green-mist transition-all"
         >
-          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current text-[#7D9B84] flex-shrink-0">
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current text-tea-green flex-shrink-0">
             <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
           </svg>
           <span className="hidden sm:block">登出</span>

@@ -67,16 +67,16 @@ export default async function AdminExperiencesPage({
   const nextMonth = month === 12 ? `?year=${year + 1}&month=1`  : `?year=${year}&month=${month + 1}`;
 
   return (
-    <div className="p-6 md:p-8 min-h-screen bg-[#F9F6F1]">
+    <div className="p-6 md:p-8 min-h-screen bg-tea-cream-light">
       {/* 頁首 */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#3D4A42] font-serif">體驗管理</h1>
-          <p className="text-sm text-[#6B8872] mt-0.5">場次排程與預約總覽</p>
+          <h1 className="text-2xl font-bold text-tea-text font-serif">體驗管理</h1>
+          <p className="text-sm text-tea-text-light mt-0.5">場次排程與預約總覽</p>
         </div>
         <Link
           href="/admin/experiences/bookings"
-          className="px-4 py-2 rounded-xl bg-white border border-[#C8DDD0] text-sm text-[#3D4A42] hover:bg-[#EBF3EE] transition-colors"
+          className="px-4 py-2 rounded-xl bg-white border border-tea-green-pale text-sm text-tea-text hover:bg-tea-green-mist transition-colors"
         >
           預約名單
         </Link>
@@ -89,10 +89,10 @@ export default async function AdminExperiencesPage({
           { label: "本月參加人數", value: String(stats.totalParticipants),                      unit: "人" },
           { label: "本月營收",     value: `NT$${stats.totalRevenue.toLocaleString()}`, unit: "" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl p-3 sm:p-5 border border-[#EDE8DC] shadow-sm min-w-0">
-            <div className="text-[10px] sm:text-xs text-[#6B8872] mb-1 truncate">{s.label}</div>
-            <div className="text-base sm:text-2xl font-bold text-[#3D4A42] leading-tight break-all">
-              {s.value}<span className="text-xs sm:text-sm font-normal text-[#6B8872] ml-0.5 sm:ml-1">{s.unit}</span>
+          <div key={s.label} className="bg-white rounded-2xl p-3 sm:p-5 border border-tea-cream-dark shadow-sm min-w-0">
+            <div className="text-[10px] sm:text-xs text-tea-text-light mb-1 truncate">{s.label}</div>
+            <div className="text-base sm:text-2xl font-bold text-tea-text leading-tight break-all">
+              {s.value}<span className="text-xs sm:text-sm font-normal text-tea-text-light ml-0.5 sm:ml-1">{s.unit}</span>
             </div>
           </div>
         ))}

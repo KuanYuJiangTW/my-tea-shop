@@ -34,8 +34,8 @@ function CustomTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-[#EDE8DC] rounded-xl px-4 py-3 shadow-md text-xs">
-      <p className="font-semibold text-[#3D4A42] mb-2">{label}</p>
+    <div className="bg-white border border-tea-cream-dark rounded-xl px-4 py-3 shadow-md text-xs">
+      <p className="font-semibold text-tea-text mb-2">{label}</p>
       {payload.map((p) => (
         <p key={p.name} style={{ color: p.color }} className="mb-0.5">
           {p.name}：NT${p.value.toLocaleString()}
