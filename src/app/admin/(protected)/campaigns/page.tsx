@@ -189,7 +189,7 @@ export default function CampaignsPage() {
             <button type="submit" className="px-4 py-2 bg-tea-green text-white text-sm rounded-lg hover:bg-tea-green-dark">
               {editId ? "儲存" : "建立"}
             </button>
-            <button type="button" onClick={resetForm} className="px-4 py-2 text-sm text-tea-text-light border border-tea-cream-dark rounded-lg hover:bg-tea-cream-light">取消</button>
+            <button type="button" onClick={resetForm} className="px-4 py-2 text-sm text-tea-text-light border border-tea-cream-dark rounded-lg hover:bg-tea-cream">取消</button>
           </div>
         </form>
       )}
@@ -201,7 +201,7 @@ export default function CampaignsPage() {
       ) : (
         <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-tea-cream-light text-tea-text-light">
+            <thead className="bg-tea-cream text-tea-text-light">
               <tr>
                 <th className="text-left px-4 py-3 font-medium">活動名稱</th>
                 <th className="text-left px-4 py-3 font-medium">倍率</th>
@@ -216,7 +216,7 @@ export default function CampaignsPage() {
                 const status = getStatus(c);
                 return (
                   <React.Fragment key={c.id}>
-                  <tr className="hover:bg-tea-cream-light">
+                  <tr className="hover:bg-tea-cream">
                     <td className="px-4 py-3 font-medium text-tea-text">{c.name}</td>
                     <td className="px-4 py-3 text-tea-green font-bold">{c.multiplier}x</td>
                     <td className="px-4 py-3 text-tea-text-light">{CAMPAIGN_TYPES.find(t => t.value === c.campaign_type)?.label ?? c.campaign_type}</td>
@@ -234,7 +234,7 @@ export default function CampaignsPage() {
                   </tr>
                   {historyId === c.id && (
                     <tr>
-                      <td colSpan={6} className="bg-tea-cream-light px-4 py-3">
+                      <td colSpan={6} className="bg-tea-cream px-4 py-3">
                         {historyData.length === 0 ? (
                           <p className="text-xs text-tea-text-faint">尚無變更記錄</p>
                         ) : (

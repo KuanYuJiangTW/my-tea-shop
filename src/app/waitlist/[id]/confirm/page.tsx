@@ -30,7 +30,7 @@ export default async function WaitlistConfirmPage({ params }: Props) {
 
   if (!entry) {
     return (
-      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center">
+      <div className="min-h-screen bg-tea-cream flex items-center justify-center">
         <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-sm border border-tea-green-pale">
           <p className="text-tea-text font-medium mb-2">找不到此候補記錄</p>
           <p className="text-sm text-tea-text-light">連結可能已失效或不屬於此帳號。</p>

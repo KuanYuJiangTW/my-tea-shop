@@ -67,7 +67,7 @@ export default async function AdminExperiencesPage({
   const nextMonth = month === 12 ? `?year=${year + 1}&month=1`  : `?year=${year}&month=${month + 1}`;
 
   return (
-    <div className="p-6 md:p-8 min-h-screen bg-tea-cream-light">
+    <div className="p-6 md:p-8 min-h-screen bg-tea-cream">
       {/* 頁首 */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>

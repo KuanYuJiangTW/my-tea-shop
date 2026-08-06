@@ -244,7 +244,8 @@ export default function ProcessContent({ experiences, contents }: Props) {
       </section>
 
       {/* 核心洞察：共通前段 → 分歧段 → 共通後段 */}
-      <section className="py-16 bg-white">
+      {/* 米底：對照卡是 bg-white，白底上會只剩邊框可辨 */}
+      <section className="py-16 bg-tea-cream">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("divergence.insightTitle")}</h2>
           <p className="text-tea-text-light leading-relaxed max-w-2xl mx-auto mb-10">
@@ -641,8 +642,9 @@ export default function ProcessContent({ experiences, contents }: Props) {
       </section>
 
       {/* 茶山體驗引導 */}
+      {/* 米底：體驗卡是 bg-white，與首頁／體驗列表頁一致 */}
       {featuredExperiences.length > 0 && (
-        <section className="py-16 md:py-24 bg-white">
+        <section className="py-16 md:py-24 bg-tea-cream">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>

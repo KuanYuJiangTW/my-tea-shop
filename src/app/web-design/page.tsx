@@ -35,7 +35,7 @@ export default async function WebDesignPage() {
   const outcomeItems = t.raw("outcomes.items") as { title: string; desc: string }[];
 
   return (
-    <div className="bg-tea-cream-light min-h-screen">
+    <div className="bg-tea-cream min-h-screen">
       {/* Hero */}
       <section className="bg-tea-green-mist border-b border-tea-green-pale/50 py-16 md:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -72,7 +72,7 @@ export default async function WebDesignPage() {
             </a>
             <a
               href="#inquiry"
-              className="bg-white hover:bg-tea-cream-light border border-tea-green text-tea-green px-8 py-3 rounded-full text-sm font-medium transition-colors"
+              className="bg-white hover:bg-tea-cream border border-tea-green text-tea-green px-8 py-3 rounded-full text-sm font-medium transition-colors"
             >
               {t("hero.ctaSecondary")}
             </a>

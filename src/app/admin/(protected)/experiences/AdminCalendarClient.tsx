@@ -140,7 +140,7 @@ export default function AdminCalendarClient({
                 onClick={() => !isPast && openModal(dateStr)}
                 className={`min-h-[60px] sm:min-h-[80px] rounded-xl p-1.5 border transition-colors ${
                   isToday  ? "border-tea-green bg-tea-green-mist" : "border-tea-cream-dark"
-                } ${isPast ? "opacity-50 cursor-default" : "cursor-pointer hover:bg-tea-cream-light"}`}
+                } ${isPast ? "opacity-50 cursor-default" : "cursor-pointer hover:bg-tea-cream"}`}
               >
                 <div className={`text-xs font-medium text-right mb-1 ${isToday ? "text-tea-green-dark" : "text-tea-text"}`}>
                   {day}
@@ -221,7 +221,7 @@ export default function AdminCalendarClient({
               {sessions
                 .filter(s => s.status === "open")
                 .map(s => (
-                  <tr key={s.id} className="hover:bg-tea-cream-light transition-colors">
+                  <tr key={s.id} className="hover:bg-tea-cream transition-colors">
                     <td className="px-6 py-3 font-medium text-tea-text">{s.session_date}</td>
                     <td className="px-4 py-3 text-tea-text-light">{s.start_time.slice(0, 5)}</td>
                     <td className="px-4 py-3 text-tea-text">{s.experience_types?.name}</td>
@@ -286,7 +286,7 @@ export default function AdminCalendarClient({
               <button
                 onClick={closeModal}
                 disabled={adding}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream transition disabled:opacity-50"
               >
                 取消
               </button>

@@ -9,7 +9,7 @@ export default async function AdminSessionsPage() {
     .order("id");
 
   return (
-    <div className="p-6 md:p-8 min-h-screen bg-tea-cream-light">
+    <div className="p-6 md:p-8 min-h-screen bg-tea-cream">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-tea-text font-serif">場次管理</h1>
         <p className="text-sm text-tea-text-light mt-0.5">新增、查看或取消體驗場次</p>

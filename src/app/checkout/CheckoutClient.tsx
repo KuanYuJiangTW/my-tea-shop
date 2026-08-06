@@ -524,7 +524,7 @@ export default function CheckoutClient() {
   }
 
   const inputCls = (hasError?: boolean) =>
-    `w-full border rounded-xl px-4 py-3 text-sm text-tea-text placeholder-tea-text-light/60 focus:outline-none focus:border-tea-green bg-tea-cream-light/50 ${
+    `w-full border rounded-xl px-4 py-3 text-sm text-tea-text placeholder-tea-text-light/60 focus:outline-none focus:border-tea-green bg-tea-cream/50 ${
       hasError ? "border-rose-300" : "border-tea-green-pale"
     }`;
 
@@ -539,7 +539,7 @@ export default function CheckoutClient() {
   if (codSuccess) {
     const cvsName = cvsOptions.find(o => o.value === form.cvsCompany)?.label ?? form.cvsCompany;
     return (
-      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
+      <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-tea-green-mist rounded-full flex items-center justify-center mx-auto mb-6">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7D9B84" strokeWidth="2" strokeLinecap="round">
@@ -571,7 +571,7 @@ export default function CheckoutClient() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
+      <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
         <div className="text-center">
           <p className="text-tea-text-light mb-6">{t("emptyCart")}</p>
           <Link href={lp("/products")} className="bg-tea-green text-white px-8 py-3.5 rounded-full font-medium">
@@ -583,7 +583,7 @@ export default function CheckoutClient() {
   }
 
   return (
-    <div className="min-h-screen bg-tea-cream-light">
+    <div className="min-h-screen bg-tea-cream">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
         <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-8 md:mb-10">{t("title")}</h1>
 
@@ -638,7 +638,7 @@ export default function CheckoutClient() {
                     ...(region !== "international" && locale !== "en" ? [{ value: "cod" as PaymentMethod, label: t("cashOnDelivery"), desc: t("codDesc"), disabled: false,
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><path d="M3 8h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><path d="M6 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> }] : []),
                   ]).map(opt => (
-                    <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${opt.disabled ? "cursor-not-allowed opacity-50 border-tea-green-pale bg-gray-50" : `cursor-pointer ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}`}>
+                    <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${opt.disabled ? "cursor-not-allowed opacity-50 border-tea-green-pale bg-gray-50" : `cursor-pointer ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream"}`}`}>
                       <input type="radio" name="payment" value={opt.value} checked={payment === opt.value}
                         onChange={() => !opt.disabled && selectPayment(opt.value)} disabled={opt.disabled} className="accent-tea-green mt-0.5" />
                       <div className={`mt-0.5 ${opt.disabled ? "text-gray-300" : payment === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
@@ -668,7 +668,7 @@ export default function CheckoutClient() {
                       { value: "international" as const, label: t("regionInternational"), desc: t("regionInternationalDesc"),
                         icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> },
                     ]).map(opt => (
-                      <label key={opt.value} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border cursor-pointer transition-colors text-center ${region === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}>
+                      <label key={opt.value} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border cursor-pointer transition-colors text-center ${region === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream"}`}>
                         <input type="radio" name="region" value={opt.value} checked={region === opt.value}
                           onChange={() => {
                             setRegion(opt.value);
@@ -697,7 +697,7 @@ export default function CheckoutClient() {
                     { value: "cvs" as DeliveryType, label: t("cvsPickup"), desc: t("cvsPickupDesc"),
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 3h18v4H3z"/><path d="M3 7v13h18V7"/><path d="M9 7v13M15 7v13"/></svg> },
                   ]).map(opt => (
-                    <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${delivery === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}>
+                    <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${delivery === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream"}`}>
                       <input type="radio" name="delivery" value={opt.value} checked={delivery === opt.value}
                         onChange={() => setDelivery(opt.value)} className="accent-tea-green mt-0.5" />
                       <div className={`mt-0.5 ${delivery === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
@@ -821,7 +821,7 @@ export default function CheckoutClient() {
                         <button type="button" onClick={handleSelectStore} disabled={selectingStore}
                           className={`w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 border text-sm font-medium transition-colors
                             ${formErrors.cvsStoreName ? "border-rose-300" : "border-tea-green-pale hover:border-tea-green"}
-                            text-tea-text hover:bg-tea-cream-light disabled:opacity-60`}>
+                            text-tea-text hover:bg-tea-cream disabled:opacity-60`}>
                           {selectingStore ? (
                             <>
                               <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -957,7 +957,7 @@ export default function CheckoutClient() {
 
                     {/* Weight & estimated days info */}
                     {selectedCountry && !isOverweight && (
-                      <div className="flex flex-col gap-1 bg-tea-cream-light/80 rounded-xl p-3">
+                      <div className="flex flex-col gap-1 bg-tea-cream/80 rounded-xl p-3">
                         <p className="text-xs text-tea-text-light">{t("intlTotalWeight", { weight: totalWeightG.toString() })}</p>
                         <p className="text-xs text-tea-text-light">{t("intlEstimatedDays", { min: selectedCountry.estimatedDaysMin.toString(), max: selectedCountry.estimatedDaysMax.toString() })}</p>
                         {totalPrice < INTERNATIONAL_FREE_SHIPPING_THRESHOLD && shippingFee > 0 && (
@@ -1015,11 +1015,11 @@ export default function CheckoutClient() {
                         }}
                         onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
                         placeholder={t("couponPlaceholder")}
-                        className="flex-1 border border-tea-green-pale rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-tea-green bg-tea-cream-light/50 font-mono"
+                        className="flex-1 border border-tea-green-pale rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-tea-green bg-tea-cream/50 font-mono"
                       />
                       {availableCoupons.length > 0 && (
                         <button type="button" onClick={() => setShowCouponDropdown(v => !v)}
-                          className="px-2.5 border border-tea-green-pale rounded-lg hover:bg-tea-cream-light transition-colors text-tea-text-light"
+                          className="px-2.5 border border-tea-green-pale rounded-lg hover:bg-tea-cream transition-colors text-tea-text-light"
                           title={t("coupon")}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M6 9l6 6 6-6"/>
@@ -1044,7 +1044,7 @@ export default function CheckoutClient() {
                               disabled={!eligible}
                               onClick={() => eligible && selectCoupon(c)}
                               className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-colors border-b border-tea-green-pale/50 last:border-0
-                                ${eligible ? "hover:bg-tea-cream-light cursor-pointer" : "opacity-40 cursor-not-allowed"}
+                                ${eligible ? "hover:bg-tea-cream cursor-pointer" : "opacity-40 cursor-not-allowed"}
                                 ${isApplied ? "bg-tea-green-mist/50" : ""}`}
                             >
                               <div>

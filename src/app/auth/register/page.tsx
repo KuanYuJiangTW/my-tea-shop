@@ -120,7 +120,7 @@ function RegisterForm() {
   }
 
   const inputCls = (hasError?: string) =>
-    `w-full px-4 py-3 rounded-xl border text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 bg-tea-cream-light/50 transition ${
+    `w-full px-4 py-3 rounded-xl border text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 bg-tea-cream/50 transition ${
       hasError
         ? "border-rose-300 focus:ring-rose-300"
         : "border-tea-green-pale focus:ring-tea-green focus:border-tea-green"
@@ -128,7 +128,7 @@ function RegisterForm() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
+      <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
           <div className="w-16 h-16 bg-tea-green-mist rounded-full flex items-center justify-center mx-auto mb-5">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7D9B84" strokeWidth="2" strokeLinecap="round">
@@ -155,7 +155,7 @@ function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">

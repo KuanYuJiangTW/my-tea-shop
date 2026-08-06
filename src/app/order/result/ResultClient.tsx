@@ -115,7 +115,7 @@ function ResultContent() {
   // PayPal capturing loading state
   if (paypalCapturing) {
     return (
-      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
+      <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-tea-green-mist rounded-full flex items-center justify-center mx-auto mb-6">
             <svg className="animate-spin" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7D9B84" strokeWidth="2">
@@ -131,7 +131,7 @@ function ResultContent() {
   // PayPal cancel page
   if (paypalParam === "cancel" && !paypalSuccess) {
     return (
-      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
+      <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round">
@@ -168,7 +168,7 @@ function ResultContent() {
   // PayPal capture failed
   if (paypalError && !paypalSuccess) {
     return (
-      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
+      <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round">
@@ -194,7 +194,7 @@ function ResultContent() {
   }
 
   return (
-    <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
+    <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
       <div className="text-center max-w-md">
         {isSuccess ? (
           <>

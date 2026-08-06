@@ -160,7 +160,7 @@ export default function CouponsPage() {
           {error && <p className="text-sm text-rose-500">{error}</p>}
           <div className="flex gap-2">
             <button type="submit" className="px-4 py-2 bg-tea-green text-white text-sm rounded-lg hover:bg-tea-green-dark">建立</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-tea-text-light border border-tea-cream-dark rounded-lg hover:bg-tea-cream-light">取消</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-tea-text-light border border-tea-cream-dark rounded-lg hover:bg-tea-cream">取消</button>
           </div>
         </form>
       )}
@@ -173,7 +173,7 @@ export default function CouponsPage() {
         ) : (
           <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-tea-cream-light text-tea-text-light">
+              <thead className="bg-tea-cream text-tea-text-light">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">折價碼</th>
                   <th className="text-left px-4 py-3 font-medium">名稱</th>
@@ -189,7 +189,7 @@ export default function CouponsPage() {
                   const statusLabel = !c.is_active ? "已停用" : expired ? "已過期" : "啟用中";
                   const statusCls = !c.is_active || expired ? "bg-gray-100 text-gray-500" : "bg-green-50 text-green-700";
                   return (
-                    <tr key={c.id} className="hover:bg-tea-cream-light">
+                    <tr key={c.id} className="hover:bg-tea-cream">
                       <td className="px-4 py-3 font-mono font-bold text-tea-green">{c.code}</td>
                       <td className="px-4 py-3 text-tea-text">{c.name}</td>
                       <td className="px-4 py-3 text-right">NT${c.discount_amount}</td>
@@ -217,7 +217,7 @@ export default function CouponsPage() {
         ) : (
           <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-tea-cream-light text-tea-text-light">
+              <thead className="bg-tea-cream text-tea-text-light">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">代碼</th>
                   <th className="text-right px-4 py-3 font-medium">折扣</th>
@@ -228,7 +228,7 @@ export default function CouponsPage() {
               </thead>
               <tbody className="divide-y divide-tea-cream">
                 {batchList.slice(0, 50).map((c, i) => (
-                  <tr key={i} className="hover:bg-tea-cream-light">
+                  <tr key={i} className="hover:bg-tea-cream">
                     <td className="px-4 py-3 font-mono text-xs text-tea-text-light">{c.code as string}</td>
                     <td className="px-4 py-3 text-right">NT${c.discount_amount as number}</td>
                     <td className="px-4 py-3 text-xs text-tea-text-faint">{c.source as string}</td>

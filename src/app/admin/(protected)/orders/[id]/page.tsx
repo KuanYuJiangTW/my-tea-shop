@@ -158,7 +158,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           {order.note && (
             <div className="bg-white rounded-2xl border border-tea-cream-dark p-5">
               <h2 className="font-semibold text-tea-text text-sm mb-2">顧客備註</h2>
-              <p className="text-sm text-tea-text-light bg-tea-cream-light rounded-xl p-3">{order.note}</p>
+              <p className="text-sm text-tea-text-light bg-tea-cream rounded-xl p-3">{order.note}</p>
             </div>
           )}
         </div>

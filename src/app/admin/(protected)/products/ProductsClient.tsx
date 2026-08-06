@@ -496,7 +496,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       {/* 新增商品表單 */}
       {showCreate && (
         <div className="mb-6 bg-white rounded-2xl border border-tea-green-light shadow-md overflow-hidden">
-          <div className="px-5 py-4 border-b border-tea-cream bg-tea-cream-light">
+          <div className="px-5 py-4 border-b border-tea-cream bg-tea-cream">
             <h2 className="text-sm font-semibold text-tea-text">新增商品</h2>
             <p className="text-xs text-tea-text-faint mt-0.5">填入商品資料後點擊「建立商品」，再開啟上架開關即可上架。</p>
           </div>
@@ -624,7 +624,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
             <div>
               <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">各規格售價與庫存（選填）</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-tea-cream-light rounded-xl border border-tea-cream-dark p-3">
+                <div className="bg-tea-cream rounded-xl border border-tea-cream-dark p-3">
                   <p className="text-xs font-bold text-tea-text mb-2">150g 散茶</p>
                   <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                   <input
@@ -635,7 +635,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     className="w-full px-2.5 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                   />
                 </div>
-                <div className="bg-tea-cream-light rounded-xl border border-tea-cream-dark p-3">
+                <div className="bg-tea-cream rounded-xl border border-tea-cream-dark p-3">
                   <p className="text-xs font-bold text-tea-text mb-2">75g 散茶</p>
                   <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                   <input
@@ -654,7 +654,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     className="w-full px-2.5 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                   />
                 </div>
-                <div className="bg-tea-cream-light rounded-xl border border-tea-cream-dark p-3">
+                <div className="bg-tea-cream rounded-xl border border-tea-cream-dark p-3">
                   <p className="text-xs font-bold text-tea-text mb-2">茶包 15入 × 3g</p>
                   <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                   <input
@@ -875,7 +875,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
               {/* 規格區 */}
               {isEditing ? (
                 <>
-                <div className="border-t border-tea-cream px-5 py-4 bg-tea-cream-light">
+                <div className="border-t border-tea-cream px-5 py-4 bg-tea-cream">
                   <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-3">各規格售價與庫存</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
@@ -975,7 +975,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 </div>
                 </>
               ) : (
-                <div className="border-t border-tea-cream px-5 py-3 flex flex-wrap gap-4 bg-tea-cream-light">
+                <div className="border-t border-tea-cream px-5 py-3 flex flex-wrap gap-4 bg-tea-cream">
                   {[
                     { label: "150g", price: product.price,         stock: product.stock_quantity },
                     { label: "75g",  price: product.price_75g,      stock: product.stock_75g },
@@ -1008,7 +1008,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-2 sm:mx-4">
             <h3 className="text-base font-semibold text-tea-text mb-2">確認刪除商品</h3>
             <p className="text-sm text-tea-text-light mb-1">即將永久刪除以下商品，此操作無法復原：</p>
-            <p className="text-sm font-medium text-tea-text bg-tea-cream-light rounded-lg px-3 py-2 mb-5">
+            <p className="text-sm font-medium text-tea-text bg-tea-cream rounded-lg px-3 py-2 mb-5">
               {confirmProduct?.name || confirmProduct?.slug}
             </p>
             <div className="flex justify-end gap-2">

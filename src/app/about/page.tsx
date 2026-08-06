@@ -106,7 +106,7 @@ export default async function AboutPage() {
       </section>
 
       {/* Photo Gallery */}
-      <section className="py-16 md:py-24 bg-tea-cream-light">
+      <section className="py-16 md:py-24 bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <p className="text-tea-green text-xs tracking-[0.3em] uppercase font-medium mb-3">
@@ -126,7 +126,8 @@ export default async function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="py-16 md:py-24 bg-white">
+      {/* 米底：理念卡是 bg-white，白底上會只剩陰影可辨 */}
+      <section className="py-16 md:py-24 bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">
@@ -156,7 +157,7 @@ export default async function AboutPage() {
       </section>
 
       {/* Tea Varieties */}
-      <section className="py-16 md:py-24 bg-tea-cream-light">
+      <section className="py-16 md:py-24 bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">

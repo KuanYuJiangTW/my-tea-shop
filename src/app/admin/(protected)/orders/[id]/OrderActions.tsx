@@ -140,7 +140,7 @@ export default function OrderActions({
 
   if (actions.length === 0) {
     return (
-      <div className="text-sm text-tea-text-faint px-4 py-2 bg-tea-cream-light rounded-xl border border-tea-cream-dark">
+      <div className="text-sm text-tea-text-faint px-4 py-2 bg-tea-cream rounded-xl border border-tea-cream-dark">
         {orderStatus === "completed" ? "訂單已完成" : "訂單已取消"}
       </div>
     );
@@ -188,7 +188,7 @@ export default function OrderActions({
                 value={trackingNote}
                 onChange={(e) => setTrackingNote(e.target.value)}
                 placeholder="例：黑貓宅急便，單號 1234567890"
-                className="w-full px-4 py-2.5 rounded-xl border border-tea-cream-dark bg-tea-cream-light text-sm text-tea-text placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green focus:border-transparent"
+                className="w-full px-4 py-2.5 rounded-xl border border-tea-cream-dark bg-tea-cream text-sm text-tea-text placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green focus:border-transparent"
               />
             </div>
 

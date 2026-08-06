@@ -108,7 +108,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-tea-cream-light">
+    <div className="min-h-screen bg-tea-cream">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(productJsonLd) }}
@@ -210,7 +210,8 @@ export default async function ExperienceDetailPage({ params }: Props) {
             )}
 
             {/* 退款政策 */}
-            <div className="bg-tea-cream rounded-2xl p-5 border border-tea-green-pale text-sm">
+            {/* 白底：頁底已是 cream，這張卡直接壓在頁底上，同色會糊成一片 */}
+            <div className="bg-white rounded-2xl p-5 border border-tea-green-pale text-sm">
               <h3 className="font-medium text-tea-text mb-3">{tb("refundPolicy.title")}</h3>
               <ul className="space-y-1.5 text-tea-text-light">
                 <li className="flex justify-between"><span>{tb("refundPolicy.items.7days.label")}</span><span className="text-tea-green font-medium">{tb("refundPolicy.items.7days.value")}</span></li>

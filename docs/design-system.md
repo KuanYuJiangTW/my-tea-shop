@@ -51,12 +51,37 @@ tabular 數字、五態完整性**（載入／空／錯誤／成功／禁用）�
 | `tea-green-mist` | `#EBF3EE` | 最淺的綠底（hover 底、提示區） |
 | `tea-green-dark` | `#5C7A67` | 深綠，按鈕 hover 態 |
 | `tea-green-ink` | `#58745F` | **互動綠**：連結、按鈕底、圖示。四種淺底皆 ≥4.54 |
-| `tea-cream` | `#F5F0E8` | 米白主底 |
-| `tea-cream-light` | `#FAF7F2` | 最淺米白（頁面底） |
+| `tea-cream` | `#F5F0E8` | **淺底層**：頁面底、區塊底（見 2.1.1） |
+| `tea-cream-light` | `#FAF7F2` | **深底上的文字色**。已不再作為背景層（見 2.1.1） |
 | `tea-cream-dark` | `#EDE8DC` | 邊框、分隔 |
 | `tea-text` | `#3D4A42` | 主文字、深色區塊底 |
 | `tea-text-light` | `#6B8872` | 淺化文字。**不合 AA，勿用於內文**（見 2.3） |
 | `tea-text-muted` | `#637169` | **次要內文**。四種淺底皆 ≥4.52 |
+
+### 2.1.1 淺底只有兩層
+
+淺色背景只用 **`tea-cream` #F5F0E8（底）** 和 **`white`（前景）** 兩層，明度差 4.3%。
+
+原本還有中間的 `tea-cream-light` #FAF7F2，但 cream / cream-light / white 三層彼此
+只差 2%，視覺上是同一片——等於做了三段變化卻一段都看不出來。`cream-light` 已退出
+背景層，改當深底（`tea-text`、Hero 遮罩、Footer）上的文字色。
+
+**分派原則：層次由「有沒有卡片」決定，不是由「要不要交替」決定。**
+
+| 區塊型態 | 底色 | 理由 |
+|---|---|---|
+| 有卡片牆／卡片（卡片是 `bg-white`） | `bg-tea-cream` | 白卡壓在白底上只剩邊框，卡片等於消失 |
+| 純圖文敘事、無卡片 | `bg-white` | 乾淨，讓文字自己說話 |
+| 情緒高點 | `bg-tea-text` | 深色錨點，全站少用 |
+
+曾經試過「section 交替 cream / white」，實測發現本季精選段改白底後三張商品卡
+全部消失（掃描證據見下）。**節奏由間距 token 負責（見第五節），背景只負責層次。**
+
+驗證方法（改動淺底後必跑）：在 DevTools Console 掃出「不透明背景 == 最近的不透明
+祖先背景」且看起來像卡片（有圓角或 padding）的元素。結果應為空——除了 section 本身
+壓在同色 body 上，那是正常的。
+
+`Header` 是 `bg-tea-cream`，與頁面底同色，靠 `border-b` 與 `shadow-sm` 分層，這是刻意的。
 
 ### 2.2 語意層（`globals.css` 的 `:root`）
 
@@ -64,7 +89,7 @@ tabular 數字、五態完整性**（載入／空／錯誤／成功／禁用）�
 
 | 語意 token | 指向 | 對比 |
 |---|---|---|
-| `--background` | cream-light `#FAF7F2` | — |
+| `--background` | `#FFFFFF` | 第六波回退到 Production 的純白；各區塊自帶 `bg-` |
 | `--foreground` | text `#3D4A42` | 8.71:1 |
 | `--card` / `--popover` | `#FFFFFF` | 卡片浮在米白上才有層次 |
 | `--primary` | green-ink `#58745F` | 白字 5.15 |

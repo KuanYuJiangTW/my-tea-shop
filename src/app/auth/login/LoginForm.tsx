@@ -192,12 +192,12 @@ export default function LoginForm() {
   }
 
   const inputCls = (hasError: boolean) =>
-    `w-full px-4 py-3 rounded-xl border text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 bg-tea-cream-light/50 transition ${
+    `w-full px-4 py-3 rounded-xl border text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 bg-tea-cream/50 transition ${
       hasError ? "border-rose-300 focus:ring-rose-300" : "border-tea-green-pale focus:ring-tea-green focus:border-tea-green"
     }`;
 
   return (
-    <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -286,7 +286,7 @@ export default function LoginForm() {
           </div>
 
           {/* 登入方式切換 */}
-          <div className="flex gap-1 mb-5 bg-tea-cream-light rounded-xl p-1">
+          <div className="flex gap-1 mb-5 bg-tea-cream rounded-xl p-1">
             {(["password", "magic"] as const).map((m) => (
               <button
                 key={m}
@@ -426,7 +426,7 @@ export default function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowAndroidWarning(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream transition"
               >
                 {t("mobileLineWarning.cancel")}
               </button>

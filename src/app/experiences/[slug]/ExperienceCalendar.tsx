@@ -197,7 +197,7 @@ export default function ExperienceCalendar({ experience }: Props) {
               return (
                 <div
                   key={s.id}
-                  className="flex items-center justify-between bg-tea-cream-light rounded-xl px-4 py-3 border border-tea-green-pale/60"
+                  className="flex items-center justify-between bg-tea-cream rounded-xl px-4 py-3 border border-tea-green-pale/60"
                 >
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">

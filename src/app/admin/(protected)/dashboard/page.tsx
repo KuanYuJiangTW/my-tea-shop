@@ -428,7 +428,7 @@ export default async function DashboardPage() {
                   <Link
                     key={order.id}
                     href={`/admin/orders/${order.id}`}
-                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-tea-cream-light transition"
+                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-tea-cream transition"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
@@ -474,7 +474,7 @@ export default async function DashboardPage() {
                   <Link
                     key={b.id}
                     href="/admin/experiences/bookings"
-                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-tea-cream-light transition"
+                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-tea-cream transition"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
@@ -507,21 +507,21 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Link
           href="/admin/orders?status=pending"
-          className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream-light transition group"
+          className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream transition group"
         >
           <div className="text-sm font-medium text-tea-text mb-1 group-hover:text-tea-green-dark">待出貨訂單</div>
           <div className="text-xs text-tea-text-faint">查看需要出貨的訂單</div>
         </Link>
         <Link
           href="/admin/products"
-          className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream-light transition group"
+          className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream transition group"
         >
           <div className="text-sm font-medium text-tea-text mb-1 group-hover:text-tea-green-dark">管理產品</div>
           <div className="text-xs text-tea-text-faint">調整庫存、價格與上下架</div>
         </Link>
         <Link
           href="/admin/experiences/bookings"
-          className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream-light transition group"
+          className="bg-white rounded-2xl border border-tea-cream-dark p-5 hover:border-tea-green-light hover:bg-tea-cream transition group"
         >
           <div className="text-sm font-medium text-tea-text mb-1 group-hover:text-tea-green-dark">體驗管理</div>
           <div className="text-xs text-tea-text-faint">查看體驗預約與場次</div>
