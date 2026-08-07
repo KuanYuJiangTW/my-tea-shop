@@ -106,6 +106,19 @@
 - 規則：**PowerShell 碰檔案路徑一律用 `-LiteralPath`**（`Get-Content`／`Test-Path`／`Remove-Item`／`Copy-Item` 皆同），本專案是 App Router，`[...]` 目錄到處都是。**批次寫檔前先擋空值**：`if ($null -eq $c) { throw "讀檔失敗: $path" }`，不要讓 null 流進 `WriteAllText`
 - 去處：暫存於此（JUDG-8「先數再改」的第二次奏效：這次和正則毀 26 檔那次一樣，救命的都是事前期望值；差別是這次的失敗模式是「靜默少做」而不是「大聲做錯」，更難察覺）
 
+## 2026-08-07 驗證器讀錯目錄，回報「11 個 token 全部沒生成」
+- 情境：門面四件打磨，要從建置產物 CSS 確認語意 token 真的生成。腳本讀 `.next/static/css/`——
+  但 Next 16 把 CSS 放在 `.next/static/chunks/`。`Get-ChildItem` 加了 `-ErrorAction SilentlyContinue`，
+  於是 `$css` 是空字串，每一個 `-match` 都是 false，報告「11 個 token 全部沒生成」
+- 代價：差點回頭去「修」根本沒壞的 token。救回來的是**清單裡混著第九波已驗證生效的
+  `rounded-card` 與 `shadow-resting`**——它們不可能沒生成，所以錯的是驗證器不是被驗的東西
+- 規則：**任何「掃產物找字串」的驗證，都要在同一次輸出裡帶兩組對照**：一個必定存在
+  （如 `.bg-white`）、一個必定不存在（如 `.fill-tea-DOES-NOT-EXIST`）。兩者都答對，
+  結果才可信。另外**先印出讀到的資料量**（`$css.Length`），零長度要當成錯誤不是「沒找到」。
+  附帶：`hover:`／`focus:` 前綴的 class 在 CSS 裡是 `.hover\:x:hover`，用 `.x` 比對必然落空，要單獨查
+- 去處：暫存於此（JUDG-8「證據要有鑑別力」的第三次現形。前兩次是「沒報錯≠有做到」，
+  這次是「沒找到≠不存在」——同一個病的另一張臉：失敗與「沒資料」長得一模一樣）
+
 ## 已歸檔（2026-08-06 精簡，共 18 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。

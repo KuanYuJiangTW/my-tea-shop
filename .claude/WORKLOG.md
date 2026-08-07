@@ -382,6 +382,33 @@ Tailwind 產物一律以 `npm run build` 為準
   但第六波已改回純白（瀏覽器實測 `lab(100 0 0)`）
 - 驗證：551 測試全過（42 檔）、`tsc` 零錯誤、build 成功
 
+**第十一波（2026-08-07）：門面四件打磨**（`258f0f6`、`68fba89`、`1f46395`、`8831c23`）
+- ProductCard／ExperienceCalendar／Header／`/order/result` 四個檔全面改用語意 token：
+  圓角、陰影、動態、字級。圓角與動態是恆等映射（`rounded-2xl`→`rounded-card` 都是 16px），
+  陰影刻意不恆等——改用茶墨色 `rgb(61 74 66)` 取代 Tailwind 預設純黑
+- **硬編碼 hex 退出 SVG 屬性**：Tailwind 有 `fill-*`／`stroke-*` utility，
+  logo 與圖示的 `fill="#7D9B84"` 全改成 `className="fill-tea-green"`。
+  實測渲染值 `rgb(125,155,132)` 與原 hex 相同——恆等，但色盤調整時不會再漏掉
+- **順帶補了四個對比不合格項**（都是既有缺陷，不是重構造成的）：
+  低庫存 `amber-500` 2.15→7.09、取消狀態 `red-400` 2.53→5.30、
+  `/order/result` 錯誤訊息 2.44→6.70、無信箱提示 2.81→6.25
+- **付款等待畫面**：抽 `VerifyingPayment` 給 PayPal capture 與 Suspense fallback 共用。
+  文案重點從「請稍候」改成**「不要再付一次」**——PayPal 是客人那邊已授權、
+  我們這邊才 capture，只寫「處理中」會讓人回上一頁重送而重複扣款
+- **兩個被實測推翻的判斷，兩次都是我先想錯**：
+  1. 「白畫面是 `<Suspense>` 沒 fallback 造成的」→ 抓 SSR 初始 HTML 後確認，
+     金流轉跳是整頁載入、`useSearchParams` 不會 suspend，根本沒有白畫面。
+     fallback 仍補上（client-side 導覽會用到），但程式碼註解改寫成正確因果，不留錯誤推論
+  2. 「停用態統一用 `text-tea-text-faint` 比較一致」→ 對比只有 2.02–2.47，
+     其中日曆載入提示從 3.90 掉到 2.47。**為一致性犧牲可讀性是本末倒置**，已退回
+- 驗證方法沿用第七波並補強：從建置產物 CSS 逐一確認 token 生成，
+  **每次都帶「必定存在」與「必定不存在」兩組對照**。這次靠它抓到自己的檢查器讀錯目錄
+  （CSS 在 `.next/static/chunks/` 不是 `.next/static/css/`），否則會誤報「全部沒生成」。
+  另：`hover:` 前綴的 class 在 CSS 裡是 `.hover\:x:hover`，用 `.x` 比對必然落空，要單獨查
+- `bg-[#F0F6F1]`→`bg-tea-green-mist` 用 ΔEok 驗證＝0.0107（門檻 0.011），
+  對照組「明顯不同色」0.3097 證明計算有鑑別力
+- 小尾巴：`/contact` 的輸入框從全站唯一的 `bg-white` 改回 `bg-tea-cream/50`，與其他四頁一致
+
 ---
 
 ### 下一個 session 從這裡接手
@@ -390,14 +417,18 @@ Tailwind 產物一律以 `npm run build` 為準
 551 測試全過（42 檔）、`tsc` 零錯誤、build 成功。**尚未開 PR、未動 main**（小江未要求）。
 
 **排隊中的工作**（依建議順序）：
-1. **門面四件打磨** ← 建議下一項（ProductCard 360／ExperienceCalendar 272／Header 271／
-   `/order/result` 328）。字級（第九波）與淺底（第十波）都已定案，可以動了。
-   一併處理第十波留下的三個小尾巴：`/process` 製程卡區 2 處白壓白（該區用米色系當色票，
-   要連卡片配色一起重想）、`/contact` 的 input 是純 `bg-white` 而其他頁是 `bg-tea-cream/50`（不一致）
-2. CheckoutClient 打磨（1210 行、金流頁，**獨立排**，依鐵律 4 先讀 openspec ＋ 改完必跑測試）
-3. Email 樣板脫離內聯 hex（`src/lib/email.ts` 1550 行、492 處 hex、32 種色值，
+1. **`/process` 工序色票重想** ← 建議下一項，也是第十一波唯一沒收掉的尾巴。
+   查證後規模比預期大：`ProcessContent.tsx:29` 的 `stepColors` 有 **12 個工序色票，
+   其中 8 個在品牌色盤外**（`amber-50/600/700`、`green-50/700`、`orange-50/600`、`red-50/700`）。
+   這是「每個工序該是什麼色」的設計決策，不是機械替換——**需要小江拍板色系方向**
+   （建議：用 `tea-*` 明度序列表達工序溫度，或建一組 `process-*` token）。
+   收掉它才能順帶解決該段 2 處白壓白（`ProcessContent.tsx` 391/394 的 pill 與 520 的卡）
+2. `/contact` 其餘 20+ 處 token 遷移（本波只統一了輸入框與錯誤訊息這兩個點名項；
+   這頁規模等同第五個門面元件，該獨立排）
+3. CheckoutClient 打磨（1210 行、金流頁，**獨立排**，依鐵律 4 先讀 openspec ＋ 改完必跑測試）
+4. Email 樣板脫離內聯 hex（`src/lib/email.ts` 1550 行、492 處 hex、32 種色值，
    已漂移：混入非品牌色、大小寫不一致、`#E8E0D2` vs `#E8E0D4` 疑似手誤）
-4. 綠色降密度（`tea-green` 系列 621 處 vs `tea-cream` 現已 130+ 處，綠色仍被當成預設色用）——
+5. 綠色降密度（`tea-green` 系列 621 處 vs `tea-cream` 現已 130+ 處，綠色仍被當成預設色用）——
    數百個主觀判斷，排最後；前面做完後對品牌的感覺可能改變
 
 **待小江提供／拍板**：
