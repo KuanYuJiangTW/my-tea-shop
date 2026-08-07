@@ -148,15 +148,15 @@ export async function sendContactEmail(data: {
           <h2 style="margin:0 0 20px;font-size:18px;color:#3D4A42;">您收到一則新訊息</h2>
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;width:80px;">姓名</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;width:80px;">姓名</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:600;">${safeName}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">Email</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">Email</td>
               <td style="color:#3D4A42;font-size:13px;">${safeEmail}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">主旨</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">主旨</td>
               <td style="color:#3D4A42;font-size:13px;">${label}</td>
             </tr>
           </table>
@@ -259,28 +259,28 @@ export async function sendWebInquiryEmail(data: WebInquiryEmailData) {
           <h2 style="margin:0 0 20px;font-size:18px;color:#3D4A42;">有新的接案諮詢</h2>
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;width:100px;">認識管道</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;width:100px;">認識管道</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:600;">${referralLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">產業／品牌</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">產業／品牌</td>
               <td style="color:#3D4A42;font-size:13px;">${safeIndustry}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">預算區間</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">預算區間</td>
               <td style="color:#3D4A42;font-size:13px;">${budgetLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">上線時程</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">上線時程</td>
               <td style="color:#3D4A42;font-size:13px;">${timelineLabelStr}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">姓名</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">姓名</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:600;">${safeName}</td>
             </tr>
-            ${safeLine ? `<tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">LINE</td><td style="color:#3D4A42;font-size:13px;">${safeLine}</td></tr>` : ""}
-            ${safeEmail ? `<tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">Email</td><td style="color:#3D4A42;font-size:13px;">${safeEmail}</td></tr>` : ""}
-            ${safeContactTime ? `<tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">方便時段</td><td style="color:#3D4A42;font-size:13px;">${safeContactTime}</td></tr>` : ""}
+            ${safeLine ? `<tr><td style="color:#637169;font-size:13px;padding:5px 0;">LINE</td><td style="color:#3D4A42;font-size:13px;">${safeLine}</td></tr>` : ""}
+            ${safeEmail ? `<tr><td style="color:#637169;font-size:13px;padding:5px 0;">Email</td><td style="color:#3D4A42;font-size:13px;">${safeEmail}</td></tr>` : ""}
+            ${safeContactTime ? `<tr><td style="color:#637169;font-size:13px;padding:5px 0;">方便時段</td><td style="color:#3D4A42;font-size:13px;">${safeContactTime}</td></tr>` : ""}
           </table>
           <h3 style="margin:0 0 10px;font-size:13px;color:#7D9B84;font-weight:700;letter-spacing:1px;">想解決的痛點</h3>
           <div style="background:#F5F0E8;border-radius:10px;padding:20px;font-size:14px;color:#3D4A42;line-height:1.8;">${painPointsLabel}</div>
@@ -329,20 +329,20 @@ export async function sendShippingEmail(data: ShippingEmailData) {
           <div style="display:inline-block;background:#EBF3EE;color:#5C7A67;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">已出貨</div>
 
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">您的茶葉已出發囉！</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeCustomerName}，您的訂單已完成出貨，請注意簽收。</p>
+          <p style="margin:0 0 24px;color:#637169;font-size:14px;">親愛的 ${safeCustomerName}，您的訂單已完成出貨，請注意簽收。</p>
 
           <!-- 訂單資訊 -->
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">訂單編號</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">訂單編號</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:700;text-align:right;font-family:monospace;">#${shortId(data.orderId)}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">配送方式</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">配送方式</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${formatShipping(data.shippingAddress)}</td>
             </tr>
             ${safeTrackingNote ? `<tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">備註</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">備註</td>
               <td style="color:#7D9B84;font-size:13px;font-weight:600;text-align:right;">${safeTrackingNote}</td>
             </tr>` : ""}
           </table>
@@ -351,9 +351,9 @@ export async function sendShippingEmail(data: ShippingEmailData) {
           <h3 style="margin:0 0 12px;font-size:14px;color:#3D4A42;font-weight:700;">購買品項</h3>
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr style="border-bottom:2px solid #EDE8DC;">
-              <th style="padding:8px 0;text-align:left;color:#6B7B6E;font-size:12px;font-weight:600;">品項</th>
-              <th style="padding:8px 0;text-align:center;color:#6B7B6E;font-size:12px;font-weight:600;">數量</th>
-              <th style="padding:8px 0;text-align:right;color:#6B7B6E;font-size:12px;font-weight:600;">小計</th>
+              <th style="padding:8px 0;text-align:left;color:#637169;font-size:12px;font-weight:600;">品項</th>
+              <th style="padding:8px 0;text-align:center;color:#637169;font-size:12px;font-weight:600;">數量</th>
+              <th style="padding:8px 0;text-align:right;color:#637169;font-size:12px;font-weight:600;">小計</th>
             </tr>
             ${data.items.map(i => `
             <tr>
@@ -372,7 +372,7 @@ export async function sendShippingEmail(data: ShippingEmailData) {
 
           <div style="margin-top:32px;padding:20px;background:#EBF3EE;border-radius:10px;border-left:3px solid #7D9B84;">
             <p style="margin:0 0 6px;font-size:13px;color:#3D4A42;font-weight:600;">收貨注意事項</p>
-            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">宅配預計 1–3 個工作天送達；超商到店後請於 3 天內取件。如有任何問題，歡迎來電或傳訊息給我們。</p>
+            <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">宅配預計 1–3 個工作天送達；超商到店後請於 3 天內取件。如有任何問題，歡迎來電或傳訊息給我們。</p>
           </div>
 
         </td></tr>
@@ -420,24 +420,24 @@ async function sendCustomerEmail(data: EmailOrderData) {
         <tr><td style="background:#FFFFFF;padding:40px;">
 
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">感謝您的訂購！</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">您的訂單已成立，我們將盡快為您備貨。</p>
+          <p style="margin:0 0 24px;color:#637169;font-size:14px;">您的訂單已成立，我們將盡快為您備貨。</p>
 
           <!-- 訂單資訊 -->
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">訂單編號</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">訂單編號</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:700;text-align:right;font-family:monospace;">#${shortId(data.orderId)}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">付款方式</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">付款方式</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${formatPayment(data.paymentMethod)}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">配送方式</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">配送方式</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${formatShipping(data.shippingAddress)}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">預計出貨</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">預計出貨</td>
               <td style="color:#7D9B84;font-size:13px;font-weight:600;text-align:right;">3–5 個工作天</td>
             </tr>
           </table>
@@ -446,10 +446,10 @@ async function sendCustomerEmail(data: EmailOrderData) {
           <h3 style="margin:0 0 12px;font-size:14px;color:#3D4A42;font-weight:700;">購買品項</h3>
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr style="border-bottom:2px solid #EDE8DC;">
-              <th style="padding:8px 0;text-align:left;color:#6B7B6E;font-size:12px;font-weight:600;">品項</th>
-              <th style="padding:8px 0;text-align:center;color:#6B7B6E;font-size:12px;font-weight:600;">數量</th>
-              <th style="padding:8px 0;text-align:right;color:#6B7B6E;font-size:12px;font-weight:600;">單價</th>
-              <th style="padding:8px 0;text-align:right;color:#6B7B6E;font-size:12px;font-weight:600;">小計</th>
+              <th style="padding:8px 0;text-align:left;color:#637169;font-size:12px;font-weight:600;">品項</th>
+              <th style="padding:8px 0;text-align:center;color:#637169;font-size:12px;font-weight:600;">數量</th>
+              <th style="padding:8px 0;text-align:right;color:#637169;font-size:12px;font-weight:600;">單價</th>
+              <th style="padding:8px 0;text-align:right;color:#637169;font-size:12px;font-weight:600;">小計</th>
             </tr>
             ${itemRows(data.items)}
           </table>
@@ -457,11 +457,11 @@ async function sendCustomerEmail(data: EmailOrderData) {
           <!-- 金額合計 -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">商品金額</td>
+              <td style="color:#637169;font-size:13px;padding:4px 0;">商品金額</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">NT$${(data.totalAmount - data.shippingFee).toLocaleString()}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">運費</td>
+              <td style="color:#637169;font-size:13px;padding:4px 0;">運費</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${data.shippingFee === 0 ? "免費" : `NT$${data.shippingFee.toLocaleString()}`}</td>
             </tr>
             <tr style="border-top:2px solid #3D4A42;margin-top:8px;">
@@ -470,12 +470,12 @@ async function sendCustomerEmail(data: EmailOrderData) {
             </tr>
           </table>
 
-          ${safeNote ? `<div style="margin-top:24px;padding:14px;background:#F5F0E8;border-radius:8px;font-size:13px;color:#6B7B6E;">備註：${safeNote}</div>` : ""}
+          ${safeNote ? `<div style="margin-top:24px;padding:14px;background:#F5F0E8;border-radius:8px;font-size:13px;color:#637169;">備註：${safeNote}</div>` : ""}
 
           <!-- 說明 -->
           <div style="margin-top:32px;padding:20px;background:#EBF3EE;border-radius:10px;border-left:3px solid #7D9B84;">
             <p style="margin:0 0 6px;font-size:13px;color:#3D4A42;font-weight:600;">出貨通知</p>
-            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">商品出貨後，我們會以簡訊或電話通知您取貨資訊。如有任何問題，歡迎來電或傳訊息給我們。</p>
+            <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">商品出貨後，我們會以簡訊或電話通知您取貨資訊。如有任何問題，歡迎來電或傳訊息給我們。</p>
           </div>
 
         </td></tr>
@@ -530,36 +530,36 @@ async function sendAdminEmail(data: EmailOrderData) {
           <h3 style="margin:0 0 10px;font-size:13px;color:#7D9B84;font-weight:700;text-transform:uppercase;letter-spacing:1px;">顧客資訊</h3>
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:4px 0;width:90px;">訂單編號</td>
+              <td style="color:#637169;font-size:13px;padding:4px 0;width:90px;">訂單編號</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:700;font-family:monospace;">#${shortId(data.orderId)}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">姓名</td>
+              <td style="color:#637169;font-size:13px;padding:4px 0;">姓名</td>
               <td style="color:#3D4A42;font-size:13px;">${safeCustomerName}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">Email</td>
+              <td style="color:#637169;font-size:13px;padding:4px 0;">Email</td>
               <td style="color:#3D4A42;font-size:13px;">${safeCustomerEmail}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">付款</td>
+              <td style="color:#637169;font-size:13px;padding:4px 0;">付款</td>
               <td style="color:#3D4A42;font-size:13px;">${formatPayment(data.paymentMethod)}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:4px 0;">配送</td>
+              <td style="color:#637169;font-size:13px;padding:4px 0;">配送</td>
               <td style="color:#3D4A42;font-size:13px;">${formatShipping(data.shippingAddress)}</td>
             </tr>
-            ${safeNote ? `<tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">備註</td><td style="color:#E07B39;font-size:13px;font-weight:600;">${safeNote}</td></tr>` : ""}
+            ${safeNote ? `<tr><td style="color:#637169;font-size:13px;padding:4px 0;">備註</td><td style="color:#E07B39;font-size:13px;font-weight:600;">${safeNote}</td></tr>` : ""}
           </table>
 
           <!-- 品項 -->
           <h3 style="margin:0 0 10px;font-size:13px;color:#7D9B84;font-weight:700;text-transform:uppercase;letter-spacing:1px;">購買品項</h3>
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
             <tr style="border-bottom:2px solid #EDE8DC;">
-              <th style="padding:8px 0;text-align:left;color:#6B7B6E;font-size:12px;">品項</th>
-              <th style="padding:8px 0;text-align:center;color:#6B7B6E;font-size:12px;">數量</th>
-              <th style="padding:8px 0;text-align:right;color:#6B7B6E;font-size:12px;">單價</th>
-              <th style="padding:8px 0;text-align:right;color:#6B7B6E;font-size:12px;">小計</th>
+              <th style="padding:8px 0;text-align:left;color:#637169;font-size:12px;">品項</th>
+              <th style="padding:8px 0;text-align:center;color:#637169;font-size:12px;">數量</th>
+              <th style="padding:8px 0;text-align:right;color:#637169;font-size:12px;">單價</th>
+              <th style="padding:8px 0;text-align:right;color:#637169;font-size:12px;">小計</th>
             </tr>
             ${itemRows(data.items)}
           </table>
@@ -567,7 +567,7 @@ async function sendAdminEmail(data: EmailOrderData) {
           <!-- 金額 -->
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:3px 0;">運費</td>
+              <td style="color:#637169;font-size:13px;padding:3px 0;">運費</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${data.shippingFee === 0 ? "免費" : `NT$${data.shippingFee.toLocaleString()}`}</td>
             </tr>
             <tr>
@@ -644,48 +644,48 @@ async function sendBookingCustomerEmail(data: BookingEmailData) {
           <div style="display:inline-block;background:#EBF3EE;color:#5C7A67;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">預約確認</div>
 
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">感謝您的預約！</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，您的茶山體驗預約已確認，我們期待與您在茶園相見。</p>
+          <p style="margin:0 0 24px;color:#637169;font-size:14px;">親愛的 ${safeName}，您的茶山體驗預約已確認，我們期待與您在茶園相見。</p>
 
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">預約編號</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">預約編號</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:700;text-align:right;font-family:monospace;">#${shortBid}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">體驗項目</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">活動日期</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">活動日期</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">開始時間</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">開始時間</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">參加人數</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">參加人數</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${data.participantCount} 人</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">已付金額</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">已付金額</td>
               <td style="color:#7D9B84;font-size:14px;font-weight:700;text-align:right;">NT$ ${data.totalPrice.toLocaleString()}</td>
             </tr>
           </table>
 
           <div style="background:#EBF3EE;border-radius:10px;border-left:3px solid #7D9B84;padding:20px;margin-bottom:24px;">
             <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">📋 請補填參加者資料</p>
-            <p style="margin:0 0 14px;font-size:13px;color:#6B7B6E;line-height:1.6;">請於活動前 5 天內填寫所有參加者的身分證號、生日及緊急聯絡人資料。</p>
+            <p style="margin:0 0 14px;font-size:13px;color:#637169;line-height:1.6;">請於活動前 5 天內填寫所有參加者的身分證號、生日及緊急聯絡人資料。</p>
             <a href="${data.participantsFillUrl}" style="display:inline-block;background:#7D9B84;color:#FFFFFF;font-size:13px;font-weight:600;padding:10px 24px;border-radius:20px;text-decoration:none;">填寫參加者資料</a>
           </div>
 
           <div style="background:#FFF8ED;border-radius:10px;padding:16px;">
             <p style="margin:0 0 6px;font-size:12px;color:#3D4A42;font-weight:700;">取消退款政策</p>
             <table width="100%" cellpadding="0" cellspacing="0">
-              <tr><td style="font-size:12px;color:#6B7B6E;padding:2px 0;">活動前 7 天以上取消</td><td style="font-size:12px;color:#5C7A67;font-weight:600;text-align:right;">全額退款</td></tr>
-              <tr><td style="font-size:12px;color:#6B7B6E;padding:2px 0;">活動前 3–6 天取消</td><td style="font-size:12px;color:#D97706;font-weight:600;text-align:right;">退款 50%</td></tr>
-              <tr><td style="font-size:12px;color:#6B7B6E;padding:2px 0;">活動前 1–2 天取消</td><td style="font-size:12px;color:#D97706;font-weight:600;text-align:right;">退款 20%</td></tr>
-              <tr><td style="font-size:12px;color:#6B7B6E;padding:2px 0;">24 小時內取消</td><td style="font-size:12px;color:#DC2626;font-weight:600;text-align:right;">不退款</td></tr>
+              <tr><td style="font-size:12px;color:#637169;padding:2px 0;">活動前 7 天以上取消</td><td style="font-size:12px;color:#5C7A67;font-weight:600;text-align:right;">全額退款</td></tr>
+              <tr><td style="font-size:12px;color:#637169;padding:2px 0;">活動前 3–6 天取消</td><td style="font-size:12px;color:#D97706;font-weight:600;text-align:right;">退款 50%</td></tr>
+              <tr><td style="font-size:12px;color:#637169;padding:2px 0;">活動前 1–2 天取消</td><td style="font-size:12px;color:#D97706;font-weight:600;text-align:right;">退款 20%</td></tr>
+              <tr><td style="font-size:12px;color:#637169;padding:2px 0;">24 小時內取消</td><td style="font-size:12px;color:#DC2626;font-weight:600;text-align:right;">不退款</td></tr>
             </table>
           </div>
         </td></tr>
@@ -782,33 +782,33 @@ export async function sendParticipantFillReminder(data: ParticipantReminderData)
           <div style="display:inline-block;background:#FEF3C7;color:#92400E;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">⏰ 補填提醒</div>
 
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">請盡快補填參加者資料</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，距離您的茶山體驗還有 <strong style="color:#D97706;">5 天</strong>，目前仍有 <strong style="color:#DC2626;">${missing} 位</strong>參加者資料未填寫，請盡快完成。</p>
+          <p style="margin:0 0 24px;color:#637169;font-size:14px;">親愛的 ${safeName}，距離您的茶山體驗還有 <strong style="color:#D97706;">5 天</strong>，目前仍有 <strong style="color:#DC2626;">${missing} 位</strong>參加者資料未填寫，請盡快完成。</p>
 
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">預約編號</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">預約編號</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:700;text-align:right;font-family:monospace;">#${shortBid}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">體驗項目</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">活動日期</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">活動日期</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">開始時間</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">開始時間</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">已填 / 總人數</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">已填 / 總人數</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;"><strong style="color:${data.filledCount < data.participantCount ? "#DC2626" : "#5C7A67"};">${data.filledCount} / ${data.participantCount}</strong> 人</td>
             </tr>
           </table>
 
           <div style="background:#FEF9EC;border-radius:10px;border-left:3px solid #D97706;padding:20px;margin-bottom:24px;text-align:center;">
-            <p style="margin:0 0 14px;font-size:13px;color:#6B7B6E;line-height:1.6;">補填資料包含：姓名、身分證號、生日及緊急聯絡人。<br>活動當天須核對，請務必確認資料正確。</p>
+            <p style="margin:0 0 14px;font-size:13px;color:#637169;line-height:1.6;">補填資料包含：姓名、身分證號、生日及緊急聯絡人。<br>活動當天須核對，請務必確認資料正確。</p>
             <a href="${data.participantsFillUrl}" style="display:inline-block;background:#7D9B84;color:#FFFFFF;font-size:14px;font-weight:700;padding:12px 32px;border-radius:24px;text-decoration:none;">立即補填參加者資料</a>
           </div>
 
@@ -863,31 +863,31 @@ export async function sendSessionConfirmEmail(data: SessionConfirmData) {
           <div style="display:inline-block;background:#EBF3EE;color:#5C7A67;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">✅ 活動確認開課</div>
 
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">活動確認如期舉行！</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，您參加的茶山體驗已確認開課，我們期待在茶園與您相見！</p>
+          <p style="margin:0 0 24px;color:#637169;font-size:14px;">親愛的 ${safeName}，您參加的茶山體驗已確認開課，我們期待在茶園與您相見！</p>
 
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">體驗項目</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">活動日期</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">活動日期</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">開始時間</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">開始時間</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">參加人數</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">參加人數</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${data.participantCount} 人</td>
             </tr>
           </table>
 
           <div style="background:#EBF3EE;border-radius:10px;border-left:3px solid #7D9B84;padding:20px;margin-bottom:24px;">
             <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">📍 集合地點</p>
-            <p style="margin:0 0 4px;font-size:13px;color:#6B7B6E;line-height:1.6;">嘉義縣梅山鄉太興村8鄰溪頭19號之2（霧抉茶茶園）</p>
-            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">請於活動開始前 15 分鐘到達，建議穿著舒適好走的鞋子。</p>
+            <p style="margin:0 0 4px;font-size:13px;color:#637169;line-height:1.6;">嘉義縣梅山鄉太興村8鄰溪頭19號之2（霧抉茶茶園）</p>
+            <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">請於活動開始前 15 分鐘到達，建議穿著舒適好走的鞋子。</p>
           </div>
 
           <p style="font-size:12px;color:#9CA89E;text-align:center;">如需取消或有任何問題，請來電 0972-619-391</p>
@@ -936,17 +936,17 @@ export async function sendBookingCancelEmail(data: BookingCancelData) {
 
   const refundBlock = data.wasPending
     ? `<div style="background:#EBF3EE;border-radius:10px;padding:16px;margin-bottom:24px;">
-        <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">此預約尚未完成付款，取消後不會產生任何費用。</p>
+        <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">此預約尚未完成付款，取消後不會產生任何費用。</p>
       </div>`
     : data.refundAmount > 0
       ? `<div style="background:#FEF2F2;border-radius:10px;border-left:3px solid #EF4444;padding:20px;margin-bottom:24px;">
           <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">💰 退款說明</p>
-          <p style="margin:0 0 4px;font-size:13px;color:#6B7B6E;line-height:1.6;">退款金額：<strong>NT$ ${data.refundAmount.toLocaleString()}</strong></p>
-          <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">退款將於 5–7 個工作天內退回您的原付款帳號。如有疑問請回覆此信或來電洽詢。</p>
+          <p style="margin:0 0 4px;font-size:13px;color:#637169;line-height:1.6;">退款金額：<strong>NT$ ${data.refundAmount.toLocaleString()}</strong></p>
+          <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">退款將於 5–7 個工作天內退回您的原付款帳號。如有疑問請回覆此信或來電洽詢。</p>
         </div>`
       : `<div style="background:#FFF7ED;border-radius:10px;border-left:3px solid #F59E0B;padding:20px;margin-bottom:24px;">
           <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">退款說明</p>
-          <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">依本次取消時間距活動日不足 24 小時，依退款政策本次恕無退款。</p>
+          <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">依本次取消時間距活動日不足 24 小時，依退款政策本次恕無退款。</p>
         </div>`;
 
   const html = `<!DOCTYPE html>
@@ -966,19 +966,19 @@ export async function sendBookingCancelEmail(data: BookingCancelData) {
           <div style="display:inline-block;background:#FEE2E2;color:#991B1B;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">預約取消確認</div>
 
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">您的預約已取消</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，您的茶山體驗預約已成功取消，以下為取消明細。</p>
+          <p style="margin:0 0 24px;color:#637169;font-size:14px;">親愛的 ${safeName}，您的茶山體驗預約已成功取消，以下為取消明細。</p>
 
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">體驗項目</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">原訂日期</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">原訂日期</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">原訂時間</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">原訂時間</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td>
             </tr>
           </table>
@@ -987,7 +987,7 @@ export async function sendBookingCancelEmail(data: BookingCancelData) {
 
           <div style="background:#EBF3EE;border-radius:10px;padding:16px;">
             <p style="margin:0 0 6px;font-size:13px;color:#3D4A42;font-weight:700;">期待下次相見</p>
-            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">歡迎隨時至官網查看最新場次，期待未來有機會在茶山與您相見。</p>
+            <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">歡迎隨時至官網查看最新場次，期待未來有機會在茶山與您相見。</p>
           </div>
         </td></tr>
 
@@ -1039,32 +1039,32 @@ export async function sendSessionCancelEmail(data: SessionCancelData) {
           <div style="display:inline-block;background:#FEE2E2;color:#991B1B;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">⚠️ 活動取消通知</div>
 
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">很遺憾，此場活動取消</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，因報名人數未達開課最低門檻，本場茶山體驗活動將取消舉行，造成不便深感抱歉。</p>
+          <p style="margin:0 0 24px;color:#637169;font-size:14px;">親愛的 ${safeName}，因報名人數未達開課最低門檻，本場茶山體驗活動將取消舉行，造成不便深感抱歉。</p>
 
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">體驗項目</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">原訂日期</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">原訂日期</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">原訂時間</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">原訂時間</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td>
             </tr>
           </table>
 
           <div style="background:#FEF2F2;border-radius:10px;border-left:3px solid #EF4444;padding:20px;margin-bottom:24px;">
             <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">💰 退款說明</p>
-            <p style="margin:0 0 4px;font-size:13px;color:#6B7B6E;line-height:1.6;">因活動取消，我們將於 5–7 個工作天內全額退款 <strong>NT$ ${data.totalPrice.toLocaleString()}</strong> 至您的原付款帳號。</p>
-            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">如有任何退款問題，請來電或回覆此信洽詢。</p>
+            <p style="margin:0 0 4px;font-size:13px;color:#637169;line-height:1.6;">因活動取消，我們將於 5–7 個工作天內全額退款 <strong>NT$ ${data.totalPrice.toLocaleString()}</strong> 至您的原付款帳號。</p>
+            <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">如有任何退款問題，請來電或回覆此信洽詢。</p>
           </div>
 
           <div style="background:#EBF3EE;border-radius:10px;padding:16px;">
             <p style="margin:0 0 6px;font-size:13px;color:#3D4A42;font-weight:700;">下次再來！</p>
-            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">歡迎隨時至官網查看最新場次，期待未來有機會在茶園與您相見。</p>
+            <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">歡迎隨時至官網查看最新場次，期待未來有機會在茶園與您相見。</p>
           </div>
         </td></tr>
 
@@ -1116,32 +1116,32 @@ export async function sendDayBeforeReminder(data: DayBeforeReminderData) {
           <div style="display:inline-block;background:#EBF3EE;color:#5C7A67;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">🍵 明天見！</div>
 
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">明天就是體驗日了！</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，您的茶山體驗就在明天，請做好準備，我們期待與您在茶園相聚！</p>
+          <p style="margin:0 0 24px;color:#637169;font-size:14px;">親愛的 ${safeName}，您的茶山體驗就在明天，請做好準備，我們期待與您在茶園相聚！</p>
 
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">體驗項目</td>
               <td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">活動日期</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">活動日期</td>
               <td style="color:#7D9B84;font-size:14px;font-weight:700;text-align:right;">${dateLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">開始時間</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">開始時間</td>
               <td style="color:#7D9B84;font-size:14px;font-weight:700;text-align:right;">${timeLabel}</td>
             </tr>
             <tr>
-              <td style="color:#6B7B6E;font-size:13px;padding:5px 0;">參加人數</td>
+              <td style="color:#637169;font-size:13px;padding:5px 0;">參加人數</td>
               <td style="color:#3D4A42;font-size:13px;text-align:right;">${data.participantCount} 人</td>
             </tr>
           </table>
 
           <div style="background:#EBF3EE;border-radius:10px;border-left:3px solid #7D9B84;padding:20px;margin-bottom:24px;">
             <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">📍 集合地點</p>
-            <p style="margin:0 0 12px;font-size:13px;color:#6B7B6E;line-height:1.6;">嘉義縣梅山鄉太興村8鄰溪頭19號之2（霧抉茶茶園）<br>請提前 15 分鐘抵達。</p>
+            <p style="margin:0 0 12px;font-size:13px;color:#637169;line-height:1.6;">嘉義縣梅山鄉太興村8鄰溪頭19號之2（霧抉茶茶園）<br>請提前 15 分鐘抵達。</p>
             <p style="margin:0 0 8px;font-size:13px;color:#3D4A42;font-weight:700;">👟 建議準備</p>
-            <ul style="margin:0;padding-left:18px;font-size:13px;color:#6B7B6E;line-height:2;">
+            <ul style="margin:0;padding-left:18px;font-size:13px;color:#637169;line-height:2;">
               <li>穿著舒適好走的運動鞋或登山鞋</li>
               <li>攜帶個人換洗衣物（茶園活動可能接觸土壤）</li>
               <li>自備飲水，防曬乳及帽子</li>
@@ -1195,12 +1195,12 @@ export async function sendAdminSessionCancelNotice(data: {
         <tr><td style="background:#FFFFFF;padding:40px;">
           <h2 style="margin:0 0 16px;font-size:18px;color:#3D4A42;">場次未達開課人數，已自動取消</h2>
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;">
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">體驗</td><td style="color:#3D4A42;font-size:13px;font-weight:600;">${safeExp}</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">日期</td><td style="color:#3D4A42;font-size:13px;">${data.sessionDate} ${data.startTime.slice(0, 5)}</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">取消預約數</td><td style="color:#DC2626;font-size:13px;font-weight:700;">${data.cancelledBookingCount} 筆</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">需退款金額</td><td style="color:#DC2626;font-size:16px;font-weight:700;">NT$ ${data.totalRefundAmount.toLocaleString()}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">體驗</td><td style="color:#3D4A42;font-size:13px;font-weight:600;">${safeExp}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">日期</td><td style="color:#3D4A42;font-size:13px;">${data.sessionDate} ${data.startTime.slice(0, 5)}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">取消預約數</td><td style="color:#DC2626;font-size:13px;font-weight:700;">${data.cancelledBookingCount} 筆</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">需退款金額</td><td style="color:#DC2626;font-size:16px;font-weight:700;">NT$ ${data.totalRefundAmount.toLocaleString()}</td></tr>
           </table>
-          <p style="margin:20px 0 0;font-size:13px;color:#6B7B6E;">請至後台處理退款，並確認所有客戶已收到取消通知信。</p>
+          <p style="margin:20px 0 0;font-size:13px;color:#637169;">請至後台處理退款，並確認所有客戶已收到取消通知信。</p>
         </td></tr>
         <tr><td style="background:#F5F0E8;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
           <p style="margin:0;font-size:12px;color:#9CA89E;">此為系統自動通知</p>
@@ -1247,8 +1247,8 @@ export async function sendAdminPendingRefundDigest(data: {
       : `NT$ ${amount.toLocaleString()}`;
     return `<tr>
       <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#3D4A42;">${escapeHtml(i.bookerName)}</td>
-      <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#6B7B6E;">${escapeHtml(i.experienceName)}</td>
-      <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#6B7B6E;">${i.cancelledAt.slice(0, 10)}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#637169;">${escapeHtml(i.experienceName)}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#637169;">${i.cancelledAt.slice(0, 10)}</td>
       <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#DC2626;font-weight:700;">${i.daysPending} 天</td>
       <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#3D4A42;font-weight:600;">${amountLabel}</td>
     </tr>`;
@@ -1267,18 +1267,18 @@ export async function sendAdminPendingRefundDigest(data: {
         </td></tr>
         <tr><td style="background:#FFFFFF;padding:40px;">
           <h2 style="margin:0 0 8px;font-size:18px;color:#3D4A42;">有 ${data.items.length} 筆退款尚未處理</h2>
-          <p style="margin:0 0 20px;font-size:13px;color:#6B7B6E;">最久的已經等了 ${oldest} 天，合計 NT$ ${total.toLocaleString()}。</p>
+          <p style="margin:0 0 20px;font-size:13px;color:#637169;">最久的已經等了 ${oldest} 天，合計 NT$ ${total.toLocaleString()}。</p>
           <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
             <tr style="background:#F5F0E8;">
-              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">訂購人</th>
-              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">體驗</th>
-              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">取消日</th>
-              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">已等待</th>
-              <th align="left" style="padding:8px 6px;font-size:12px;color:#6B7B6E;">退款金額</th>
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#637169;">訂購人</th>
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#637169;">體驗</th>
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#637169;">取消日</th>
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#637169;">已等待</th>
+              <th align="left" style="padding:8px 6px;font-size:12px;color:#637169;">退款金額</th>
             </tr>
             ${rows}
           </table>
-          <p style="margin:24px 0 0;font-size:13px;color:#6B7B6E;">
+          <p style="margin:24px 0 0;font-size:13px;color:#637169;">
             退款要在綠界後台操作，完成後回
             <a href="${base}/admin/experiences/bookings" style="color:#B8860B;">本站後台</a>
             把該筆標記為「已退款」，這封信才不會再提醒。
@@ -1337,14 +1337,14 @@ export async function sendWaitlistNotifyEmail(data: {
         <tr><td style="background:#FFFFFF;padding:40px;">
           <div style="display:inline-block;background:#EBF3EE;color:#5C7A67;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 14px;border-radius:20px;margin-bottom:20px;">🎉 候補名額釋出</div>
           <h2 style="margin:0 0 8px;font-size:22px;color:#3D4A42;">有名額了！請盡快確認</h2>
-          <p style="margin:0 0 24px;color:#6B7B6E;font-size:14px;">親愛的 ${safeName}，您等候的場次有名額釋出，請於 <strong style="color:#DC2626;">${data.deadlineLabel}</strong> 前確認是否參加。</p>
+          <p style="margin:0 0 24px;color:#637169;font-size:14px;">親愛的 ${safeName}，您等候的場次有名額釋出，請於 <strong style="color:#DC2626;">${data.deadlineLabel}</strong> 前確認是否參加。</p>
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:28px;">
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">體驗項目</td><td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">活動日期</td><td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:5px 0;">開始時間</td><td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:5px 0;">體驗項目</td><td style="color:#3D4A42;font-size:13px;font-weight:600;text-align:right;">${safeExp}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:5px 0;">活動日期</td><td style="color:#3D4A42;font-size:13px;text-align:right;">${dateLabel}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:5px 0;">開始時間</td><td style="color:#3D4A42;font-size:13px;text-align:right;">${timeLabel}</td></tr>
           </table>
           <div style="background:#FEF9EC;border-radius:10px;border-left:3px solid #D97706;padding:16px;margin-bottom:24px;">
-            <p style="margin:0;font-size:13px;color:#6B7B6E;line-height:1.6;">超過截止時間未確認，名額將自動釋出給下一位候補者。</p>
+            <p style="margin:0;font-size:13px;color:#637169;line-height:1.6;">超過截止時間未確認，名額將自動釋出給下一位候補者。</p>
           </div>
           <div style="text-align:center;">
             <a href="${data.confirmUrl}" style="display:inline-block;background:#7D9B84;color:#FFFFFF;font-size:15px;font-weight:700;padding:14px 40px;border-radius:28px;text-decoration:none;">確認參加並付款</a>
@@ -1396,13 +1396,13 @@ async function sendBookingAdminEmail(data: BookingEmailData) {
           <h2 style="margin:0 0 20px;font-size:18px;color:#3D4A42;">有新的體驗預約進來了！</h2>
 
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F0E8;border-radius:10px;padding:20px;margin-bottom:24px;">
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;width:90px;">預約編號</td><td style="color:#3D4A42;font-size:13px;font-weight:700;font-family:monospace;">#${shortBid}</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">訂購人</td><td style="color:#3D4A42;font-size:13px;">${safeName}</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">Email</td><td style="color:#3D4A42;font-size:13px;">${escapeHtml(data.bookerEmail)}</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">體驗</td><td style="color:#3D4A42;font-size:13px;font-weight:600;">${safeExp}</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">日期</td><td style="color:#3D4A42;font-size:13px;">${dateLabel} ${data.startTime.slice(0, 5)}</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">人數</td><td style="color:#3D4A42;font-size:13px;">${data.participantCount} 人</td></tr>
-            <tr><td style="color:#6B7B6E;font-size:13px;padding:4px 0;">金額</td><td style="color:#7D9B84;font-size:16px;font-weight:700;">NT$ ${data.totalPrice.toLocaleString()}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;width:90px;">預約編號</td><td style="color:#3D4A42;font-size:13px;font-weight:700;font-family:monospace;">#${shortBid}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">訂購人</td><td style="color:#3D4A42;font-size:13px;">${safeName}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">Email</td><td style="color:#3D4A42;font-size:13px;">${escapeHtml(data.bookerEmail)}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">體驗</td><td style="color:#3D4A42;font-size:13px;font-weight:600;">${safeExp}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">日期</td><td style="color:#3D4A42;font-size:13px;">${dateLabel} ${data.startTime.slice(0, 5)}</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">人數</td><td style="color:#3D4A42;font-size:13px;">${data.participantCount} 人</td></tr>
+            <tr><td style="color:#637169;font-size:13px;padding:4px 0;">金額</td><td style="color:#7D9B84;font-size:16px;font-weight:700;">NT$ ${data.totalPrice.toLocaleString()}</td></tr>
           </table>
         </td></tr>
 
