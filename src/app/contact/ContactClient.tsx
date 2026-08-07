@@ -106,7 +106,7 @@ export default function ContactClient() {
   ];
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
 
         {/* Left: Info */}
@@ -116,12 +116,12 @@ export default function ContactClient() {
             <div className="space-y-5">
               {infoItems.map((item) => (
                 <div key={item.label} className="flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-tea-green-mist rounded-xl flex items-center justify-center text-tea-green">
+                  <div className="flex-shrink-0 w-10 h-10 bg-tea-green-mist rounded-control flex items-center justify-center text-tea-green">
                     {item.icon}
                   </div>
                   <div>
-                    <p className="text-xs text-tea-text-light mb-0.5">{item.label}</p>
-                    <p className="text-tea-text text-sm font-medium">{item.value}</p>
+                    <p className="text-caption text-tea-text-light mb-0.5">{item.label}</p>
+                    <p className="text-tea-text text-label font-medium">{item.value}</p>
                   </div>
                 </div>
               ))}
@@ -130,9 +130,10 @@ export default function ContactClient() {
 
           <div className="w-full h-px bg-tea-green-pale" />
 
-          <div className="bg-tea-green-mist rounded-2xl p-6">
+          <div className="bg-tea-green-mist rounded-card p-6">
             <p className="font-serif text-tea-text font-semibold mb-2">{t("info.bulkTitle")}</p>
-            <p className="text-tea-text-light text-sm leading-relaxed">
+            {/* 大量採購說明是敘事型內容，升 body；行高由 token 帶（1.8），不另寫 leading */}
+            <p className="text-tea-text-light text-body">
               {t("info.bulkDesc")}
             </p>
           </div>
@@ -141,17 +142,17 @@ export default function ContactClient() {
         {/* Right: Form */}
         <div className="lg:col-span-3">
           {status === "success" ? (
-            <div className="flex flex-col items-center justify-center text-center py-24 px-8 bg-white rounded-2xl shadow-sm border border-tea-green-pale/40">
-              <div className="w-16 h-16 bg-tea-green-mist rounded-full flex items-center justify-center mb-5">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#7D9B84" strokeWidth="2">
+            <div className="flex flex-col items-center justify-center text-center py-24 px-8 bg-white rounded-card shadow-resting border border-tea-green-pale/40">
+              <div className="w-16 h-16 bg-tea-green-mist rounded-pill flex items-center justify-center mb-5">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="stroke-tea-green" strokeWidth="2">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
               <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">{t("form.successTitle")}</h3>
-              <p className="text-tea-text-light text-sm mb-8">{t("form.successDesc")}</p>
+              <p className="text-tea-text-light text-body mb-8">{t("form.successDesc")}</p>
               <button
                 onClick={() => { setStatus("idle"); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-full text-sm font-medium transition-colors"
+                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-pill text-label font-medium transition-colors duration-base ease-standard"
               >
                 {t("form.sendAgain")}
               </button>
@@ -159,15 +160,15 @@ export default function ContactClient() {
           ) : (
             <form
               onSubmit={handleSubmit}
-              className="bg-white rounded-2xl shadow-sm border border-tea-green-pale/40 p-8 space-y-5"
+              className="bg-white rounded-card shadow-resting border border-tea-green-pale/40 p-8 space-y-5"
             >
               <h2 className="font-serif text-2xl font-bold text-tea-text mb-1">{t("form.sendTitle")}</h2>
-              <p className="text-tea-text-light text-sm mb-4">{t("form.sendSubtitle")}</p>
+              <p className="text-tea-text-light text-body mb-4">{t("form.sendSubtitle")}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-tea-text mb-1.5">
-                    {t("form.name")} <span className="text-red-400">*</span>
+                  <label className="block text-label font-medium text-tea-text mb-1.5">
+                    {t("form.name")} <span className="text-status-danger">*</span>
                   </label>
                   <input
                     type="text"
@@ -180,8 +181,8 @@ export default function ContactClient() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-tea-text mb-1.5">
-                    {t("form.email")} <span className="text-red-400">*</span>
+                  <label className="block text-label font-medium text-tea-text mb-1.5">
+                    {t("form.email")} <span className="text-status-danger">*</span>
                   </label>
                   <input
                     type="email"
@@ -196,8 +197,8 @@ export default function ContactClient() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-tea-text mb-1.5">
-                  {t("form.subject")} <span className="text-red-400">*</span>
+                <label className="block text-label font-medium text-tea-text mb-1.5">
+                  {t("form.subject")} <span className="text-status-danger">*</span>
                 </label>
                 <div ref={subjectRef} className="relative">
                   <button
@@ -206,10 +207,10 @@ export default function ContactClient() {
                     className={`${inputClass} flex items-center justify-between text-left ${!form.subject ? "text-tea-text-light/50" : "text-tea-text"}`}
                   >
                     <span>{subjectOptions.find(o => o.value === form.subject)?.label ?? t("form.subjectDefault")}</span>
-                    <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-200 ${subjectOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-base ease-standard ${subjectOpen ? "rotate-180" : ""}`} />
                   </button>
                   {subjectOpen && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-xl shadow-lg overflow-hidden">
+                    <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-control shadow-float overflow-hidden">
                       {subjectOptions.map((opt) => (
                         <button
                           key={opt.value}
@@ -218,7 +219,7 @@ export default function ContactClient() {
                             setForm(prev => ({ ...prev, subject: opt.value as FormState["subject"] }));
                             setSubjectOpen(false);
                           }}
-                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                          className={`w-full text-left px-4 py-2.5 text-label transition-colors duration-base ease-standard ${
                             form.subject === opt.value
                               ? "bg-tea-green-mist text-tea-green font-medium"
                               : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
@@ -233,8 +234,8 @@ export default function ContactClient() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-tea-text mb-1.5">
-                  {t("form.message")} <span className="text-red-400">*</span>
+                <label className="block text-label font-medium text-tea-text mb-1.5">
+                  {t("form.message")} <span className="text-status-danger">*</span>
                 </label>
                 <textarea
                   name="message"
@@ -254,7 +255,7 @@ export default function ContactClient() {
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-control font-medium text-label transition-colors duration-base ease-standard flex items-center justify-center gap-2"
               >
                 {status === "submitting" ? (
                   <>
@@ -275,7 +276,7 @@ export default function ContactClient() {
                 )}
               </button>
 
-              <p className="text-center text-xs text-tea-text-light">
+              <p className="text-center text-caption text-tea-text-light">
                 {t("form.privacyNote")}
               </p>
             </form>
