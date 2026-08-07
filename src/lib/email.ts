@@ -104,10 +104,10 @@ function formatPayment(method: "online" | "cod" | "paypal"): string {
 function itemRows(items: EmailOrderData["items"]): string {
   return items.map(i => `
     <tr>
-      <td style="padding:10px 0;border-bottom:1px solid #E8E2D8;color:#3D4A42;">${i.name}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E8E2D8;color:#3D4A42;text-align:center;">${i.quantity}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E8E2D8;color:#3D4A42;text-align:right;">NT$${i.unitPrice.toLocaleString()}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #E8E2D8;color:#3D4A42;text-align:right;font-weight:600;">NT$${i.subtotal.toLocaleString()}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #EDE8DC;color:#3D4A42;">${i.name}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #EDE8DC;color:#3D4A42;text-align:center;">${i.quantity}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #EDE8DC;color:#3D4A42;text-align:right;">NT$${i.unitPrice.toLocaleString()}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #EDE8DC;color:#3D4A42;text-align:right;font-weight:600;">NT$${i.subtotal.toLocaleString()}</td>
     </tr>`).join("");
 }
 
@@ -350,16 +350,16 @@ export async function sendShippingEmail(data: ShippingEmailData) {
           <!-- 品項明細 -->
           <h3 style="margin:0 0 12px;font-size:14px;color:#3D4A42;font-weight:700;">購買品項</h3>
           <table width="100%" cellpadding="0" cellspacing="0">
-            <tr style="border-bottom:2px solid #E8E2D8;">
+            <tr style="border-bottom:2px solid #EDE8DC;">
               <th style="padding:8px 0;text-align:left;color:#6B7B6E;font-size:12px;font-weight:600;">品項</th>
               <th style="padding:8px 0;text-align:center;color:#6B7B6E;font-size:12px;font-weight:600;">數量</th>
               <th style="padding:8px 0;text-align:right;color:#6B7B6E;font-size:12px;font-weight:600;">小計</th>
             </tr>
             ${data.items.map(i => `
             <tr>
-              <td style="padding:10px 0;border-bottom:1px solid #E8E2D8;color:#3D4A42;">${i.name}</td>
-              <td style="padding:10px 0;border-bottom:1px solid #E8E2D8;color:#3D4A42;text-align:center;">${i.quantity}</td>
-              <td style="padding:10px 0;border-bottom:1px solid #E8E2D8;color:#3D4A42;text-align:right;font-weight:600;">NT$${i.subtotal.toLocaleString()}</td>
+              <td style="padding:10px 0;border-bottom:1px solid #EDE8DC;color:#3D4A42;">${i.name}</td>
+              <td style="padding:10px 0;border-bottom:1px solid #EDE8DC;color:#3D4A42;text-align:center;">${i.quantity}</td>
+              <td style="padding:10px 0;border-bottom:1px solid #EDE8DC;color:#3D4A42;text-align:right;font-weight:600;">NT$${i.subtotal.toLocaleString()}</td>
             </tr>`).join("")}
           </table>
 
@@ -445,7 +445,7 @@ async function sendCustomerEmail(data: EmailOrderData) {
           <!-- 品項明細 -->
           <h3 style="margin:0 0 12px;font-size:14px;color:#3D4A42;font-weight:700;">購買品項</h3>
           <table width="100%" cellpadding="0" cellspacing="0">
-            <tr style="border-bottom:2px solid #E8E2D8;">
+            <tr style="border-bottom:2px solid #EDE8DC;">
               <th style="padding:8px 0;text-align:left;color:#6B7B6E;font-size:12px;font-weight:600;">品項</th>
               <th style="padding:8px 0;text-align:center;color:#6B7B6E;font-size:12px;font-weight:600;">數量</th>
               <th style="padding:8px 0;text-align:right;color:#6B7B6E;font-size:12px;font-weight:600;">單價</th>
@@ -555,7 +555,7 @@ async function sendAdminEmail(data: EmailOrderData) {
           <!-- 品項 -->
           <h3 style="margin:0 0 10px;font-size:13px;color:#7D9B84;font-weight:700;text-transform:uppercase;letter-spacing:1px;">購買品項</h3>
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
-            <tr style="border-bottom:2px solid #E8E2D8;">
+            <tr style="border-bottom:2px solid #EDE8DC;">
               <th style="padding:8px 0;text-align:left;color:#6B7B6E;font-size:12px;">品項</th>
               <th style="padding:8px 0;text-align:center;color:#6B7B6E;font-size:12px;">數量</th>
               <th style="padding:8px 0;text-align:right;color:#6B7B6E;font-size:12px;">單價</th>
@@ -1246,11 +1246,11 @@ export async function sendAdminPendingRefundDigest(data: {
       ? `NT$ ${i.totalPrice.toLocaleString()}（全額）`
       : `NT$ ${amount.toLocaleString()}`;
     return `<tr>
-      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#3D4A42;">${escapeHtml(i.bookerName)}</td>
-      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#6B7B6E;">${escapeHtml(i.experienceName)}</td>
-      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#6B7B6E;">${i.cancelledAt.slice(0, 10)}</td>
-      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#DC2626;font-weight:700;">${i.daysPending} 天</td>
-      <td style="padding:8px 6px;border-bottom:1px solid #E8E0D4;font-size:12px;color:#3D4A42;font-weight:600;">${amountLabel}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#3D4A42;">${escapeHtml(i.bookerName)}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#6B7B6E;">${escapeHtml(i.experienceName)}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#6B7B6E;">${i.cancelledAt.slice(0, 10)}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#DC2626;font-weight:700;">${i.daysPending} 天</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #EDE8DC;font-size:12px;color:#3D4A42;font-weight:600;">${amountLabel}</td>
     </tr>`;
   }).join("");
 
@@ -1441,7 +1441,7 @@ export async function sendPointsExpiryEmail(data: {
     <tr><td align="center">
       <table width="520" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border-radius:12px;overflow:hidden;">
         <tr><td style="background:#3D4A42;padding:20px 28px;">
-          <p style="margin:0;font-size:18px;font-weight:700;color:#E8E0D2;">霧抉茶 WuJue Tea</p>
+          <p style="margin:0;font-size:18px;font-weight:700;color:#EDE8DC;">霧抉茶 WuJue Tea</p>
         </td></tr>
         <tr><td style="padding:28px;">
           <p style="margin:0 0 12px;font-size:15px;color:#3D4A42;">親愛的 ${safeName} 您好，</p>
@@ -1487,7 +1487,7 @@ export async function sendTierUpgradeEmail(data: {
     <tr><td align="center">
       <table width="520" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border-radius:12px;overflow:hidden;">
         <tr><td style="background:#3D4A42;padding:20px 28px;">
-          <p style="margin:0;font-size:18px;font-weight:700;color:#E8E0D2;">霧抉茶 WuJue Tea</p>
+          <p style="margin:0;font-size:18px;font-weight:700;color:#EDE8DC;">霧抉茶 WuJue Tea</p>
         </td></tr>
         <tr><td style="padding:28px;text-align:center;">
           <p style="margin:0 0 8px;font-size:24px;">🎉</p>
