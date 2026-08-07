@@ -408,6 +408,11 @@ Tailwind 產物一律以 `npm run build` 為準
 - `bg-[#F0F6F1]`→`bg-tea-green-mist` 用 ΔEok 驗證＝0.0107（門檻 0.011），
   對照組「明顯不同色」0.3097 證明計算有鑑別力
 - 小尾巴：`/contact` 的輸入框從全站唯一的 `bg-white` 改回 `bg-tea-cream/50`，與其他四頁一致
+- **`/contact` 其餘 20 處也已收完**（`4ded95a`，等於第五件）：圓角／陰影／轉場／`py-section`，
+  成功圖示 `stroke="#7D9B84"`→`stroke-tea-green`，必填星號 `red-400` 對比 2.77→7.60。
+  字級一併做了三分法：**表單 label 由 12px 升 14px**（介面標籤本來就該是 `text-label`，
+  原本是把全站最小級距用在最該讀的地方）、敘事型內容升 `text-body`、
+  真 metadata 維持 12px 改用 `text-caption`
 
 ---
 
@@ -423,12 +428,10 @@ Tailwind 產物一律以 `npm run build` 為準
    這是「每個工序該是什麼色」的設計決策，不是機械替換——**需要小江拍板色系方向**
    （建議：用 `tea-*` 明度序列表達工序溫度，或建一組 `process-*` token）。
    收掉它才能順帶解決該段 2 處白壓白（`ProcessContent.tsx` 391/394 的 pill 與 520 的卡）
-2. `/contact` 其餘 20+ 處 token 遷移（本波只統一了輸入框與錯誤訊息這兩個點名項；
-   這頁規模等同第五個門面元件，該獨立排）
-3. CheckoutClient 打磨（1210 行、金流頁，**獨立排**，依鐵律 4 先讀 openspec ＋ 改完必跑測試）
-4. Email 樣板脫離內聯 hex（`src/lib/email.ts` 1550 行、492 處 hex、32 種色值，
+2. CheckoutClient 打磨（1210 行、金流頁，**獨立排**，依鐵律 4 先讀 openspec ＋ 改完必跑測試）
+3. Email 樣板脫離內聯 hex（`src/lib/email.ts` 1550 行、492 處 hex、32 種色值，
    已漂移：混入非品牌色、大小寫不一致、`#E8E0D2` vs `#E8E0D4` 疑似手誤）
-5. 綠色降密度（`tea-green` 系列 621 處 vs `tea-cream` 現已 130+ 處，綠色仍被當成預設色用）——
+4. 綠色降密度（`tea-green` 系列 621 處 vs `tea-cream` 現已 130+ 處，綠色仍被當成預設色用）——
    數百個主觀判斷，排最後；前面做完後對品牌的感覺可能改變
 
 **待小江提供／拍板**：
