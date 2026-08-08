@@ -494,7 +494,25 @@ Tailwind 產物一律以 `npm run build` 為準
   而價格是交易資訊，依原則 2「交易時刻，清晰壓倒氣氛」該用 `tea-green-ink`（≥4.54）。
   但那會改變商品卡與結帳頁的視覺重心，**需小江拍板**
 
+**第十六波（2026-08-08）：`/process` 工序色票收編**
+- 小江拍板保留顏色，所以做法是**收編而非改色**：8 個散落的 Tailwind 預設色
+  變成 `process-*` 色票（5 組成對，沿用 `status-*` 的 `-soft` 慣例），**值原封不動**
+- 查證推翻了「色盤外 = 問題」的直覺：12 組配對裡 6 組未達 AA，
+  **其中 4 組不合格的原因是品牌綠 `text-tea-green`（2.70–2.91），不是那些 Tailwind 色**；
+  色盤外的琥珀、紅、綠反而多數達標（4.79–5.91）。
+  真正的違和感來源是**彩度**——工序色 0.137–0.194 vs 品牌 `tea-green` 0.0476，差 3–4 倍
+- 驗證：從建置產物逐一比對 10 個新 token 的渲染值與原 Tailwind 色，全部恆等。
+  **比對器又出了一次假警報**：Tailwind 會把值相同的選擇器合併成
+  `.bg-process-roast-soft,.bg-process-sun-soft{...}`，用「class 緊接 `{`」的 regex 會漏掉。
+  改成比對「值」而非「選擇器格式」才對
+- 未收編：茶種漸層 5 組（`ProcessContent.tsx:22-26`），它是茶種標記不是工序色票
+
 **排隊中的工作**（依建議順序）：
+1. **前台剩餘的 amber／red 系收進 `status-*`**（第十六波順帶發現）。
+   `AccountClient`、`BookingFlow`、`CartClient`、`return-policy`、`waitlist`、
+   `experiences/[slug]`、`participants` 等 7 個前台檔仍在用 `bg-amber-50`／
+   `text-amber-600`／`text-amber-700`／`bg-red-50`。做法同第十一波對 `/order/result`：
+   成對換成 `status-warn`／`status-danger`，順帶補 AA。admin 那批另計
 1. **`/process` 工序色票重想** ← 建議下一項，也是第十一波唯一沒收掉的尾巴。
    查證後規模比預期大：`ProcessContent.tsx:29` 的 `stepColors` 有 **12 個工序色票，
    其中 8 個在品牌色盤外**（`amber-50/600/700`、`green-50/700`、`orange-50/600`、`red-50/700`）。

@@ -51,6 +51,19 @@ const config: Config = {
           danger: "#7A4545",        "danger-soft": "#E0D5D5", // 已取消、付款失敗
           done: "#3D6B46",          "done-soft": "#C8DDD0",   // 已付款
         },
+        // 製茶工序色票 —— `/process` 專用，沿用 status 的 `-soft` 成對慣例。
+        // 值原封不動取自 Tailwind 預設色（amber/green/orange/red 的 50 與 600/700），
+        // 這是 2026-08-08 小江拍板保留的：它們表達工序的「溫度」
+        // （日光、爐火、發酵），彩度 0.137–0.194 明顯高於品牌色 tea-green 的 0.0476。
+        // **不要把它們收進 tea-* 或 status-***：不是品牌色也不是狀態色，
+        // 是這一頁的敘事色票。要動的話是整組重新設計，不是逐個替換。
+        process: {
+          sun: "#D97706",      "sun-soft": "#FFFBEB",     // 日光萎凋
+          indoor: "#15803D",   "indoor-soft": "#F0FDF4",  // 室內萎凋
+          fire: "#EA580C",     "fire-soft": "#FFF7ED",    // 炒菁
+          ferment: "#B91C1C",  "ferment-soft": "#FEF2F2", // 發酵
+          roast: "#B45309",    "roast-soft": "#FFFBEB",   // 初乾、焙火（底色與日光同值）
+        },
         background: "var(--background)",
         foreground: "var(--foreground)",
         card: { DEFAULT: "var(--card)", foreground: "var(--card-foreground)" },
