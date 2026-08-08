@@ -32,8 +32,7 @@ export default async function ExperiencesPage() {
   const contentMap = Object.fromEntries(contents.map(c => [c.slug, c]));
 
   return (
-    // 米底：體驗卡是 bg-white，白底上會只剩陰影可辨
-    <div className="min-h-screen bg-tea-cream">
+    <div className="min-h-screen">
       {/* Hero */}
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -110,8 +109,7 @@ export default async function ExperiencesPage() {
         </div>
 
         {/* 注意事項 */}
-        {/* 白底：頁底已是 cream，同色會糊成一片 */}
-        <div className="mt-16 bg-white rounded-2xl p-8 border border-tea-green-pale">
+        <div className="mt-16 bg-tea-cream rounded-2xl p-8 border border-tea-green-pale">
           <h3 className="font-serif text-xl font-bold text-tea-text mb-4">{t("noticeTitle")}</h3>
           {/* 預約前必讀——依設計原則 2「交易時刻，清晰壓倒氣氛」，這類內容不該用 14px */}
           <ul className="space-y-2 text-body text-tea-text-light">

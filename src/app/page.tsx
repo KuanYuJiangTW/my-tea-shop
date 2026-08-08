@@ -138,9 +138,8 @@ export default async function HomePage() {
       {/* 品茶哲學 */}
       {/* 慢段：品茶哲學是敘事不是商品，留白讓它慢下來。
           快慢交替見 globals.css --space-section-xl 的註解 */}
-      {/* 白底：這段沒有卡片，純圖文敘事。淺底只剩 cream/white 兩層，
-          分派原則是「有卡片的段用 cream 讓卡浮起來，純敘事段用 white」 */}
-      <section className="py-section-lg md:py-section-xl bg-white">
+      {/* 底色是 cream -> cream-light -> white 漸進的第一階，見 docs/design-system.md 2.1.1 */}
+      <section className="py-section-lg md:py-section-xl bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="flex flex-col justify-center">
@@ -194,8 +193,9 @@ export default async function HomePage() {
 
       {/* Featured Products */}
       {/* 快段：商業區塊要效率，維持原節奏 */}
-      {/* 米底：商品卡是 bg-white，白底上會只剩陰影可辨（實測過，卡片等於消失） */}
-      <section className="py-section md:py-section-lg bg-tea-cream">
+      {/* 漸進第二階。商品卡是 bg-white，壓在 cream-light 上只差 2%——
+          但那是刻意的，三段累積起來才是漸層，見 docs/design-system.md 2.1.1 */}
+      <section className="py-section md:py-section-lg bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
             <div>
@@ -219,9 +219,9 @@ export default async function HomePage() {
       </section>
 
       {/* 茶山體驗 */}
-      {/* 米底：與上一段的白交替，同時讓體驗卡（bg-white）浮起來 */}
+      {/* 漸進第三階：最亮，接著才落到品牌故事的深色 */}
       {experiences.length > 0 && (
-        <section className="py-section md:py-section-lg bg-tea-cream">
+        <section className="py-section md:py-section-lg bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>

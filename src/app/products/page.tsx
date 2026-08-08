@@ -53,8 +53,7 @@ export default async function ProductsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(productsJsonLd) }}
       />
-      {/* 米底：商品卡是 bg-white，白底上會只剩陰影可辨 */}
-      <div className="min-h-screen bg-tea-cream">
+      <div className="min-h-screen">
       {/* Hero */}
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
