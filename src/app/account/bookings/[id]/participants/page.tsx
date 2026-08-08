@@ -151,13 +151,13 @@ export default function ParticipantsPage() {
   }
 
   const inputCls = (err?: string) =>
-    `w-full px-4 py-3 rounded-xl border text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 bg-tea-cream/50 transition ${
+    `w-full px-4 py-3 rounded-xl border text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 bg-tea-cream-light/50 transition ${
       err ? "border-rose-300 focus:ring-rose-300" : "border-tea-green-pale focus:ring-tea-green focus:border-tea-green"
     }`;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-tea-cream flex items-center justify-center">
+      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center">
         <p className="text-tea-text-light text-sm">載入中…</p>
       </div>
     );
@@ -165,7 +165,7 @@ export default function ParticipantsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-tea-cream flex flex-col items-center justify-center gap-4 px-4">
+      <div className="min-h-screen bg-tea-cream-light flex flex-col items-center justify-center gap-4 px-4">
         <p className="text-rose-500 text-sm">{error}</p>
         <Link href={lp("/account?tab=bookings")} className="text-tea-green hover:underline text-sm">返回我的預約</Link>
       </div>
@@ -176,7 +176,7 @@ export default function ParticipantsPage() {
   const isComplete       = info ? info.remaining === 0 : false;
 
   return (
-    <div className="min-h-screen bg-tea-cream">
+    <div className="min-h-screen bg-tea-cream-light">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
 
         {/* Back */}
@@ -219,7 +219,7 @@ export default function ParticipantsPage() {
             <h2 className="text-sm font-semibold text-tea-text mb-3">已填寫的參加者</h2>
             <div className="space-y-3">
               {info.participants.map((p, i) => (
-                <div key={p.id} className="flex items-start gap-3 p-3 bg-tea-cream/60 rounded-xl">
+                <div key={p.id} className="flex items-start gap-3 p-3 bg-tea-cream-light/60 rounded-xl">
                   <div className="w-6 h-6 rounded-full bg-tea-green flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-white text-xs font-bold">{i + 1}</span>
                   </div>

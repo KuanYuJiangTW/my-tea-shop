@@ -63,7 +63,7 @@ export default function LoginForm() {
                 placeholder="••••••••"
                 required
                 autoFocus
-                className="w-full px-4 py-2.5 rounded-xl border border-tea-cream-dark bg-tea-cream text-tea-text text-sm placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green focus:border-transparent transition"
+                className="w-full px-4 py-2.5 rounded-xl border border-tea-cream-dark bg-tea-cream-light text-tea-text text-sm placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green focus:border-transparent transition"
               />
             </div>
 

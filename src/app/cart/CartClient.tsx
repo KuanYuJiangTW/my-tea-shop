@@ -85,7 +85,7 @@ export default function CartClient() {
 
   if (items.length === 0 && adjustments.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-tea-cream px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-tea-cream-light px-4">
         <div className="text-center">
           <svg
             width="80"
@@ -118,7 +118,7 @@ export default function CartClient() {
   }
 
   return (
-    <div className="min-h-screen bg-tea-cream">
+    <div className="min-h-screen bg-tea-cream-light">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
         <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-8 md:mb-10">
           {t("title")}
@@ -212,7 +212,7 @@ export default function CartClient() {
 
                   <div className="flex items-center justify-between mt-4">
                     {/* Quantity */}
-                    <div className="flex items-center gap-2 bg-tea-cream rounded-full px-3 py-1">
+                    <div className="flex items-center gap-2 bg-tea-cream-light rounded-full px-3 py-1">
                       <button
                         onClick={() =>
                           updateQuantity(item.product.id, item.quantity - 1)

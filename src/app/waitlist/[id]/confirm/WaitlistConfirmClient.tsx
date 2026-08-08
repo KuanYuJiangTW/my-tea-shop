@@ -78,7 +78,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
   }
 
   return (
-    <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
+    <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-sm border border-tea-green-pale">
         {isConfirmed ? (
           <>

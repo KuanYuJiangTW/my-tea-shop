@@ -128,7 +128,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-tea-cream-dark bg-tea-cream">
+                <tr className="border-b border-tea-cream-dark bg-tea-cream-light">
                   <th className="text-left px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider">訂單</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider">客戶</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-tea-text-light uppercase tracking-wider hidden md:table-cell">配送</th>
@@ -145,7 +145,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                   return (
                     <tr
                       key={order.id}
-                      className="hover:bg-tea-cream transition cursor-pointer"
+                      className="hover:bg-tea-cream-light transition cursor-pointer"
                       onClick={() => window.location.href = `/admin/orders/${order.id}`}
                     >
                       <td className="px-4 py-3">

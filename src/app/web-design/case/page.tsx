@@ -28,7 +28,7 @@ export default async function WebDesignCasePage() {
   const nowItems = t.raw("now.items") as string[];
 
   return (
-    <div className="bg-tea-cream min-h-screen">
+    <div className="bg-tea-cream-light min-h-screen">
       {/* 標題區 */}
       <section className="bg-tea-green-mist border-b border-tea-green-pale/50 py-16 md:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -118,7 +118,7 @@ export default async function WebDesignCasePage() {
               href={lineUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white hover:bg-tea-cream border border-tea-green-light text-tea-text px-8 py-3 rounded-full text-sm font-medium transition-colors"
+              className="bg-white hover:bg-tea-cream-light border border-tea-green-light text-tea-text px-8 py-3 rounded-full text-sm font-medium transition-colors"
             >
               {t("cta.lineButton")}
             </a>

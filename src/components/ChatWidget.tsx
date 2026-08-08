@@ -477,7 +477,7 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-tea-cream/30">
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-tea-cream-light/30">
             {/* 歡迎訊息 + 引導卡片 */}
             {isFirstOpen && (
               <>
@@ -567,7 +567,7 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
                   <button
                     key={i}
                     onClick={() => sendMessage(q)}
-                    className="px-3 py-1.5 text-xs bg-tea-cream hover:bg-tea-green-mist text-tea-text rounded-full border border-tea-green-pale transition-colors whitespace-nowrap flex-shrink-0"
+                    className="px-3 py-1.5 text-xs bg-tea-cream-light hover:bg-tea-green-mist text-tea-text rounded-full border border-tea-green-pale transition-colors whitespace-nowrap flex-shrink-0"
                   >
                     {q}
                   </button>
@@ -588,7 +588,7 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
                 onKeyDown={handleKeyDown}
                 placeholder={t("placeholder")}
                 rows={1}
-                className="flex-1 resize-none text-sm px-3 py-2 rounded-xl border border-tea-green-pale bg-tea-cream/50 focus:outline-none focus:ring-1 focus:ring-tea-green placeholder-tea-text-light/50 max-h-20"
+                className="flex-1 resize-none text-sm px-3 py-2 rounded-xl border border-tea-green-pale bg-tea-cream-light/50 focus:outline-none focus:ring-1 focus:ring-tea-green placeholder-tea-text-light/50 max-h-20"
                 style={{ fontSize: "16px" }}
               />
               <button

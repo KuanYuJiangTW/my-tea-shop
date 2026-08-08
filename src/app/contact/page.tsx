@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default async function ContactPage() {
   const t = await getTranslations("contactPage");
   return (
-    <div className="bg-tea-cream min-h-screen">
+    <div className="bg-tea-cream-light min-h-screen">
       {/* Page Header */}
       <section className="bg-tea-green-mist border-b border-tea-green-pale/50 py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

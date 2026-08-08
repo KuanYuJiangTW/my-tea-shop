@@ -150,7 +150,7 @@ export default function SettingsPage() {
                 placeholder="000000"
                 required
                 autoFocus
-                className="w-full px-4 py-2.5 rounded-xl border border-tea-cream-dark bg-tea-cream text-tea-text text-sm placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green transition tracking-widest text-center text-lg"
+                className="w-full px-4 py-2.5 rounded-xl border border-tea-cream-dark bg-tea-cream-light text-tea-text text-sm placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green transition tracking-widest text-center text-lg"
               />
             </div>
             <div className="flex gap-3">
@@ -164,7 +164,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => { setState("idle"); setError(""); }}
-                className="px-4 py-2 text-tea-text-light text-sm rounded-xl border border-tea-cream-dark hover:bg-tea-cream transition"
+                className="px-4 py-2 text-tea-text-light text-sm rounded-xl border border-tea-cream-dark hover:bg-tea-cream-light transition"
               >
                 取消
               </button>
@@ -192,7 +192,7 @@ export default function SettingsPage() {
                 placeholder="000000"
                 required
                 autoFocus
-                className="w-full px-4 py-2.5 rounded-xl border border-tea-cream-dark bg-tea-cream text-tea-text text-sm placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green transition tracking-widest text-center text-lg"
+                className="w-full px-4 py-2.5 rounded-xl border border-tea-cream-dark bg-tea-cream-light text-tea-text text-sm placeholder-[#B8C4BC] focus:outline-none focus:ring-2 focus:ring-tea-green transition tracking-widest text-center text-lg"
               />
             </div>
             <div className="flex gap-3">
@@ -206,7 +206,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => { setState("idle"); setError(""); }}
-                className="px-4 py-2 text-tea-text-light text-sm rounded-xl border border-tea-cream-dark hover:bg-tea-cream transition"
+                className="px-4 py-2 text-tea-text-light text-sm rounded-xl border border-tea-cream-dark hover:bg-tea-cream-light transition"
               >
                 取消
               </button>

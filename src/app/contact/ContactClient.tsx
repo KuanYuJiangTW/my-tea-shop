@@ -58,10 +58,10 @@ export default function ContactClient() {
     }
   }
 
-  // bg-tea-cream/50 與 login／register／checkout／account 的輸入框一致。
+  // bg-tea-cream-light/50 與 login／register／checkout／account 的輸入框一致。
   // 原本是 bg-white，壓在同為白底的表單卡上只剩邊框，且是全站唯一的例外寫法
   const inputClass =
-    "w-full border border-tea-green-pale bg-tea-cream/50 rounded-control px-4 py-3 text-tea-text placeholder-tea-text-light/50 text-label focus:outline-none focus:ring-2 focus:ring-tea-green/40 focus:border-tea-green transition duration-base ease-standard";
+    "w-full border border-tea-green-pale bg-tea-cream-light/50 rounded-control px-4 py-3 text-tea-text placeholder-tea-text-light/50 text-label focus:outline-none focus:ring-2 focus:ring-tea-green/40 focus:border-tea-green transition duration-base ease-standard";
 
   const infoItems = [
     {

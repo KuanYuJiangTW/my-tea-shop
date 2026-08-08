@@ -21,7 +21,7 @@ import { useLocale, useTranslations } from "next-intl";
  */
 function VerifyingPayment({ title, hint }: { title: string; hint: string }) {
   return (
-    <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
+    <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
       <div className="text-center max-w-md" role="status" aria-live="polite">
         <div className="w-20 h-20 bg-tea-green-mist rounded-pill flex items-center justify-center mx-auto mb-6">
           {/* animate-spin 在 prefers-reduced-motion 下會被 globals.css 壓成 1ms */}
@@ -149,7 +149,7 @@ function ResultContent() {
   // PayPal cancel page
   if (paypalParam === "cancel" && !paypalSuccess) {
     return (
-      <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
+      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-status-warn-soft rounded-pill flex items-center justify-center mx-auto mb-6">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="stroke-status-warn" strokeWidth="2" strokeLinecap="round">
@@ -186,7 +186,7 @@ function ResultContent() {
   // PayPal capture failed
   if (paypalError && !paypalSuccess) {
     return (
-      <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
+      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-status-danger-soft rounded-pill flex items-center justify-center mx-auto mb-6">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="stroke-status-danger" strokeWidth="2" strokeLinecap="round">
@@ -212,7 +212,7 @@ function ResultContent() {
   }
 
   return (
-    <div className="min-h-screen bg-tea-cream flex items-center justify-center px-4">
+    <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
       <div className="text-center max-w-md">
         {isSuccess ? (
           <>

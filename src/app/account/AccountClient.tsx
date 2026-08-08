@@ -486,14 +486,14 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   }
 
   const inputCls = (hasError?: string) =>
-    `w-full px-4 py-3 rounded-xl border text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 bg-tea-cream/50 transition ${
+    `w-full px-4 py-3 rounded-xl border text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 bg-tea-cream-light/50 transition ${
       hasError
         ? "border-rose-300 focus:ring-rose-300"
         : "border-tea-green-pale focus:ring-tea-green focus:border-tea-green"
     }`;
 
   return (
-    <div className="min-h-screen bg-tea-cream">
+    <div className="min-h-screen bg-tea-cream-light">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Header */}
@@ -996,7 +996,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   <div key={order.id} className={`bg-white rounded-2xl border overflow-hidden ${isPendingPayment ? "border-amber-300 border-l-4" : "border-tea-green-pale"}`}>
                     {/* Order Summary Row */}
                     <button
-                      className="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-tea-cream/50 transition"
+                      className="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-tea-cream-light/50 transition"
                       onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
                     >
                       <div className="flex-1 min-w-0">
@@ -1020,7 +1020,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
                     {/* Expanded Detail */}
                     {isExpanded && (
-                      <div className="border-t border-tea-green-pale px-6 py-4 bg-tea-cream/30 space-y-4">
+                      <div className="border-t border-tea-green-pale px-6 py-4 bg-tea-cream-light/30 space-y-4">
                         {/* Items */}
                         <div>
                           <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">{t("orders.items")}</p>
@@ -1134,7 +1134,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               <button
                 onClick={() => setCancelConfirmId(null)}
                 disabled={cancelling}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream transition disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
               >
                 {t("modal.back")}
               </button>
@@ -1187,7 +1187,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   ) : (
                     <>
                       <p className="text-sm text-tea-text-light mb-1">{t("modal.cancelBookingPolicyDesc")}</p>
-                      <div className="bg-tea-cream rounded-xl px-4 py-3 mb-4 text-xs space-y-1">
+                      <div className="bg-tea-cream-light rounded-xl px-4 py-3 mb-4 text-xs space-y-1">
                         <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refund7days")}</span><span className="text-tea-green font-medium">{t("modal.refund100")}</span></div>
                         <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refund3to6days")}</span><span className="text-amber-600 font-medium">{t("modal.refund50")}</span></div>
                         <div className="flex justify-between"><span className="text-tea-text-light">{t("modal.refund1to2days")}</span><span className="text-amber-600 font-medium">{t("modal.refund20")}</span></div>
@@ -1202,7 +1202,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     <button
                       onClick={() => setCancelBookingId(null)}
                       disabled={cancellingBooking}
-                      className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream transition disabled:opacity-50"
+                      className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
                     >
                       {t("modal.back")}
                     </button>
@@ -1251,7 +1251,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               onChange={e => setReviewComment(e.target.value)}
               placeholder={t("modal.reviewPlaceholder")}
               rows={4}
-              className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 focus:ring-tea-green bg-tea-cream/50 resize-none mb-4"
+              className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 focus:ring-tea-green bg-tea-cream-light/50 resize-none mb-4"
             />
 
             {reviewError && (
@@ -1262,7 +1262,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               <button
                 onClick={() => setReviewBookingId(null)}
                 disabled={reviewSubmitting}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream transition disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
               >
                 {t("modal.cancel")}
               </button>
@@ -1315,7 +1315,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   type="button"
                   onClick={() => setEditAddressOrder(null)}
                   disabled={savingAddress}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream transition disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
                 >
                   {t("modal.cancel")}
                 </button>
