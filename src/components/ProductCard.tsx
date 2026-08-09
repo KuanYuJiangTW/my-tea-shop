@@ -208,7 +208,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="p-5 flex flex-col flex-1">
 
           {/* 產地 */}
-          <div className="flex items-center gap-1.5 mb-2">
+          <div className="flex items-center gap-1.5 mb-1.5">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-tea-green flex-shrink-0">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/>
               <circle cx="12" cy="9" r="2.5" fill="white"/>
@@ -220,7 +220,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <h3 className={`font-serif text-xl font-bold mb-1 group-hover:text-tea-green transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
             {isEn ? product.nameEn : product.name}
           </h3>
-          <p className="text-caption text-tea-text-light italic mb-3">{isEn ? product.name : product.nameEn}</p>
+          <p className="text-caption text-tea-text-light italic mb-2">{isEn ? product.name : product.nameEn}</p>
 
           {/* 描述 */}
           {/* 字級用 label(14px) 而不是 body(16px)，行數給 3 行而不是 2 行。
@@ -232,14 +232,19 @@ export default function ProductCard({ product }: { product: Product }) {
               `min-h-[3lh]` 是必要的，不是保險：手機是單欄堆疊、沒有 grid 的等高機制，
               描述行數不同卡片就會高矮不齊。實測 414px（iPhone Plus）下 2 行容量剛好
               49 字，48/46 字的茶塞得進 2 行、50 字的金萱要 3 行——金萱整張卡就高了 22px。
-              固定 3 行後，任何螢幕寬度、任何字數都等高。`lh` = 當前行高，跟著字級走。 */}
-          <p className="text-label text-tea-text-light line-clamp-3 min-h-[3lh] flex-1 mb-4">
+              固定 3 行後，任何螢幕寬度、任何字數都等高。`lh` = 當前行高，跟著字級走。
+
+              ⚠️ 描述多出的那一行（+22px）是靠**本卡片內 6 處間距各縮 2–4px** 換回來的
+              （產地 mb-1.5、英文名 mb-2、描述 mb-3、規格 mb-3、數量 mb-3、價格列 pt-3），
+              好讓卡片維持上線版的 632px。**動這些間距或描述行數前，先量總高**——
+              632 是業主指定的值，不是巧合。 */}
+          <p className="text-label text-tea-text-light line-clamp-3 min-h-[3lh] flex-1 mb-3">
             {isEn ? (product.descriptionEn || product.description) : product.description}
           </p>
 
           {/* 規格選擇 */}
           {variants.length > 1 && (
-            <div className="mb-4">
+            <div className="mb-3">
               <p className="text-caption text-tea-text-light mb-2">{t("selectVariant")}</p>
               <div className="flex gap-2 flex-wrap">
                 {variants.map((v) => {
@@ -274,7 +279,7 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
 
           {/* 數量選擇 */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex flex-col">
               <span className="text-caption text-tea-text-light font-medium">{t("quantity")}</span>
               {!selectedSoldOut && selected.stock !== undefined && (
@@ -308,7 +313,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
 
           {/* 價格 + 加入購物車 */}
-          <div className="flex items-center justify-between pt-4 border-t border-tea-green-pale/60">
+          <div className="flex items-center justify-between pt-3 border-t border-tea-green-pale/60">
             <div className="flex flex-col">
               <span className={`font-bold text-xl leading-none ${selectedSoldOut ? "text-tea-text/40" : "text-tea-green"}`}>
                 NT${selected.price.toLocaleString()}
