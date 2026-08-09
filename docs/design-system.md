@@ -143,6 +143,20 @@ tabular 數字、五態完整性**（載入／空／錯誤／成功／禁用）�
 `/process` 另有一組色盤外用色未收編：茶種漸層（`ProcessContent.tsx:22-26` 的
 `from-green-100 to-emerald-200` 等 5 組）。它是茶種標記不是工序色票，暫列已知例外。
 
+### 2.1.4 觸控目標
+
+手機是主要使用場景，可點擊元素的**點擊區**（不是字級）至少 24px 高——
+WCAG 2.2 的 AA 門檻。Apple 建議 44pt、Material 建議 48dp，能給就給。
+
+**手法：用 padding 撐點擊區，不要用 margin 或行高。** 2026-08-08 修 Footer 時，
+連結是 `display: inline` + `space-y-3`，點擊區只有 18px（連 AA 都沒過，
+手機上很容易點錯行）。修法是 `block py-2` 並把 `space-y-3` 縮成 `space-y-1`——
+**padding 換掉 margin**，點擊區 18→36px 而視覺行距只從 36 變 40px。
+`block` 讓寬度撐滿整欄，整行都可點，手機上更好按。
+
+驗證方法：在 375px 視窗掃 `a, button`，找出 `getBoundingClientRect().height < 24`
+且有文字的元素，結果應為 0。
+
 ### 2.2 語意層（`globals.css` 的 `:root`）
 
 元件應優先用語意名，而非直接寫 `tea-*`。

@@ -122,7 +122,7 @@ export default async function ExperiencesPage() {
             <p className="text-sm text-tea-text-light">{t("hasQuestions")}</p>
             <Link
               href={lp("/faq")}
-              className="text-tea-green hover:text-tea-green-dark text-sm font-medium flex items-center gap-1 transition-colors"
+              className="text-tea-green hover:text-tea-green-dark text-sm font-medium flex items-center py-2 gap-1 transition-colors"
             >
               {t("viewFAQ")}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

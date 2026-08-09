@@ -37,7 +37,10 @@ export default function Footer() {
           {/* Links */}
           <div>
             <h4 className="font-medium mb-5 text-tea-green-light tracking-wide">{t("quickLinks")}</h4>
-            <ul className="space-y-3">
+            {/* space-y 縮到 1、改由 Link 的 py-2 撐出點擊區：
+                手機上這排連結原本只有 18px 高（WCAG 2.2 的 AA 門檻是 24px），
+                很容易點錯。用 padding 取代 margin，點擊區變 34px 而視覺行距幾乎不變 */}
+            <ul className="space-y-1">
               {[
                 { href: lp("/products"),    key: "products" },
                 { href: lp("/alishan-tea"), key: "alishan" },
@@ -48,7 +51,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-tea-green-pale hover:text-tea-green-light transition-colors"
+                    className="block py-2 text-sm text-tea-green-pale hover:text-tea-green-light transition-colors"
                   >
                     {t(`links.${link.key}`)}
                   </Link>
@@ -60,7 +63,10 @@ export default function Footer() {
           {/* Legal */}
           <div>
             <h4 className="font-medium mb-5 text-tea-green-light tracking-wide">{t("legal")}</h4>
-            <ul className="space-y-3">
+            {/* space-y 縮到 1、改由 Link 的 py-2 撐出點擊區：
+                手機上這排連結原本只有 18px 高（WCAG 2.2 的 AA 門檻是 24px），
+                很容易點錯。用 padding 取代 margin，點擊區變 34px 而視覺行距幾乎不變 */}
+            <ul className="space-y-1">
               {[
                 { href: lp("/privacy"),       key: "privacy" },
                 { href: lp("/return-policy"), key: "returnPolicy" },
@@ -69,7 +75,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-tea-green-pale hover:text-tea-green-light transition-colors"
+                    className="block py-2 text-sm text-tea-green-pale hover:text-tea-green-light transition-colors"
                   >
                     {t(`legalLinks.${link.key}`)}
                   </Link>

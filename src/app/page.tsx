@@ -209,7 +209,7 @@ export default async function HomePage() {
             </div>
             <Link
               href={lp("/products")}
-              className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 transition-colors"
+              className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 py-2 transition-colors"
             >
               {tc("buttons.viewAll")}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -234,7 +234,7 @@ export default async function HomePage() {
               </div>
               <Link
                 href={lp("/experiences")}
-                className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 transition-colors"
+                className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 py-2 transition-colors"
               >
                 {tc("buttons.viewAll")}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
