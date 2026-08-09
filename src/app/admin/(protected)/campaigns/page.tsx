@@ -140,68 +140,68 @@ export default function CampaignsPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[#3D4A42] font-serif">點數活動管理</h1>
+        <h1 className="text-2xl font-bold text-tea-text font-serif">點數活動管理</h1>
         <button onClick={() => { resetForm(); setShowForm(true); }}
-          className="px-4 py-2 bg-[#7D9B84] text-white text-sm rounded-xl hover:bg-[#5C7A67] transition">
+          className="px-4 py-2 bg-tea-green text-white text-sm rounded-xl hover:bg-tea-green-dark transition">
           新增活動
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#EDE8DC] p-6 mb-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-tea-cream-dark p-6 mb-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-medium text-[#6B8872] block mb-1">活動名稱</label>
+              <label className="text-xs font-medium text-tea-text-light block mb-1">活動名稱</label>
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                className="w-full border border-[#EDE8DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#7D9B84]" required />
+                className="w-full border border-tea-cream-dark rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-tea-green" required />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#6B8872] block mb-1">倍率（1~10）</label>
+              <label className="text-xs font-medium text-tea-text-light block mb-1">倍率（1~10）</label>
               <input type="number" min={1} max={10} step={0.5} value={form.multiplier}
                 onChange={e => setForm(f => ({ ...f, multiplier: Number(e.target.value) }))}
-                className="w-full border border-[#EDE8DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#7D9B84]" required />
+                className="w-full border border-tea-cream-dark rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-tea-green" required />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#6B8872] block mb-1">活動類型</label>
+              <label className="text-xs font-medium text-tea-text-light block mb-1">活動類型</label>
               <select value={form.campaign_type} onChange={e => setForm(f => ({ ...f, campaign_type: e.target.value }))}
-                className="w-full border border-[#EDE8DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#7D9B84]">
+                className="w-full border border-tea-cream-dark rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-tea-green">
                 {CAMPAIGN_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-[#6B8872] block mb-1">說明</label>
+              <label className="text-xs font-medium text-tea-text-light block mb-1">說明</label>
               <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                className="w-full border border-[#EDE8DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#7D9B84]" />
+                className="w-full border border-tea-cream-dark rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-tea-green" />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#6B8872] block mb-1">開始時間</label>
+              <label className="text-xs font-medium text-tea-text-light block mb-1">開始時間</label>
               <input type="datetime-local" value={form.starts_at} onChange={e => setForm(f => ({ ...f, starts_at: e.target.value }))}
-                className="w-full border border-[#EDE8DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#7D9B84]" required />
+                className="w-full border border-tea-cream-dark rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-tea-green" required />
             </div>
             <div>
-              <label className="text-xs font-medium text-[#6B8872] block mb-1">結束時間</label>
+              <label className="text-xs font-medium text-tea-text-light block mb-1">結束時間</label>
               <input type="datetime-local" value={form.ends_at} onChange={e => setForm(f => ({ ...f, ends_at: e.target.value }))}
-                className="w-full border border-[#EDE8DC] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#7D9B84]" required />
+                className="w-full border border-tea-cream-dark rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-tea-green" required />
             </div>
           </div>
           {error && <p className="text-sm text-rose-500">{error}</p>}
           <div className="flex gap-2">
-            <button type="submit" className="px-4 py-2 bg-[#7D9B84] text-white text-sm rounded-lg hover:bg-[#5C7A67]">
+            <button type="submit" className="px-4 py-2 bg-tea-green text-white text-sm rounded-lg hover:bg-tea-green-dark">
               {editId ? "儲存" : "建立"}
             </button>
-            <button type="button" onClick={resetForm} className="px-4 py-2 text-sm text-[#6B8872] border border-[#EDE8DC] rounded-lg hover:bg-[#FAF7F2]">取消</button>
+            <button type="button" onClick={resetForm} className="px-4 py-2 text-sm text-tea-text-light border border-tea-cream-dark rounded-lg hover:bg-tea-cream-light">取消</button>
           </div>
         </form>
       )}
 
       {loading ? (
-        <p className="text-sm text-[#9CA89E]">載入中...</p>
+        <p className="text-sm text-tea-text-faint">載入中...</p>
       ) : campaigns.length === 0 ? (
-        <p className="text-sm text-[#9CA89E]">尚無點數活動</p>
+        <p className="text-sm text-tea-text-faint">尚無點數活動</p>
       ) : (
-        <div className="bg-white rounded-2xl border border-[#EDE8DC] overflow-hidden">
+        <div className="bg-white rounded-2xl border border-tea-cream-dark overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-[#FAF7F2] text-[#6B8872]">
+            <thead className="bg-tea-cream-light text-tea-text-light">
               <tr>
                 <th className="text-left px-4 py-3 font-medium">活動名稱</th>
                 <th className="text-left px-4 py-3 font-medium">倍率</th>
@@ -211,22 +211,22 @@ export default function CampaignsPage() {
                 <th className="text-right px-4 py-3 font-medium">操作</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F5F0E8]">
+            <tbody className="divide-y divide-tea-cream">
               {campaigns.map(c => {
                 const status = getStatus(c);
                 return (
                   <React.Fragment key={c.id}>
-                  <tr className="hover:bg-[#FAF7F2]">
-                    <td className="px-4 py-3 font-medium text-[#3D4A42]">{c.name}</td>
-                    <td className="px-4 py-3 text-[#7D9B84] font-bold">{c.multiplier}x</td>
-                    <td className="px-4 py-3 text-[#6B8872]">{CAMPAIGN_TYPES.find(t => t.value === c.campaign_type)?.label ?? c.campaign_type}</td>
+                  <tr className="hover:bg-tea-cream-light">
+                    <td className="px-4 py-3 font-medium text-tea-text">{c.name}</td>
+                    <td className="px-4 py-3 text-tea-green font-bold">{c.multiplier}x</td>
+                    <td className="px-4 py-3 text-tea-text-light">{CAMPAIGN_TYPES.find(t => t.value === c.campaign_type)?.label ?? c.campaign_type}</td>
                     <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.cls}`}>{status.label}</span></td>
-                    <td className="px-4 py-3 text-xs text-[#9CA89E]">
+                    <td className="px-4 py-3 text-xs text-tea-text-faint">
                       {new Date(c.starts_at).toLocaleDateString("zh-TW")} ~ {new Date(c.ends_at).toLocaleDateString("zh-TW")}
                     </td>
                     <td className="px-4 py-3 text-right space-x-2">
-                      <button onClick={() => editCampaign(c)} className="text-xs text-[#7D9B84] hover:underline">編輯</button>
-                      <button onClick={() => toggleHistory(c.id)} className="text-xs text-[#6B8872] hover:underline">歷史</button>
+                      <button onClick={() => editCampaign(c)} className="text-xs text-tea-green hover:underline">編輯</button>
+                      <button onClick={() => toggleHistory(c.id)} className="text-xs text-tea-text-light hover:underline">歷史</button>
                       {c.is_active && (
                         <button onClick={() => toggleActive(c.id)} className="text-xs text-rose-500 hover:underline">停用</button>
                       )}
@@ -234,19 +234,19 @@ export default function CampaignsPage() {
                   </tr>
                   {historyId === c.id && (
                     <tr>
-                      <td colSpan={6} className="bg-[#FAF7F2] px-4 py-3">
+                      <td colSpan={6} className="bg-tea-cream-light px-4 py-3">
                         {historyData.length === 0 ? (
-                          <p className="text-xs text-[#9CA89E]">尚無變更記錄</p>
+                          <p className="text-xs text-tea-text-faint">尚無變更記錄</p>
                         ) : (
                           <div className="space-y-2">
-                            <p className="text-xs font-medium text-[#6B8872] mb-1">變更歷史</p>
+                            <p className="text-xs font-medium text-tea-text-light mb-1">變更歷史</p>
                             {historyData.map(h => (
-                              <div key={h.id} className="text-xs text-[#3D4A42] border-l-2 border-[#7D9B84] pl-3">
-                                <span className="text-[#9CA89E]">{new Date(h.changed_at).toLocaleString("zh-TW")}</span>
+                              <div key={h.id} className="text-xs text-tea-text border-l-2 border-tea-green pl-3">
+                                <span className="text-tea-text-faint">{new Date(h.changed_at).toLocaleString("zh-TW")}</span>
                                 {" "}
                                 <span className="font-medium">{h.action === "deactivate" ? "停用活動" : "修改欄位"}</span>
                                 {h.changed_fields?.length > 0 && (
-                                  <span className="text-[#6B8872]">
+                                  <span className="text-tea-text-light">
                                     {" "}({h.changed_fields.join(", ")})
                                   </span>
                                 )}

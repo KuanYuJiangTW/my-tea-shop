@@ -26,19 +26,26 @@ const teaColors: Record<TeaKey, string> = {
   sijichun: "from-lime-100 to-green-200",
 };
 
-/** 每道工序的卡片底色；分歧段會另外套容器底色，故此處僅負責卡片本身 */
+/**
+ * 每道工序的卡片底色；分歧段會另外套容器底色，故此處僅負責卡片本身。
+ *
+ * 色票分兩類：**帶溫度的工序**用 `process-*`（日光、爐火、發酵），
+ * **不帶溫度的工序**用品牌色（採摘、浪菁、揉捻、團揉、包裝）。
+ * `process-*` 的值原封不動沿用原本的 Tailwind 預設色，2026-08-08 拍板保留，
+ * 定義與理由見 `tailwind.config.ts`。
+ */
 const stepColors: Record<StepKey, { color: string; accent: string }> = {
   pick: { color: "bg-tea-green-mist", accent: "text-tea-green" },
-  witherSun: { color: "bg-amber-50", accent: "text-amber-600" },
-  witherIndoor: { color: "bg-green-50", accent: "text-green-700" },
+  witherSun: { color: "bg-process-sun-soft", accent: "text-process-sun" },
+  witherIndoor: { color: "bg-process-indoor-soft", accent: "text-process-indoor" },
   shake: { color: "bg-tea-green-mist", accent: "text-tea-green" },
-  fix: { color: "bg-orange-50", accent: "text-orange-600" },
+  fix: { color: "bg-process-fire-soft", accent: "text-process-fire" },
   roll: { color: "bg-tea-cream", accent: "text-tea-text" },
-  ferment: { color: "bg-red-50", accent: "text-red-700" },
-  dryFirst: { color: "bg-amber-50", accent: "text-amber-700" },
+  ferment: { color: "bg-process-ferment-soft", accent: "text-process-ferment" },
+  dryFirst: { color: "bg-process-roast-soft", accent: "text-process-roast" },
   ballRoll: { color: "bg-tea-cream", accent: "text-tea-text" },
-  dryFinal: { color: "bg-green-50", accent: "text-tea-green" },
-  roast: { color: "bg-amber-50", accent: "text-amber-700" },
+  dryFinal: { color: "bg-process-indoor-soft", accent: "text-tea-green" },
+  roast: { color: "bg-process-roast-soft", accent: "text-process-roast" },
   pack: { color: "bg-tea-green-mist", accent: "text-tea-green" },
 };
 
@@ -688,7 +695,8 @@ export default function ProcessContent({ experiences, contents }: Props) {
                       <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">
                         {isEn ? exp.nameEn || exp.name : exp.name}
                       </h3>
-                      <p className="text-tea-text-light text-sm leading-relaxed mb-4 line-clamp-2">
+                      {/* 與商品卡同理：3 行才讀得完，見 ProductCard 的註解 */}
+                      <p className="text-tea-text-light text-label mb-4 line-clamp-3">
                         {isEn ? content.taglineEn || content.tagline : content.tagline}
                       </p>
                       <div className="flex items-center justify-between text-sm text-tea-text-light">

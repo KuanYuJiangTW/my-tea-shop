@@ -102,7 +102,7 @@ export default async function HomePage() {
         />
         <div className="absolute inset-0 bg-tea-text/55" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative z-10 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
           <div className="max-w-2xl">
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
               {t("hero.subtitle")}
@@ -114,19 +114,19 @@ export default async function HomePage() {
             <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
               {t("hero.tagline")}
             </p>
-            <p className="text-tea-cream text-sm md:text-lg leading-relaxed mb-10 max-w-lg">
+            <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg">
               {t("hero.description")}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
                 href={lp("/products")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors shadow-sm"
+                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
               >
                 {t("hero.exploreBtn")}
               </Link>
               <Link
                 href={lp("/about")}
-                className="border-2 border-tea-cream/70 text-tea-cream hover:bg-tea-cream hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors"
+                className="border-2 border-tea-cream/70 text-tea-cream hover:bg-tea-cream hover:text-tea-text px-8 py-3.5 rounded-pill font-medium transition-colors"
               >
                 {t("hero.storyBtn")}
               </Link>
@@ -136,7 +136,13 @@ export default async function HomePage() {
       </section>
 
       {/* 品茶哲學 */}
-      <section className="py-16 md:py-24 bg-tea-cream">
+      {/* 慢段：品茶哲學是敘事不是商品，留白讓它慢下來。
+          **只在桌機加大**（手機 64px、桌機 128px）。第九波原本手機也給 96px，
+          但業主實測手機時指出滑不完一張卡——節奏感在大螢幕才看得出來，
+          小螢幕一屏只裝得下一張卡，多 32px 就是「還要再滑一次」。
+          快慢交替見 globals.css --space-section-xl 的註解 */}
+      {/* 底色是 cream -> cream-light -> white 漸進的第一階，見 docs/design-system.md 2.1.1 */}
+      <section className="py-section md:py-section-xl bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="flex flex-col justify-center">
@@ -146,7 +152,7 @@ export default async function HomePage() {
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
                 {t("philosophy.title")}
               </h2>
-              <p className="text-tea-text-light mb-10 max-w-md">
+              <p className="text-tea-text-light text-body-lg mb-10 max-w-md">
                 {t("philosophy.tagline")}
               </p>
 
@@ -165,7 +171,7 @@ export default async function HomePage() {
                       <h3 className="font-serif text-xl font-bold text-tea-text mb-2 group-hover:text-tea-green transition-colors">
                         {t(`philosophy.items.${key}.title`)}
                       </h3>
-                      <p className="text-tea-text-light text-sm leading-relaxed">
+                      <p className="text-tea-text-light text-body">
                         {t(`philosophy.items.${key}.desc`)}
                       </p>
                     </div>
@@ -175,7 +181,7 @@ export default async function HomePage() {
             </div>
 
             <div>
-              <div className="relative h-64 sm:h-80 md:h-[420px] lg:h-full lg:min-h-[480px] rounded-2xl overflow-hidden">
+              <div className="relative h-64 sm:h-80 md:h-[420px] lg:h-full lg:min-h-[480px] rounded-card overflow-hidden">
                 <Image
                   src="/images/gallery/flipped.jpg"
                   alt="做茶實景"
@@ -189,18 +195,21 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 md:py-24 bg-tea-cream-light">
+      {/* 快段：商業區塊要效率，維持原節奏 */}
+      {/* 漸進第二階。商品卡是 bg-white，壓在 cream-light 上只差 2%——
+          但那是刻意的，三段累積起來才是漸層，見 docs/design-system.md 2.1.1 */}
+      <section className="py-section md:py-section-lg bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
             <div>
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">
                 {t("featured.title")}
               </h2>
-              <p className="text-tea-text-light">{t("featured.tagline")}</p>
+              <p className="text-tea-text-light text-body-lg">{t("featured.tagline")}</p>
             </div>
             <Link
               href={lp("/products")}
-              className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 transition-colors"
+              className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 py-2 transition-colors"
             >
               {tc("buttons.viewAll")}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -213,18 +222,19 @@ export default async function HomePage() {
       </section>
 
       {/* 茶山體驗 */}
+      {/* 漸進第三階：最亮，接著才落到品牌故事的深色 */}
       {experiences.length > 0 && (
-        <section className="py-16 md:py-24 bg-white">
+        <section className="py-section md:py-section-lg bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
                 <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">{t("experiences.sectionLabel")}</p>
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">{t("experiences.title")}</h2>
-                <p className="text-tea-text-light">{t("experiences.tagline")}</p>
+                <p className="text-tea-text-light text-body-lg">{t("experiences.tagline")}</p>
               </div>
               <Link
                 href={lp("/experiences")}
-                className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 transition-colors"
+                className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 py-2 transition-colors"
               >
                 {tc("buttons.viewAll")}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -242,7 +252,7 @@ export default async function HomePage() {
                   <Link
                     key={exp.id}
                     href={lp(`/experiences/${exp.slug}`)}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-tea-green-pale/50"
+                    className="group bg-white rounded-card overflow-hidden shadow-resting hover:shadow-raised transition-shadow duration-base ease-standard border border-tea-green-pale/50"
                   >
                     <div className="relative h-48 overflow-hidden">
                       <Image
@@ -252,7 +262,7 @@ export default async function HomePage() {
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       {exp.requiresAdult && (
-                        <span className="absolute top-3 right-3 bg-tea-text text-tea-cream text-xs px-3 py-1 rounded-full">
+                        <span className="absolute top-3 right-3 bg-tea-text text-tea-cream text-xs px-3 py-1 rounded-pill">
                           {tc("adultOnly")}
                         </span>
                       )}
@@ -261,7 +271,8 @@ export default async function HomePage() {
                       <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">
                         {isEn ? (exp.nameEn || exp.name) : exp.name}
                       </h3>
-                      <p className="text-tea-text-light text-sm leading-relaxed mb-4 line-clamp-2">
+                      {/* 與商品卡同理：14px + 3 行才讀得完，見 ProductCard 的註解 */}
+                      <p className="text-tea-text-light text-label mb-4 line-clamp-3">
                         {isEn ? (content.taglineEn || content.tagline) : content.tagline}
                       </p>
                       <div className="flex items-center justify-between text-sm text-tea-text-light">
@@ -287,7 +298,7 @@ export default async function HomePage() {
               <div className="text-center mt-8">
                 <Link
                   href={lp("/experiences")}
-                  className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-full font-medium transition-colors inline-block"
+                  className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-pill font-medium transition-colors inline-block"
                 >
                   {t("experiences.viewAllCount", { count: experiences.length })}
                 </Link>
@@ -298,7 +309,8 @@ export default async function HomePage() {
       )}
 
       {/* Brand Story */}
-      <section className="py-16 md:py-24 bg-tea-text">
+      {/* 慢段：品牌故事是情緒高點，也是唯一的深色錨點 */}
+      <section className="py-section md:py-section-xl bg-tea-text">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mb-14">
             <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
@@ -307,15 +319,17 @@ export default async function HomePage() {
             <h2 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-7 leading-snug whitespace-pre-line">
               {t("brandStory.title")}
             </h2>
-            <p className="text-tea-green-pale leading-relaxed mb-4 text-sm">
+            {/* 品牌故事是整站最重要的一段敘事——四十年、一家三口。
+                原本用 text-sm(14px) 講，語氣與內容不相稱，升到 body-lg(18px/1.85) */}
+            <p className="text-tea-green-pale text-body-lg mb-4">
               {t("brandStory.p1")}
             </p>
-            <p className="text-tea-green-pale leading-relaxed mb-10 text-sm">
+            <p className="text-tea-green-pale text-body-lg mb-10">
               {t("brandStory.p2")}
             </p>
             <Link
               href={lp("/about")}
-              className="border border-tea-green-light text-tea-green-light hover:bg-tea-green-light hover:text-tea-text px-8 py-3.5 rounded-full font-medium transition-colors inline-block"
+              className="border border-tea-green-light text-tea-green-light hover:bg-tea-green-light hover:text-tea-text px-8 py-3.5 rounded-pill font-medium transition-colors inline-block"
             >
               {tc("buttons.learnMore")}
             </Link>
@@ -326,20 +340,20 @@ export default async function HomePage() {
       </section>
 
       {/* Process Teaser */}
-      <section className="py-16 md:py-24 bg-tea-cream">
+      <section className="py-section md:py-section-lg bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
             {t("process.title")}
           </h2>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light mb-14 max-w-lg mx-auto">
+          <p className="text-tea-text-light text-body-lg mb-14 max-w-lg mx-auto">
             {t("process.tagline")}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-14">
             {(["pick", "wither", "roll", "roast"] as const).map((key, i) => (
               <div
                 key={key}
-                className="bg-white rounded-2xl p-5 md:p-7 text-center shadow-sm hover:shadow-md transition-shadow"
+                className="bg-white rounded-card p-5 md:p-7 text-center shadow-resting hover:shadow-raised transition-shadow duration-base ease-standard"
               >
                 <div className="text-xs text-tea-green font-medium tracking-widest mb-3">
                   {String(i + 1).padStart(2, "0")}
@@ -347,13 +361,13 @@ export default async function HomePage() {
                 <div className="font-serif text-xl font-bold text-tea-text mb-2">
                   {t(`process.steps.${key}.name`)}
                 </div>
-                <div className="text-xs text-tea-text-light">{t(`process.steps.${key}.desc`)}</div>
+                <div className="text-label text-tea-text-light">{t(`process.steps.${key}.desc`)}</div>
               </div>
             ))}
           </div>
           <Link
             href={lp("/process")}
-            className="bg-tea-green hover:bg-tea-green-dark text-white px-9 py-3.5 rounded-full font-medium transition-colors shadow-sm"
+            className="bg-tea-green hover:bg-tea-green-dark text-white px-9 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
           >
             {t("process.exploreBtn")}
           </Link>

@@ -1182,6 +1182,8 @@
     "backHome": "回到首頁",
     "backToCart": "返回購物車",
     "paypalProcessing": "付款處理中，請稍候...",
+    "verifyingPayment": "正在確認付款結果",
+    "verifyingPaymentHint": "請不要關閉視窗，也不要重新付款一次——我們正在向金流商確認這筆交易。",
     "paypalCancelTitle": "付款未完成",
     "paypalCancelDesc": "您的 PayPal 付款尚未完成。",
     "paypalCancelPointsHint": "您的點數與折價券已預扣，重新付款不會再次扣除。若不需要此訂單，請點擊取消訂單以退還點數。",

@@ -1182,6 +1182,8 @@
     "backHome": "Back to Home",
     "backToCart": "Back to Cart",
     "paypalProcessing": "Processing your payment, please wait...",
+    "verifyingPayment": "Confirming your payment",
+    "verifyingPaymentHint": "Please don't close this window or pay again — we're verifying this transaction with the payment provider.",
     "paypalCancelTitle": "Payment Incomplete",
     "paypalCancelDesc": "Your PayPal payment was not completed.",
     "paypalCancelPointsHint": "Your points and coupons have been reserved. Retrying will not deduct them again. To get your points back, please cancel the order.",

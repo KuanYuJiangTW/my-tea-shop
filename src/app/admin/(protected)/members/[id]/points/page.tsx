@@ -152,20 +152,20 @@ export default function MemberPointsPage() {
 
   return (
     <div className="p-6 max-w-4xl">
-      <h1 className="text-xl font-bold text-[#3D4A42] mb-1">會員點數管理</h1>
-      <p className="text-sm text-[#6B8872] mb-6 font-mono">{userId}</p>
+      <h1 className="text-xl font-bold text-tea-text mb-1">會員點數管理</h1>
+      <p className="text-sm text-tea-text-light mb-6 font-mono">{userId}</p>
 
       {/* 餘額 */}
-      <div className="bg-white rounded-xl border border-[#EDE8DC] p-4 mb-6">
-        <span className="text-sm text-[#6B8872]">有效餘額</span>
-        <div className="text-2xl font-bold text-[#3D4A42]">
+      <div className="bg-white rounded-xl border border-tea-cream-dark p-4 mb-6">
+        <span className="text-sm text-tea-text-light">有效餘額</span>
+        <div className="text-2xl font-bold text-tea-text">
           {balance !== null ? `${balance.toLocaleString()} 點` : "—"}
         </div>
       </div>
 
       {/* 調整表單 */}
-      <form onSubmit={handleAdjust} className="bg-white rounded-xl border border-[#EDE8DC] p-4 mb-6 space-y-3">
-        <h2 className="text-sm font-semibold text-[#3D4A42]">手動調整</h2>
+      <form onSubmit={handleAdjust} className="bg-white rounded-xl border border-tea-cream-dark p-4 mb-6 space-y-3">
+        <h2 className="text-sm font-semibold text-tea-text">手動調整</h2>
         <div className="flex gap-3">
           <input
             type="number"
@@ -187,7 +187,7 @@ export default function MemberPointsPage() {
         <button
           type="submit"
           disabled={adjusting}
-          className="bg-[#7D9B84] text-white text-sm px-4 py-2 rounded-lg hover:bg-[#5C7A67] disabled:opacity-50"
+          className="bg-tea-green text-white text-sm px-4 py-2 rounded-lg hover:bg-tea-green-dark disabled:opacity-50"
         >
           {adjusting ? "處理中..." : "確認調整"}
         </button>
@@ -195,15 +195,15 @@ export default function MemberPointsPage() {
 
       {/* 等級歷史 */}
       {tierHistory.length > 0 && (
-        <div className="bg-white rounded-xl border border-[#EDE8DC] p-4 mb-6">
-          <h2 className="text-sm font-semibold text-[#3D4A42] mb-2">等級變更紀錄</h2>
+        <div className="bg-white rounded-xl border border-tea-cream-dark p-4 mb-6">
+          <h2 className="text-sm font-semibold text-tea-text mb-2">等級變更紀錄</h2>
           <div className="space-y-1">
             {tierHistory.map(h => (
-              <div key={h.id} className="text-xs text-[#3D4A42] flex gap-3">
-                <span className="text-[#9CA89E] w-24 flex-shrink-0">{new Date(h.changed_at).toLocaleDateString("zh-TW")}</span>
+              <div key={h.id} className="text-xs text-tea-text flex gap-3">
+                <span className="text-tea-text-faint w-24 flex-shrink-0">{new Date(h.changed_at).toLocaleDateString("zh-TW")}</span>
                 <span className="font-medium">{h.from_tier} → {h.to_tier}</span>
-                <span className="text-[#6B8872]">{h.reason}</span>
-                <span className="text-[#9CA89E]">by {h.triggered_by}</span>
+                <span className="text-tea-text-light">{h.reason}</span>
+                <span className="text-tea-text-faint">by {h.triggered_by}</span>
               </div>
             ))}
           </div>
@@ -211,16 +211,16 @@ export default function MemberPointsPage() {
       )}
 
       {/* 歷史列表 */}
-      <div className="bg-white rounded-xl border border-[#EDE8DC] overflow-hidden">
-        <div className="px-4 py-3 border-b border-[#EDE8DC]">
-          <h2 className="text-sm font-semibold text-[#3D4A42]">點數明細</h2>
+      <div className="bg-white rounded-xl border border-tea-cream-dark overflow-hidden">
+        <div className="px-4 py-3 border-b border-tea-cream-dark">
+          <h2 className="text-sm font-semibold text-tea-text">點數明細</h2>
         </div>
         {loading ? (
-          <div className="px-4 py-8 text-center text-sm text-[#9CA89E]">載入中...</div>
+          <div className="px-4 py-8 text-center text-sm text-tea-text-faint">載入中...</div>
         ) : transactions.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-[#9CA89E]">尚無記錄</div>
+          <div className="px-4 py-8 text-center text-sm text-tea-text-faint">尚無記錄</div>
         ) : (
-          <div className="divide-y divide-[#F5F0E8]">
+          <div className="divide-y divide-tea-cream">
             {transactions.map(t => (
               <div key={t.id} className="px-4 py-3 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
@@ -235,14 +235,14 @@ export default function MemberPointsPage() {
                     </span>
                     {t.is_flagged && <span className="text-xs text-red-500">⚠</span>}
                   </div>
-                  <div className="text-sm text-[#3D4A42] mt-0.5 truncate">{t.description}</div>
-                  {t.admin_note && <div className="text-xs text-[#9CA89E]">備註：{t.admin_note}</div>}
+                  <div className="text-sm text-tea-text mt-0.5 truncate">{t.description}</div>
+                  {t.admin_note && <div className="text-xs text-tea-text-faint">備註：{t.admin_note}</div>}
                 </div>
                 <div className="text-right flex-shrink-0">
                   <div className={`text-sm font-semibold ${t.points >= 0 ? "text-green-700" : "text-red-600"}`}>
                     {t.points > 0 ? "+" : ""}{t.points}
                   </div>
-                  <div className="text-xs text-[#9CA89E]">
+                  <div className="text-xs text-tea-text-faint">
                     {new Date(t.created_at).toLocaleDateString("zh-TW")}
                   </div>
                 </div>

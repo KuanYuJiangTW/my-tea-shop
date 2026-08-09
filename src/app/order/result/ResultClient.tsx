@@ -7,6 +7,35 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useLocale, useTranslations } from "next-intl";
 
+/**
+ * 付款等待畫面。用在兩個地方：PayPal capture 期間，以及 `<Suspense>` 的 fallback。
+ *
+ * **文案的重點不是「請稍候」而是「不要再付一次」。** PayPal 的流程是客人在 PayPal
+ * 那邊已經授權完成、我們這邊才呼叫 capture 收款——這段空窗如果只寫「處理中」，
+ * 使用者最常見的反應是回上一頁重送，那會變成重複扣款。防呆的成本只是一行字。
+ *
+ * 關於 `<Suspense>` 的 fallback：原本是空的。實測確認金流轉跳回來走的是整頁 SSR，
+ * `useSearchParams` 不會 suspend，所以**這不是白畫面的成因**（原先的推測是錯的）。
+ * 仍然補上 fallback，是因為 client-side 導覽到本頁時會用到，且空 fallback
+ * 在付款結果頁是不該有的預設值。
+ */
+function VerifyingPayment({ title, hint }: { title: string; hint: string }) {
+  return (
+    <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
+      <div className="text-center max-w-md" role="status" aria-live="polite">
+        <div className="w-20 h-20 bg-tea-green-mist rounded-pill flex items-center justify-center mx-auto mb-6">
+          {/* animate-spin 在 prefers-reduced-motion 下會被 globals.css 壓成 1ms */}
+          <svg className="animate-spin stroke-tea-green" width="36" height="36" viewBox="0 0 24 24" fill="none" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" strokeOpacity="0.25" /><path d="M12 2a10 10 0 0110 10" />
+          </svg>
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">{title}</h2>
+        <p className="text-body text-tea-text-light">{hint}</p>
+      </div>
+    </div>
+  );
+}
+
 function ResultContent() {
   const params      = useSearchParams();
   const stripeParam = params.get("stripe");
@@ -112,20 +141,9 @@ function ResultContent() {
   // Determine actual success state
   const isSuccess = success || paypalSuccess;
 
-  // PayPal capturing loading state
+  // PayPal capturing loading state（與 Suspense fallback 同一個畫面，不要維護兩份）
   if (paypalCapturing) {
-    return (
-      <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <div className="w-20 h-20 bg-tea-green-mist rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="animate-spin" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7D9B84" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M12 2a10 10 0 0110 10"/>
-            </svg>
-          </div>
-          <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">{t("paypalProcessing")}</h2>
-        </div>
-      </div>
-    );
+    return <VerifyingPayment title={t("verifyingPayment")} hint={t("verifyingPaymentHint")} />;
   }
 
   // PayPal cancel page
@@ -133,30 +151,30 @@ function ResultContent() {
     return (
       <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-amber-50 rounded-pill flex items-center justify-center mx-auto mb-6">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paypalCancelTitle")}</h2>
-          <p className="text-tea-text-light mb-2">{t("paypalCancelDesc")}</p>
-          <p className="text-sm text-amber-600 mb-8 bg-amber-50 rounded-xl p-3">{t("paypalCancelPointsHint")}</p>
-          {paypalError && <p className="text-red-400 text-sm mb-3">{paypalError}</p>}
+          <p className="text-body text-tea-text-light mb-2">{t("paypalCancelDesc")}</p>
+          <p className="text-body text-amber-600 mb-8 bg-amber-50 rounded-control p-3">{t("paypalCancelPointsHint")}</p>
+          {paypalError && <p className="text-red-400 text-label mb-3">{paypalError}</p>}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             {paypalOrderId && (
               <>
                 <button onClick={handlePaypalRetry} disabled={paypalRetrying || paypalCancelling}
-                  className="bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+                  className="bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                   {paypalRetrying ? t("paypalProcessing") : t("paypalRetry")}
                 </button>
                 <button onClick={handlePaypalCancelOrder} disabled={paypalRetrying || paypalCancelling}
-                  className="border border-red-300 text-red-500 hover:bg-red-50 disabled:opacity-60 px-8 py-3.5 rounded-full font-medium transition-colors">
+                  className="border border-red-300 text-red-500 hover:bg-red-50 disabled:opacity-60 px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                   {paypalCancelling ? t("paypalProcessing") : t("paypalCancelOrder")}
                 </button>
               </>
             )}
             <Link href={lp("/")}
-              className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+              className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
               {t("backHome")}
             </Link>
           </div>
@@ -170,21 +188,21 @@ function ResultContent() {
     return (
       <div className="min-h-screen bg-tea-cream-light flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-red-50 rounded-pill flex items-center justify-center mx-auto mb-6">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </div>
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paypalCaptureFailed")}</h2>
-          <p className="text-tea-text-light mb-2">{t("paypalCaptureFailedDesc")}</p>
-          <p className="text-red-400 text-sm mb-6">{paypalError}</p>
+          <p className="text-body text-tea-text-light mb-2">{t("paypalCaptureFailedDesc")}</p>
+          <p className="text-red-400 text-label mb-6">{paypalError}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href={lp("/")}
-              className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+              className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
               {t("backHome")}
             </Link>
             <Link href={lp("/contact")}
-              className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+              className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
               {t("paypalContactSupport")}
             </Link>
           </div>
@@ -198,9 +216,9 @@ function ResultContent() {
       <div className="text-center max-w-md">
         {isSuccess ? (
           <>
-            <div className="w-20 h-20 bg-tea-green-mist rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-tea-green-mist rounded-pill flex items-center justify-center mx-auto mb-6">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-                stroke="#7D9B84" strokeWidth="2" strokeLinecap="round">
+                className="stroke-tea-green" strokeWidth="2" strokeLinecap="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
@@ -208,24 +226,25 @@ function ResultContent() {
             {isBooking ? (
               <>
                 <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("bookingSuccess")}</h2>
-                <p className="text-tea-text-light mb-2">{t("bookingSuccessDesc")}</p>
+                <p className="text-body text-tea-text-light mb-2">{t("bookingSuccessDesc")}</p>
                 {tradeNo && (
-                  <p className="text-xs text-tea-text-light mb-2">
+                  <p className="text-caption text-tea-text-light mb-2">
                     {t("bookingRef")}<span className="font-mono font-medium">{tradeNo}</span>
                   </p>
                 )}
                 {user?.email ? (
-                  <p className="text-tea-text-light text-sm mb-4">{t("emailSentBooking", { email: user.email })}</p>
+                  <p className="text-tea-text-light text-label mb-4">{t("emailSentBooking", { email: user.email })}</p>
                 ) : (
-                  <p className="text-sm text-amber-600 mb-4">
+                  <p className="text-label text-amber-600 mb-4">
                     {t("noEmailBookingPrefix")}{" "}
                     <Link href={lp("/account")} className="underline font-medium">{t("accountCenter")}</Link>
                     {" "}{t("noEmailBookingSuffix")}
                   </p>
                 )}
-                <div className="bg-[#F0F6F1] rounded-2xl px-6 py-4 text-left mb-10">
-                  <p className="text-sm font-semibold text-tea-text mb-2">{t("nextSteps")}</p>
-                  <ul className="space-y-1.5 text-sm text-tea-text-light">
+                {/* 下一步是預約成功後最重要的資訊，用 body 級距而不是 14px 附註 */}
+                <div className="bg-[#F0F6F1] rounded-card px-6 py-4 text-left mb-10">
+                  <p className="text-label font-semibold text-tea-text mb-2">{t("nextSteps")}</p>
+                  <ul className="space-y-1.5 text-body text-tea-text-light">
                     <li className="flex items-start gap-2">
                       <span className="text-tea-green mt-0.5">①</span>
                       {t("nextStep1")}
@@ -244,25 +263,26 @@ function ResultContent() {
             ) : (
               <>
                 <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("orderSuccess")}</h2>
-                <p className="text-tea-text-light mb-2">{t("orderSuccessDesc")}</p>
+                <p className="text-body text-tea-text-light mb-2">{t("orderSuccessDesc")}</p>
                 {tradeNo && (
-                  <p className="text-xs text-tea-text-light mb-2">
+                  <p className="text-caption text-tea-text-light mb-2">
                     {t("orderRef")}<span className="font-mono font-medium">{tradeNo}</span>
                   </p>
                 )}
                 {user?.email ? (
-                  <p className="text-tea-text-light text-sm mb-4">{t("emailSentOrder", { email: user.email })}</p>
+                  <p className="text-tea-text-light text-label mb-4">{t("emailSentOrder", { email: user.email })}</p>
                 ) : (
-                  <p className="text-sm text-amber-600 mb-4">
+                  <p className="text-label text-amber-600 mb-4">
                     {t("noEmailOrderPrefix")}{" "}
                     <Link href={lp("/account")} className="underline font-medium">{t("accountCenter")}</Link>
                     {" "}{t("noEmailOrderSuffix")}
                   </p>
                 )}
+                {/* 國際訂單須知含關稅與不可退貨條款，是交易條件——依原則 2 用 body 級距 */}
                 {isIntlOrder && (
-                  <div className="bg-amber-50 rounded-2xl px-6 py-4 text-left mb-10">
-                    <p className="text-sm font-semibold text-amber-800 mb-2">{t("intlNoticeTitle")}</p>
-                    <ul className="space-y-1.5 text-sm text-amber-700">
+                  <div className="bg-amber-50 rounded-card px-6 py-4 text-left mb-10">
+                    <p className="text-label font-semibold text-amber-800 mb-2">{t("intlNoticeTitle")}</p>
+                    <ul className="space-y-1.5 text-body text-amber-700">
                       <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span>{t("intlNoticeDays")}</li>
                       <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span>{t("intlNoticeDuty")}</li>
                       <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span>{t("intlNoticeNoReturn")}</li>
@@ -275,7 +295,7 @@ function ResultContent() {
           </>
         ) : (
           <>
-            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-red-50 rounded-pill flex items-center justify-center mx-auto mb-6">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
                 stroke="#f87171" strokeWidth="2" strokeLinecap="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
@@ -283,7 +303,7 @@ function ResultContent() {
               </svg>
             </div>
             <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paymentFailed")}</h2>
-            <p className="text-tea-text-light mb-10">{rtnMsg || t("paymentFailedDefault")}</p>
+            <p className="text-body text-tea-text-light mb-10">{rtnMsg || t("paymentFailedDefault")}</p>
           </>
         )}
 
@@ -291,23 +311,23 @@ function ResultContent() {
           {isBooking && isSuccess ? (
             <>
               <Link href={lp("/account?tab=bookings")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                 {t("viewBookings")}
               </Link>
               <Link href={lp("/experiences")}
-                className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+                className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                 {t("browseExperiences")}
               </Link>
             </>
           ) : (
             <>
               <Link href={lp("/")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                 {t("backHome")}
               </Link>
               {!isSuccess && (
                 <Link href={lp("/cart")}
-                  className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-full font-medium transition-colors">
+                  className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                   {t("backToCart")}
                 </Link>
               )}
@@ -320,8 +340,9 @@ function ResultContent() {
 }
 
 export default function ResultClient() {
+  const t = useTranslations("orderResult");
   return (
-    <Suspense>
+    <Suspense fallback={<VerifyingPayment title={t("verifyingPayment")} hint={t("verifyingPaymentHint")} />}>
       <ResultContent />
     </Suspense>
   );

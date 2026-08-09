@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;600;700&display=swap');
+/* 字體不在此定義：三支字型全部由 next/font 在 src/app/layout.tsx 載入並注入
+   --font-latin / --font-sans / --font-serif。這裡若再宣告一次會形成雙重來源。 */
 @import "../../node_modules/tw-animate-css/dist/tw-animate.css";
 @tailwind base;
 @tailwind components;
@@ -44,48 +45,124 @@
   &:where([data-orientation="vertical"]) { @slot; }
 }
 
-@utility no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+/* 本檔原本用 `@utility`（Tailwind 4 語法）宣告這個類別，但本專案是 Tailwind 3.4，
+   該語法不會生成任何 CSS——`.no-scrollbar` 實際上不存在，ChatWidget.tsx:565 的
+   橫向捲軸一直是露出來的。改回 v3 的 @layer utilities。
+   （postcss 未裝 nesting plugin，因此 `&::-webkit-scrollbar` 要寫成平的選擇器） */
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
+  /* ─────────────────────────────────────────────────────────────────────────
+     語意 token — 品牌單一來源
+     這層原本是 shadcn 預設的純灰（chroma=0），品牌色只活在 tea-* 字面色票，
+     形成兩套互不相通的系統。現已全部指向 tea 色階。
+
+     所有前景／背景組合皆以 WCAG 實算驗過 AA（內文 ≥4.5、UI 元件 ≥3.0）。
+     兩個新色是為了達標而加，既有 tea-* 色階的值一律未動（視覺零位移）：
+       --primary / --ring   #58745F  互動綠（tea-green 的 #7D9B84 白字僅 3.05，不合格）
+       --muted-foreground   #637169  次要文字（tea-text-light 的 #6B8872 在米白上僅 3.43）
+     深色欄位見 .dark：已填但**未啟用**（無 darkMode 設定、無 ThemeProvider），
+     待後台重構那一波再開。
+     ───────────────────────────────────────────────────────────────────────── */
   :root {
-    --font-sans: "Noto Sans TC", sans-serif;
-    --font-serif: "Noto Serif TC", serif;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
+    /* 維持純白，與 Production 一致。原本改為 cream-light #FAF7F2（「米白茶席」），
+       但小江拍板要回到 Production 的顏色，且各 section 本來就自帶 bg-tea-cream /
+       bg-white，body 底色只在少數縫隙露出——改它的收益低於「與線上一致」的價值。 */
+    --background: oklch(1 0 0);                       /* #FFFFFF */
+    --foreground: oklch(0.3949 0.0214 158.26);        /* text        #3D4A42 */
+    --card: oklch(1 0 0);                             /* 白 — 卡片浮在米白之上才有層次 */
+    --card-foreground: oklch(0.3949 0.0214 158.26);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    --popover-foreground: oklch(0.3949 0.0214 158.26);
+    --primary: oklch(0.531 0.0476 152);               /* green-ink   #58745F */
+    --primary-foreground: oklch(0.9771 0.0074 80.72); /* cream-light         4.82:1 */
+    --secondary: oklch(0.9567 0.0107 158.84);         /* green-mist  #EBF3EE */
+    --secondary-foreground: oklch(0.531 0.0476 152);  /*                     4.56:1 */
+    --muted: oklch(0.9568 0.0119 79.78);              /* cream       #F5F0E8 */
+    --muted-foreground: oklch(0.535 0.0214 158.26);   /* text-muted  #637169  4.52:1 */
+    --accent: oklch(0.9567 0.0107 158.84);            /* green-mist */
+    --accent-foreground: oklch(0.531 0.0476 152);
+    --destructive: oklch(0.556 0.15 27.5);            /* 磚紅 #BB483F — 白字 5.11、當文字 ≥4.50 */
+    --border: oklch(0.9316 0.0169 88);                /* cream-dark  #EDE8DC */
+    --input: oklch(0.9316 0.0169 88);
+    --ring: oklch(0.531 0.0476 152);                  /* green-ink — 淺底皆 ≥4.54，撐得住半透明 ring */
+    /* 圖表：茶綠明度序列 + 一個土黃對比色，避免全綠在類別型圖表中無法區辨 */
+    --chart-1: oklch(0.5504 0.0454 156.78);           /* green-dark  #5C7A67 */
+    --chart-2: oklch(0.6599 0.0476 152);              /* green       #7D9B84 */
+    --chart-3: oklch(0.7772 0.0444 150.4);            /* green-light #A3BFA8 */
+    --chart-4: oklch(0.8782 0.0286 158.62);           /* green-pale  #C8DDD0 */
+    --chart-5: oklch(0.7 0.075 78);                   /* 土黃 — 類別區辨用 */
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --sidebar: oklch(0.9568 0.0119 79.78);            /* cream */
+    --sidebar-foreground: oklch(0.3949 0.0214 158.26);
+    --sidebar-primary: oklch(0.531 0.0476 152);
+    --sidebar-primary-foreground: oklch(0.9771 0.0074 80.72);
+    --sidebar-accent: oklch(0.9567 0.0107 158.84);
+    --sidebar-accent-foreground: oklch(0.531 0.0476 152);
+    --sidebar-border: oklch(0.9316 0.0169 88);
+    --sidebar-ring: oklch(0.531 0.0476 152);
+
+    /* ───────────────────────────────────────────────────────────────────────
+       非顏色 token — 質感的實際來源
+       命名由現況反推，不是發明：先統計全站用法，再替既有的隱性慣例取名字。
+       值放這層是為了平台無關——`--radius-card: 1rem` 可用腳本導成 React Native
+       theme，`rounded-2xl` 一行都帶不走（見 WORKLOG 設計原則第 3 條）。
+       ─────────────────────────────────────────────────────────────────────── */
+
+    /* 圓角：對應 rounded-lg(100處)/xl(149)/2xl(120)/3xl(9)/full(187) 的語意分工 */
+    --radius-inline: 0.5rem;    /* 8px  內嵌訊息條、後台輸入框 */
+    --radius-control: 0.75rem;  /* 12px 表單控制元件、次要按鈕、chip */
+    --radius-card: 1rem;        /* 16px 卡片、面板 */
+    --radius-showcase: 1.5rem;  /* 24px 大型展示區塊 */
+    --radius-pill: 9999px;      /* 藥丸 CTA、徽章、頭像 */
+
+    /* 陰影：改用茶墨色 rgb(61 74 66) 而非 Tailwind 預設的純黑。
+       純黑陰影壓在米白上會透出灰調，暖色調的陰影才不會讓米白顯髒——
+       這是「看起來貴」與「看起來預設」的差別所在。 */
+    --shadow-resting: 0 1px 2px 0 rgb(61 74 66 / 0.06), 0 1px 3px 0 rgb(61 74 66 / 0.05);
+    --shadow-raised: 0 4px 12px -2px rgb(61 74 66 / 0.10), 0 2px 4px -2px rgb(61 74 66 / 0.06);
+    --shadow-float: 0 10px 24px -4px rgb(61 74 66 / 0.14), 0 4px 8px -4px rgb(61 74 66 / 0.08);
+    --shadow-modal: 0 24px 48px -12px rgb(61 74 66 / 0.22);
+
+    /* 動態：對應 duration-150/200/300/500 的既有分布 */
+    --motion-fast: 150ms;       /* 顏色、透明度等微互動 */
+    --motion-base: 200ms;       /* 標準互動（全站 transition-colors 佔 167 處） */
+    --motion-slow: 300ms;       /* 位移、展開收合 */
+    --motion-reveal: 500ms;     /* 大面積變化，如圖片 group-hover:scale */
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+    /* 字級：只定義「內文端」四階。標題端已有可用的尺度，不在本波動。
+       診斷數據：前台 text-xs 210 處＋text-sm 345 處＝555，而 text-base 只有 14 處——
+       整站幾乎沒有正常閱讀大小的文字，四十年的故事用後台的字級在講。
+       行高刻意給得比 Tailwind 預設寬：預設 text-base 是 1.5，對中文敘事太緊，
+       CJK 舒適區在 1.7–1.9。放大字級與放寬行高，後者的效果不亞於前者。 */
+    --text-caption: 0.75rem;     --leading-caption: 1.6;   /* 12px 徽章、法律條款、表格註記 */
+    --text-label: 0.875rem;      --leading-label: 1.55;    /* 14px 介面標籤、按鈕、表單、表格內容 */
+    --text-body: 1rem;           --leading-body: 1.8;      /* 16px 一般內文 */
+    --text-body-lg: 1.125rem;    --leading-body-lg: 1.85;  /* 18px 敘事段落、導言 */
+
+    /* 間距節奏：對應 py-16 md:py-24（15 處，最主流）與 p-6/p-8 的卡片內距 */
+    --space-gutter: 1rem;       /* 16px 版面左右安全邊 */
+    --space-card: 1.5rem;       /* 24px 卡片內距 */
+    --space-card-lg: 2rem;      /* 32px 大卡片內距 */
+    --space-section: 4rem;      /* 64px 區塊垂直節奏（行動） */
+    --space-section-lg: 6rem;   /* 96px 區塊垂直節奏（桌機） */
+    --space-section-xl: 8rem;   /* 128px「慢段」用——敘事型段落需要留白才慢得下來。
+                                   均勻的節奏等於沒有節奏：首頁原本 5 段全是 py-16 md:py-24，
+                                   讀起來像模板。快慢交替才有起伏。
+                                   ⚠️ **只用在 md: 以上**，寫成 `py-section md:py-section-xl`。
+                                   手機不要用 -lg/-xl：業主實測指出手機一屏只裝得下一張卡，
+                                   多 32px 就是「還要再滑一次」。節奏感在大螢幕才看得出來，
+                                   小螢幕的垂直空間價值完全不同 */
   }
 
   body {
@@ -95,48 +172,68 @@
   h1, h2, h3 {
     @apply font-serif;
   }
-  .theme {
-    --font-heading: var(--font-sans);
-    --font-sans: var(--font-sans);
-  }
+  /* 深色：值已備齊且全數通過 AA（實算，見下方註記），但**目前不會生效**——
+     tailwind.config.ts 沒有 darkMode 設定、專案也沒有 ThemeProvider。
+     這是刻意的：0 個業務元件支援 dark:，真開等於全站再走一遍，而真實需求
+     只有「後台清晨看單」。實作綁在後台重構那一波，屆時直接沿用這組值。 */
   .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --background: oklch(0.22 0.012 158);              /* #161C18 */
+    --foreground: oklch(0.94 0.008 80);               /* #EEEBE5  14.55:1 */
+    --card: oklch(0.27 0.014 158);                    /* #212924  12.54:1 */
+    --card-foreground: oklch(0.94 0.008 80);
+    --popover: oklch(0.27 0.014 158);
+    --popover-foreground: oklch(0.94 0.008 80);
+    --primary: oklch(0.7772 0.0444 150.4);            /* green-light #A3BFA8  8.72:1 */
+    --primary-foreground: oklch(0.22 0.012 158);
+    --secondary: oklch(0.32 0.016 158);               /* #2C3530  10.64:1 */
+    --secondary-foreground: oklch(0.94 0.008 80);
+    --muted: oklch(0.3 0.014 158);                    /* #28302B */
+    --muted-foreground: oklch(0.74 0.025 155);        /* #9FB0A4   5.96:1 */
+    --accent: oklch(0.32 0.016 158);
+    --accent-foreground: oklch(0.94 0.008 80);
+    --destructive: oklch(0.7 0.14 27.5);              /* #E8796D   6.09:1 */
+    --border: oklch(1 0 0 / 12%);
+    --input: oklch(1 0 0 / 16%);
+    --ring: oklch(0.6599 0.0476 152);                 /* tea-green */
+    --chart-1: oklch(0.8782 0.0286 158.62);
+    --chart-2: oklch(0.7772 0.0444 150.4);
+    --chart-3: oklch(0.6599 0.0476 152);
+    --chart-4: oklch(0.5504 0.0454 156.78);
+    --chart-5: oklch(0.75 0.08 78);
+    --sidebar: oklch(0.27 0.014 158);
+    --sidebar-foreground: oklch(0.94 0.008 80);
+    --sidebar-primary: oklch(0.7772 0.0444 150.4);
+    --sidebar-primary-foreground: oklch(0.22 0.012 158);
+    --sidebar-accent: oklch(0.32 0.016 158);
+    --sidebar-accent-foreground: oklch(0.94 0.008 80);
+    --sidebar-border: oklch(1 0 0 / 12%);
+    --sidebar-ring: oklch(0.6599 0.0476 152);
   }
   * {
     @apply border-border;
   }
   html {
     @apply font-sans;
+  }
+
+  /* 尊重系統的「減少動態」設定。動態 token 一律走 CSS 變數，所以這裡改寫變數
+     就能一次收斂全站——包含既有那些寫死 duration-500 之外的所有語意用法。
+     前庭失調的使用者會因大面積 scale/位移而不適，這不是可選的細節。 */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --motion-fast: 1ms;
+      --motion-base: 1ms;
+      --motion-slow: 1ms;
+      --motion-reveal: 1ms;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 

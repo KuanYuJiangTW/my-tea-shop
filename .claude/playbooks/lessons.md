@@ -1,76 +1,14 @@
 # 教訓紀錄（LESSONS）
 
-> 踩坑當下就 append 一條，格式與合格判準見 maintenance.md MAINT-2。不可改寫舊條目。滿 30 條照 MAINT-4 精簡。
-
-## 2026-07-05 .gitignore 整包忽略 .claude/，制度檔差點推不上去
-- 情境：建制 session 要把 playbooks 提交進 repo，發現 `.gitignore` 有 `.claude/`
-- 代價：若未發現，所有制度檔 push 後等於不存在，整個 session 白做
-- 規則：新增要提交的 `.claude/` 子項前，先跑 `git check-ignore -v <路徑>` 確認沒被忽略；被忽略就用白名單寫法（`.claude/*` ＋ `!` 例外），不能只加 `!` 在 `.claude/` 整目錄排除底下
-- 去處：已修 `.gitignore`；規則暫存於此
-
-## 2026-07-05 CLAUDE.md 的 @路徑 會在開場整檔載入
-- 情境：設計路由表時查官方文件確認 import 行為
-- 代價：若用了 `@`，所有 playbook 每個 session 都整包進 context，路由設計自我毀滅
-- 規則：CLAUDE.md 引用檔案一律寫純文字路徑；要提到 `@` 字元本身就包在 backticks 裡
-- 去處：已入 diagnosis.md 環境事實表
-
-## 2026-07-05 npm ci 在本 repo 目前會失敗（lockfile 不同步）
-- 情境：建制 session 在容器內驗證單元測試可跑性，先跑 `npm ci`
-- 代價：直接 EUSAGE 失敗（Missing: @swc/helpers@0.5.23 from lock file）；誤判成環境問題會白追很久
-- 規則：本 repo 裝依賴用 `npm install`；跑完 `git checkout -- package-lock.json` 還原變動——lockfile 更新是產品決策，未經使用者要求不提交；單元測試 `npm run test` 不需要 `.env`，容器內可全跑（2026-07-05 實測 316 test 全綠）
-- 去處：暫存於此＋letter 交接區
-
-## 2026-07-05 session 中途建立的自訂 agent 不會立刻註冊
-- 情境：建立 `.claude/agents/checker.md` 後立刻用 `subagent_type: "checker"` 派工 → 「Agent type not found」；稍後 harness 重連，同一 session 內就出現在可用清單
-- 代價：一次失敗呼叫；不懂機制的話會誤判成 frontmatter 寫壞而亂改檔
-- 規則：自訂 agent 呼叫回報 not found 時，先檢查 system-reminder 的可用清單；不在清單就用 `general-purpose` ＋ 顯式 model ＋ 把角色檔內文貼進派工 prompt 頂替，稍後或下個 session 再用正式名稱——不要急著改 frontmatter
-- 去處：暫存於此
-
-## 2026-07-05 補記：npm ci 已修復，前一條的 workaround 過時
-- 情境：使用者要求修復 lockfile；`npm install` 同步後，乾淨 `npm ci` 與 316 測試全過，已 commit
-- 代價：無
-- 規則：`npm ci` 已可正常使用，不必再繞道 `npm install`；前一條教訓中仍有效的只剩「lockfile 變動未經使用者要求不提交」這個原則
-- 去處：本條即結案註記
-
-## 2026-07-05 harness 內建 skill 不在檔案系統，subagent 查不到
-- 情境：checker 對抗審查時掃遍各 skills 目錄，判定 `code-review`/`verify`「不存在」——其實它們是 harness 內建 skill，只出現在主對話的可用 skill 清單
-- 代價：一個 false-FAIL；若照它的建議刪掉引用，會白丟兩個好工具
-- 規則：判斷 skill 存不存在的唯一依據是「主對話 system-reminder 的可用 skill 清單」，不是檔案系統；subagent 通常沒有 Skill tool，不要派它驗證 skill 存在性
-- 去處：DISP-3 已補注意事項
-
-## 2026-07-05 web 環境沒有 gh CLI
-- 情境：建制 session 用 `command -v gh` 實測
-- 代價：假設它存在的話，GitHub 操作會反覆失敗
-- 規則：web session 的 GitHub 操作一律用 `mcp__github__*` 工具（先 ToolSearch 載入）；本機 session 先 `command -v gh` 再決定
-- 去處：已入 diagnosis.md 環境事實表與 CLAUDE.md 開場檢查
-
-## 2026-07-27 套件回傳型別改了，`if (!result)` 就成了永遠通過的假驗證
-- 情境：稽核後台 2FA，發現 `otplib` v13 的 `verify()` 回傳 `{ valid: boolean }` 物件而非 boolean；程式碼沿用舊寫法 `const isValid = await verify(...); if (!isValid)`，物件恆為 truthy，導致任何 6 位數驗證碼都通過。同一寫法散在 3 個檔，且零測試覆蓋，兩份人工資安報告都沒抓到
-- 代價：後台 2FA 形同虛設（配合固定值 `admin_pending=1` cookie，可無密碼取得完整後台權限）；上線期間一直存在
-- 規則：驗證類函式（`verify`/`validate`/`check`）接回傳值時，先在 node 實跑一次印出型別再寫判斷（`node -e "const {f}=require('pkg'); f(...).then(r=>console.log(typeof r, JSON.stringify(r)))"`）；不可假設回傳 boolean。安全判斷式必須有一條「錯誤輸入被拒絕」的回歸測試，且要暫時退回修正、確認該測試會紅，才算數
-- 去處：暫存於此（JUDG-2「完成要有證據」的具體化：安全修正的證據＝回歸測試在舊碼上失敗）
+> 踩坑當下就 append 一條，格式與合格判準見 maintenance.md MAINT-2。滿 30 條照 MAINT-4 精簡。
+> **歸檔區在檔末**——重複主題已升格為 judgment.md 的正式規則，原條目壓成一行；
+> 完整原文在 git 歷史與 `.claude/backups/lessons.md.20260806.bak`。
 
 ## 2026-07-28 「不含惡意字串」是錯的 XSS 斷言，正確的是「惡意字串進不了 script 區塊」
 - 情境：修 cvs-callback 反射型 XSS 後寫測試，直覺寫了 `expect(html).not.toContain('window.__pwned')` 與 `expect(html).not.toContain('onload=')`——兩條都失敗。轉義後的 payload 本來就會原樣保留這些「文字」（`&lt;/script&gt;...window.__pwned`），那正是正確行為。另外 `/<div[^>]*\sonload=/` 這種正則也不可靠，因為 `[^>]*` 分不出「真屬性」與「屬性值裡的字」
 - 代價：三次來回改斷言，一度以為修正沒生效
 - 規則：驗轉義類修正時，斷言要針對「結構」不是「字串存在」——（a）數開閉標籤個數 `html.match(/<script/gi).length`；（b）取出屬性值後檢查裡面沒有未轉義的界定符 `attr).not.toContain('"')`；（c）數標籤內 `="` 出現次數＝預期屬性數；（d）解碼後與原輸入比對確認不失真。絕不用 `not.toContain('<惡意字串>')` 當主要判準
 - 去處：暫存於此（與前一條「安全修正需退回舊碼驗證測試會紅」同屬 JUDG-2 證據要求）
-
-## 2026-07-28 收緊權限前，先查「誰在用低權限身分呼叫它」
-- 情境：RLS 稽核發現 5 個 RPC 的 EXECUTE 都開放給 anon（PostgreSQL 建函式的預設行為），差點整批建議 REVOKE。實際查 `.rpc(` 呼叫點才發現 `validate_admin_session` 是 `src/proxy.ts` 的 Edge middleware 刻意用 anon key 呼叫的——它做成 SECURITY DEFINER 就是為了避免把 service_role key 帶進 Edge Runtime。整批收掉會讓後台完全登不進去
-- 代價：無（出手前查到了），但若照報告 L-6「明確只授權 service_role」照做就會停機
-- 規則：建議 REVOKE / 收緊任何權限前，先 `Grep "\.rpc\(|from\(\"<表名>\"" src` 找出全部呼叫點，並確認每個呼叫點用的是哪把 key（service_role 還是 anon）；Edge runtime 的程式碼特別容易是 anon。資安報告的通則建議不能無條件套用，要先對照本專案的實際呼叫方式
-- 去處：暫存於此
-
-## 2026-07-28 Bash tool 裡用 PowerShell here-string，commit 標題會多一個 @
-
-- 情境：本環境同時有 Bash 與 PowerShell 兩個工具。在 Bash tool 裡寫 `git commit -m @'...'@`（PowerShell here-string 語法），bash 解讀成「字元 @ 串接單引號字串」，於是 commit 標題變成 `@`、正文結尾多一個 `@`。同一個 session 內犯了兩次
-
-- 代價：兩次 amend + force-push main（第二次還得再次動用破壞性操作）
-
-- 規則：Bash tool 的多行字串一律用 heredoc `git commit -m "$(cat <<'EOF' ... EOF\n)"`；PowerShell here-string `@'...'@` 只能在 PowerShell tool 裡用。送出前先確認工具與語法配對
-
-- 去處：暫存於此
 
 ## 2026-07-28 修掉一個「永遠通過」的 bug，會讓它蓋住的第二個 bug 一起浮出來
 - 情境：修好後台 2FA 的 `verify()` 型別誤用（舊碼任何驗證碼都通過）後，小江立刻回報 authenticator 的碼登不進去。查出 otplib 的 `epochTolerance` 預設是 0——只收當下那 30 秒窗，零時鐘誤差容許。這個設定從專案上線就是錯的，但因為「任何碼都會過」，它從來沒被實際考驗過。同理，當初綁定 2FA 時 setup 的確認步驟也用了同一個壞掉的 verify，代表使用者輸入任何數字都會存下 secret——資料庫裡的 secret 有可能從一開始就跟手機不一致
@@ -94,39 +32,6 @@
 - 情境：寫了 PreToolUse hook 攔截危險指令，寫完當下就擋住了自己——(1) 說明這個 hook 的 commit 訊息裡提到了目標字串，被擋；(2) 修好後，hook 的測試腳本因為含有測試用的字面片段，又被擋一次
 - 代價：兩次來回；若沒察覺而放著，未來每次要在文件或 commit 訊息提到該指令都會卡住，最後一定有人直接把 hook 關掉——比沒有 hook 更糟
 - 規則：寫比對指令內容的 hook 時，先剝掉「不會被執行」的區段再比對——依序移除 heredoc 內容、單引號字串、雙引號字串（順序不可換，heredoc 內文常含引號）。測試案例必須含「提到但未執行」的反例，且測試檔本身要用字串拼接避免自我觸發（見 `.claude/hooks/guard-commands.test.js`）。判準：hook 改完要能通過「用它自己的說明文字當 commit 訊息」這一關
-## 2026-07-29 npm run lint 在本 repo 完全跑不起來（CLAUDE.md 事實過時）
-- 情境：製茶過程頁改版要照 JUDG-5 驗 lint，`npm run lint` 回「Invalid project directory provided, no such directory: <repo>/lint」；改直接跑 `npx eslint` 則回「couldn't find an eslint.config.(js|mjs|cjs)」
-- 成因：`package.json` 的 lint script 仍是 `next lint`，但本專案是 Next 16——`next lint` 已被移除，參數被當成目錄解析；且 repo 內**沒有任何 eslint 設定檔**（`eslint.config.*` 與 `.eslintrc*` 皆不存在）
-- 代價：CLAUDE.md「技術事實」與 JUDG-5 品質底線都把 `npm run lint` 列為驗證手段，照做會卡住；不知情者會誤以為是自己改壞的而白追
-- 規則：**在 lint 修好之前，不要把「lint 無新增錯誤」當成可達成的驗收條件**——改用 `npx tsc --noEmit`（過濾出自己動過的檔案）＋ `npm run test` ＋ `npm run build` 三件套。宣告完成時明說「lint 在本 repo 目前不可用」，不要靜默跳過
-- 去處：暫存於此。修復本身是產品決策（要裝 eslint 9 flat config ＋ `eslint-config-next`，並改 package.json script），未經使用者要求不擅自動手；已在 openspec change 的 tasks 列為待回報項
-
-## 2026-07-29 Playwright 有 e2e/ 卻不是專案依賴
-- 情境：製茶過程頁要實測互動行為，`node` 匯入 playwright 得 ERR_MODULE_NOT_FOUND；查 `package.json` 完全沒有 playwright 或 `@playwright/test`，但 `e2e/` 有 6 個 spec ＋ `playwright.config.ts`
-- 成因：CLAUDE.md 寫「瀏覽器已預裝、不要跑 playwright install」——那句只保證**瀏覽器 binary**（`/opt/pw-browsers`），不保證**npm 套件**在 `node_modules`
-- 代價：以為 `e2e/` 可直接跑而排進驗收計畫，會卡住；誤把「不要 playwright install」讀成「什麼都不用裝」
-- 規則：要在本環境驗互動，把 playwright **裝在 scratchpad 的獨立 package**（`npm init -y && PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install playwright`），用 `executablePath: "/opt/pw-browsers/chromium"` 指向預裝瀏覽器。**不要**為了驗證就往 repo 的 package.json 加依賴——那是未經要求的產品變更
-- 去處：暫存於此；`e2e/` 是否該補依賴屬產品決策，已列入 openspec tasks 待回報
-
-## 2026-07-29 用 networkidle 當驗證的等待條件會給出假陰性
-- 情境：Playwright 驗「進站帶 #redOolong 應切到紅烏龍」，`waitUntil:"networkidle"` ＋ 固定 600ms 後判定失敗；改等 `[role="tab"][aria-selected="true"]` 實際出現後再測，同一份程式碼是通過的
-- 成因：頁面有外部資源載不到（沙箱代理擋掉字型／圖片），networkidle 的判定與 React hydration 完成與否無關——它可能在 hydration 前就返回
-- 代價：差點把正常功能當成 bug 去「修」；反過來也可能讓真 bug 被固定 sleep 蓋過去
-- 規則：驗前端狀態一律等**該狀態自己的 DOM 證據**（`waitForSelector` 等到 aria 屬性／文字出現），不要用 networkidle 或裸 `waitForTimeout` 當同步點
-- 去處：暫存於此
-
-## 2026-07-29 pkill -f "<pattern>" 會連自己的父 shell 一起殺
-- 情境：想收掉背景的 `next start`，下 `pkill -f "next start" && npm run build`，整條命令回 exit 144 且無輸出
-- 成因：父 shell 的命令列字串本身含有 `next start`（就在 pkill 的參數裡），`-f` 比對整個 command line 時把自己的 shell 也命中了
-- 代價：命令靜默中斷，看起來像 build 壞掉，實際上 build 根本沒跑到
-- 規則：收埠口用 `fuser -k <port>/tcp`；真要 pkill 就讓 pattern 不出現在自己的命令列（例如 `pkill -f 'next[ ]start'`），且不要與後續步驟串在同一條命令
-- 去處：暫存於此
-
-## 2026-07-30 補記：npm run lint 已修復，前一條的替代方案過時
-- 情境：使用者要求修復 lint。實際缺的**只有設定檔**——`eslint` ^9 與 `eslint-config-next` 本來就在 devDependencies（前一條說「需要裝」不準確）。已補 `eslint.config.mjs`（flat config）、把 `eslint-config-next` 由 15.5.12 升到 16.2.12 對齊 Next 16 大版本、`package.json` 的 lint script 由已被移除的 `next lint` 改為 `eslint`
-- 代價：無。修好後 `CLAUDE.md` 技術事實與 JUDG-2「最低門檻」第 2 條重新成立，兩個檔都不必改
-- 規則：`npm run lint` 已可正常使用，JUDG-2 第 2 條照原文執行。**判斷「某工具在本 repo 壞了」時，先分清是「套件沒裝」還是「設定檔沒有」**——`npx <tool>` 的錯誤訊息會講明白（「couldn't find config」＝有裝沒設定，`ERR_MODULE_NOT_FOUND`＝沒裝），不要跳過這一步就下結論
-- 去處：本條即結案註記；前一條（2026-07-29）中仍有效的只剩「`next lint` 已被 Next 16 移除」這個事實
 
 ## 2026-07-30 eslint-config-next 帶進的 react-hooks 規則抓到 tsc 抓不到的 bug
 - 情境：lint 修好後首次全 repo 掃描，65 個問題裡有 1 個落在本次新寫的 `ProcessContent.tsx`：`react-hooks/set-state-in-effect`——我用 effect 去「修正」切換茶款後失效的 `activeStep`，在 effect body 直接 setState
@@ -158,12 +63,6 @@
 - 規則：使用者的第一手觀察與 API／文件衝突時，**不要急著二選一，先問「這是不是同一條路徑」**——同一家廠商常有散客自助版與平台串接版，兩者的能力不同。釐清方式：問使用者當時的實際操作步驟（走櫃台自填單？還是先在後台建單拿編號再去機台印？），並找出「這個能力是在哪一步被設定的」。在釐清前，可以先做兩邊都同意的部分（本例：OK 超商不管誰對都要移除），把有爭議的部分留到最後
 - 去處：暫存於此（與 JUDG-3「該不該問使用者」互補：本條是「該問什麼」）
 
-## 2026-08-01 Bash tool 會把 `git show "rev:path"` 的冒號吃掉
-- 情境：rebase 解衝突時要看遠端版本，在 Bash tool 跑 `git show "origin/main:.claude/WORKLOG.md"`，回 `fatal: ambiguous argument 'origin\main;.claude\WORKLOG.md'`——冒號變成分號、斜線變成反斜線。加不加引號都一樣，連跑兩次才想到是 Git Bash 的 MSYS 路徑轉換在作怪（它看到含冒號的字串會當成 Unix 路徑清單去轉 Windows 路徑）
-- 代價：兩次無效呼叫；錯誤訊息講的是 git 參數歧義，很容易往「引號寫錯」的方向白追
-- 規則：本環境凡是參數含冒號的 git 語法（`git show rev:path`、`git diff rev1:file rev2:file`、`git checkout rev -- path` 以外的 `rev:path` 形式）一律改用 PowerShell tool 跑；真的要留在 Bash 就前綴 `MSYS_NO_PATHCONV=1`。同理適用於任何含冒號的參數（如 `--pretty=format:%H`）
-- 去處：暫存於此（與「Bash tool 裡用 PowerShell here-string」同屬工具與語法配對問題，兩條都指向：本環境雙 shell 並存，送出前先確認語法屬於哪一邊）
-
 ## 2026-08-01 SELECT 少一個欄位，`??` 的 fallback 就從保險變成預設路徑
 - 情境：訂單取消退點寫成 `order.points_discount ?? Math.floor(order.points_used / 100)`，看起來是「有新欄位就用新的，沒有就用舊制換算」的合理防禦。但同一支路由的 `.select(...)` 沒把 `points_discount` 列進去，於是它**永遠**是 undefined，fallback 從「意外時的保險」變成「唯一會走的路」。客人用 500 點折抵，取消只退 5 點
 - 代價：正式站上不知多久，每筆會員自助取消的訂單都吃掉客人 99% 的折抵點數；三條掛著正確名字的測試全綠（它們只對本地變數做算術，從未呼叫路由），完全沒擋住
@@ -194,3 +93,81 @@
 - 代價：向使用者發出一個不存在的故障與一趟白工；錯誤結論一度寫進 WORKLOG（那正是給未來 session 看的檔）。真正原因是 Supabase 新版 API key 會擋「看起來來自瀏覽器」的 secret key 請求——PowerShell 預設 User-Agent 含 `Mozilla`，被判定為瀏覽器。body 裡寫得清清楚楚：`Forbidden use of secret API key in browser`。加 `-UserAgent "node"` 就 200
 - 規則：**HTTP 錯誤一律印出 response body 再下結論**。PowerShell 要 `$_.ErrorDetails.Message`（`$_.Exception.Message` 只有狀態碼那句廢話）；curl 用 `-i` 或 `--fail-with-body`。狀態碼只說「失敗」，body 才說「為什麼」——在拿到 body 之前，不要對失敗原因下任何斷言，更不要據此要使用者去改設定。另：本環境用 PowerShell 打任何雲端 API（Supabase／Stripe／綠界）都要顯式 `-UserAgent "node"`，預設 UA 會觸發服務端的瀏覽器防護
 - 去處：暫存於此（與 JUDG-2「完成要有證據」同源：錯誤診斷也要有證據，狀態碼不是證據）
+
+## 2026-08-06 把 class 字串抽到共用模組，Tailwind 卻掃不到——content glob 逐目錄列舉的坑
+- 情境：狀態徽章的 class 從三個頁面抽到 `src/lib/admin-status.ts` 做單一事實來源。`tailwind.config.ts` 的 content 原本逐目錄列舉 `src/pages`、`src/components`、`src/app`——**不含 `src/lib`**。於是只被該檔引用的 `status-warn` / `status-warn-soft` 完全沒有生成
+- 代價：差一步就讓「待付款徽章沒有底色」上線。而且極難察覺——其他 status 色因為前台 `AccountClient.tsx` 也用到而正常生成，只有 admin 獨有的那一組是空的，肉眼掃過 config 與程式碼都看不出問題。抓到它的是「從建置產物 CSS 讀出每個 token 的實際 rgb 再比對」這道驗證
+- 規則：**content glob 一律寫 `./src/**/*.{js,ts,jsx,tsx,mdx}`，不要逐目錄列舉**——逐目錄等於埋一條「共用模組不可以含 class 字串」的隱含規則，沒有人會知道。另：**把 class 字串搬到新位置後，必須從建置產物確認該 class 真的生成**，不能只看程式碼改對了
+- 去處：暫存於此（與同日兩條同源：批次操作要有事前期望值可對照；這條是「期望值要落在產物上，不是原始碼上」）
+
+## 2026-08-06 PowerShell 把路徑裡的 `[slug]` 當萬用字元，8 個檔被靜默跳過
+- 情境：全站 101 處 `bg-tea-cream-light` → `bg-tea-cream` 的批次替換。用 `Get-ChildItem` 取檔案清單再 `Get-Content $_.FullName` 逐檔讀寫。App Router 的動態路由目錄 `[slug]`／`[id]`／`[sessionId]` 在 PowerShell 裡是**字元類別萬用字元**，`Get-Content` 於是找不到檔案
+- 代價：8 個檔（含 `experiences/[slug]/page.tsx`、`orders/[id]/page.tsx`）完全沒被改到，只在 stderr 留下一行看似無害的「does not exist, or has been filtered by the -Include or -Exclude parameter」——**指令沒有非零退出，摘要也顯示「檔案數: 26」**。抓到它的只有事前盤點：預期 101、實得 88。更危險的是同一個迴圈裡 `Get-Content` 失敗會讓 `$c` 為 null，而 `[System.IO.File]::WriteAllText(path, $null)` 會**把檔案寫成空的**——這次僥倖沒發生（迴圈在更早的一行就出錯跳過了），但那是運氣不是設計
+- 規則：**PowerShell 碰檔案路徑一律用 `-LiteralPath`**（`Get-Content`／`Test-Path`／`Remove-Item`／`Copy-Item` 皆同），本專案是 App Router，`[...]` 目錄到處都是。**批次寫檔前先擋空值**：`if ($null -eq $c) { throw "讀檔失敗: $path" }`，不要讓 null 流進 `WriteAllText`
+- 去處：暫存於此（JUDG-8「先數再改」的第二次奏效：這次和正則毀 26 檔那次一樣，救命的都是事前期望值；差別是這次的失敗模式是「靜默少做」而不是「大聲做錯」，更難察覺）
+
+## 2026-08-07 驗證器讀錯目錄，回報「11 個 token 全部沒生成」
+- 情境：門面四件打磨，要從建置產物 CSS 確認語意 token 真的生成。腳本讀 `.next/static/css/`——
+  但 Next 16 把 CSS 放在 `.next/static/chunks/`。`Get-ChildItem` 加了 `-ErrorAction SilentlyContinue`，
+  於是 `$css` 是空字串，每一個 `-match` 都是 false，報告「11 個 token 全部沒生成」
+- 代價：差點回頭去「修」根本沒壞的 token。救回來的是**清單裡混著第九波已驗證生效的
+  `rounded-card` 與 `shadow-resting`**——它們不可能沒生成，所以錯的是驗證器不是被驗的東西
+- 規則：**任何「掃產物找字串」的驗證，都要在同一次輸出裡帶兩組對照**：一個必定存在
+  （如 `.bg-white`）、一個必定不存在（如 `.fill-tea-DOES-NOT-EXIST`）。兩者都答對，
+  結果才可信。另外**先印出讀到的資料量**（`$css.Length`），零長度要當成錯誤不是「沒找到」。
+  附帶：`hover:`／`focus:` 前綴的 class 在 CSS 裡是 `.hover\:x:hover`，用 `.x` 比對必然落空，要單獨查
+- 去處：暫存於此（JUDG-8「證據要有鑑別力」的第三次現形。前兩次是「沒報錯≠有做到」，
+  這次是「沒找到≠不存在」——同一個病的另一張臉：失敗與「沒資料」長得一模一樣）
+
+## 2026-08-08 `${x}` 落在普通字串裡不會報錯——用「把來源改名」反向驗證插值真的被解析
+- 情境：把 `email.ts` 的 503 處色值 hex 集中成常數，改用 `${C.text}`。只有 backtick 模板字串會解析插值；若某處其實是單／雙引號字串，`${C.text}` 就是**七個普通字元**。這種錯誤 `tsc` 不報、build 不擋、測試也測不到，但客人會收到印著 `${C.text}` 的訂單信
+- 代價：本來要靠自寫的「字串上下文掃描器」判斷每個 hex 在哪種字串裡。寫了兩版都失敗——第一版在 `${}` 內遇到物件字面值的 `}` 就提前結束，第二版加了大括號深度仍只認出 117/503。**如果當初沒有「應該是 503」這個期望值，我會拿 117 這個數字繼續往下做**
+- 規則：**要確認 `${...}` 真的被解析，就把被引用的來源改名，然後數 `tsc` 的「找不到名稱」錯誤數**——它必須精確等於替換數（本次 503 = 503）。少一個就代表少一處被解析，那處已淪為字面文字。驗完記得還原（用 `try/finally` 確保還原一定執行）。這比任何自製的字串狀態機都可靠，因為判斷交給了編譯器本人
+- 去處：暫存於此（與 JUDG-8 同源：把「證據要有鑑別力」推進一步——**與其自己寫檢查器，不如想辦法讓既有工具替你回答**。自製檢查器本身就是要被驗證的東西，本次兩個自製腳本都出過錯）
+
+## 2026-08-08 用「兩兩比對」的數字，否定了一個關於「序列」的設計
+- 情境：首頁淺底是 `cream → cream-light → white` 三段依序變亮。我量出三者兩兩只差 2%，判定「視覺上是同一片，等於做了三段變化卻一段都看不出來」，於是收成兩層，全站 101 處 `bg-tea-cream-light` → `bg-tea-cream`
+- 代價：業主看 preview 第一眼就發現首頁「本季精選」與「茶山體驗」變同色、關於我們有三段連成一片，全數回退（前台 55 + admin 44 + 五個頁面的段落序列）。他對原版的形容是「好看的漸層」——**那個漸層就是我判定為「看不出來」的東西**。兩兩差 2% 沒錯，但三段累積 4.3% 而且有方向；方向感不會出現在「兩個色的對比值」裡
+- 規則：**改動一組「有順序」的視覺元素前，先確認你的量測方式跟它的作用方式是同一件事**。相鄰色差、對比值這類兩兩比較的指標，量不出漸進、節奏、累積這類序列屬性。判斷「這個差異看不看得出來」時，要問的是「在它實際被觀看的情境下」——連續捲動經過三段，和把兩個色塊並排比對，是完全不同的觀看方式
+- 去處：暫存於此（與 JUDG-8 同源但方向相反：JUDG-8 講「證據要有鑑別力」，這條講**鑑別力太強也是問題**——用高解析度的尺去量低解析度的效果，會把刻意的細微差異誤判成雜訊。已寫進 `docs/design-system.md` 2.1.1 的警告框）
+
+## 2026-08-08 為了補 AA 把警示色的彩度砍掉三分之二，等於把警示變成裝飾
+- 情境：全站警示色從 Tailwind 的鮮豔色換成低彩度 `status-*`，對比數字全面上升（低庫存 2.15→7.09、表單錯誤 3.67→7.60、優惠券不符 2.69→7.60）。我每一次都拿對比值當「改進」的證據
+- 代價：業主看 preview 的評語是「對比度設定較高但是都變醜且也沒有比較好使用，顏色變深反而無法起到提醒作用，下意識會忽略」，六個檔案全數回退。**亮橘 `#F59E0B` 對比只有 2.15 卻會跳出來；深棕 `#92400E` 對比 7.09，看起來卻像普通深色文字**。同一天還發現第七波的近似色收斂（`#F9F6F1`→`#FAF7F2` 那類）也是同一個病——那些微小差異是刻意的漸層，被我當成漂移收掉
+- 規則：**WCAG 對比度量的是「可讀性」，不是「顯著性」。改警示色之前先問它的功能是「被讀」還是「被看見」。** 要被看見的（低庫存、表單錯誤、超重提示、狀態徽章）靠彩度與色相差異工作，不要拿 4.5 這個數字去修；要被讀的（內文、標籤、金額明細）才適用 AA。判斷方式：把新舊兩色並排看**不夠**，要放進實際版面看眼睛會不會停在它上面
+- 去處：已寫進 `docs/design-system.md` 2.3 的警告框。與同日的「淺底三層」那條同源——都是**用一個維度的數字去否決另一個維度的效果**：那次是拿「兩兩對比」否決「累積漸進」，這次是拿「對比度」否決「顯著性」
+
+## 2026-08-08 只在桌機視窗調節奏與字級，手機付的代價我沒去看
+- 情境：第九波為首頁做「慢段／快段」的間距節奏（慢段 96/128px），又把商品描述從 14px 升到 16px（理由是「敘事型內容」）。兩件事我都在桌機視窗驗證過就收工
+- 代價：業主用手機看時兩個問題同時炸出來——(a) 慢段手機也吃到 96px，而手機一屏只裝得下一張卡，多 32px 就是「還要再滑一次」；(b) 描述升到 16px 後 `line-clamp-2` 的容量從 43 字掉到 37 字，而實際描述 46–50 字，**截字從 5 個變成 11 個**。第二點更難看見：`line-clamp` 不會報錯，字就是安靜地消失
+- 規則：**改間距或字級後，一律用 375px 視窗再看一次**。兩個具體判準：(1) 節奏類的留白只加在 `md:` 以上，手機維持基準值——節奏感在大螢幕才看得出來，小螢幕的垂直空間價值完全不同；(2) 動到 `line-clamp` 容器裡的字級時，用 `scrollHeight > clientHeight` 實測有沒有截字，**字級與行數要一起算**：內容型態決定你想要的字級，容器決定它能給的空間
+- 去處：已寫進 `globals.css` 的 `--space-section-xl` 註解（標明只用在 md: 以上）與 `ProductCard.tsx` 的描述註解。與同期兩條同源——都是**拿單一情境的判斷去蓋全部情境**（那兩次是拿兩兩對比蓋累積漸進、拿對比度蓋顯著性，這次是拿桌機蓋手機）
+
+## 2026-08-08 `line-clamp` 只設上限沒設下限，手機單欄時卡片就高矮不齊
+- 情境：商品卡描述用 `line-clamp-3`。業主在手機上看到「金萱的上下間距比其他卡片高」。我先在 375px 量，三張卡完全等高（654px），差點回報「找不到問題」
+- 代價：**問題只在特定寬度出現**。描述容器寬 ≈ 視窗寬 − 72，14px 中文約每行 寬/14 字，所以 2 行容量隨螢幕寬度變動：375px 是 43 字（三張都 3 行、等高）、414px 是 49 字（48 和 46 字的塞進 2 行、50 字的金萱要 3 行）→ 金萱高 22px。桌機用 grid 有等高機制看不出來，**手機單欄堆疊每張卡各自撐高**，才會露出來
+- 規則：**`line-clamp-N` 要配 `min-h-[Nlh]`**——clamp 只設了上限，沒設下限。卡片並排（不論 grid 或單欄堆疊）而內容長度不一時，只有同時鎖上下限才會等高。`lh` 單位＝當前行高，會跟著字級走，不必寫死 px。另一個判準：**「在某個寬度沒問題」不等於「沒問題」**，斷行類的 bug 要掃過 375／390／414／430 四個常見手機寬度
+- 去處：已寫進 `ProductCard.tsx` 的描述註解（含 414px 的實測數字）。與同期三條同源——都是拿單一情境的判斷去蓋全部情境，這次是拿單一螢幕寬度蓋所有寬度
+
+## 已歸檔（2026-08-06 精簡，共 18 條）
+
+> 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
+
+- **.gitignore 整包忽略 .claude/，制度檔差點推不上去** — 新增要提交的 `.claude/` 子項前先跑 `git check-ignore -v`；`.gitignore` 已改白名單制
+- **CLAUDE.md 的 @路徑 會在開場整檔載入** — `CLAUDE.md` 的路由表用純文字路徑，不用 `@`——`@` 會 eager load（深度 4 層）
+- **npm ci 在本 repo 目前會失敗（lockfile 不同步）** — npm ci 曾因 lockfile 不同步失敗，**已於 2026-07-05 修復**，本條與其補記均已結案
+- **session 中途建立的自訂 agent 不會立刻註冊** — session 中途新建的 `.claude/agents/*.md` 不會即時註冊，需重開 session
+- **harness 內建 skill 不在檔案系統，subagent 查不到** — harness 內建 skill 不在檔案系統上，subagent `ls .claude/skills` 查不到，別叫它去找
+- **web 環境沒有 gh CLI** — web session 一律用 `mcp__github__*`（已入 diagnosis.md 環境事實表與 CLAUDE.md 開場檢查）
+- **收緊權限前，先查「誰在用低權限身分呼叫它」** — **已升格為 JUDG-6**（收緊權限或設定之前，先查誰在用）
+- **Bash tool 裡用 PowerShell here-string，commit 標題會多一個 @** — Bash tool 內不可用 PowerShell here-string `@'...'@`，會讓 commit 標題變成 `@`（已由 guard-commands hook 攔截）
+- **npm run lint 在本 repo 完全跑不起來（CLAUDE.md 事實過時）** — `npm run lint` 曾因 `next lint` 被 Next 16 移除而全壞，**已於 2026-07-30 補 `eslint.config.mjs` 修復**；仍有效的事實只剩「`next lint` 已被移除」
+- **Playwright 有 e2e/ 卻不是專案依賴** — `e2e/` 有 spec 但 playwright 不在 `package.json`；要驗互動請裝在 scratchpad 獨立 package，用 `executablePath: /opt/pw-browsers/chromium`，**不要**往 repo 加依賴
+- **用 networkidle 當驗證的等待條件會給出假陰性** — 驗前端狀態一律等該狀態自己的 DOM 證據（`waitForSelector` 等 aria／文字），不要用 networkidle 或裸 `waitForTimeout`
+- **pkill -f "<pattern>" 會連自己的父 shell 一起殺** — `pkill -f "<pattern>"` 會連自己的父 shell 一起殺（命令列含該字串）；收埠口改用 `fuser -k <port>/tcp`
+- **Bash tool 會把 `git show "rev:path"` 的冒號吃掉** — Bash tool 會吃掉 `git show "rev:path"` 的冒號；改用 `git show rev -- path` 或先 `git cat-file`
+- **套件回傳型別改了，`if (!result)` 就成了永遠通過的假驗證** — **已升格為 JUDG-8**。`otplib` v13 的 `verify()` 回傳物件不是 boolean，`if (!result)` 成為永遠通過的假驗證，後台 2FA 形同虛設
+- **用 `npx tailwindcss` CLI 驗產物，三次 probe 全是無效測試** — **已升格為 JUDG-8**（對照組要有鑑別力）。該 CLI 讀不到本專案的 TS config，三次 probe 全是無效測試
+- **本機的 `python` 是 Windows Store 空殼，改檔靜默失敗還不報錯** — **已升格為 JUDG-8**（沒報錯 ≠ 有做到）。本機 `python` 是安裝引導殼，exit 49、零輸出，三次改檔靜默失敗。改檔一律用 Node
+- **批次替換用正則，跳脫掉了變成字元類別，26 檔全毀** — **已升格為 JUDG-8**（先數再改）。正則跳脫掉了變成字元類別 `[#3D4A42]`，26 檔全毀；批次替換一律用 `split/join` 字面替換
+- **perl -pi 批次改檔後，dev server 500 且重啟無效——是 .next 的 Tailwind 快取** — 批次改檔後 dev server 報 ENOENT 但檔案存在 → 先 `rm -rf .next` 再重啟（`perl -i` 的 unlink 空窗毒化了 Tailwind 快取），不要懷疑檔案毀損

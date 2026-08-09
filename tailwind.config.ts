@@ -1,11 +1,12 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  // 掃整個 src，不要逐目錄列舉。
+  // 原本只列 pages/components/app，於是把 class 字串抽到 src/lib/admin-status.ts
+  // 之後，只被該檔引用的 class（status-warn / status-warn-soft）完全不會生成——
+  // 徽章會變成沒有底色。逐目錄列舉等於在「共用模組不可含 class 字串」這件事上
+  // 埋一個沒有人知道的隱含規則。
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   safelist: [
     "from-amber-100", "to-yellow-200",
     "from-green-100", "to-emerald-200",
@@ -17,17 +18,51 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // 既有十色階的值一律未動（改了就是全站視覺位移）。
+        // 新增兩色是為了讓「文字／互動元素」有 AA 合規的落點——實算結果：
+        //   green      #7D9B84 白字 3.05、當文字在米白上 2.85  → 兩者皆不合格
+        //   text-light #6B8872 在米白上 3.43                  → 不合格
+        // 這兩色仍可用於**大面積底色、圖示、裝飾**，只是不該承載文字。
         tea: {
           green: "#7D9B84",
           "green-light": "#A3BFA8",
           "green-pale": "#C8DDD0",
           "green-mist": "#EBF3EE",
           "green-dark": "#5C7A67",
+          "green-ink": "#58745F",   // 互動綠：連結／按鈕底／圖示，四種淺底皆 ≥4.54
           cream: "#F5F0E8",
           "cream-light": "#FAF7F2",
           "cream-dark": "#EDE8DC",
           text: "#3D4A42",
           "text-light": "#6B8872",
+          "text-muted": "#637169",  // 次要內文：四種淺底皆 ≥4.52，彩度低於 green-ink 不會被誤讀為連結
+          "text-faint": "#9CA89E",  // 第三層：空狀態與載入提示（「目前尚無訂單」）。
+                                    // 比 text-light 再淡一階，讓「沒有東西」退到最後面
+        },
+
+        // 狀態語意色 —— 刻意不放進 tea-*。
+        // 狀態需要與品牌色可區辨，本來就該在色盤外；把它們混進 tea-* 會讓
+        // 「這個綠是品牌還是狀態」變成每次都要重想的問題。
+        // `-soft` 是底色、無後綴是文字色，成對使用：bg-status-warn-soft text-status-warn
+        status: {
+          idle: "#7A6855",          "idle-soft": "#EDE8DC",   // 新訂單、待處理
+          info: "#2D5A47",          "info-soft": "#D5E8DA",   // 備貨中、已確認
+          warn: "#92400E",          "warn-soft": "#FEF3C7",   // 待付款、庫存不足
+          danger: "#7A4545",        "danger-soft": "#E0D5D5", // 已取消、付款失敗
+          done: "#3D6B46",          "done-soft": "#C8DDD0",   // 已付款
+        },
+        // 製茶工序色票 —— `/process` 專用，沿用 status 的 `-soft` 成對慣例。
+        // 值原封不動取自 Tailwind 預設色（amber/green/orange/red 的 50 與 600/700），
+        // 這是 2026-08-08 小江拍板保留的：它們表達工序的「溫度」
+        // （日光、爐火、發酵），彩度 0.137–0.194 明顯高於品牌色 tea-green 的 0.0476。
+        // **不要把它們收進 tea-* 或 status-***：不是品牌色也不是狀態色，
+        // 是這一頁的敘事色票。要動的話是整組重新設計，不是逐個替換。
+        process: {
+          sun: "#D97706",      "sun-soft": "#FFFBEB",     // 日光萎凋
+          indoor: "#15803D",   "indoor-soft": "#F0FDF4",  // 室內萎凋
+          fire: "#EA580C",     "fire-soft": "#FFF7ED",    // 炒菁
+          ferment: "#B91C1C",  "ferment-soft": "#FEF2F2", // 發酵
+          roast: "#B45309",    "roast-soft": "#FFFBEB",   // 初乾、焙火（底色與日光同值）
         },
         background: "var(--background)",
         foreground: "var(--foreground)",
@@ -43,8 +78,57 @@ const config: Config = {
         ring: "var(--ring)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "Noto Sans TC", "sans-serif"],
-        serif: ["var(--font-serif)", "Noto Serif TC", "serif"],
+        // 拉丁字走 Geist，中文由 Noto Sans TC 接手（瀏覽器逐字回退）。
+        // 這是既有的視覺結果，過去靠 fallback 鏈碰巧成立，現在明確宣告。
+        sans: ["var(--font-latin)", "var(--font-sans)", "sans-serif"],
+        serif: ["var(--font-serif)", "serif"],
+      },
+
+      // 字級只定義內文端四階；標題端沿用 Tailwind 既有尺度，不在本波動。
+      // 既有的 text-sm / text-xs 保留可用——這是漸進遷移，不是一次換掉全站。
+      fontSize: {
+        caption:   ["var(--text-caption)",  { lineHeight: "var(--leading-caption)" }],
+        label:     ["var(--text-label)",    { lineHeight: "var(--leading-label)" }],
+        body:      ["var(--text-body)",     { lineHeight: "var(--leading-body)" }],
+        "body-lg": ["var(--text-body-lg)",  { lineHeight: "var(--leading-body-lg)" }],
+      },
+
+      // ── 非顏色 token 的 utility 對照（值一律讀 CSS 變數，見 globals.css :root）──
+      // 既有的 rounded-2xl / shadow-sm / duration-200 都保留可用，這裡是「語意版」，
+      // 讓元件寫 rounded-card 而不是 rounded-2xl——語意名才帶得到 React Native。
+      borderRadius: {
+        inline: "var(--radius-inline)",
+        control: "var(--radius-control)",
+        card: "var(--radius-card)",
+        showcase: "var(--radius-showcase)",
+        pill: "var(--radius-pill)",
+      },
+      boxShadow: {
+        // 刻意不叫 `card`：`card` 已是 colors 的 key（shadcn 語意色），
+        // 兩者同名會讓 Tailwind 同時產出「陰影」與「陰影顏色」兩條 .shadow-card，
+        // 後者在後、會覆寫 --tw-shadow。目前碰巧仍成立，但那是巧合不是設計。
+        resting: "var(--shadow-resting)",
+        raised: "var(--shadow-raised)",
+        float: "var(--shadow-float)",
+        modal: "var(--shadow-modal)",
+      },
+      transitionDuration: {
+        fast: "var(--motion-fast)",
+        base: "var(--motion-base)",
+        slow: "var(--motion-slow)",
+        reveal: "var(--motion-reveal)",
+      },
+      transitionTimingFunction: {
+        standard: "var(--ease-standard)",
+        exit: "var(--ease-exit)",
+      },
+      spacing: {
+        gutter: "var(--space-gutter)",
+        card: "var(--space-card)",
+        "card-lg": "var(--space-card-lg)",
+        section: "var(--space-section)",
+        "section-lg": "var(--space-section-lg)",
+        "section-xl": "var(--space-section-xl)",
       },
     },
   },

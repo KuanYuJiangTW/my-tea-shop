@@ -6,12 +6,30 @@ import { AuthProvider } from "@/context/AuthContext";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SiteChrome from "@/components/SiteChrome";
 import ChatWidget from "@/components/ChatWidget";
-import { Geist } from "next/font/google";
+import { Geist, Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+// 字體單一來源：三支都走 next/font（自架 + 自動 preload），globals.css 不再定義字體變數。
+// 拉丁字排在 font-sans 最前面走 Geist，中文由 Noto Sans TC 接手——這是既有的視覺結果，
+// 過去靠 tailwind fallback 鏈碰巧成立，現在改為明確宣告。
+const geist = Geist({ subsets: ["latin"], variable: "--font-latin", display: "swap" });
+// 字重依實際用量而定（`grep font-medium` 等統計）：
+//   300 全站 0 處 → 拿掉（舊 @import 白載）
+//   600 全站 81 處，但舊 @import 沒載 → 補上，中文 semibold 先前是瀏覽器假造的
+const notoSansTC = Noto_Sans_TC({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
+const notoSerifTC = Noto_Serif_TC({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-serif",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   viewportFit: "cover",
@@ -76,7 +94,10 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale === "en" ? "en" : "zh-TW"} className={cn("font-sans", geist.variable)}>
+    <html
+      lang={locale === "en" ? "en" : "zh-TW"}
+      className={cn("font-sans", geist.variable, notoSansTC.variable, notoSerifTC.variable)}
+    >
       <body>
         <GoogleAnalytics nonce={nonce} />
         <NextIntlClientProvider locale={locale} messages={messages}>

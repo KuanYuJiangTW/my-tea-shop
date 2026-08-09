@@ -110,15 +110,15 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
   return (
     <div className="space-y-6">
       {/* 新增場次表單 */}
-      <div className="bg-white rounded-2xl p-6 border border-[#EDE8DC] shadow-sm">
-        <h2 className="font-semibold text-[#3D4A42] mb-5">新增場次</h2>
+      <div className="bg-white rounded-2xl p-6 border border-tea-cream-dark shadow-sm">
+        <h2 className="font-semibold text-tea-text mb-5">新增場次</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div>
-            <label className="text-xs text-[#6B8872] mb-1.5 block">體驗類型</label>
+            <label className="text-xs text-tea-text-light mb-1.5 block">體驗類型</label>
             <select
               value={expId}
               onChange={e => setExpId(Number(e.target.value))}
-              className="w-full border border-[#C8DDD0] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7D9B84]/30"
+              className="w-full border border-tea-green-pale rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30"
             >
               {expTypes.map(t => (
                 <option key={t.id} value={t.id}>{t.name}</option>
@@ -126,21 +126,21 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
             </select>
           </div>
           <div>
-            <label className="text-xs text-[#6B8872] mb-1.5 block">日期</label>
+            <label className="text-xs text-tea-text-light mb-1.5 block">日期</label>
             <input
               type="date"
               value={date}
               min={new Date().toISOString().split("T")[0]}
               onChange={e => setDate(e.target.value)}
-              className="w-full border border-[#C8DDD0] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7D9B84]/30"
+              className="w-full border border-tea-green-pale rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30"
             />
           </div>
           <div>
-            <label className="text-xs text-[#6B8872] mb-1.5 block">時段</label>
+            <label className="text-xs text-tea-text-light mb-1.5 block">時段</label>
             <select
               value={time}
               onChange={e => setTime(e.target.value)}
-              className="w-full border border-[#C8DDD0] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7D9B84]/30"
+              className="w-full border border-tea-green-pale rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30"
             >
               {TIME_SLOTS.map(t => (
                 <option key={t} value={t}>{t}</option>
@@ -151,7 +151,7 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
             <button
               onClick={handleAdd}
               disabled={adding}
-              className="w-full bg-[#7D9B84] hover:bg-[#5C7A67] text-white py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+              className="w-full bg-tea-green hover:bg-tea-green-dark text-white py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
             >
               {adding ? "新增中…" : "+ 新增"}
             </button>
@@ -172,34 +172,34 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
       </div>
 
       {/* 場次列表 */}
-      <div className="bg-white rounded-2xl border border-[#EDE8DC] shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#EDE8DC]">
-          <h2 className="font-semibold text-[#3D4A42]">近期場次</h2>
+      <div className="bg-white rounded-2xl border border-tea-cream-dark shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-tea-cream-dark">
+          <h2 className="font-semibold text-tea-text">近期場次</h2>
         </div>
         {loading ? (
-          <div className="p-10 text-center text-sm text-[#6B8872]">載入中…</div>
+          <div className="p-10 text-center text-sm text-tea-text-light">載入中…</div>
         ) : sessions.length === 0 ? (
-          <div className="p-10 text-center text-sm text-[#6B8872]">尚無場次</div>
+          <div className="p-10 text-center text-sm text-tea-text-light">尚無場次</div>
         ) : (
           <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[480px]">
             <thead>
               <tr className="bg-[#F9F6F1] text-left">
-                <th className="px-6 py-3 text-xs font-medium text-[#6B8872]">日期</th>
-                <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">時段</th>
-                <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">體驗</th>
-                <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">報名</th>
-                <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">狀態</th>
-                <th className="px-4 py-3 text-xs font-medium text-[#6B8872]">操作</th>
+                <th className="px-6 py-3 text-xs font-medium text-tea-text-light">日期</th>
+                <th className="px-4 py-3 text-xs font-medium text-tea-text-light">時段</th>
+                <th className="px-4 py-3 text-xs font-medium text-tea-text-light">體驗</th>
+                <th className="px-4 py-3 text-xs font-medium text-tea-text-light">報名</th>
+                <th className="px-4 py-3 text-xs font-medium text-tea-text-light">狀態</th>
+                <th className="px-4 py-3 text-xs font-medium text-tea-text-light">操作</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F5F0E8]">
+            <tbody className="divide-y divide-tea-cream">
               {sessions.map(s => (
                 <tr key={s.id} className="hover:bg-[#F9F6F1] transition-colors">
-                  <td className="px-6 py-3.5 font-medium text-[#3D4A42]">{s.session_date}</td>
-                  <td className="px-4 py-3.5 text-[#6B8872]">{s.start_time.slice(0, 5)}</td>
-                  <td className="px-4 py-3.5 text-[#3D4A42]">{s.experience_types?.name}</td>
-                  <td className="px-4 py-3.5 text-[#6B8872]">{s.current_participants} 人</td>
+                  <td className="px-6 py-3.5 font-medium text-tea-text">{s.session_date}</td>
+                  <td className="px-4 py-3.5 text-tea-text-light">{s.start_time.slice(0, 5)}</td>
+                  <td className="px-4 py-3.5 text-tea-text">{s.experience_types?.name}</td>
+                  <td className="px-4 py-3.5 text-tea-text-light">{s.current_participants} 人</td>
                   <td className="px-4 py-3.5">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle[s.status] ?? ""}`}>
                       {statusLabel[s.status] ?? s.status}

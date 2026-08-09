@@ -164,7 +164,7 @@ function ImageUploader({
     <div>
       <div className="flex flex-wrap gap-2 mb-2">
         {gallery.map((url, idx) => (
-          <div key={url} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#A3BFA8] group">
+          <div key={url} className="relative w-20 h-20 rounded-lg overflow-hidden border border-tea-green-light group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={url} alt={`圖片 ${idx + 1}`} className="w-full h-full object-cover" />
             <button
@@ -177,7 +177,7 @@ function ImageUploader({
           </div>
         ))}
         {gallery.length < MAX_IMAGES && (
-          <label className={`w-20 h-20 rounded-lg border-2 border-dashed border-[#A3BFA8] flex flex-col items-center justify-center text-[#9CA89E] text-xs cursor-pointer hover:border-[#7D9B84] hover:text-[#7D9B84] transition ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+          <label className={`w-20 h-20 rounded-lg border-2 border-dashed border-tea-green-light flex flex-col items-center justify-center text-tea-text-faint text-xs cursor-pointer hover:border-tea-green hover:text-tea-green transition ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
             <span className="text-xl mb-0.5">{uploading ? "⏳" : "+"}</span>
             <span>{uploading ? "上傳中" : "選圖片"}</span>
             <input
@@ -192,7 +192,7 @@ function ImageUploader({
         )}
       </div>
       {uploadError && <p className="text-xs text-rose-500">{uploadError}</p>}
-      <p className="text-xs text-[#9CA89E]">最多 {MAX_IMAGES} 張，每張不超過 5MB。第一張為封面圖。</p>
+      <p className="text-xs text-tea-text-faint">最多 {MAX_IMAGES} 張，每張不超過 5MB。第一張為封面圖。</p>
     </div>
   );
 }
@@ -451,10 +451,10 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
   }
 
   function stockColor(stock: number | null) {
-    if (stock === null) return "text-[#9CA89E]";
+    if (stock === null) return "text-tea-text-faint";
     if (stock === 0) return "text-rose-400";
     if (stock <= 5) return "text-amber-500";
-    return "text-[#3D4A42]";
+    return "text-tea-text";
   }
   function stockLabel(stock: number | null) {
     if (stock === null) return "—";
@@ -469,8 +469,8 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     <div className="p-6 lg:p-8">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#3D4A42] font-serif">產品管理</h1>
-          <p className="text-sm text-[#6B8872] mt-1">
+          <h1 className="text-2xl font-bold text-tea-text font-serif">產品管理</h1>
+          <p className="text-sm text-tea-text-light mt-1">
             上架 {active.length} 件 · 下架 {inactive.length} 件
           </p>
         </div>
@@ -478,8 +478,8 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
           onClick={() => { setShowCreate((v) => !v); setCreateErrors({}); }}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition flex-shrink-0 ${
             showCreate
-              ? "bg-[#EDE8DC] text-[#6B8872] hover:bg-[#D9D0C7]"
-              : "bg-[#7D9B84] text-white hover:bg-[#5C7A67]"
+              ? "bg-tea-cream-dark text-tea-text-light hover:bg-[#D9D0C7]"
+              : "bg-tea-green text-white hover:bg-tea-green-dark"
           }`}
         >
           {showCreate ? "收起" : "+ 新增商品"}
@@ -488,26 +488,26 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
 
       {/* 成功訊息 */}
       {createSuccess && (
-        <div className="mb-4 px-4 py-3 bg-[#EBF3EE] border border-[#A3BFA8] rounded-xl text-sm text-[#3D4A42]">
+        <div className="mb-4 px-4 py-3 bg-tea-green-mist border border-tea-green-light rounded-xl text-sm text-tea-text">
           商品已建立 ✓　請開啟上架開關讓商品出現在前台。
         </div>
       )}
 
       {/* 新增商品表單 */}
       {showCreate && (
-        <div className="mb-6 bg-white rounded-2xl border border-[#A3BFA8] shadow-md overflow-hidden">
+        <div className="mb-6 bg-white rounded-2xl border border-tea-green-light shadow-md overflow-hidden">
           <div className="px-5 py-4 border-b border-[#F5F0E8] bg-[#F7FAF7]">
-            <h2 className="text-sm font-semibold text-[#3D4A42]">新增商品</h2>
-            <p className="text-xs text-[#9CA89E] mt-0.5">填入商品資料後點擊「建立商品」，再開啟上架開關即可上架。</p>
+            <h2 className="text-sm font-semibold text-tea-text">新增商品</h2>
+            <p className="text-xs text-tea-text-faint mt-0.5">填入商品資料後點擊「建立商品」，再開啟上架開關即可上架。</p>
           </div>
 
           <div className="px-5 py-4 space-y-5">
             {/* 必填：Slug + 售價 */}
             <div>
-              <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">必填</p>
+              <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">必填</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">
+                  <label className="block text-xs font-medium text-tea-text mb-1">
                     Slug <span className="text-rose-400">*</span>
                   </label>
                   <input
@@ -515,15 +515,15 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     placeholder="例如：dong-fang-mei-ren"
                     value={createForm.slug}
                     onChange={(e) => updateCreateField("slug", e.target.value)}
-                    className={`w-full px-3 py-1.5 rounded-lg border text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] ${
-                      createErrors.slug ? "border-rose-400" : "border-[#A3BFA8]"
+                    className={`w-full px-3 py-1.5 rounded-lg border text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green ${
+                      createErrors.slug ? "border-rose-400" : "border-tea-green-light"
                     }`}
                   />
                   {createErrors.slug && <p className="text-xs text-rose-500 mt-1">{createErrors.slug}</p>}
-                  <p className="text-xs text-[#9CA89E] mt-1">英文小寫 + 數字 + 連字號，系統內部識別用</p>
+                  <p className="text-xs text-tea-text-faint mt-1">英文小寫 + 數字 + 連字號，系統內部識別用</p>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">
+                  <label className="block text-xs font-medium text-tea-text mb-1">
                     150g 售價 (NT$) <span className="text-rose-400">*</span>
                   </label>
                   <input
@@ -532,8 +532,8 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     placeholder="例如：1200"
                     value={createForm.price}
                     onChange={(e) => updateCreateField("price", e.target.value)}
-                    className={`w-full px-3 py-1.5 rounded-lg border text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] ${
-                      createErrors.price ? "border-rose-400" : "border-[#A3BFA8]"
+                    className={`w-full px-3 py-1.5 rounded-lg border text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green ${
+                      createErrors.price ? "border-rose-400" : "border-tea-green-light"
                     }`}
                   />
                   {createErrors.price && <p className="text-xs text-rose-500 mt-1">{createErrors.price}</p>}
@@ -543,7 +543,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
 
             {/* 基本資料 */}
             <div>
-              <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">基本資料（選填）</p>
+              <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">基本資料（選填）</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
                   { field: "name" as const,      label: "商品名稱（中文）", placeholder: "例如：東方美人" },
@@ -555,19 +555,19 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                   { field: "weight" as const,    label: "重量規格",         placeholder: "例如：150g / 75g" },
                 ].map(({ field, label, placeholder }) => (
                   <div key={field}>
-                    <label className="block text-xs font-medium text-[#3D4A42] mb-1">{label}</label>
+                    <label className="block text-xs font-medium text-tea-text mb-1">{label}</label>
                     <input
                       type="text"
                       placeholder={placeholder}
                       value={createForm[field]}
                       onChange={(e) => updateCreateField(field, e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                      className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                     />
                   </div>
                 ))}
                 {/* 顏色色票選擇器 */}
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-[#3D4A42] mb-2">商品卡背景色</label>
+                  <label className="block text-xs font-medium text-tea-text mb-2">商品卡背景色</label>
                   <div className="flex flex-wrap gap-2">
                     {COLOR_OPTIONS.map((opt) => (
                       <button
@@ -577,34 +577,34 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         onClick={() => updateCreateField("color", opt.value)}
                         className={`w-10 h-10 rounded-lg bg-gradient-to-br ${opt.value} border-2 transition-all ${
                           createForm.color === opt.value
-                            ? "border-[#5C7A67] ring-2 ring-[#7D9B84] ring-offset-1 scale-110"
+                            ? "border-tea-green-dark ring-2 ring-tea-green ring-offset-1 scale-110"
                             : "border-transparent hover:scale-105"
                         }`}
                       />
                     ))}
                   </div>
-                  <p className="text-xs text-[#9CA89E] mt-1">
+                  <p className="text-xs text-tea-text-faint mt-1">
                     已選：{COLOR_OPTIONS.find((o) => o.value === createForm.color)?.label ?? "未選"}
                   </p>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">商品描述</label>
+                  <label className="block text-xs font-medium text-tea-text mb-1">商品描述</label>
                   <textarea
                     rows={3}
                     placeholder="簡短描述商品特色…"
                     value={createForm.description}
                     onChange={(e) => updateCreateField("description", e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
+                    className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green resize-none"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-[#3D4A42] mb-1">商品描述（英文）</label>
+                  <label className="block text-xs font-medium text-tea-text mb-1">商品描述（英文）</label>
                   <textarea
                     rows={3}
                     placeholder="Brief description in English…"
                     value={createForm.description_en}
                     onChange={(e) => updateCreateField("description_en", e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
+                    className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green resize-none"
                   />
                 </div>
               </div>
@@ -612,7 +612,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
 
             {/* 圖片 */}
             <div>
-              <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">圖片（選填）</p>
+              <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">圖片（選填）</p>
               <ImageUploader
                 slug={createForm.slug}
                 gallery={createForm.gallery}
@@ -622,55 +622,55 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
 
             {/* 規格 */}
             <div>
-              <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-2">各規格售價與庫存（選填）</p>
+              <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">各規格售價與庫存（選填）</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-[#FAF7F2] rounded-xl border border-[#EDE8DC] p-3">
-                  <p className="text-xs font-bold text-[#3D4A42] mb-2">150g 散茶</p>
-                  <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                <div className="bg-tea-cream-light rounded-xl border border-tea-cream-dark p-3">
+                  <p className="text-xs font-bold text-tea-text mb-2">150g 散茶</p>
+                  <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                   <input
                     type="number" min="0"
                     value={createForm.stock_quantity}
                     onChange={(e) => updateCreateField("stock_quantity", e.target.value)}
                     placeholder="不限"
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                   />
                 </div>
-                <div className="bg-[#FAF7F2] rounded-xl border border-[#EDE8DC] p-3">
-                  <p className="text-xs font-bold text-[#3D4A42] mb-2">75g 散茶</p>
-                  <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                <div className="bg-tea-cream-light rounded-xl border border-tea-cream-dark p-3">
+                  <p className="text-xs font-bold text-tea-text mb-2">75g 散茶</p>
+                  <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                   <input
                     type="number" min="0"
                     value={createForm.price_75g}
                     onChange={(e) => updateCreateField("price_75g", e.target.value)}
                     placeholder="未設定"
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] mb-2"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-2"
                   />
-                  <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                  <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                   <input
                     type="number" min="0"
                     value={createForm.stock_75g}
                     onChange={(e) => updateCreateField("stock_75g", e.target.value)}
                     placeholder="不限"
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                   />
                 </div>
-                <div className="bg-[#FAF7F2] rounded-xl border border-[#EDE8DC] p-3">
-                  <p className="text-xs font-bold text-[#3D4A42] mb-2">茶包 15入 × 3g</p>
-                  <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                <div className="bg-tea-cream-light rounded-xl border border-tea-cream-dark p-3">
+                  <p className="text-xs font-bold text-tea-text mb-2">茶包 15入 × 3g</p>
+                  <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                   <input
                     type="number" min="0"
                     value={createForm.price_tea_bag}
                     onChange={(e) => updateCreateField("price_tea_bag", e.target.value)}
                     placeholder="未設定"
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] mb-2"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-2"
                   />
-                  <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                  <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                   <input
                     type="number" min="0"
                     value={createForm.stock_tea_bag}
                     onChange={(e) => updateCreateField("stock_tea_bag", e.target.value)}
                     placeholder="不限"
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                   />
                 </div>
               </div>
@@ -682,14 +682,14 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
             <div className="flex justify-end gap-2 pt-1">
               <button
                 onClick={() => { setShowCreate(false); setCreateForm(EMPTY_CREATE_FORM); setCreateErrors({}); }}
-                className="px-4 py-2 rounded-lg text-sm text-[#6B8872] hover:bg-[#EDE8DC] transition"
+                className="px-4 py-2 rounded-lg text-sm text-tea-text-light hover:bg-tea-cream-dark transition"
               >
                 取消
               </button>
               <button
                 onClick={createProduct}
                 disabled={creating}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-[#7D9B84] hover:bg-[#5C7A67] text-white transition disabled:opacity-60"
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-tea-green hover:bg-tea-green-dark text-white transition disabled:opacity-60"
               >
                 {creating ? "建立中…" : "建立商品"}
               </button>
@@ -707,7 +707,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
             <div
               key={product.id}
               className={`bg-white rounded-2xl border overflow-hidden transition-all ${
-                isEditing ? "border-[#A3BFA8] shadow-md" : "border-[#EDE8DC] shadow-sm"
+                isEditing ? "border-tea-green-light shadow-md" : "border-tea-cream-dark shadow-sm"
               }`}
             >
               {/* 主列 */}
@@ -719,18 +719,18 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       type="text"
                       value={draft.name}
                       onChange={(e) => updateField(product.id, "name", e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                      className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                     />
                   ) : (
                     <div>
-                      <span className="font-medium text-[#3D4A42]">{product.name || product.slug}</span>
-                      <span className="text-xs text-[#9CA89E] ml-2">{product.name_en} · {product.weight}</span>
+                      <span className="font-medium text-tea-text">{product.name || product.slug}</span>
+                      <span className="text-xs text-tea-text-faint ml-2">{product.name_en} · {product.weight}</span>
                     </div>
                   )}
                 </div>
 
                 {/* 分類 */}
-                <span className="text-xs text-[#6B8872] bg-[#EBF3EE] px-2 py-0.5 rounded-full hidden sm:inline">
+                <span className="text-xs text-tea-text-light bg-tea-green-mist px-2 py-0.5 rounded-full hidden sm:inline">
                   {product.category}
                 </span>
 
@@ -740,7 +740,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                   disabled={saving === product.id}
                   title={(isEditing ? draft.is_active : product.is_active) ? "點擊下架" : "點擊上架"}
                   className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0 disabled:opacity-60 ${
-                    (isEditing ? draft.is_active : product.is_active) ? "bg-[#7D9B84]" : "bg-[#D9D9D9]"
+                    (isEditing ? draft.is_active : product.is_active) ? "bg-tea-green" : "bg-[#D9D9D9]"
                   }`}
                 >
                   <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
@@ -751,20 +751,20 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 {/* 操作按鈕 */}
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {saved === product.id && !isEditing && (
-                    <span className="text-xs text-[#7D9B84] font-medium">已儲存 ✓</span>
+                    <span className="text-xs text-tea-green font-medium">已儲存 ✓</span>
                   )}
                   {isEditing ? (
                     <>
                       <button
                         onClick={() => cancelEdit(product.id)}
-                        className="px-3 py-1.5 rounded-lg text-xs text-[#6B8872] hover:bg-[#EDE8DC] transition"
+                        className="px-3 py-1.5 rounded-lg text-xs text-tea-text-light hover:bg-tea-cream-dark transition"
                       >
                         取消
                       </button>
                       <button
                         onClick={() => saveProduct(product.id)}
                         disabled={saving === product.id}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#7D9B84] hover:bg-[#5C7A67] text-white transition disabled:opacity-60"
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-tea-green hover:bg-tea-green-dark text-white transition disabled:opacity-60"
                       >
                         {saving === product.id ? "儲存中…" : "儲存"}
                       </button>
@@ -773,7 +773,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     <>
                       <button
                         onClick={() => startEdit(product)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#3D4A42] bg-[#EDE8DC] hover:bg-[#D9D0C7] transition"
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-tea-text bg-tea-cream-dark hover:bg-[#D9D0C7] transition"
                       >
                         編輯
                       </button>
@@ -797,8 +797,8 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
 
               {/* 內容資料編輯區 */}
               {isEditing && (
-                <div className="border-t border-[#F5F0E8] px-5 py-4 bg-white">
-                  <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-3">內容資料</p>
+                <div className="border-t border-tea-cream px-5 py-4 bg-white">
+                  <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-3">內容資料</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     {([
                       { field: "name_en"  as const, label: "英文名稱", placeholder: "例如：Oriental Beauty" },
@@ -809,38 +809,38 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       { field: "weight"   as const, label: "重量規格", placeholder: "例如：150g / 75g" },
                     ] as { field: keyof EditState; label: string; placeholder: string }[]).map(({ field, label, placeholder }) => (
                       <div key={field}>
-                        <label className="block text-xs text-[#9CA89E] mb-1">{label}</label>
+                        <label className="block text-xs text-tea-text-faint mb-1">{label}</label>
                         <input
                           type="text"
                           placeholder={placeholder}
                           value={draft[field] as string}
                           onChange={(e) => updateField(product.id, field, e.target.value)}
-                          className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                          className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                         />
                       </div>
                     ))}
                     <div className="sm:col-span-2">
-                      <label className="block text-xs text-[#9CA89E] mb-1">商品描述</label>
+                      <label className="block text-xs text-tea-text-faint mb-1">商品描述</label>
                       <textarea
                         rows={2}
                         placeholder="簡短描述商品特色…"
                         value={draft.description}
                         onChange={(e) => updateField(product.id, "description", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green resize-none"
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs text-[#9CA89E] mb-1">商品描述（英文）</label>
+                      <label className="block text-xs text-tea-text-faint mb-1">商品描述（英文）</label>
                       <textarea
                         rows={2}
                         placeholder="Brief description in English…"
                         value={draft.description_en}
                         onChange={(e) => updateField(product.id, "description_en", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] resize-none"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green resize-none"
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs text-[#9CA89E] mb-2">商品圖片</label>
+                      <label className="block text-xs text-tea-text-faint mb-2">商品圖片</label>
                       <ImageUploader
                         slug={product.slug}
                         gallery={draft.gallery}
@@ -848,7 +848,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs text-[#9CA89E] mb-2">商品卡背景色</label>
+                      <label className="block text-xs text-tea-text-faint mb-2">商品卡背景色</label>
                       <div className="flex flex-wrap gap-2">
                         {COLOR_OPTIONS.map((opt) => (
                           <button
@@ -858,13 +858,13 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                             onClick={() => updateField(product.id, "color", opt.value)}
                             className={`w-9 h-9 rounded-lg bg-gradient-to-br ${opt.value} border-2 transition-all ${
                               draft.color === opt.value
-                                ? "border-[#5C7A67] ring-2 ring-[#7D9B84] ring-offset-1 scale-110"
+                                ? "border-tea-green-dark ring-2 ring-tea-green ring-offset-1 scale-110"
                                 : "border-transparent hover:scale-105"
                             }`}
                           />
                         ))}
                       </div>
-                      <p className="text-xs text-[#9CA89E] mt-1">
+                      <p className="text-xs text-tea-text-faint mt-1">
                         已選：{COLOR_OPTIONS.find((o) => o.value === draft.color)?.label ?? "未選"}
                       </p>
                     </div>
@@ -875,62 +875,62 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
               {/* 規格區 */}
               {isEditing ? (
                 <>
-                <div className="border-t border-[#F5F0E8] px-5 py-4 bg-[#FAF7F2]">
-                  <p className="text-xs font-semibold text-[#6B8872] uppercase tracking-wider mb-3">各規格售價與庫存</p>
+                <div className="border-t border-tea-cream px-5 py-4 bg-tea-cream-light">
+                  <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-3">各規格售價與庫存</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
-                      <p className="text-xs font-bold text-[#3D4A42] mb-3">150g 散茶</p>
-                      <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                    <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
+                      <p className="text-xs font-bold text-tea-text mb-3">150g 散茶</p>
+                      <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                       <input
                         type="number" min="0"
                         value={draft.price}
                         onChange={(e) => updateField(product.id, "price", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] mb-3"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-3"
                       />
-                      <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                      <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                       <input
                         type="number" min="0"
                         value={draft.stock_quantity}
                         onChange={(e) => updateField(product.id, "stock_quantity", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                         placeholder="不限"
                       />
                     </div>
-                    <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
-                      <p className="text-xs font-bold text-[#3D4A42] mb-3">75g 散茶</p>
-                      <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                    <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
+                      <p className="text-xs font-bold text-tea-text mb-3">75g 散茶</p>
+                      <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                       <input
                         type="number" min="0"
                         value={draft.price_75g}
                         onChange={(e) => updateField(product.id, "price_75g", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] mb-3"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-3"
                         placeholder="未設定"
                       />
-                      <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                      <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                       <input
                         type="number" min="0"
                         value={draft.stock_75g}
                         onChange={(e) => updateField(product.id, "stock_75g", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                         placeholder="不限"
                       />
                     </div>
-                    <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
-                      <p className="text-xs font-bold text-[#3D4A42] mb-3">茶包 15入 × 3g</p>
-                      <label className="block mb-1 text-xs text-[#9CA89E]">售價 (NT$)</label>
+                    <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
+                      <p className="text-xs font-bold text-tea-text mb-3">茶包 15入 × 3g</p>
+                      <label className="block mb-1 text-xs text-tea-text-faint">售價 (NT$)</label>
                       <input
                         type="number" min="0"
                         value={draft.price_tea_bag}
                         onChange={(e) => updateField(product.id, "price_tea_bag", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84] mb-3"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green mb-3"
                         placeholder="未設定"
                       />
-                      <label className="block mb-1 text-xs text-[#9CA89E]">庫存（空白=不限）</label>
+                      <label className="block mb-1 text-xs text-tea-text-faint">庫存（空白=不限）</label>
                       <input
                         type="number" min="0"
                         value={draft.stock_tea_bag}
                         onChange={(e) => updateField(product.id, "stock_tea_bag", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                         placeholder="不限"
                       />
                     </div>
@@ -939,35 +939,35 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
 
                 {/* 配送重量 */}
                 <div>
-                  <p className="text-sm font-semibold text-[#3D4A42] mb-3">配送重量（國際運費計算用，留空使用預設值）</p>
+                  <p className="text-sm font-semibold text-tea-text mb-3">配送重量（國際運費計算用，留空使用預設值）</p>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
-                      <p className="text-xs font-bold text-[#3D4A42] mb-2">150g (g)</p>
+                    <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
+                      <p className="text-xs font-bold text-tea-text mb-2">150g (g)</p>
                       <input
                         type="number" min="0"
                         value={draft.shipping_weight_150g}
                         onChange={(e) => updateField(product.id, "shipping_weight_150g", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                         placeholder="預設 200g"
                       />
                     </div>
-                    <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
-                      <p className="text-xs font-bold text-[#3D4A42] mb-2">75g (g)</p>
+                    <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
+                      <p className="text-xs font-bold text-tea-text mb-2">75g (g)</p>
                       <input
                         type="number" min="0"
                         value={draft.shipping_weight_75g}
                         onChange={(e) => updateField(product.id, "shipping_weight_75g", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                         placeholder="預設 120g"
                       />
                     </div>
-                    <div className="bg-white rounded-xl border border-[#EDE8DC] p-4">
-                      <p className="text-xs font-bold text-[#3D4A42] mb-2">茶包 (g)</p>
+                    <div className="bg-white rounded-xl border border-tea-cream-dark p-4">
+                      <p className="text-xs font-bold text-tea-text mb-2">茶包 (g)</p>
                       <input
                         type="number" min="0"
                         value={draft.shipping_weight_teabag}
                         onChange={(e) => updateField(product.id, "shipping_weight_teabag", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border border-[#A3BFA8] text-sm text-[#3D4A42] focus:outline-none focus:ring-2 focus:ring-[#7D9B84]"
+                        className="w-full px-3 py-1.5 rounded-lg border border-tea-green-light text-sm text-tea-text focus:outline-none focus:ring-2 focus:ring-tea-green"
                         placeholder="預設 150g"
                       />
                     </div>
@@ -975,15 +975,15 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 </div>
                 </>
               ) : (
-                <div className="border-t border-[#F5F0E8] px-5 py-3 flex flex-wrap gap-4 bg-[#FAF7F2]">
+                <div className="border-t border-tea-cream px-5 py-3 flex flex-wrap gap-4 bg-tea-cream-light">
                   {[
                     { label: "150g", price: product.price,         stock: product.stock_quantity },
                     { label: "75g",  price: product.price_75g,      stock: product.stock_75g },
                     { label: "茶包", price: product.price_tea_bag,  stock: product.stock_tea_bag },
                   ].map(({ label, price, stock }) => (
                     <div key={label} className="flex items-center gap-2 text-xs">
-                      <span className="text-[#9CA89E] font-medium w-8">{label}</span>
-                      <span className="text-[#3D4A42] font-semibold">
+                      <span className="text-tea-text-faint font-medium w-8">{label}</span>
+                      <span className="text-tea-text font-semibold">
                         {price != null ? `NT$${price.toLocaleString()}` : "—"}
                       </span>
                       <span className={`${stockColor(stock ?? null)} ml-1`}>
@@ -998,7 +998,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         })}
       </div>
 
-      <p className="text-xs text-[#9CA89E] mt-4">
+      <p className="text-xs text-tea-text-faint mt-4">
         * 庫存 0 = 售完（紅色）；≤5 = 庫存偏低（橘色）；空白 = 不限。售價空白表示不顯示此規格。
       </p>
 
@@ -1006,16 +1006,16 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       {confirmDeleteId !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-2 sm:mx-4">
-            <h3 className="text-base font-semibold text-[#3D4A42] mb-2">確認刪除商品</h3>
-            <p className="text-sm text-[#6B8872] mb-1">即將永久刪除以下商品，此操作無法復原：</p>
-            <p className="text-sm font-medium text-[#3D4A42] bg-[#FAF7F2] rounded-lg px-3 py-2 mb-5">
+            <h3 className="text-base font-semibold text-tea-text mb-2">確認刪除商品</h3>
+            <p className="text-sm text-tea-text-light mb-1">即將永久刪除以下商品，此操作無法復原：</p>
+            <p className="text-sm font-medium text-tea-text bg-tea-cream-light rounded-lg px-3 py-2 mb-5">
               {confirmProduct?.name || confirmProduct?.slug}
             </p>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmDeleteId(null)}
                 disabled={deleting}
-                className="px-4 py-2 rounded-lg text-sm text-[#6B8872] hover:bg-[#EDE8DC] transition disabled:opacity-60"
+                className="px-4 py-2 rounded-lg text-sm text-tea-text-light hover:bg-tea-cream-dark transition disabled:opacity-60"
               >
                 取消
               </button>

@@ -163,3 +163,40 @@
 - 代價：兩次無效呼叫；錯誤訊息講的是 git 參數歧義，很容易往「引號寫錯」的方向白追
 - 規則：本環境凡是參數含冒號的 git 語法（`git show rev:path`、`git diff rev1:file rev2:file`、`git checkout rev -- path` 以外的 `rev:path` 形式）一律改用 PowerShell tool 跑；真的要留在 Bash 就前綴 `MSYS_NO_PATHCONV=1`。同理適用於任何含冒號的參數（如 `--pretty=format:%H`）
 - 去處：暫存於此（與「Bash tool 裡用 PowerShell here-string」同屬工具與語法配對問題，兩條都指向：本環境雙 shell 並存，送出前先確認語法屬於哪一邊）
+
+## 2026-08-01 SELECT 少一個欄位，`??` 的 fallback 就從保險變成預設路徑
+- 情境：訂單取消退點寫成 `order.points_discount ?? Math.floor(order.points_used / 100)`，看起來是「有新欄位就用新的，沒有就用舊制換算」的合理防禦。但同一支路由的 `.select(...)` 沒把 `points_discount` 列進去，於是它**永遠**是 undefined，fallback 從「意外時的保險」變成「唯一會走的路」。客人用 500 點折抵，取消只退 5 點
+- 代價：正式站上不知多久，每筆會員自助取消的訂單都吃掉客人 99% 的折抵點數；三條掛著正確名字的測試全綠（它們只對本地變數做算術，從未呼叫路由），完全沒擋住
+- 規則：Supabase／任何顯式列欄位的查詢，**寫完 `??`、`?.`、`||` 的預設值之後，回頭確認那個欄位真的在 select 清單裡**。更根本的做法是別讓 fallback 靜默生效：(a) 測試的 DB mock 要「只回傳 select() 指名的欄位」，忘了 select 就會自然變紅；(b) 相容用的 fallback 要留下痕跡（log 或 metric），不要靜靜地換一條語意不同的路。同一路徑上「扣」與「還」必須引用**同一個欄位**——這裡扣的是 `points_used`，還的卻是 `points_discount`，1:1 時碰巧相等就沒人發現
+- 去處：暫存於此（與 2026-07-30「測試全綠不等於符合規格」互補：那條講測試釘錯了規格，這條講測試根本沒接上程式碼）
+
+## 2026-08-01 修好一條路徑不代表修好那個 bug——同一個錯常有第二份拷貝
+- 情境：前一輪剛把商品訂單的取消退點改成「以 `point_transactions` 帳本為準」，還寫了 12 條回歸測試、反向驗證 6 次、跑了補償 SQL，整件事看起來收乾淨了。這輪小江問「體驗預約的結帳與取消對不對」，一查——體驗預約是**完全獨立的第二套程式碼**（`/api/bookings/[id]/cancel`、`/api/admin/experience-bookings/[id]/cancel`、`/api/ecpay/experience-checkout`），仍然照 `points_discount` 退、沒有冪等、結帳可重複扣點，一行都沒被上一輪碰到
+- 代價：無（小江問了才查），但這條路徑帶著同一個 bug 又多活了一輪。若不是被問到，下次發現可能是客人來客訴
+- 規則：**修完一個 bug，用它的「錯誤形狀」而不是它的檔名去 grep 全 repo**。本例的形狀是「讀 `points_discount` 當退還依據」與「退點沒有減去已退」，一條 `grep -rn "points_discount" src/app/api` 就會露出體驗那三支。凡是同一領域有多套並行實作（商品訂單／體驗預約／候補轉正；四條金流路徑），修 A 之後一律逐一開啟 B、C、D 確認，**不要假設它們共用同一個 helper**
+- 追記（同日）：後來為了做 cron 才打開 `experience-reminders`，發現**第四份實作**——場次因人數不足自動取消時，只寫了 `refund_status = "pending"`，點數一點都沒退。它躲過前面的 grep，因為那支檔案裡根本沒出現 `points_discount`（漏掉的東西 grep 不到）。補一條做法：**除了 grep 錯誤形狀，還要 grep 那個「狀態轉換」本身**——本例是 `status: "cancelled"`，全 repo 四處，逐一確認每處都做了該做的善後
+- 去處：暫存於此（與 2026-08-01「SELECT 少一個欄位」同源：那條講單一路徑的錯，這條講那個錯的複製品）
+
+## 2026-08-01 我從 git 歷史推論線上帳本的內容，被 migration 打臉
+- 情境：接上條。要判斷體驗預約舊制「當年到底扣了幾點」，我去 `git show 2e1da44` 讀當時的程式碼，看到 `points: -pointsUsed`，就據此寫進規格檔頭、WORKLOG、lessons、測試註解：「體驗舊制帳本扣的是 `points_used`（3300），照 `points_discount`（33）退會吞掉客人 3267 點」，還說這與商品訂單的舊 bug**方向相反**。小江跑稽核 SQL 回來，帳本實際是 −6 而 `points_used` 是 600。查 `points_system.sql:132` 才發現新制 migration 有一句 `UPDATE point_transactions SET points = ROUND(points/100)` 把**整個帳本**改寫過，而同一份 migration 的 backfill 只處理 `orders`、沒動 `experience_bookings`
+- 代價：一個危言聳聽的錯誤結論被寫進四個地方（其中規格檔頭正是為了「不要誤導下一個 session」而寫的），還向使用者報告了不存在的災難情境，事後全部要回頭更正。程式碼修正本身沒錯（帳本法不依賴這個推論），但那是運氣不是判斷
+- 規則：**「當年寫進 DB 的是什麼」只能由 DB 回答，程式碼歷史只能回答「當年打算寫什麼」**。兩者之間隔著：insert 靜默失敗（本例 `order_id` FK 擋掉一整批）、後續 migration 改寫、手動修資料。要寫任何關於歷史資料形狀的斷言之前，先跑一段 `SELECT` 看實際列——查詢用 `LEFT JOIN` 才看得到「完全沒有記錄」這種形狀。**在拿到實際輸出之前，規格與文件裡不要寫具體數字**，寧可寫「以帳本為準，原因見稽核 SQL」。連帶檢查：找到任何一句 `UPDATE <表> SET` 的 migration，就要問「它漏掉哪張表沒一起改」——`orders` 被 backfill 而 `experience_bookings` 沒有，兩欄從此永久不一致
+- 去處：暫存於此（JUDG-2「完成要有證據」的延伸：對**過去的資料狀態**下斷言，證據只能是查詢輸出，不能是 git log）
+
+## 2026-08-01 派出 checker 之後又改檔，換來一個假 FAIL
+- 情境：報價頁交付後派 `checker` 逐條驗收，驗收條件之一是「只涉及產物清單內的檔案」。派工之後我自己發現 `/web-design` 沒進 `src/app/sitemap.ts`，順手補了。checker 回報 11 條裡 10 條 PASS、唯一 FAIL 就是「sitemap.ts 不在授權清單內」——它拿的是我發派當下的清單，那份清單在它讀檔前就過時了
+- 代價：一個假 FAIL 混在真 PASS 裡，要人工判讀才知道不是缺陷。危險的是下游處理：若換一個 session 收尾，很可能照著 FAIL 去「修復」，把正確的 sitemap 改動 revert 掉，而那正是讓報價頁被搜尋引擎找到的那一行
+- 規則：**從派出 checker 到它回報之間，凍結受驗檔案**。臨時發現要補的東西，二擇一：(a) 記下來，等 checker 回報完再改，改完另派一次；(b) 立刻用 `SendMessage` 通知該 checker 把新檔補進產物清單。無論哪種，回報給使用者時必須逐條點名「哪條 FAIL 是清單過時、哪條是真缺陷」，不可只說「checker 通過了」帶過
+- 去處：暫存於此（DISP-6「驗證不自驗」的補充：不自驗之外，還要在驗收期間凍結產物）
+
+## 2026-08-01 catch 裡沒印 response body，401 就被我腦補成「金鑰失效」
+- 情境：驗證線上報價頁時，用 PowerShell `Invoke-WebRequest` 帶 `SUPABASE_SERVICE_ROLE_KEY` 打 Supabase REST，拿到 401。我的 catch 只印了 `$_.Exception.Message`（＝「Response status code does not indicate success: 401」），沒印 `$_.ErrorDetails.Message`。於是我推論「金鑰被輪替過、本機失效」，寫進 WORKLOG 並叫小江去 Dashboard 重新複製金鑰
+- 代價：向使用者發出一個不存在的故障與一趟白工；錯誤結論一度寫進 WORKLOG（那正是給未來 session 看的檔）。真正原因是 Supabase 新版 API key 會擋「看起來來自瀏覽器」的 secret key 請求——PowerShell 預設 User-Agent 含 `Mozilla`，被判定為瀏覽器。body 裡寫得清清楚楚：`Forbidden use of secret API key in browser`。加 `-UserAgent "node"` 就 200
+- 規則：**HTTP 錯誤一律印出 response body 再下結論**。PowerShell 要 `$_.ErrorDetails.Message`（`$_.Exception.Message` 只有狀態碼那句廢話）；curl 用 `-i` 或 `--fail-with-body`。狀態碼只說「失敗」，body 才說「為什麼」——在拿到 body 之前，不要對失敗原因下任何斷言，更不要據此要使用者去改設定。另：本環境用 PowerShell 打任何雲端 API（Supabase／Stripe／綠界）都要顯式 `-UserAgent "node"`，預設 UA 會觸發服務端的瀏覽器防護
+- 去處：暫存於此（與 JUDG-2「完成要有證據」同源：錯誤診斷也要有證據，狀態碼不是證據）
+
+## 2026-08-03 用 `npx tailwindcss` CLI 驗產物，三次 probe 全是無效測試
+- 情境：加完非顏色 token（`rounded-card`、`shadow-resting` 等）後，想確認 utility 真的生成，於是 `npx tailwindcss -c tailwind.config.ts -i src/app/globals.css -o probe.css` 再 grep。連跑三次都「查無這些 utility」，我一度以為 `theme.extend` 寫錯、開始回頭改 config
+- 代價：三輪無謂的來回與一次錯誤歸因。真正原因是**該 CLI 根本沒讀 `tailwind.config.ts`**（TS config 需要 loader，CLI 這條路徑沒載到），產物裡只有 Tailwind 內建 utility。我先前看到 `.rounded-2xl`、`.p-6` 有生成就以為「config 有讀到」，但那些全是內建的——我挑的對照組沒有鑑別力
+- 規則：**驗證 Tailwind 產物一律以 `npm run build` 的 `.next` 產物為準，不要用 `npx tailwindcss` CLI**（本專案是 TS config，CLI 讀不到）。若非用不可，對照組必須挑**只有自訂 config 才會產生**的 class（如 `bg-tea-green`），不能挑內建 class——對照組挑錯等於沒有對照組
+- 去處：暫存於此（JUDG-2「完成要有證據」的補充：證據還要有鑑別力，「有東西生成」不等於「我的東西生成」）

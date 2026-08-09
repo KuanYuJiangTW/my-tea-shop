@@ -47,14 +47,14 @@ export default function AdminReviewsClient({ reviews: initial }: { reviews: Revi
   return (
     <div className="p-6 md:p-8 min-h-screen bg-[#F9F6F1]">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#3D4A42] font-serif">評價管理</h1>
-        <p className="text-sm text-[#6B8872] mt-0.5">
+        <h1 className="text-2xl font-bold text-tea-text font-serif">評價管理</h1>
+        <p className="text-sm text-tea-text-light mt-0.5">
           共 {reviews.length} 則評價，{visible} 則顯示中，{hidden} 則已下架
         </p>
       </div>
 
       {reviews.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#EDE8DC] p-12 text-center text-sm text-[#6B8872]">
+        <div className="bg-white rounded-2xl border border-tea-cream-dark p-12 text-center text-sm text-tea-text-light">
           尚無評價紀錄
         </div>
       ) : (
@@ -62,13 +62,13 @@ export default function AdminReviewsClient({ reviews: initial }: { reviews: Revi
           {reviews.map(r => (
             <div
               key={r.id}
-              className={`bg-white rounded-2xl border border-[#EDE8DC] shadow-sm p-5 ${!r.is_visible ? "opacity-60" : ""}`}
+              className={`bg-white rounded-2xl border border-tea-cream-dark shadow-sm p-5 ${!r.is_visible ? "opacity-60" : ""}`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-1">
                     <Stars rating={r.rating} />
-                    <span className="text-xs font-medium text-[#3D4A42]">
+                    <span className="text-xs font-medium text-tea-text">
                       {r.experience_types?.name ?? "—"}
                     </span>
                     {!r.is_visible && (
@@ -76,7 +76,7 @@ export default function AdminReviewsClient({ reviews: initial }: { reviews: Revi
                     )}
                   </div>
                   {r.comment ? (
-                    <p className="text-sm text-[#6B8872] leading-relaxed">{r.comment}</p>
+                    <p className="text-sm text-tea-text-light leading-relaxed">{r.comment}</p>
                   ) : (
                     <p className="text-xs text-[#A8C0AE] italic">無文字評論</p>
                   )}
@@ -90,7 +90,7 @@ export default function AdminReviewsClient({ reviews: initial }: { reviews: Revi
                   className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full transition-colors disabled:opacity-50 ${
                     r.is_visible
                       ? "border border-red-200 text-red-500 hover:bg-red-50"
-                      : "border border-[#C8DDD0] text-[#6B8872] hover:bg-[#EBF3EE]"
+                      : "border border-tea-green-pale text-tea-text-light hover:bg-tea-green-mist"
                   }`}
                 >
                   {processing === r.id ? "處理中…" : r.is_visible ? "下架" : "恢復顯示"}
