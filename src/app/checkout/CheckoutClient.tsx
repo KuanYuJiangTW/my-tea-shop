@@ -524,8 +524,8 @@ export default function CheckoutClient() {
   }
 
   const inputCls = (hasError?: boolean) =>
-    `w-full border rounded-control px-4 py-3 text-label text-tea-text placeholder-tea-text-light/60 focus:outline-none focus:border-tea-green bg-tea-cream-light/50 ${
-      hasError ? "border-status-danger/40" : "border-tea-green-pale"
+    `w-full border rounded-control px-4 py-3 text-sm text-tea-text placeholder-tea-text-light/60 focus:outline-none focus:border-tea-green bg-tea-cream-light/50 ${
+      hasError ? "border-rose-300" : "border-tea-green-pale"
     }`;
 
   // OK 超商已被綠界停用（電子地圖回「OK超商暫停服務」），不再列出。
@@ -548,14 +548,14 @@ export default function CheckoutClient() {
           </div>
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("codSuccess.title")}</h2>
           <p className="text-tea-text-light mb-2">{t("codSuccess.desc")}</p>
-          <p className="text-tea-text-light text-label mb-2">
+          <p className="text-tea-text-light text-sm mb-2">
             {t("codSuccess.deliveryLabel")}{delivery === "home" ? t("codSuccess.homeDelivery") : t("codSuccess.cvsDelivery", { name: cvsName })}
           </p>
-          <p className="text-tea-text-light text-label mb-2">{t("codSuccess.paymentLabel")}</p>
+          <p className="text-tea-text-light text-sm mb-2">{t("codSuccess.paymentLabel")}</p>
           {user?.email ? (
-            <p className="text-tea-text-light text-label mb-10">{t("codSuccess.emailSent", { email: user.email })}</p>
+            <p className="text-tea-text-light text-sm mb-10">{t("codSuccess.emailSent", { email: user.email })}</p>
           ) : (
-            <p className="text-label text-status-warn mb-10">
+            <p className="text-sm text-amber-600 mb-10">
               {t("codSuccess.noEmailPrefix")}{" "}
               <Link href={lp("/account")} className="underline font-medium">{tCommon("user.account")}</Link>
               {" "}{t("codSuccess.noEmailSuffix")}
@@ -596,27 +596,27 @@ export default function CheckoutClient() {
                 <h2 className="font-serif text-xl font-bold text-tea-text mb-6">{t("contactInfo")}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-label font-medium text-tea-text mb-2">{t("name")} *</label>
+                    <label className="block text-sm font-medium text-tea-text mb-2">{t("name")} *</label>
                     <input type="text" name="name" value={form.name} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, name: undefined })); }} placeholder={t("namePlaceholder")} className={inputCls(!!formErrors.name)} />
-                    {formErrors.name && <p className="mt-1 text-caption text-status-danger">{formErrors.name}</p>}
+                    {formErrors.name && <p className="mt-1 text-xs text-rose-500">{formErrors.name}</p>}
                   </div>
                   <div>
-                    <label className="block text-label font-medium text-tea-text mb-2">{t("phone")} *</label>
+                    <label className="block text-sm font-medium text-tea-text mb-2">{t("phone")} *</label>
                     <input type="tel" name="phone" value={form.phone} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, phone: undefined })); }} placeholder={region === "international" ? t("intlPhonePlaceholder") : t("phonePlaceholder")} className={inputCls(!!formErrors.phone)} />
-                    {formErrors.phone && <p className="mt-1 text-caption text-status-danger">{formErrors.phone}</p>}
+                    {formErrors.phone && <p className="mt-1 text-xs text-rose-500">{formErrors.phone}</p>}
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-label font-medium text-tea-text mb-2">{t("email")} *</label>
+                    <label className="block text-sm font-medium text-tea-text mb-2">{t("email")} *</label>
                     {user?.email ? (
                       <>
                         <input type="email" name="email" value={form.email} readOnly placeholder="your@email.com" className={inputCls() + " cursor-not-allowed opacity-70"} />
-                        <p className="mt-1 text-caption text-tea-text-light">{t("emailReadonlyHint")}</p>
+                        <p className="mt-1 text-xs text-tea-text-light">{t("emailReadonlyHint")}</p>
                       </>
                     ) : (
                       <>
                         <input type="email" name="email" value={form.email} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, email: undefined })); }} placeholder="your@email.com" className={inputCls(!!formErrors.email)} />
-                        {formErrors.email && <p className="mt-1 text-caption text-status-danger">{formErrors.email}</p>}
-                        <p className="mt-1 text-caption text-tea-text-light">{t("emailHint")}</p>
+                        {formErrors.email && <p className="mt-1 text-xs text-rose-500">{formErrors.email}</p>}
+                        <p className="mt-1 text-xs text-tea-text-light">{t("emailHint")}</p>
                       </>
                     )}
                   </div>
@@ -627,7 +627,7 @@ export default function CheckoutClient() {
               <div className="bg-white rounded-card p-7 shadow-resting">
                 <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("paymentMethod")}</h2>
                 {region === "international" && (
-                  <p className="text-caption text-status-warn mb-3">{t("intlPaypalOnly")}</p>
+                  <p className="text-xs text-amber-600 mb-3">{t("intlPaypalOnly")}</p>
                 )}
                 <div className="space-y-3">
                   {([
@@ -640,16 +640,16 @@ export default function CheckoutClient() {
                     ...(region !== "international" && locale !== "en" ? [{ value: "cod" as PaymentMethod, label: t("cashOnDelivery"), desc: t("codDesc"), disabled: false,
                       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><path d="M3 8h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><path d="M6 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> }] : []),
                   ]).map(opt => (
-                    <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-control border transition-colors ${opt.disabled ? "cursor-not-allowed opacity-50 border-tea-green-pale bg-tea-cream-dark/40" : `cursor-pointer ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}`}>
+                    <label key={opt.value} className={`flex items-start gap-4 p-4 rounded-control border transition-colors ${opt.disabled ? "cursor-not-allowed opacity-50 border-tea-green-pale bg-gray-50" : `cursor-pointer ${payment === opt.value ? "border-tea-green bg-tea-green-mist" : "border-tea-green-pale hover:bg-tea-cream-light"}`}`}>
                       <input type="radio" name="payment" value={opt.value} checked={payment === opt.value}
                         onChange={() => !opt.disabled && selectPayment(opt.value)} disabled={opt.disabled} className="accent-tea-green mt-0.5" />
-                      <div className={`mt-0.5 ${opt.disabled ? "text-tea-text-light/40" : payment === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
+                      <div className={`mt-0.5 ${opt.disabled ? "text-gray-300" : payment === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className={`text-label font-medium ${opt.disabled ? "text-tea-text-light/60" : "text-tea-text"}`}>{opt.label}</span>
+                          <span className={`text-sm font-medium ${opt.disabled ? "text-gray-400" : "text-tea-text"}`}>{opt.label}</span>
                           {opt.disabled && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-pill bg-tea-green/10 text-tea-green">{t("comingSoon")}</span>}
                         </div>
-                        <div className={`text-caption mt-0.5 ${opt.disabled ? "text-tea-text-light/40" : "text-tea-text-light"}`}>{opt.desc}</div>
+                        <div className={`text-xs mt-0.5 ${opt.disabled ? "text-gray-300" : "text-tea-text-light"}`}>{opt.desc}</div>
                       </div>
                     </label>
                   ))}
@@ -662,7 +662,7 @@ export default function CheckoutClient() {
 
                 {/* Region Selector */}
                 <div className="mb-5">
-                  <p className="text-label font-medium text-tea-text mb-3">{t("regionLabel")}</p>
+                  <p className="text-sm font-medium text-tea-text mb-3">{t("regionLabel")}</p>
                   <div className="grid grid-cols-2 gap-3">
                     {([
                       { value: "domestic" as const, label: t("regionDomestic"), desc: t("regionDomesticDesc"),
@@ -683,7 +683,7 @@ export default function CheckoutClient() {
                             setFormErrors({});
                           }} className="sr-only" />
                         <div className={`${region === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
-                        <div className="text-label font-medium text-tea-text">{opt.label}</div>
+                        <div className="text-sm font-medium text-tea-text">{opt.label}</div>
                         <div className="text-[11px] text-tea-text-light">{opt.desc}</div>
                       </label>
                     ))}
@@ -704,8 +704,8 @@ export default function CheckoutClient() {
                         onChange={() => setDelivery(opt.value)} className="accent-tea-green mt-0.5" />
                       <div className={`mt-0.5 ${delivery === opt.value ? "text-tea-green" : "text-tea-text-light"}`}>{opt.icon}</div>
                       <div>
-                        <div className="text-label font-medium text-tea-text">{opt.label}</div>
-                        <div className="text-caption text-tea-text-light mt-0.5">{opt.desc}</div>
+                        <div className="text-sm font-medium text-tea-text">{opt.label}</div>
+                        <div className="text-xs text-tea-text-light mt-0.5">{opt.desc}</div>
                       </div>
                     </label>
                   ))}
@@ -716,7 +716,7 @@ export default function CheckoutClient() {
                 {delivery === "home" && (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-label font-medium text-tea-text mb-2">{t("city")} *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("city")} *</label>
                       <div ref={cityRef} className="relative">
                         <button
                           type="button"
@@ -737,7 +737,7 @@ export default function CheckoutClient() {
                                   setFormErrors(p => ({ ...p, city: undefined }));
                                   setCityOpen(false);
                                 }}
-                                className={`w-full text-left px-4 py-2.5 text-label transition-colors ${
+                                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                                   form.city === c
                                     ? "bg-tea-green-mist text-tea-green font-medium"
                                     : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
@@ -749,13 +749,13 @@ export default function CheckoutClient() {
                           </div>
                         )}
                       </div>
-                      {formErrors.city && <p className="mt-1 text-caption text-status-danger">{formErrors.city}</p>}
+                      {formErrors.city && <p className="mt-1 text-xs text-rose-500">{formErrors.city}</p>}
                     </div>
                     <div>
-                      <label className="block text-label font-medium text-tea-text mb-2">{t("address")} *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("address")} *</label>
                       <input type="text" name="address" value={form.address} onChange={(e) => { handleChange(e); setFormErrors(p => ({ ...p, address: undefined })); }}
                         placeholder={t("addressPlaceholder")} className={inputCls(!!formErrors.address)} />
-                      {formErrors.address && <p className="mt-1 text-caption text-status-danger">{formErrors.address}</p>}
+                      {formErrors.address && <p className="mt-1 text-xs text-rose-500">{formErrors.address}</p>}
                     </div>
                   </div>
                 )}
@@ -764,7 +764,7 @@ export default function CheckoutClient() {
                 {delivery === "cvs" && (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-label font-medium text-tea-text mb-2">{t("cvsBrand")} *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("cvsBrand")} *</label>
                       <div ref={cvsRef} className="relative">
                         {(() => {
                           // 切到貨到付款的那一幀，form.cvsCompany 可能還是被濾掉的超商
@@ -790,7 +790,7 @@ export default function CheckoutClient() {
                                         setForm(prev => ({ ...prev, cvsCompany: opt.value as CheckoutForm["cvsCompany"], cvsStoreId: "", cvsStoreName: "" }));
                                         setCvsOpen(false);
                                       }}
-                                      className={`w-full text-left px-4 py-2.5 text-label transition-colors ${
+                                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                                         form.cvsCompany === opt.value
                                           ? "bg-tea-green-mist text-tea-green font-medium"
                                           : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
@@ -807,22 +807,22 @@ export default function CheckoutClient() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-label font-medium text-tea-text mb-2">{t("cvsStore")} *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("cvsStore")} *</label>
                       {form.cvsStoreName ? (
-                        <div className={`flex items-center justify-between rounded-control px-4 py-3 border ${formErrors.cvsStoreName ? "border-status-danger/40" : "border-tea-green"} bg-tea-green-mist/40`}>
+                        <div className={`flex items-center justify-between rounded-control px-4 py-3 border ${formErrors.cvsStoreName ? "border-rose-300" : "border-tea-green"} bg-tea-green-mist/40`}>
                           <div>
-                            <p className="text-label font-medium text-tea-text">{form.cvsStoreName}</p>
-                            <p className="text-caption text-tea-text-light mt-0.5">{t("cvsStoreId", { id: form.cvsStoreId })}</p>
+                            <p className="text-sm font-medium text-tea-text">{form.cvsStoreName}</p>
+                            <p className="text-xs text-tea-text-light mt-0.5">{t("cvsStoreId", { id: form.cvsStoreId })}</p>
                           </div>
                           <button type="button" onClick={handleSelectStore}
-                            className="text-caption text-tea-green hover:text-tea-green-dark font-medium whitespace-nowrap ml-4 transition-colors">
+                            className="text-xs text-tea-green hover:text-tea-green-dark font-medium whitespace-nowrap ml-4 transition-colors">
                             {t("cvsReselect")}
                           </button>
                         </div>
                       ) : (
                         <button type="button" onClick={handleSelectStore} disabled={selectingStore}
-                          className={`w-full flex items-center justify-center gap-2 rounded-control px-4 py-3 border text-label font-medium transition-colors
-                            ${formErrors.cvsStoreName ? "border-status-danger/40" : "border-tea-green-pale hover:border-tea-green"}
+                          className={`w-full flex items-center justify-center gap-2 rounded-control px-4 py-3 border text-sm font-medium transition-colors
+                            ${formErrors.cvsStoreName ? "border-rose-300" : "border-tea-green-pale hover:border-tea-green"}
                             text-tea-text hover:bg-tea-cream-light disabled:opacity-60`}>
                           {selectingStore ? (
                             <>
@@ -841,13 +841,13 @@ export default function CheckoutClient() {
                           )}
                         </button>
                       )}
-                      {formErrors.cvsStoreName && <p className="mt-1 text-caption text-status-danger">{formErrors.cvsStoreName}</p>}
+                      {formErrors.cvsStoreName && <p className="mt-1 text-xs text-rose-500">{formErrors.cvsStoreName}</p>}
                     </div>
-                    <div className="flex items-start gap-2 bg-status-warn-soft rounded-control p-3">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" className="stroke-status-warn flex-shrink-0 mt-0.5">
+                    <div className="flex items-start gap-2 bg-amber-50 rounded-control p-3">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0 mt-0.5">
                         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                       </svg>
-                      <p className="text-caption text-status-warn">{t("cvsNotice")}</p>
+                      <p className="text-xs text-amber-700">{t("cvsNotice")}</p>
                     </div>
                   </div>
                 )}
@@ -857,17 +857,17 @@ export default function CheckoutClient() {
                   <div className="space-y-4 mb-6">
                     {/* Overweight warning */}
                     {isOverweight && (
-                      <div className="flex items-start gap-2 bg-status-danger-soft rounded-control p-3">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" className="stroke-status-danger flex-shrink-0 mt-0.5">
+                      <div className="flex items-start gap-2 bg-rose-50 rounded-control p-3">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" strokeWidth="2" className="flex-shrink-0 mt-0.5">
                           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                         </svg>
-                        <p className="text-caption text-status-danger">{t("intlOverweight")}</p>
+                        <p className="text-xs text-rose-700">{t("intlOverweight")}</p>
                       </div>
                     )}
 
                     {/* Country selector */}
                     <div>
-                      <label className="block text-label font-medium text-tea-text mb-2">{t("intlCountry")} *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("intlCountry")} *</label>
                       <div ref={countryRef} className="relative">
                         <button
                           type="button"
@@ -898,7 +898,7 @@ export default function CheckoutClient() {
                                   setFormErrors(p => ({ ...p, intlCountry: undefined }));
                                   setCountryOpen(false);
                                 }}
-                                className={`w-full text-left px-4 py-2.5 text-label transition-colors ${
+                                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                                   form.internationalAddress.country === c.countryCode
                                     ? "bg-tea-green-mist text-tea-green font-medium"
                                     : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
@@ -910,21 +910,21 @@ export default function CheckoutClient() {
                           </div>
                         )}
                       </div>
-                      {formErrors.intlCountry && <p className="mt-1 text-caption text-status-danger">{formErrors.intlCountry}</p>}
+                      {formErrors.intlCountry && <p className="mt-1 text-xs text-rose-500">{formErrors.intlCountry}</p>}
                     </div>
 
                     {/* Address Line 1 */}
                     <div>
-                      <label className="block text-label font-medium text-tea-text mb-2">{t("intlAddressLine1")} *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("intlAddressLine1")} *</label>
                       <input type="text" value={form.internationalAddress.addressLine1}
                         onChange={e => { setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, addressLine1: e.target.value } })); setFormErrors(p => ({ ...p, intlAddressLine1: undefined })); }}
                         placeholder={t("intlAddressLine1Placeholder")} className={inputCls(!!formErrors.intlAddressLine1)} />
-                      {formErrors.intlAddressLine1 && <p className="mt-1 text-caption text-status-danger">{formErrors.intlAddressLine1}</p>}
+                      {formErrors.intlAddressLine1 && <p className="mt-1 text-xs text-rose-500">{formErrors.intlAddressLine1}</p>}
                     </div>
 
                     {/* Address Line 2 */}
                     <div>
-                      <label className="block text-label font-medium text-tea-text mb-2">{t("intlAddressLine2")}</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("intlAddressLine2")}</label>
                       <input type="text" value={form.internationalAddress.addressLine2}
                         onChange={e => setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, addressLine2: e.target.value } }))}
                         placeholder={t("intlAddressLine2Placeholder")} className={inputCls()} />
@@ -933,54 +933,54 @@ export default function CheckoutClient() {
                     {/* City + State */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-label font-medium text-tea-text mb-2">{t("intlCity")} *</label>
+                        <label className="block text-sm font-medium text-tea-text mb-2">{t("intlCity")} *</label>
                         <input type="text" value={form.internationalAddress.city}
                           onChange={e => { setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, city: e.target.value } })); setFormErrors(p => ({ ...p, intlCity: undefined })); }}
                           placeholder={t("intlCityPlaceholder")} className={inputCls(!!formErrors.intlCity)} />
-                        {formErrors.intlCity && <p className="mt-1 text-caption text-status-danger">{formErrors.intlCity}</p>}
+                        {formErrors.intlCity && <p className="mt-1 text-xs text-rose-500">{formErrors.intlCity}</p>}
                       </div>
                       <div>
-                        <label className="block text-label font-medium text-tea-text mb-2">{t("intlState")} *</label>
+                        <label className="block text-sm font-medium text-tea-text mb-2">{t("intlState")} *</label>
                         <input type="text" value={form.internationalAddress.state}
                           onChange={e => { setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, state: e.target.value } })); setFormErrors(p => ({ ...p, intlState: undefined })); }}
                           placeholder={t("intlStatePlaceholder")} className={inputCls(!!formErrors.intlState)} />
-                        {formErrors.intlState && <p className="mt-1 text-caption text-status-danger">{formErrors.intlState}</p>}
+                        {formErrors.intlState && <p className="mt-1 text-xs text-rose-500">{formErrors.intlState}</p>}
                       </div>
                     </div>
 
                     {/* Postal Code */}
                     <div className="w-1/2">
-                      <label className="block text-label font-medium text-tea-text mb-2">{t("intlPostalCode")} *</label>
+                      <label className="block text-sm font-medium text-tea-text mb-2">{t("intlPostalCode")} *</label>
                       <input type="text" value={form.internationalAddress.postalCode}
                         onChange={e => { setForm(prev => ({ ...prev, internationalAddress: { ...prev.internationalAddress, postalCode: e.target.value } })); setFormErrors(p => ({ ...p, intlPostalCode: undefined })); }}
                         placeholder={t("intlPostalCodePlaceholder")} className={inputCls(!!formErrors.intlPostalCode)} />
-                      {formErrors.intlPostalCode && <p className="mt-1 text-caption text-status-danger">{formErrors.intlPostalCode}</p>}
+                      {formErrors.intlPostalCode && <p className="mt-1 text-xs text-rose-500">{formErrors.intlPostalCode}</p>}
                     </div>
 
                     {/* Weight & estimated days info */}
                     {selectedCountry && !isOverweight && (
                       <div className="flex flex-col gap-1 bg-tea-cream-light/80 rounded-control p-3">
-                        <p className="text-caption text-tea-text-light">{t("intlTotalWeight", { weight: totalWeightG.toString() })}</p>
-                        <p className="text-caption text-tea-text-light">{t("intlEstimatedDays", { min: selectedCountry.estimatedDaysMin.toString(), max: selectedCountry.estimatedDaysMax.toString() })}</p>
+                        <p className="text-xs text-tea-text-light">{t("intlTotalWeight", { weight: totalWeightG.toString() })}</p>
+                        <p className="text-xs text-tea-text-light">{t("intlEstimatedDays", { min: selectedCountry.estimatedDaysMin.toString(), max: selectedCountry.estimatedDaysMax.toString() })}</p>
                         {totalPrice < INTERNATIONAL_FREE_SHIPPING_THRESHOLD && shippingFee > 0 && (
-                          <p className="text-caption text-status-warn">{t("intlFreeShipping")}</p>
+                          <p className="text-xs text-amber-600">{t("intlFreeShipping")}</p>
                         )}
                       </div>
                     )}
 
                     {/* Disclaimer */}
-                    <div className="flex items-start gap-2 bg-status-warn-soft rounded-control p-3">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" className="stroke-status-warn flex-shrink-0 mt-0.5">
+                    <div className="flex items-start gap-2 bg-amber-50 rounded-control p-3">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0 mt-0.5">
                         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                       </svg>
-                      <p className="text-caption text-status-warn">{t("intlDisclaimer")}</p>
+                      <p className="text-xs text-amber-700">{t("intlDisclaimer")}</p>
                     </div>
                   </div>
                 )}
 
                 {/* Note */}
                 <div className="mt-4">
-                  <label className="block text-label font-medium text-tea-text mb-2">{t("note")}</label>
+                  <label className="block text-sm font-medium text-tea-text mb-2">{t("note")}</label>
                   <textarea name="note" value={form.note} onChange={handleChange} rows={3}
                     placeholder={t("notePlaceholder")} className={`${inputCls()} resize-none`} />
                 </div>
@@ -994,7 +994,7 @@ export default function CheckoutClient() {
                 <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("orderSummary")}</h2>
                 <div className="space-y-3 mb-5">
                   {items.map(item => (
-                    <div key={item.product.id} className="flex justify-between text-label">
+                    <div key={item.product.id} className="flex justify-between text-sm">
                       <span className="text-tea-text-light">{item.product.name} {item.product.weight} × {item.quantity}</span>
                       <span className="text-tea-text font-medium">NT${(item.product.price * item.quantity).toLocaleString()}</span>
                     </div>
@@ -1003,7 +1003,7 @@ export default function CheckoutClient() {
 
                 {/* Coupon */}
                 <div className="border-t border-tea-green-pale pt-4 mb-3">
-                  <p className="text-caption font-medium text-tea-text mb-2">{t("coupon")}</p>
+                  <p className="text-xs font-medium text-tea-text mb-2">{t("coupon")}</p>
                   <div className="relative">
                     <div className="flex gap-1.5">
                       <input
@@ -1017,7 +1017,7 @@ export default function CheckoutClient() {
                         }}
                         onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
                         placeholder={t("couponPlaceholder")}
-                        className="flex-1 border border-tea-green-pale rounded-inline px-3 py-2 text-caption focus:outline-none focus:border-tea-green bg-tea-cream-light/50 font-mono"
+                        className="flex-1 border border-tea-green-pale rounded-inline px-3 py-2 text-xs focus:outline-none focus:border-tea-green bg-tea-cream-light/50 font-mono"
                       />
                       {availableCoupons.length > 0 && (
                         <button type="button" onClick={() => setShowCouponDropdown(v => !v)}
@@ -1029,7 +1029,7 @@ export default function CheckoutClient() {
                         </button>
                       )}
                       <button type="button" onClick={handleApplyCoupon}
-                        className="px-3 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-caption rounded-inline transition-colors whitespace-nowrap">
+                        className="px-3 py-2 bg-tea-green hover:bg-tea-green-dark text-white text-xs rounded-inline transition-colors whitespace-nowrap">
                         {t("applyCoupon")}
                       </button>
                     </div>
@@ -1050,9 +1050,9 @@ export default function CheckoutClient() {
                                 ${isApplied ? "bg-tea-green-mist/50" : ""}`}
                             >
                               <div>
-                                <span className="font-mono text-caption font-bold text-tea-green">{c.code}</span>
-                                <span className="ml-2 text-caption text-tea-text-light">{t("couponDiscountInfo", { amount: c.discount_amount })}</span>
-                                {!eligible && <span className="ml-1 text-caption text-status-danger">{t("couponMinRequired", { min: c.min_order_amount })}</span>}
+                                <span className="font-mono text-xs font-bold text-tea-green">{c.code}</span>
+                                <span className="ml-2 text-xs text-tea-text-light">{t("couponDiscountInfo", { amount: c.discount_amount })}</span>
+                                {!eligible && <span className="ml-1 text-xs text-rose-400">{t("couponMinRequired", { min: c.min_order_amount })}</span>}
                               </div>
                               {isApplied && (
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="stroke-tea-green" strokeWidth="2.5">
@@ -1065,9 +1065,9 @@ export default function CheckoutClient() {
                       </div>
                     )}
                   </div>
-                  {couponError && <p className="mt-1 text-caption text-status-danger">{couponError}</p>}
+                  {couponError && <p className="mt-1 text-xs text-rose-500">{couponError}</p>}
                   {appliedCoupon && !couponError && (
-                    <p className={`mt-1 text-caption text-tea-green transition-all duration-reveal ${couponSuccess ? "bg-status-done-soft px-2 py-1 rounded-inline scale-105" : ""}`}>
+                    <p className={`mt-1 text-xs text-tea-green transition-all duration-reveal ${couponSuccess ? "bg-green-50 px-2 py-1 rounded-inline scale-105" : ""}`}>
                       {couponSuccess ? "✓ " : ""}{t("couponAppliedMsg", { amount: appliedCoupon.discount_amount })}
                     </p>
                   )}
@@ -1077,8 +1077,8 @@ export default function CheckoutClient() {
                 {pointsBalance >= 10 && maxPointsAllowed >= 10 && (
                   <div className="mb-3 pb-3 border-b border-tea-green-pale">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-caption text-tea-text">{t("pointsRedeemLabel")}</span>
-                      <span className="text-caption text-tea-text-light">{t("pointsBalanceLabel", { balance: pointsBalance.toLocaleString() })}</span>
+                      <span className="text-xs text-tea-text">{t("pointsRedeemLabel")}</span>
+                      <span className="text-xs text-tea-text-light">{t("pointsBalanceLabel", { balance: pointsBalance.toLocaleString() })}</span>
                     </div>
                     {pointsTierName && (
                       <p className="text-[11px] text-tea-text-light mb-2">
@@ -1097,25 +1097,25 @@ export default function CheckoutClient() {
                           const v = Math.max(0, Math.min(maxPointsAllowed, Math.floor(Number(e.target.value) || 0)));
                           setPointsToUse(v);
                         }}
-                        className="flex-1 border border-tea-green-pale rounded-inline px-3 py-1.5 text-label focus:outline-none focus:border-tea-green"
+                        className="flex-1 border border-tea-green-pale rounded-inline px-3 py-1.5 text-sm focus:outline-none focus:border-tea-green"
                       />
                       <button
                         type="button"
                         onClick={() => setPointsToUse(maxPointsAllowed)}
-                        className="text-caption text-tea-green hover:underline whitespace-nowrap"
+                        className="text-xs text-tea-green hover:underline whitespace-nowrap"
                       >{t("pointsUseMax")}</button>
                     </div>
                     {pointsToUse > 0 && pointsToUse < 10 && (
-                      <p className="mt-1 text-caption text-status-warn">{t("pointsMinWarning")}</p>
+                      <p className="mt-1 text-xs text-amber-600">{t("pointsMinWarning")}</p>
                     )}
                     {pointsDiscount > 0 && (
-                      <p className="mt-1 text-caption text-tea-green animate-pulse">{t("pointsWillDiscount", { amount: pointsDiscount.toLocaleString() })}</p>
+                      <p className="mt-1 text-xs text-tea-green animate-pulse">{t("pointsWillDiscount", { amount: pointsDiscount.toLocaleString() })}</p>
                     )}
                   </div>
                 )}
 
                 <div className="mb-6 space-y-2">
-                  <div className="flex justify-between text-label text-tea-text-light">
+                  <div className="flex justify-between text-sm text-tea-text-light">
                     <span>{t("shippingFee")}</span>
                     {shippingFee === 0 ? (
                       <span className="text-tea-green">{t("shippingFree")}</span>
@@ -1124,24 +1124,24 @@ export default function CheckoutClient() {
                     )}
                   </div>
                   {shippingFee > 0 && region === "domestic" && (
-                    <p className="text-caption text-status-warn">{t("shippingThreshold")}</p>
+                    <p className="text-xs text-amber-600">{t("shippingThreshold")}</p>
                   )}
                   {region === "international" && totalPrice < INTERNATIONAL_FREE_SHIPPING_THRESHOLD && shippingFee > 0 && (
-                    <p className="text-caption text-status-warn">{t("intlFreeShipping")}</p>
+                    <p className="text-xs text-amber-600">{t("intlFreeShipping")}</p>
                   )}
                   {couponDiscount > 0 && (
-                    <div className="flex justify-between text-label text-tea-green">
+                    <div className="flex justify-between text-sm text-tea-green">
                       <span>{t("couponDiscountLabel")}</span>
                       <span>-NT${couponDiscount.toLocaleString()}</span>
                     </div>
                   )}
                   {pointsDiscount > 0 && (
-                    <div className="flex justify-between text-label text-tea-green bg-status-done-soft rounded-inline px-1 -mx-1 transition-colors duration-reveal">
+                    <div className="flex justify-between text-sm text-tea-green bg-green-50 rounded-inline px-1 -mx-1 transition-colors duration-reveal">
                       <span>{t("pointsDiscountLabel")}</span>
                       <span className="font-semibold">-NT${pointsDiscount.toLocaleString()}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-label text-tea-text-light">
+                  <div className="flex justify-between text-sm text-tea-text-light">
                     <span>{t("paymentLabel")}</span>
                     <span>{payment === "paypal" ? t("paypalShort") : payment === "stripe" ? t("stripeShort") : payment === "online" ? t("onlinePaymentShort") : t("codShort")}</span>
                   </div>
@@ -1150,7 +1150,7 @@ export default function CheckoutClient() {
                     <span className="text-tea-green text-lg">NT${grandTotal.toLocaleString()}</span>
                   </div>
                 </div>
-                {error && <p className="text-status-danger text-label text-center mb-3">{error}</p>}
+                {error && <p className="text-red-400 text-sm text-center mb-3">{error}</p>}
                 <button type="submit" disabled={submitting || (region === "international" && isOverweight)}
                   className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-pill font-medium transition-colors flex items-center justify-center gap-2">
                   {submitting ? (
@@ -1190,7 +1190,7 @@ export default function CheckoutClient() {
                     </>
                   )}
                 </button>
-                <Link href={lp("/cart")} className="block text-center text-tea-text-light hover:text-tea-green text-label mt-4 transition-colors">
+                <Link href={lp("/cart")} className="block text-center text-tea-text-light hover:text-tea-green text-sm mt-4 transition-colors">
                   {t("backToCart")}
                 </Link>
               </div>
