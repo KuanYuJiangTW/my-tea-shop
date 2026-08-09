@@ -149,7 +149,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
   }
 
   return (
-    <div className="p-6 md:p-8 min-h-screen bg-tea-cream-light">
+    <div className="p-6 md:p-8 min-h-screen bg-[#F9F6F1]">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-tea-text font-serif">預約名單</h1>
@@ -180,7 +180,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
           placeholder="搜尋姓名或電話…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="px-4 py-2 rounded-full border border-tea-green-pale text-sm text-tea-text placeholder-tea-green-light bg-white focus:outline-none focus:ring-2 focus:ring-tea-green w-full sm:w-56"
+          className="px-4 py-2 rounded-full border border-tea-green-pale text-sm text-tea-text placeholder-[#A8C0AE] bg-white focus:outline-none focus:ring-2 focus:ring-tea-green w-full sm:w-56"
         />
       </div>
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -215,7 +215,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[900px]">
               <thead>
-                <tr className="bg-tea-cream-light text-left">
+                <tr className="bg-[#F9F6F1] text-left">
                   <th className="px-6 py-3 text-xs font-medium text-tea-text-light">場次</th>
                   <th className="px-4 py-3 text-xs font-medium text-tea-text-light">訂購人</th>
                   <th className="px-4 py-3 text-xs font-medium text-tea-text-light">電話</th>
@@ -245,7 +245,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                   const isAwaitingComplete = isConfirmed && isPastSession;
 
                   return (
-                    <tr key={b.id} className={`hover:bg-tea-cream-light transition-colors ${needsRefund ? "bg-orange-50" : isAwaitingComplete ? "bg-amber-50" : ""}`}>
+                    <tr key={b.id} className={`hover:bg-[#F9F6F1] transition-colors ${needsRefund ? "bg-orange-50" : isAwaitingComplete ? "bg-amber-50" : ""}`}>
                       <td className="px-6 py-3.5">
                         <div className="font-medium text-tea-text">
                           {(b.session?.experience_types as { name: string } | null)?.name ?? "—"}
@@ -376,7 +376,7 @@ export default function AdminBookingsClient({ bookings: initial, sessionId, stat
                   <button
                     onClick={() => setCancelId(null)}
                     disabled={cancelling}
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-[#F9F6F1] transition disabled:opacity-50"
                   >
                     返回
                   </button>

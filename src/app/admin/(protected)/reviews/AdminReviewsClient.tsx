@@ -45,7 +45,7 @@ export default function AdminReviewsClient({ reviews: initial }: { reviews: Revi
   const hidden   = reviews.filter(r => !r.is_visible).length;
 
   return (
-    <div className="p-6 md:p-8 min-h-screen bg-tea-cream-light">
+    <div className="p-6 md:p-8 min-h-screen bg-[#F9F6F1]">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-tea-text font-serif">評價管理</h1>
         <p className="text-sm text-tea-text-light mt-0.5">
@@ -78,9 +78,9 @@ export default function AdminReviewsClient({ reviews: initial }: { reviews: Revi
                   {r.comment ? (
                     <p className="text-sm text-tea-text-light leading-relaxed">{r.comment}</p>
                   ) : (
-                    <p className="text-xs text-tea-green-light italic">無文字評論</p>
+                    <p className="text-xs text-[#A8C0AE] italic">無文字評論</p>
                   )}
-                  <p className="text-xs text-tea-green-light mt-2">
+                  <p className="text-xs text-[#A8C0AE] mt-2">
                     {new Date(r.created_at).toLocaleDateString("zh-TW")}
                   </p>
                 </div>

@@ -148,7 +148,7 @@ export default function OrderActions({
 
   const variantCls: Record<string, string> = {
     primary: "bg-white hover:bg-tea-cream text-tea-text border border-tea-cream-dark",
-    danger:  "bg-tea-cream hover:bg-[#EDD5CC] text-[#7A4545] border border-[#EDE0DA]",
+    danger:  "bg-[#F5EDE8] hover:bg-[#EDD5CC] text-[#7A4545] border border-[#EDE0DA]",
     success: "bg-tea-green hover:bg-tea-green-dark text-white shadow-sm",
   };
 

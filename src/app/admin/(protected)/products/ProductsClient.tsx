@@ -496,7 +496,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       {/* 新增商品表單 */}
       {showCreate && (
         <div className="mb-6 bg-white rounded-2xl border border-tea-green-light shadow-md overflow-hidden">
-          <div className="px-5 py-4 border-b border-tea-cream bg-tea-cream-light">
+          <div className="px-5 py-4 border-b border-[#F5F0E8] bg-[#F7FAF7]">
             <h2 className="text-sm font-semibold text-tea-text">新增商品</h2>
             <p className="text-xs text-tea-text-faint mt-0.5">填入商品資料後點擊「建立商品」，再開啟上架開關即可上架。</p>
           </div>

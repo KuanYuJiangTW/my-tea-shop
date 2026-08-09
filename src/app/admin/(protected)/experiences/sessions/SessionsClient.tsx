@@ -184,7 +184,7 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
           <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[480px]">
             <thead>
-              <tr className="bg-tea-cream-light text-left">
+              <tr className="bg-[#F9F6F1] text-left">
                 <th className="px-6 py-3 text-xs font-medium text-tea-text-light">日期</th>
                 <th className="px-4 py-3 text-xs font-medium text-tea-text-light">時段</th>
                 <th className="px-4 py-3 text-xs font-medium text-tea-text-light">體驗</th>
@@ -195,7 +195,7 @@ export default function SessionsClient({ expTypes }: { expTypes: ExpType[] }) {
             </thead>
             <tbody className="divide-y divide-tea-cream">
               {sessions.map(s => (
-                <tr key={s.id} className="hover:bg-tea-cream-light transition-colors">
+                <tr key={s.id} className="hover:bg-[#F9F6F1] transition-colors">
                   <td className="px-6 py-3.5 font-medium text-tea-text">{s.session_date}</td>
                   <td className="px-4 py-3.5 text-tea-text-light">{s.start_time.slice(0, 5)}</td>
                   <td className="px-4 py-3.5 text-tea-text">{s.experience_types?.name}</td>
