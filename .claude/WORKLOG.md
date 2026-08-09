@@ -418,8 +418,24 @@ Tailwind 產物一律以 `npm run build` 為準
 
 ### 下一個 session 從這裡接手
 
-**目前狀態**：分支 `claude/design-system-foundation`，與 origin 同步，工作區乾淨。
-551 測試全過（42 檔）、`tsc` 零錯誤、build 成功。**尚未開 PR、未動 main**（小江未要求）。
+**目前狀態**：**已於 2026-08-08 合併進 main 並推送**（merge commit `1f290b3`，57 個 commit）。
+`main` 與 origin 同步、工作區乾淨。551 測試全過（42 檔）、`tsc` 零錯誤、build 成功。
+
+合併前的 review 檢查（可沿用）：
+1. 工作區乾淨、`origin/main` 在分岔後零新 commit（可乾淨合併）
+2. **高風險區逐項比對**：積分／金流邏輯與 main 完全相同——`tasks.md` 那筆
+   「積分折抵：最少 10 點、上限依會員等級」是修正過時敘述（`f26ecf9`），
+   程式碼本來就是那樣，不是功能變更
+3. **掃出 src 中「不含 className、非註解」的改動行**，確認沒有意外的邏輯改動。
+   結果只有三項刻意的：新增 2 個測試檔、`getMemberStatusCls` 改 export 供測試、
+   後台狀態表抽到 `src/lib/admin-status.ts`
+4. i18n 只加 2 個鍵（`verifyingPayment` / `verifyingPaymentHint`），且都有被使用
+5. 顏色以「色值多重集合」逐檔比對 main；手機 375／390／414／430 與桌機 1280 實測
+
+**環境注意**：`npm run build` 這輪失敗過三次，全都是連不到 `fonts.gstatic.com`
+（Google Fonts 下載），重試即成功。**不要當成改動造成的**——判別法是
+錯誤訊息含 `Error while requesting resource` 與 `fonts.gstatic.com`，
+且 `git stash` 前後都失敗。Vercel 建置環境不受影響。
 
 **第十二波（2026-08-07）：CheckoutClient 打磨**（`15c9557`）
 - 1210 行金流頁、約 160 處。依鐵律 4 先讀 `openspec/specs/checkout-flow`——
