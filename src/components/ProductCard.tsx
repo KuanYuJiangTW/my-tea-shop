@@ -227,8 +227,13 @@ export default function ProductCard({ product }: { product: Product }) {
               手機 375px 下內容區約 303px，14px 中文約 21 字/行——2 行只有 43 字容量，
               而實際描述有 48 字，**上線版就會截掉 5 字**（16px 更慘，截 11 字）。
               3 行給到 64 字容量才真的讀得完。
-              **卡片內的固定行數容器，字級與行數要一起算，只看內容型態會截字。** */}
-          <p className="text-label text-tea-text-light line-clamp-3 flex-1 mb-4">
+              **卡片內的固定行數容器，字級與行數要一起算，只看內容型態會截字。**
+
+              `min-h-[3lh]` 是必要的，不是保險：手機是單欄堆疊、沒有 grid 的等高機制，
+              描述行數不同卡片就會高矮不齊。實測 414px（iPhone Plus）下 2 行容量剛好
+              49 字，48/46 字的茶塞得進 2 行、50 字的金萱要 3 行——金萱整張卡就高了 22px。
+              固定 3 行後，任何螢幕寬度、任何字數都等高。`lh` = 當前行高，跟著字級走。 */}
+          <p className="text-label text-tea-text-light line-clamp-3 min-h-[3lh] flex-1 mb-4">
             {isEn ? (product.descriptionEn || product.description) : product.description}
           </p>
 
