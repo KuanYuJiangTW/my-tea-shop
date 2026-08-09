@@ -59,7 +59,7 @@ export default function ContactClient() {
   }
 
   const inputClass =
-    "w-full border border-tea-green-pale bg-white rounded-control px-4 py-3 text-tea-text placeholder-tea-text-light/50 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/40 focus:border-tea-green transition duration-base ease-standard";
+    "w-full border border-tea-green-pale bg-white rounded-control px-4 py-3 text-tea-text placeholder-tea-text-light/50 text-label focus:outline-none focus:ring-2 focus:ring-tea-green/40 focus:border-tea-green transition duration-base ease-standard";
 
   const infoItems = [
     {
@@ -118,8 +118,8 @@ export default function ContactClient() {
                     {item.icon}
                   </div>
                   <div>
-                    <p className="text-xs text-tea-text-light mb-0.5">{item.label}</p>
-                    <p className="text-tea-text text-sm font-medium">{item.value}</p>
+                    <p className="text-caption text-tea-text-light mb-0.5">{item.label}</p>
+                    <p className="text-tea-text text-label font-medium">{item.value}</p>
                   </div>
                 </div>
               ))}
@@ -147,10 +147,10 @@ export default function ContactClient() {
                 </svg>
               </div>
               <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">{t("form.successTitle")}</h3>
-              <p className="text-tea-text-light text-sm mb-8">{t("form.successDesc")}</p>
+              <p className="text-tea-text-light text-body mb-8">{t("form.successDesc")}</p>
               <button
                 onClick={() => { setStatus("idle"); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-pill text-sm font-medium transition-colors duration-base ease-standard"
+                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-pill text-label font-medium transition-colors duration-base ease-standard"
               >
                 {t("form.sendAgain")}
               </button>
@@ -161,11 +161,11 @@ export default function ContactClient() {
               className="bg-white rounded-card shadow-resting border border-tea-green-pale/40 p-8 space-y-5"
             >
               <h2 className="font-serif text-2xl font-bold text-tea-text mb-1">{t("form.sendTitle")}</h2>
-              <p className="text-tea-text-light text-sm mb-4">{t("form.sendSubtitle")}</p>
+              <p className="text-tea-text-light text-body mb-4">{t("form.sendSubtitle")}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-tea-text mb-1.5">
+                  <label className="block text-label font-medium text-tea-text mb-1.5">
                     {t("form.name")} <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -179,7 +179,7 @@ export default function ContactClient() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-tea-text mb-1.5">
+                  <label className="block text-label font-medium text-tea-text mb-1.5">
                     {t("form.email")} <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -195,7 +195,7 @@ export default function ContactClient() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-tea-text mb-1.5">
+                <label className="block text-label font-medium text-tea-text mb-1.5">
                   {t("form.subject")} <span className="text-red-400">*</span>
                 </label>
                 <div ref={subjectRef} className="relative">
@@ -217,7 +217,7 @@ export default function ContactClient() {
                             setForm(prev => ({ ...prev, subject: opt.value as FormState["subject"] }));
                             setSubjectOpen(false);
                           }}
-                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors duration-base ease-standard ${
+                          className={`w-full text-left px-4 py-2.5 text-label transition-colors duration-base ease-standard ${
                             form.subject === opt.value
                               ? "bg-tea-green-mist text-tea-green font-medium"
                               : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
@@ -232,7 +232,7 @@ export default function ContactClient() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-tea-text mb-1.5">
+                <label className="block text-label font-medium text-tea-text mb-1.5">
                   {t("form.message")} <span className="text-red-400">*</span>
                 </label>
                 <textarea
@@ -247,13 +247,13 @@ export default function ContactClient() {
               </div>
 
               {status === "error" && (
-                <p className="text-red-500 text-sm text-center">{t("form.error")}</p>
+                <p className="text-red-500 text-label text-center">{t("form.error")}</p>
               )}
 
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-control font-medium text-sm transition-colors duration-base ease-standard flex items-center justify-center gap-2"
+                className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-control font-medium text-label transition-colors duration-base ease-standard flex items-center justify-center gap-2"
               >
                 {status === "submitting" ? (
                   <>
@@ -274,7 +274,7 @@ export default function ContactClient() {
                 )}
               </button>
 
-              <p className="text-center text-xs text-tea-text-light">
+              <p className="text-center text-caption text-tea-text-light">
                 {t("form.privacyNote")}
               </p>
             </form>

@@ -158,8 +158,8 @@ function ResultContent() {
           </div>
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paypalCancelTitle")}</h2>
           <p className="text-body text-tea-text-light mb-2">{t("paypalCancelDesc")}</p>
-          <p className="text-sm text-amber-600 mb-8 bg-amber-50 rounded-control p-3">{t("paypalCancelPointsHint")}</p>
-          {paypalError && <p className="text-red-400 text-sm mb-3">{paypalError}</p>}
+          <p className="text-body text-amber-600 mb-8 bg-amber-50 rounded-control p-3">{t("paypalCancelPointsHint")}</p>
+          {paypalError && <p className="text-red-400 text-label mb-3">{paypalError}</p>}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             {paypalOrderId && (
               <>
@@ -195,7 +195,7 @@ function ResultContent() {
           </div>
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paypalCaptureFailed")}</h2>
           <p className="text-body text-tea-text-light mb-2">{t("paypalCaptureFailedDesc")}</p>
-          <p className="text-red-400 text-sm mb-6">{paypalError}</p>
+          <p className="text-red-400 text-label mb-6">{paypalError}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href={lp("/")}
               className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
@@ -228,14 +228,14 @@ function ResultContent() {
                 <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("bookingSuccess")}</h2>
                 <p className="text-body text-tea-text-light mb-2">{t("bookingSuccessDesc")}</p>
                 {tradeNo && (
-                  <p className="text-xs text-tea-text-light mb-2">
+                  <p className="text-caption text-tea-text-light mb-2">
                     {t("bookingRef")}<span className="font-mono font-medium">{tradeNo}</span>
                   </p>
                 )}
                 {user?.email ? (
-                  <p className="text-tea-text-light text-sm mb-4">{t("emailSentBooking", { email: user.email })}</p>
+                  <p className="text-tea-text-light text-label mb-4">{t("emailSentBooking", { email: user.email })}</p>
                 ) : (
-                  <p className="text-sm text-amber-600 mb-4">
+                  <p className="text-label text-amber-600 mb-4">
                     {t("noEmailBookingPrefix")}{" "}
                     <Link href={lp("/account")} className="underline font-medium">{t("accountCenter")}</Link>
                     {" "}{t("noEmailBookingSuffix")}
@@ -265,14 +265,14 @@ function ResultContent() {
                 <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("orderSuccess")}</h2>
                 <p className="text-body text-tea-text-light mb-2">{t("orderSuccessDesc")}</p>
                 {tradeNo && (
-                  <p className="text-xs text-tea-text-light mb-2">
+                  <p className="text-caption text-tea-text-light mb-2">
                     {t("orderRef")}<span className="font-mono font-medium">{tradeNo}</span>
                   </p>
                 )}
                 {user?.email ? (
-                  <p className="text-tea-text-light text-sm mb-4">{t("emailSentOrder", { email: user.email })}</p>
+                  <p className="text-tea-text-light text-label mb-4">{t("emailSentOrder", { email: user.email })}</p>
                 ) : (
-                  <p className="text-sm text-amber-600 mb-4">
+                  <p className="text-label text-amber-600 mb-4">
                     {t("noEmailOrderPrefix")}{" "}
                     <Link href={lp("/account")} className="underline font-medium">{t("accountCenter")}</Link>
                     {" "}{t("noEmailOrderSuffix")}
@@ -281,8 +281,8 @@ function ResultContent() {
                 {/* 國際訂單須知含關稅與不可退貨條款，是交易條件——依原則 2 用 body 級距 */}
                 {isIntlOrder && (
                   <div className="bg-amber-50 rounded-card px-6 py-4 text-left mb-10">
-                    <p className="text-sm font-semibold text-amber-800 mb-2">{t("intlNoticeTitle")}</p>
-                    <ul className="space-y-1.5 text-sm text-amber-700">
+                    <p className="text-label font-semibold text-amber-800 mb-2">{t("intlNoticeTitle")}</p>
+                    <ul className="space-y-1.5 text-body text-amber-700">
                       <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span>{t("intlNoticeDays")}</li>
                       <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span>{t("intlNoticeDuty")}</li>
                       <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span>{t("intlNoticeNoReturn")}</li>

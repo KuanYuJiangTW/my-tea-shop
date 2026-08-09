@@ -117,7 +117,7 @@ export default function ExperienceCalendar({ experience }: Props) {
       {/* 星期標題 */}
       <div className="grid grid-cols-7 mb-2">
         {weekdays.map(d => (
-          <div key={d} className="text-center text-xs text-tea-text-light py-2 font-medium">
+          <div key={d} className="text-center text-caption text-tea-text-light py-2 font-medium">
             {d}
           </div>
         ))}
@@ -125,7 +125,7 @@ export default function ExperienceCalendar({ experience }: Props) {
 
       {/* 日曆格子 */}
       {loading ? (
-        <div className="h-48 flex items-center justify-center text-tea-text-light text-sm">
+        <div className="h-48 flex items-center justify-center text-tea-text-light text-label">
           {t("loading")}
         </div>
       ) : (
@@ -161,7 +161,7 @@ export default function ExperienceCalendar({ experience }: Props) {
                 `}
               >
                 {/* 日期數字 */}
-                <span className={`text-xs font-medium leading-none mt-1 ${
+                <span className={`text-caption font-medium leading-none mt-1 ${
                   past ? "text-tea-text-light" : isSelected ? "text-tea-green font-bold" : "text-tea-text"
                 }`}>
                   {day}
@@ -187,7 +187,7 @@ export default function ExperienceCalendar({ experience }: Props) {
       {/* 選中日期的場次清單 */}
       {selectedDay !== null && (
         <div className="mt-4 border-t border-tea-green-pale pt-4">
-          <h4 className="text-sm font-semibold text-tea-text mb-3">
+          <h4 className="text-label font-semibold text-tea-text mb-3">
             {t("sessionListTitle", { month, day: selectedDay })}
           </h4>
           <div className="space-y-2">
@@ -202,24 +202,24 @@ export default function ExperienceCalendar({ experience }: Props) {
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5 text-tea-green shrink-0" />
-                      <span className="text-sm font-semibold text-tea-text">
+                      <span className="text-label font-semibold text-tea-text">
                         {s.startTime.slice(0, 5)}
                       </span>
-                      <span className="text-xs text-tea-text-light">
+                      <span className="text-caption text-tea-text-light">
                         {t("duration", { hours: experience.durationHours })}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 pl-5">
                       {open ? (
-                        <span className="text-xs text-tea-green font-medium">
+                        <span className="text-caption text-tea-green font-medium">
                           {t("remainingSpots", { count: remaining })}
                         </span>
                       ) : s.status === "full" ? (
-                        <span className="text-xs text-tea-text-light bg-tea-text-light/10 px-2 py-0.5 rounded-pill">
+                        <span className="text-caption text-tea-text-light bg-tea-text-light/10 px-2 py-0.5 rounded-pill">
                           {t("full")}
                         </span>
                       ) : (
-                        <span className="text-xs text-red-400 bg-red-50 px-2 py-0.5 rounded-pill">
+                        <span className="text-caption text-red-400 bg-red-50 px-2 py-0.5 rounded-pill">
                           {t("cancelled")}
                         </span>
                       )}
@@ -228,7 +228,7 @@ export default function ExperienceCalendar({ experience }: Props) {
                   <button
                     disabled={!open}
                     onClick={() => router.push(lp(`/experiences/booking/${s.id}`))}
-                    className={`text-sm font-medium px-4 py-2 rounded-control transition-colors duration-base ease-standard ${
+                    className={`text-label font-medium px-4 py-2 rounded-control transition-colors duration-base ease-standard ${
                       open
                         ? "bg-tea-green text-white hover:bg-tea-green-dark cursor-pointer"
                         : "bg-tea-text-light/10 text-tea-text-light cursor-not-allowed"
@@ -244,7 +244,7 @@ export default function ExperienceCalendar({ experience }: Props) {
       )}
 
       {/* 圖例 */}
-      <div className="flex flex-wrap gap-3 sm:gap-4 mt-5 text-xs text-tea-text-light">
+      <div className="flex flex-wrap gap-3 sm:gap-4 mt-5 text-caption text-tea-text-light">
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-pill bg-tea-green inline-block" />
           {t("legend.available")}

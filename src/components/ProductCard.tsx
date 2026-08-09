@@ -187,7 +187,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* 類別標籤 */}
           <div className="absolute top-3 left-3">
-            <span className="bg-white/75 backdrop-blur-sm text-tea-text text-xs px-3 py-1 rounded-pill font-medium shadow-resting">
+            <span className="bg-white/75 backdrop-blur-sm text-tea-text text-caption px-3 py-1 rounded-pill font-medium shadow-resting">
               {product.category === "烏龍茶" ? t("categoryOolong") : t("categoryBlack")}
             </span>
           </div>
@@ -195,9 +195,9 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* 海拔 / 售完 */}
           <div className="absolute top-3 right-3">
             {allSoldOut ? (
-              <span className="bg-gray-800/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-pill font-medium shadow-resting">{t("outOfStock")}</span>
+              <span className="bg-gray-800/80 backdrop-blur-sm text-white text-caption px-3 py-1 rounded-pill font-medium shadow-resting">{t("outOfStock")}</span>
             ) : (
-              <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-xs px-3 py-1 rounded-pill shadow-resting">{product.altitude}</span>
+              <span className="bg-white/75 backdrop-blur-sm text-tea-text-light text-caption px-3 py-1 rounded-pill shadow-resting">{product.altitude}</span>
             )}
           </div>
 
@@ -213,24 +213,24 @@ export default function ProductCard({ product }: { product: Product }) {
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/>
               <circle cx="12" cy="9" r="2.5" fill="white"/>
             </svg>
-            <p className="text-xs text-tea-green font-medium tracking-wide">{isEn ? (product.originEn || product.origin) : product.origin}</p>
+            <p className="text-caption text-tea-green font-medium tracking-wide">{isEn ? (product.originEn || product.origin) : product.origin}</p>
           </div>
 
           {/* 茶名 */}
           <h3 className={`font-serif text-xl font-bold mb-1 group-hover:text-tea-green transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
             {isEn ? product.nameEn : product.name}
           </h3>
-          <p className="text-xs text-tea-text-light italic mb-3">{isEn ? product.name : product.nameEn}</p>
+          <p className="text-caption text-tea-text-light italic mb-3">{isEn ? product.name : product.nameEn}</p>
 
           {/* 描述 */}
-          <p className="text-sm text-tea-text-light line-clamp-2 flex-1 mb-4">
+          <p className="text-body text-tea-text-light line-clamp-2 flex-1 mb-4">
             {isEn ? (product.descriptionEn || product.description) : product.description}
           </p>
 
           {/* 規格選擇 */}
           {variants.length > 1 && (
             <div className="mb-4">
-              <p className="text-xs text-tea-text-light mb-2">{t("selectVariant")}</p>
+              <p className="text-caption text-tea-text-light mb-2">{t("selectVariant")}</p>
               <div className="flex gap-2 flex-wrap">
                 {variants.map((v) => {
                   const variantSoldOut = v.stock === 0;
@@ -239,7 +239,7 @@ export default function ProductCard({ product }: { product: Product }) {
                       key={v.key}
                       onClick={(e) => { e.stopPropagation(); if (!variantSoldOut) selectVariant(v.key); }}
                       disabled={variantSoldOut}
-                      className={`flex flex-col items-center px-3 py-2 rounded-control border text-xs font-medium transition-all duration-fast ease-standard min-w-[60px] ${
+                      className={`flex flex-col items-center px-3 py-2 rounded-control border text-caption font-medium transition-all duration-fast ease-standard min-w-[60px] ${
                         variantSoldOut
                           ? "border-gray-200 text-gray-300 cursor-not-allowed"
                           : selectedKey === v.key
@@ -247,7 +247,7 @@ export default function ProductCard({ product }: { product: Product }) {
                           : "border-tea-green-pale text-tea-text-light hover:border-tea-green/50 hover:text-tea-text"
                       }`}
                     >
-                      <span className="font-bold text-sm leading-tight">{v.label}</span>
+                      <span className="font-bold text-label leading-tight">{v.label}</span>
                       <span className="text-[10px] opacity-70 leading-tight">
                         {variantSoldOut ? t("outOfStock") : v.hint}
                       </span>
@@ -266,7 +266,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* 數量選擇 */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex flex-col">
-              <span className="text-xs text-tea-text-light font-medium">{t("quantity")}</span>
+              <span className="text-caption text-tea-text-light font-medium">{t("quantity")}</span>
               {!selectedSoldOut && selected.stock !== undefined && (
                 <span className={`text-[10px] mt-0.5 ${selected.stock <= 10 ? "text-amber-500 font-semibold" : "text-tea-text-light"}`}>
                   {t("stockCount", { count: selected.stock })}
@@ -282,7 +282,7 @@ export default function ProductCard({ product }: { product: Product }) {
               >
                 −
               </button>
-              <span className="w-7 text-center text-sm font-semibold text-tea-text tabular-nums">
+              <span className="w-7 text-center text-label font-semibold text-tea-text tabular-nums">
                 {quantity}
               </span>
               <button
@@ -293,7 +293,7 @@ export default function ProductCard({ product }: { product: Product }) {
               >
                 +
               </button>
-              <span className="text-xs text-tea-text-light">{selected.unit}</span>
+              <span className="text-caption text-tea-text-light">{selected.unit}</span>
             </div>
           </div>
 
@@ -303,11 +303,11 @@ export default function ProductCard({ product }: { product: Product }) {
               <span className={`font-bold text-xl leading-none ${selectedSoldOut ? "text-tea-text/40" : "text-tea-green"}`}>
                 NT${selected.price.toLocaleString()}
               </span>
-              <span className="text-tea-text-light text-xs mt-0.5">/ {selected.weight}</span>
+              <span className="text-tea-text-light text-caption mt-0.5">/ {selected.weight}</span>
             </div>
 
             {selectedSoldOut ? (
-              <button disabled className="flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-pill font-medium bg-gray-100 text-gray-400 cursor-not-allowed">
+              <button disabled className="flex items-center gap-1.5 text-label px-5 py-2.5 rounded-pill font-medium bg-gray-100 text-gray-400 cursor-not-allowed">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                   <line x1="8" y1="8" x2="16" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -318,7 +318,7 @@ export default function ProductCard({ product }: { product: Product }) {
             ) : (
               <button
                 onClick={handleAdd}
-                className={`flex items-center gap-1.5 text-sm px-5 py-2.5 rounded-pill font-medium transition-all duration-base ease-standard shadow-resting ${
+                className={`flex items-center gap-1.5 text-label px-5 py-2.5 rounded-pill font-medium transition-all duration-base ease-standard shadow-resting ${
                   added
                     ? "bg-tea-green-pale text-tea-green-dark scale-95"
                     : "bg-tea-green hover:bg-tea-green-dark text-white hover:shadow-raised active:scale-95"
