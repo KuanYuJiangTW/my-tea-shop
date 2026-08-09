@@ -137,9 +137,12 @@ export default async function HomePage() {
 
       {/* 品茶哲學 */}
       {/* 慢段：品茶哲學是敘事不是商品，留白讓它慢下來。
+          **只在桌機加大**（手機 64px、桌機 128px）。第九波原本手機也給 96px，
+          但業主實測手機時指出滑不完一張卡——節奏感在大螢幕才看得出來，
+          小螢幕一屏只裝得下一張卡，多 32px 就是「還要再滑一次」。
           快慢交替見 globals.css --space-section-xl 的註解 */}
       {/* 底色是 cream -> cream-light -> white 漸進的第一階，見 docs/design-system.md 2.1.1 */}
-      <section className="py-section-lg md:py-section-xl bg-tea-cream">
+      <section className="py-section md:py-section-xl bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="flex flex-col justify-center">
@@ -307,7 +310,7 @@ export default async function HomePage() {
 
       {/* Brand Story */}
       {/* 慢段：品牌故事是情緒高點，也是唯一的深色錨點 */}
-      <section className="py-section-lg md:py-section-xl bg-tea-text">
+      <section className="py-section md:py-section-xl bg-tea-text">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mb-14">
             <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
