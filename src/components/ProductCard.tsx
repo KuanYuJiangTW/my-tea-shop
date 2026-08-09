@@ -223,7 +223,12 @@ export default function ProductCard({ product }: { product: Product }) {
           <p className="text-caption text-tea-text-light italic mb-3">{isEn ? product.name : product.nameEn}</p>
 
           {/* 描述 */}
-          <p className="text-body text-tea-text-light line-clamp-2 flex-1 mb-4">
+          {/* 字級用 label(14px) 而不是 body(16px)，行數給 3 行而不是 2 行。
+              手機 375px 下內容區約 303px，14px 中文約 21 字/行——2 行只有 43 字容量，
+              而實際描述有 48 字，**上線版就會截掉 5 字**（16px 更慘，截 11 字）。
+              3 行給到 64 字容量才真的讀得完。
+              **卡片內的固定行數容器，字級與行數要一起算，只看內容型態會截字。** */}
+          <p className="text-label text-tea-text-light line-clamp-3 flex-1 mb-4">
             {isEn ? (product.descriptionEn || product.description) : product.description}
           </p>
 

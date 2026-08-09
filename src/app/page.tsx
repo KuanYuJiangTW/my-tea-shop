@@ -268,7 +268,8 @@ export default async function HomePage() {
                       <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">
                         {isEn ? (exp.nameEn || exp.name) : exp.name}
                       </h3>
-                      <p className="text-tea-text-light text-body mb-4 line-clamp-2">
+                      {/* 與商品卡同理：14px + 3 行才讀得完，見 ProductCard 的註解 */}
+                      <p className="text-tea-text-light text-label mb-4 line-clamp-3">
                         {isEn ? (content.taglineEn || content.tagline) : content.tagline}
                       </p>
                       <div className="flex items-center justify-between text-sm text-tea-text-light">
