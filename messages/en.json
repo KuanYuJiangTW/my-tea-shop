@@ -154,6 +154,8 @@
     "noResults": "No products in this category",
     "perPerson": "/ person",
     "countLabel": "{count} teas",
+    "shippingNoteDomestic": "Free shipping in Taiwan over NT${amount}",
+    "shippingNoteIntl": "Free worldwide shipping over NT${amount} (PayPal checkout)",
     "selectVariant": "Select Size",
     "quantity": "Qty",
     "stockCount": "{count} in stock",
@@ -214,6 +216,7 @@
     "freeShipping": "Free",
     "shippingOptions": "Home delivery NT$250 / Convenience store NT$60",
     "freeShippingHint": "Add NT${amount} more for free shipping",
+    "intlFreeShippingHint": "Shipping overseas? Free over NT${threshold} — NT${amount} to go",
     "total": "Total",
     "checkout": "Proceed to Checkout",
     "loginToCheckout": "Log in to Checkout",
@@ -593,6 +596,8 @@
     "register": {
       "title": "Create Account",
       "subtitle": "Join Wu Jue Tea and enjoy member-exclusive services",
+      "couponBadge": "Get NT${amount} off when you sign up",
+      "couponBadgeNote": "min NT${min} · valid {days} days",
       "inAppBrowser": {
         "banner": "You're browsing inside LINE. Google sign-up is not available here.",
         "openExternal": "Open in Browser",
@@ -616,6 +621,7 @@
         "title": "Verification email sent!",
         "checkEmail": "Please check your inbox at {email}",
         "clickLink": "Click the verification link to start using member features.",
+        "couponPending": "Your NT${amount} credit lands in your account once you verify.",
         "goLogin": "Go to Login",
         "checkSpam": "Didn't receive it? Check your spam folder"
       },

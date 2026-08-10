@@ -44,7 +44,8 @@ export function calcTotalWeightG(items: WeightItem[]): number {
 
 // ─── 國內運費 ─────────────────────────────────────────────────────────────
 
-const DOMESTIC_FREE_THRESHOLD = 1000;
+/** 國內免運門檻（商品小計）。export 是因為商品頁與購物車的文案要引用同一個值 */
+export const DOMESTIC_FREE_THRESHOLD = 1000;
 const HOME_DELIVERY_FEE = 250;
 const CVS_DELIVERY_FEE = 60;
 
