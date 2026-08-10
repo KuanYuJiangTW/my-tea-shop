@@ -1,6 +1,13 @@
 {
   "common": {
     "brand": "Wu Jue Tea",
+    "announcement": {
+      "welcome": "New here? Get NT${amount} off your first order",
+      "welcomeNote": "(min NT${min} · {days} days)",
+      "shipping": "Worldwide shipping — free over NT${amount}",
+      "shippingNote": "(PayPal for overseas orders)",
+      "dismiss": "Dismiss announcement"
+    },
     "nav": {
       "home": "Home",
       "products": "Products",

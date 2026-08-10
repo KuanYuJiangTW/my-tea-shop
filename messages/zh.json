@@ -1,6 +1,13 @@
 {
   "common": {
     "brand": "霧抉茶",
+    "announcement": {
+      "welcome": "新朋友註冊即送 NT${amount} 購物金",
+      "welcomeNote": "（滿 NT${min} 可用・{days} 天內有效）",
+      "shipping": "全球配送・單筆滿 NT${amount} 免國際運費",
+      "shippingNote": "（海外訂單以 PayPal 結帳）",
+      "dismiss": "關閉公告"
+    },
     "nav": {
       "home": "首頁",
       "products": "產品",
