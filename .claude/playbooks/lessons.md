@@ -149,6 +149,12 @@
 - 規則：**`line-clamp-N` 要配 `min-h-[Nlh]`**——clamp 只設了上限，沒設下限。卡片並排（不論 grid 或單欄堆疊）而內容長度不一時，只有同時鎖上下限才會等高。`lh` 單位＝當前行高，會跟著字級走，不必寫死 px。另一個判準：**「在某個寬度沒問題」不等於「沒問題」**，斷行類的 bug 要掃過 375／390／414／430 四個常見手機寬度
 - 去處：已寫進 `ProductCard.tsx` 的描述註解（含 414px 的實測數字）。與同期三條同源——都是拿單一情境的判斷去蓋全部情境，這次是拿單一螢幕寬度蓋所有寬度
 
+## 2026-08-11 mock 回傳 select 沒要求的欄位，讓「忘了 select 主鍵」的 bug 綠燈上線
+- 情境：要修 `points-expiry-notify` 一個「寄信失敗仍被標記已通知」的問題。讀碼時發現更嚴重的一層：7 天段的查詢是 `.select("user_id, points, expires_at")`（**沒有 `id`**），標記段卻用 `expiring7d.map(t => t.id).filter(Boolean)` 組主鍵清單 → `ids` 恆為空陣列 → `if (ids.length > 0)` 恆為 false → **update 從未執行**
+- 代價：`notification_sent_7d` 永遠是 false，所以**同一批人在點數到期前每天都收一封信**（最後 3 天還會 7d+3d 各一封）。這支 cron 已在正式站每日執行。而它有 5 條測試、全綠——因為 `createChainMock` 不管 `select()` 傳什麼都回傳完整物件，測試裡 `t.id` 永遠有值，真實 Supabase 只回傳 select 指定的欄位
+- 規則：**驗證「查詢欄位與後續使用是否對得上」時，mock 必須依 `select()` 裁切回傳資料**。本 repo 已備 `createSelectAwareChainMock`（`src/__tests__/points/helpers/supabase-mock.ts`），會記錄 select 的欄位並只回傳那些欄位，另提供 `_selectedCols()` 供直接斷言。凡是「查出來的列之後要拿主鍵回寫」的程式，測試一律用它，並加一條 `expect(cols).toContain("id")`
+- 去處：暫存於此。與 2026-08-01「SELECT 少一個欄位，`??` 的 fallback 就從保險變成預設路徑」同源——**同一個坑第二次了**，兩次都是 select 漏欄位而下游靜默拿到 undefined。若再出現第三次，應升格為 playbook 正式規則
+
 ## 已歸檔（2026-08-06 精簡，共 18 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
