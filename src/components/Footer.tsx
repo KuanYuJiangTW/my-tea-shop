@@ -106,7 +106,9 @@ export default function Footer() {
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
-                qdbzdt2846@gmail.com
+                {/* email 是不可斷字的長字串，md 四欄時欄寬只有 146px 會撐破版面
+                    （768px 實測欄內溢出 35px）。break-all 讓它需要時才折行 */}
+                <span className="min-w-0 break-all">qdbzdt2846@gmail.com</span>
               </li>
             </ul>
           </div>

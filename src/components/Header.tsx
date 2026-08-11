@@ -59,7 +59,10 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href={lp("/")} className="flex items-center gap-2.5">
+          {/* flex-shrink-0：品牌標記永遠不讓步。1024px＋英文＋登入長名字時整列會差約 10px，
+              預設的 flex 收縮會挑上 logo，把「霧抉茶」擠成兩行、SVG 也縮成 30px。
+              鎖住這裡，那 10px 就轉嫁給下面本來就設計成會 truncate 的使用者名稱 */}
+          <Link href={lp("/")} className="flex flex-shrink-0 items-center gap-2.5">
             {/* 顏色走 fill-/stroke- utility，不寫死 hex——這是全站最顯眼的品牌標記，
                 色盤調整時漏掉這裡等於 logo 與其他地方不同色 */}
             <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
@@ -76,16 +79,20 @@ export default function Header() {
               <line x1="14" y1="31" x2="17" y2="29" className="stroke-tea-green-dark" strokeWidth="1.5" strokeLinecap="round" />
               <line x1="20" y1="31" x2="17" y2="29" className="stroke-tea-green-dark" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
-            <span className="font-serif text-xl font-bold text-tea-text tracking-wide">霧抉茶</span>
+            <span className="font-serif text-xl font-bold text-tea-text tracking-wide whitespace-nowrap">霧抉茶</span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          {/* 斷點是 lg 不是 md：768px（md 起點）放不下六項導覽。實測 EN 標籤單行合計
+              約 386px，加 logo 104 與右側控制 160 就是 650，容器只剩 705，五道間距
+              每道剩 11px——不是調 gap 能解的。舊版停在 md 的代價是橫向捲軸 34px、
+              logo 被壓到 65px、三個 EN 連結折成兩行。加導覽項目前先在 1024px 量一次 */}
+          <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-tea-text-light hover:text-tea-green transition-colors duration-base ease-standard text-label font-medium tracking-wide"
+                className="whitespace-nowrap text-tea-text-light hover:text-tea-green transition-colors duration-base ease-standard text-label font-medium tracking-wide"
               >
                 {link.label}
               </Link>
@@ -94,24 +101,28 @@ export default function Header() {
 
           {/* Right: Language + User + Cart + Mobile toggle */}
           <div className="flex items-center gap-2">
-            <div className="hidden md:flex items-center mr-1">
+            {/* 完整的「中文 / EN」切換器 74px，與導覽列同進退（lg 以上才出現）；
+                lg 以下改用 36px 的 QuickLocaleSwitcher，功能不減只是變窄 */}
+            <div className="hidden lg:flex items-center mr-1">
               <LanguageSwitcher />
             </div>
 
             {/* User Menu (Desktop) */}
             {!loading && (
-              <div className="hidden md:block relative" ref={userMenuRef}>
+              <div className="hidden lg:block relative" ref={userMenuRef}>
                 {user ? (
                   <>
                     <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-control hover:bg-tea-green-mist transition-colors duration-base ease-standard text-label text-tea-text-light hover:text-tea-green"
                     >
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                      {/* 兩個圖示 flex-shrink-0：版面吃緊時要被壓縮的是名字（它有 truncate
+                          會出現省略號），不是圖示——圖示被壓會變形且看不出原因 */}
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0 fill-current">
                         <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
                       </svg>
                       <span className="max-w-[80px] truncate font-medium">{displayName}</span>
-                      <svg viewBox="0 0 24 24" className={`w-3 h-3 fill-current transition-transform ${isUserMenuOpen ? "rotate-180" : ""}`}>
+                      <svg viewBox="0 0 24 24" className={`w-3 h-3 flex-shrink-0 fill-current transition-transform ${isUserMenuOpen ? "rotate-180" : ""}`}>
                         <path d="M7 10l5 5 5-5z"/>
                       </svg>
                     </button>
@@ -165,8 +176,8 @@ export default function Header() {
               </div>
             )}
 
-            {/* Mobile Quick Locale Switch */}
-            <div className="md:hidden">
+            {/* Quick Locale Switch：手機到平板（< lg）都用這顆窄的 */}
+            <div className="lg:hidden">
               <QuickLocaleSwitcher />
             </div>
 
@@ -191,7 +202,7 @@ export default function Header() {
             {/* Mobile hamburger */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-tea-text"
+              className="lg:hidden p-2 text-tea-text"
               aria-label="選單"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -211,7 +222,7 @@ export default function Header() {
 
         {/* Mobile Nav */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-tea-green-pale space-y-1">
+          <div className="lg:hidden py-4 border-t border-tea-green-pale space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.label}

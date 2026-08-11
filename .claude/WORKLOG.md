@@ -618,6 +618,44 @@ Tailwind 產物一律以 `npm run build` 為準
 - 驗證：375／414／430／1280 四個寬度都是 632px、三張等高、零截字，圖片區仍 224px
 - `632` 這個數字與換法已寫進 `ProductCard.tsx` 註解，並註明「動間距或行數前先量總高」
 
+**第二十三波（2026-08-11）：768px 的水平溢出——平板改走漢堡選單**
+- 症狀：768px 時 `scrollWidth 787` vs `clientWidth 753`，出現橫向捲軸
+- **溢出有兩個獨立成因，不是一個**：
+  (a) Header——**英文版**才會現形（不是登入狀態；一開始推論成登入狀態，實測推翻）。
+      EN 標籤比中文長（單行合計約 386px vs 中文 249px），768 是 md 起點，
+      導覽六項＋語言切換＋使用者選單＋購物車同時出場
+  (b) Footer——`qdbzdt2846@gmail.com` 是不可斷字長字串，md 四欄時欄寬只有 146px，
+      欄內溢出 35px、傳到文件是 11px。**中文版也中**，與 Header 無關
+- 算過才知道調 gap 解不了：EN 連結 386 ＋ logo 104 ＋ 右側 160 = 650，容器只有 705，
+  五道間距每道只剩 11px。**768px 結構上放不下六項英文導覽**
+- 修法：Header 六處斷點 `md:` → `lg:`（導覽列、語言切換、使用者選單、QuickLocaleSwitcher、
+  漢堡鈕、行動選單面板），768–1023 走漢堡；導覽連結加 `whitespace-nowrap`；
+  Footer 的 email 包 `<span className="min-w-0 break-all">`
+- 業主拍板：「橫向捲軸不能接受，平板大小改成漢堡選單」
+- 驗證：375／414／430／768／1023／1024／1280 × 中英雙語，`scrollWidth - clientWidth` 全為 0；
+  導覽連結零折行；漢堡選單在 768 實際點開過（六連結＋AI 顧問＋登入＋語言切換都在，
+  面板展開時仍 0 溢出）。`/verify` 三項全過（42 檔 551 測試、tsc 零錯誤、build 成功）
+- **順帶修好的**：1024px EN 三個連結原本折成兩行（`whitespace-nowrap` 收掉了）
+- **既有問題，業主指示不動**：1024px ＋ EN ＋ 登入且名字長時，logo 的「霧抉茶」折成兩行
+  （已用 stash 對比確認改前就有）。修法是把壓縮轉嫁給本來就會 truncate 的使用者名稱
+- 環境坑兩個（已入 lessons）：量測要等 `document.fonts.ready`；
+  內建瀏覽器 CSP 擋 `eval()` 導致 **dev 版不 hydrate**，驗互動要用 production build
+
+**第二十四波（2026-08-11）：1024px 的 logo 折行（第二十三波留下的尾巴）**
+- 業主追加要求，把第二十三波標記為「既有問題、暫不處理」的那項收掉
+- 症狀：1024px ＋ 英文 ＋ 登入且名字長時，整列差約 10px，flex 預設收縮挑上 logo，
+  把「霧抉茶」擠成兩行、SVG 也從 34 縮到 30
+- 修法（三處，都是把「誰該讓步」講清楚）：
+  - logo 的 `<Link>` 加 `flex-shrink-0`、品牌字加 `whitespace-nowrap`——品牌標記永不讓步
+  - 使用者選單按鈕的兩個 SVG 加 `flex-shrink-0`——擠壓要落在名字上，
+    它本來就有 `max-w-[80px] truncate` 會出省略號，圖示被壓則會變形且看不出原因
+- 驗證：320／375／768／1024／1280 × 中英 × 登入態，`over` 全為 0，
+  `brandH` 全為 28（單行）、logo 106、SVG 34；1024 EN 登入態的擠壓確實轉嫁到名字
+  （量到 80px 且 `scrollWidth > clientWidth`＝出現省略號）。prod build 上覆驗過
+- **踩到的坑**：`npm run build` 一度失敗（`@vercel/turbopack-next/internal/font/google/font`
+  解析不到），與本次改動無關——是 dev server 留下的 `.next` 毒化了建置。
+  `rm -rf .next` 後連跑兩次都 exit 0。已入 lessons
+
 **還沒改回上線版的項目**（業主看過清單後的決定）：
 - **陰影顏色維持茶墨色**（`rgb(61 74 66)`，上線版是純黑 `rgb(0 0 0)`）。
   這是我在「所有顏色改回上線版」時漏掉的一項——還原腳本只掃 text／bg／border 類 class，
