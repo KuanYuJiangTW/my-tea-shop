@@ -57,7 +57,12 @@
       "loading": "Processing…",
       "close": "Close"
     },
-    "adultOnly": "18+"
+    "adultOnly": "18+",
+    "memberTier": {
+      "standard": "Standard",
+      "silver": "Silver",
+      "gold": "Gold"
+    }
   },
   "home": {
     "hero": {
@@ -272,6 +277,7 @@
     "pointsBalanceLabel": "{balance} pts remaining",
     "pointsUseMax": "Use All",
     "pointsMinWarning": "Minimum 10 points required",
+    "pointsTierHint": "You're a {tier} member — up to NT${amount} off this order",
     "pointsWillDiscount": "Will save NT${amount}",
     "shippingFee": "Shipping",
     "shippingFree": "Free",
@@ -455,13 +461,15 @@
       "pointsUnit": "pts",
       "pointsUnitNew": "redeemable",
       "earnRate": "Earn {rate}%",
-      "tierStandard": "Standard",
-      "tierSilver": "Silver",
-      "tierGold": "Gold",
       "annualSpend": "Annual spend",
       "nextTier": "NT${amount} to {name}",
       "maxTier": "Highest tier reached",
+      "retentionWarning": "NT${amount} more to keep your {tier} status — reach it before year end",
+      "tierHistoryTitle": "Tier History",
+      "tierReasonUpgrade": "Upgraded",
+      "tierReasonAnnualReset": "Annual reset",
       "expiringWarning": "Reminder: NT${amount} in points expiring within 30 days",
+      "earliestExpiry": " (earliest: {date})",
       "recentHistory": "Recent History",
       "earnDefault": "Purchase reward",
       "redeemDefault": "Points redeemed",
@@ -474,6 +482,22 @@
       "couponUsedOn": " · Used on {date}",
       "couponValidUntil": " · Valid until {date}",
       "noCoupons": "No coupons yet."
+    },
+    "pointsLedger": {
+      "earn": "Purchase reward",
+      "redeem": "NT${amount} redeemed",
+      "cancelRefund": "Points refunded on cancellation",
+      "orderCancelRefund": "Points refunded — order cancelled",
+      "bookingCancelRefund": "Points refunded — booking cancelled",
+      "orderCompleteEarn": "Order completed reward",
+      "bookingCompleteEarn": "Experience completed reward",
+      "orderRedeem": "NT${amount} redeemed on order",
+      "bookingRedeem": "NT${amount} redeemed on booking",
+      "sessionCancelRefund": "Points refunded — session cancelled",
+      "paymentExpiredRefund": "Points refunded — payment window expired",
+      "paypalFailedRefund": "Points refunded — PayPal checkout failed",
+      "adminAdjust": "Admin adjustment: {note}",
+      "systemBackfill": " (system reissue)"
     },
     "orders": {
       "noOrdersTitle": "No orders yet",

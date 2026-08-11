@@ -179,6 +179,12 @@
 - 規則：**驗證「查詢欄位與後續使用是否對得上」時，mock 必須依 `select()` 裁切回傳資料**。本 repo 已備 `createSelectAwareChainMock`（`src/__tests__/points/helpers/supabase-mock.ts`），會記錄 select 的欄位並只回傳那些欄位，另提供 `_selectedCols()` 供直接斷言。凡是「查出來的列之後要拿主鍵回寫」的程式，測試一律用它，並加一條 `expect(cols).toContain("id")`
 - 去處：暫存於此。與 2026-08-01「SELECT 少一個欄位，`??` 的 fallback 就從保險變成預設路徑」同源——**同一個坑第二次了**，兩次都是 select 漏欄位而下游靜默拿到 undefined。若再出現第三次，應升格為 playbook 正式規則
 
+## 2026-08-11 購物車的商品名是「合成」的，切成 `nameEn` 會讓兩個規格變同名
+- 情境：把 `/checkout` order summary 的商品名改成依語系取 `nameEn`。看起來是一行的恆等改動——`ProductCard.tsx:221` 早就這樣寫了，照抄即可
+- 代價：差點讓英文版的「茶包組」與「150g 散茶」顯示成同一個名字、客人分不出訂到哪一項。原因是加入購物車時 `name` 被**合成**為 `${p.name} ${labels.teaBagSet}`（`ProductCard.tsx:71`、`TeaBagCard.tsx:24`），但 `nameEn` 沒跟著合成，仍是基礎茶名。切過去等於把後綴弄丟。是讀 `buildVariants` 才發現，grep `nameEn` 看不出來
+- 規則：**把某欄位改成「依語系取 `xxxEn`」之前，先查該欄位在寫入端是不是被加工過**（grep 該欄位名在 `addToCart`／snapshot 組裝處的賦值，看右手邊是不是模板字串）。加工過就代表 `xxxEn` 與它不對等，要嘛在顯示層補回加工，要嘛在寫入端一起合成
+- 去處：暫存於此。與「SELECT 少一個欄位」同屬「兩個欄位看起來平行、實際不對等」，但那組是查詢面、這組是寫入面
+
 ## 已歸檔（2026-08-06 精簡，共 18 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
