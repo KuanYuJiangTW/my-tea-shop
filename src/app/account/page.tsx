@@ -101,7 +101,7 @@ export default async function AccountPage() {
     .from("experience_bookings")
     .select(`
       id, created_at, status, participant_count, total_price, points_discount, participants_due_at, refund_amount,
-      session:experience_sessions(session_date, start_time, experience_types(name))
+      session:experience_sessions(session_date, start_time, experience_types(name, name_en))
     `)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
@@ -118,7 +118,7 @@ export default async function AccountPage() {
     .from("waitlist_entries")
     .select(`
       id, status, participant_count, confirm_deadline, created_at,
-      session:experience_sessions(session_date, start_time, experience_types(name))
+      session:experience_sessions(session_date, start_time, experience_types(name, name_en))
     `)
     .eq("user_id", user.id)
     .in("status", ["waiting", "notified"])

@@ -8,6 +8,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
+import { isKnownMemberTier } from "@/lib/points-i18n";
+import { productDisplayName, productDisplayWeight } from "@/lib/product-display";
 import type {
   PaymentMethod,
   DeliveryType,
@@ -61,7 +63,9 @@ export default function CheckoutClient() {
   const locale = useLocale();
   const t = useTranslations("checkout");
   const tCommon = useTranslations("common");
-  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
+  const tProducts = useTranslations("products");
+  const isEn = locale === "en";
+  const lp = (path: string) => isEn ? `/en${path}` : path;
   const [submitting, setSubmitting]     = useState(false);
   const [selectingStore, setSelectingStore] = useState(false);
   const [error, setError]           = useState("");
@@ -109,7 +113,8 @@ export default function CheckoutClient() {
   // 點數（新制 1:1）
   const [pointsBalance, setPointsBalance] = useState(0);
   const [pointsMaxRate, setPointsMaxRate] = useState(0.10);
-  const [pointsTierName, setPointsTierName] = useState("");
+  // 等級存 id 而非 name：`member_tiers` 沒有 name_en，名稱一律由 id 對 i18n（name 只當 fallback）
+  const [pointsTier, setPointsTier] = useState<{ id: string; name: string } | null>(null);
   const [pointsToUse, setPointsToUse]     = useState(0);
 
   const [form, setForm] = useState<CheckoutForm>({
@@ -168,6 +173,10 @@ export default function CheckoutClient() {
   const couponDiscount  = appliedCoupon ? appliedCoupon.discount_amount : 0;
   const afterCoupon     = totalPrice + shippingFee - couponDiscount;
   const maxPointsAllowed = Math.min(pointsBalance, Math.floor(afterCoupon * pointsMaxRate));
+  /** 認得的等級走 i18n，認不得的退回 DB 名稱；兩者都沒有就整句不顯示 */
+  const pointsTierLabel = !pointsTier
+    ? ""
+    : isKnownMemberTier(pointsTier.id) ? tCommon(`memberTier.${pointsTier.id}`) : pointsTier.name;
   const pointsDiscount   = pointsToUse >= 10 && pointsToUse <= maxPointsAllowed ? pointsToUse : 0;
   const grandTotal       = Math.max(afterCoupon - pointsDiscount, 0);
 
@@ -210,7 +219,7 @@ export default function CheckoutClient() {
     fetch("/api/user/points").then(r => r.json()).then(data => {
       if (typeof data.balance === "number") setPointsBalance(data.balance);
       if (data.tier?.max_discount_rate) setPointsMaxRate(data.tier.max_discount_rate);
-      if (data.tier?.name) setPointsTierName(data.tier.name);
+      if (data.tier?.id) setPointsTier({ id: data.tier.id, name: data.tier.name ?? "" });
     }).catch(() => {});
   }, []);
 
@@ -995,7 +1004,7 @@ export default function CheckoutClient() {
                 <div className="space-y-3 mb-5">
                   {items.map(item => (
                     <div key={item.product.id} className="flex justify-between text-label">
-                      <span className="text-tea-text-light">{item.product.name} {item.product.weight} × {item.quantity}</span>
+                      <span className="text-tea-text-light">{productDisplayName(item.product, isEn, tProducts("teaBagSet"))} {productDisplayWeight(item.product.weight, isEn)} × {item.quantity}</span>
                       <span className="text-tea-text font-medium">NT${(item.product.price * item.quantity).toLocaleString()}</span>
                     </div>
                   ))}
@@ -1080,9 +1089,9 @@ export default function CheckoutClient() {
                       <span className="text-caption text-tea-text">{t("pointsRedeemLabel")}</span>
                       <span className="text-caption text-tea-text-light">{t("pointsBalanceLabel", { balance: pointsBalance.toLocaleString() })}</span>
                     </div>
-                    {pointsTierName && (
+                    {pointsTierLabel && (
                       <p className="text-[11px] text-tea-text-light mb-2">
-                        您為{pointsTierName}，本次最高可折抵 NT${maxPointsAllowed.toLocaleString()}
+                        {t("pointsTierHint", { tier: pointsTierLabel, amount: maxPointsAllowed.toLocaleString() })}
                       </p>
                     )}
                     <div className="flex items-center gap-2">

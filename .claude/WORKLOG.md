@@ -699,5 +699,44 @@ Tailwind 產物一律以 `npm run build` 為準
 - 是否把 `docs/design-system.md` 加進 `CLAUDE.md` 路由表（改 CLAUDE.md 依 MAINT-1 要先問）
 - 茶山體驗卡片牆要不要改成滿版照片斷點（移除轉換入口，商業決策）
 
+### [2026-08-11] 英文版漏翻：會員中心（預約／點數）與結帳 order summary
+- 目標：業主回報切英文時仍有中文。盤查後歸成四個根因，本波做掉三個半
+- 驗收條件：
+  - [x] 體驗名稱、商品名、規格、等級名稱、日期格式在英文版全部跟著語系走
+  - [x] 帳本描述有對照表且**漏補會被測試抓到**
+  - [x] `/verify` 三項全過
+- **四個根因**（分類比逐條列清單有用，未來同類問題照這四類找）：
+  1. **DB 有英文欄位但沒取用** — `experience_types.name_en`（查詢只 select 了 `name`）、
+     `products.nameEn`（結帳與購物車直接用 `.name`）。修法最輕
+  2. **硬編碼中文** — 5 處（保級預警、等級變更紀錄、升等／年度重置、最早到期、
+     結帳的「您為金卡會員…」）
+  3. **日期寫死 `zh-TW`** — `AccountClient` 8 處。專案本來就有寫法可沿用
+     （`ExperienceReviews.tsx:40`：`locale === "en" ? "en-US" : "zh-TW"`）
+  4. **DB 沒有英文欄位** — `member_tiers.name` 與 `point_transactions.description`
+- **兩個結構性決定**：
+  - **等級名稱一律不讀 DB 的 `name`**，改由 tier id 對 `common.memberTier.*`
+    （該表沒有 `name_en`，加欄位不如讓顯示層決定）。i18n 本來就有這三個字串，
+    原本擺在 `account.rewards.tier*`、只有 account 用得到；移到 `common` 讓結帳共用
+  - **帳本描述走顯示層對照表（業主拍板 A 案）**，不改寫入端。理由：描述在 DB 裡是中文
+    字面值且**歷史資料已經落地**，顯示層對照可以一併涵蓋舊資料；而點數是高風險區，
+    不動寫入路徑風險最低。認不出來的**原樣顯示原字串**——寧可露出中文也不猜
+- **測試的關鍵設計**（`src/__tests__/points/points-i18n.test.ts`）：不是我列了哪些字串就測哪些，
+  而是**掃描原始碼**把所有寫入 `description` 的字面值抓出來（模板的 `${...}` 換成 `123`
+  還原成真實形狀），逐一比對對照表。新增寫入點卻忘了補，測試就會紅並指名檔案。
+  掃描器**必須先篩檔**（`point_transactions` 或 import `@/lib/points`）——
+  `description:` 這個鍵在頁面 metadata 與 Sanity schema 裡到處都是，不篩會被雜訊淹沒
+- 反向驗證：拿掉對照表一條後測試如預期變紅並指名來源檔，確認不是空過
+- **順手修掉的既有問題**：等級變更紀錄原本直接印 id（`standard → gold`，中文版也一樣看不懂）；
+  購物車頁的產地在英文版也沒切 `originEn`
+- **踩到的坑**（已入 lessons）：茶包組的購物車商品名是**合成**的（`${name} 茶包組`），
+  但 `nameEn` 沒同步合成，直接切過去會讓英文版的茶包組與 150g 散茶同名
+- 環境：`node_modules` 是空的，得先 `npm ci`；`npm ci` 後**第一次**跑 vitest 會有
+  5s timeout 的假失敗（transform 花了 45 秒），重跑即過——不要當成改動造成的
+- 狀態：已完成（證據：44 檔 578 測試全過／baseline stash 對比為 43 檔 568 全過、
+  `tsc --noEmit` exit 0、`npm run build` exit 0）
+- **尚未做**：瀏覽器實跑覆驗（本波只有測試＋型別＋build 三項）
+
+---
+
 **必讀**：`docs/design-system.md`（三條設計原則、token 表、**已知取捨：AA 三組對比是業主拍板
 的取捨不是待修缺陷，請勿自行「修正」**）、`docs/contrast-audit.js`（對比稽核器，後台遷移用過）

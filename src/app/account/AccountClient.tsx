@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
+import { translatePointsDescription, isKnownMemberTier } from "@/lib/points-i18n";
 
 type Profile = {
   id: string;
@@ -59,7 +60,7 @@ type BookingRow = {
   session: {
     session_date: string;
     start_time: string;
-    experience_types: { name: string } | null;
+    experience_types: { name: string; name_en: string | null } | null;
   } | null;
 };
 
@@ -72,7 +73,7 @@ type WaitlistRow = {
   session: {
     session_date: string;
     start_time:   string;
-    experience_types: { name: string } | null;
+    experience_types: { name: string; name_en: string | null } | null;
   } | null;
 };
 
@@ -155,8 +156,31 @@ function bookingStatusCls(status: BookingRow["status"]): string {
 
 export default function AccountClient({ user, profile, orders: initialOrders, pointsBalance, memberTier, annualSpend, expiringPoints, earliestExpiry, pointTransactions, coupons, bookings, waitlist }: Props) {
   const t = useTranslations("account");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
-  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
+  const isEn = locale === "en";
+  const lp = (path: string) => isEn ? `/en${path}` : path;
+  /** 日期一律跟著語系走。寫死 zh-TW 的話英文版會出現「2026年8月9日週日」 */
+  const dateFmt = isEn ? "en-US" : "zh-TW";
+  /** 體驗名稱：`experience_types` 有 `name_en`，缺漏時回中文（顯示中文好過顯示空白） */
+  const expTypeName = (et: { name: string; name_en: string | null } | null | undefined) =>
+    (isEn ? et?.name_en || et?.name : et?.name) ?? t("bookings.defaultExperience");
+  /** 等級名稱不讀 DB 的 `name`（該表沒有 name_en），改由 id 對 i18n；未知等級才 fallback */
+  const tierLabel = (tierId: string, fallback?: string) =>
+    isKnownMemberTier(tierId) ? tCommon(`memberTier.${tierId}`) : (fallback ?? tierId);
+  const memberTierName = tierLabel(memberTier.id, memberTier.name);
+  /**
+   * 點數明細。`description` 在 DB 裡是中文字面值（含歷史資料），只能在顯示層對回 i18n。
+   * 對不到的**原樣顯示原字串**——寧可露出中文，也不要猜成別的意思。
+   */
+  const pointsLedgerText = (tx: PointTx) => {
+    const label = translatePointsDescription(tx.description);
+    if (!label) {
+      return tx.description ?? (tx.type === "earn" ? t("rewards.earnDefault") : t("rewards.redeemDefault"));
+    }
+    return t(`pointsLedger.${label.key}`, label.values)
+      + (label.suffixKey ? t(`pointsLedger.${label.suffixKey}`) : "");
+  };
   const searchParams = useSearchParams();
   const rawTab = searchParams.get("tab");
   const defaultTab = rawTab === "orders" ? "orders" : rawTab === "rewards" ? "rewards" : rawTab === "bookings" ? "bookings" : "profile";
@@ -686,9 +710,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
             ) : (
               bookingList.map((booking) => {
                 const session  = booking.session;
-                const expName  = (session?.experience_types as { name: string } | null)?.name ?? t("bookings.defaultExperience");
+                const expName  = expTypeName(session?.experience_types);
                 const dateLabel = session?.session_date
-                  ? new Date(`${session.session_date}T00:00:00`).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric", weekday: "short" })
+                  ? new Date(`${session.session_date}T00:00:00`).toLocaleDateString(dateFmt, { year: "numeric", month: "long", day: "numeric", weekday: "short" })
                   : "—";
                 const timeLabel   = session?.start_time?.slice(0, 5) ?? "—";
                 const stCls         = bookingStatusCls(booking.status);
@@ -722,7 +746,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           </div>
                           {isConfirmed && booking.participants_due_at && (
                             <div className={`mt-1 text-xs ${isDue ? "text-amber-600" : "text-rose-500"}`}>
-                              {t("bookings.participantsDue", { date: new Date(booking.participants_due_at).toLocaleDateString("zh-TW") })}
+                              {t("bookings.participantsDue", { date: new Date(booking.participants_due_at).toLocaleDateString(dateFmt) })}
                               {!isDue && t("bookings.participantsDueExpired")}
                             </div>
                           )}
@@ -785,9 +809,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
             <h3 className="font-semibold text-tea-text mb-3">{t("waitlist.title")}</h3>
             <div className="space-y-3">
               {waitlist.map(w => {
-                const expName   = (w.session?.experience_types as { name: string } | null)?.name ?? t("bookings.defaultExperience");
+                const expName   = expTypeName(w.session?.experience_types);
                 const dateLabel = w.session?.session_date
-                  ? new Date(`${w.session.session_date}T00:00:00`).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric" })
+                  ? new Date(`${w.session.session_date}T00:00:00`).toLocaleDateString(dateFmt, { year: "numeric", month: "long", day: "numeric" })
                   : "—";
                 const waitlistStatusCls: Record<string, string> = {
                   waiting:  "bg-amber-100 text-amber-700",
@@ -806,7 +830,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         <div className="text-sm text-tea-text-light">{dateLabel} · {t("bookings.personCount", { count: w.participant_count })}</div>
                         {w.status === "notified" && w.confirm_deadline && (
                           <div className="text-xs text-blue-600 mt-1">
-                            {t("waitlist.confirmBefore", { datetime: new Date(w.confirm_deadline).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }) })}
+                            {t("waitlist.confirmBefore", { datetime: new Date(w.confirm_deadline).toLocaleString(dateFmt, { timeZone: "Asia/Taipei", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }) })}
                           </div>
                         )}
                       </div>
@@ -834,7 +858,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-tea-text">{t("rewards.pointsTitle")}</h2>
                 <span className="text-xs font-medium px-3 py-1 rounded-full bg-tea-green-mist text-tea-green">
-                  {memberTier.name} · {t("rewards.earnRate", { rate: Math.round(memberTier.points_rate * 100) })}
+                  {memberTierName} · {t("rewards.earnRate", { rate: Math.round(memberTier.points_rate * 100) })}
                 </span>
               </div>
               <p className="text-xs text-tea-text-light mb-4">
@@ -844,9 +868,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               {/* 年消費進度條 + 保級預警 */}
               {(() => {
                 const TIERS = [
-                  { id: "standard", name: t("rewards.tierStandard"), min: 0 },
-                  { id: "silver", name: t("rewards.tierSilver"), min: 3000 },
-                  { id: "gold", name: t("rewards.tierGold"), min: 8000 },
+                  { id: "standard", name: tCommon("memberTier.standard"), min: 0 },
+                  { id: "silver", name: tCommon("memberTier.silver"), min: 3000 },
+                  { id: "gold", name: tCommon("memberTier.gold"), min: 8000 },
                 ];
                 const currentIdx = TIERS.findIndex(t => t.id === memberTier.id);
                 const nextTier = TIERS[currentIdx + 1];
@@ -867,17 +891,18 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                     </div>
                     {needsRetentionWarning && (
                       <p className="mt-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
-                        距離保級還差 NT${retentionGap.toLocaleString()}，年底前達標可保留{memberTier.name}等級
+                        {t("rewards.retentionWarning", { amount: retentionGap.toLocaleString(), tier: memberTierName })}
                       </p>
                     )}
                     {tierHistory.length > 0 && (
                       <div className="mt-3 space-y-1">
-                        <p className="text-xs font-medium text-tea-text-light">等級變更紀錄</p>
+                        <p className="text-xs font-medium text-tea-text-light">{t("rewards.tierHistoryTitle")}</p>
                         {tierHistory.map(h => (
                           <div key={h.id} className="text-xs text-tea-text-light flex gap-2">
-                            <span className="text-tea-text-faint">{new Date(h.changed_at).toLocaleDateString("zh-TW")}</span>
-                            <span>{h.from_tier} → {h.to_tier}</span>
-                            <span className="text-tea-text-faint">({h.reason === "upgrade" ? "升等" : h.reason === "annual_reset" ? "年度重置" : h.reason})</span>
+                            <span className="text-tea-text-faint">{new Date(h.changed_at).toLocaleDateString(dateFmt)}</span>
+                            {/* from_tier / to_tier 存的是 id（standard/silver/gold），直接印出來中英文都看不懂 */}
+                            <span>{tierLabel(h.from_tier)} → {tierLabel(h.to_tier)}</span>
+                            <span className="text-tea-text-faint">({h.reason === "upgrade" ? t("rewards.tierReasonUpgrade") : h.reason === "annual_reset" ? t("rewards.tierReasonAnnualReset") : h.reason})</span>
                           </div>
                         ))}
                       </div>
@@ -897,7 +922,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   {t("rewards.expiringWarning", { amount: expiringPoints.toLocaleString() })}
                   {earliestExpiry && (
                     <span className="ml-1">
-                      （最早到期：{new Date(earliestExpiry).toLocaleDateString("zh-TW", { month: "long", day: "numeric" })}）
+                      {t("rewards.earliestExpiry", { date: new Date(earliestExpiry).toLocaleDateString(dateFmt, { month: "long", day: "numeric" }) })}
                     </span>
                   )}
                 </p>
@@ -908,8 +933,8 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   {pointTransactions.map(tx => (
                     <div key={tx.id} className="flex justify-between items-center py-2 border-b border-tea-green-pale/60 last:border-0">
                       <div>
-                        <p className="text-sm text-tea-text">{tx.description ?? (tx.type === "earn" ? t("rewards.earnDefault") : t("rewards.redeemDefault"))}</p>
-                        <p className="text-xs text-tea-text-light">{new Date(tx.created_at).toLocaleDateString("zh-TW")}</p>
+                        <p className="text-sm text-tea-text">{pointsLedgerText(tx)}</p>
+                        <p className="text-xs text-tea-text-light">{new Date(tx.created_at).toLocaleDateString(dateFmt)}</p>
                       </div>
                       <span className={`text-sm font-semibold ${tx.points > 0 ? "text-tea-green" : "text-rose-500"}`}>
                         {tx.points > 0 ? "+" : ""}{tx.points.toLocaleString()} {t("rewards.pointsUnit")}
@@ -942,7 +967,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           </div>
                           <p className="text-xs text-tea-text-light mt-0.5">
                             {t("rewards.couponDiscount", { amount: c.discount_amount, min: c.min_order_amount })}
-                            {isUsed ? t("rewards.couponUsedOn", { date: new Date(c.used_at!).toLocaleDateString("zh-TW") }) : t("rewards.couponValidUntil", { date: new Date(c.expires_at).toLocaleDateString("zh-TW") })}
+                            {isUsed ? t("rewards.couponUsedOn", { date: new Date(c.used_at!).toLocaleDateString(dateFmt) }) : t("rewards.couponValidUntil", { date: new Date(c.expires_at).toLocaleDateString(dateFmt) })}
                           </p>
                         </div>
                         <span className={`text-xl font-bold ${isActive ? "text-tea-green" : "text-tea-text-light"}`}>-${c.discount_amount}</span>
@@ -1007,7 +1032,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           </span>
                         </div>
                         <div className="text-sm text-tea-text-light">
-                          {new Date(order.created_at).toLocaleDateString("zh-TW")} · {t("orders.itemCount", { count: itemCount })} · {order.payment_method === "cod" ? t("orders.cod") : order.payment_method === "paypal" ? "PayPal" : t("orders.online")}
+                          {new Date(order.created_at).toLocaleDateString(dateFmt)} · {t("orders.itemCount", { count: itemCount })} · {order.payment_method === "cod" ? t("orders.cod") : order.payment_method === "paypal" ? "PayPal" : t("orders.online")}
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">

@@ -57,7 +57,12 @@
       "loading": "處理中…",
       "close": "關閉"
     },
-    "adultOnly": "18 歲以上"
+    "adultOnly": "18 歲以上",
+    "memberTier": {
+      "standard": "一般會員",
+      "silver": "銀卡會員",
+      "gold": "金卡會員"
+    }
   },
   "home": {
     "hero": {
@@ -272,6 +277,7 @@
     "pointsBalanceLabel": "餘額 {balance} 點",
     "pointsUseMax": "全部使用",
     "pointsMinWarning": "最少需使用 10 點",
+    "pointsTierHint": "您為{tier}，本次最高可折抵 NT${amount}",
     "pointsWillDiscount": "將折抵 NT${amount}",
     "shippingFee": "運費",
     "shippingFree": "免費",
@@ -455,13 +461,15 @@
       "pointsUnit": "點",
       "pointsUnitNew": "可折抵",
       "earnRate": "回饋 {rate}%",
-      "tierStandard": "一般會員",
-      "tierSilver": "銀卡會員",
-      "tierGold": "金卡會員",
       "annualSpend": "年消費",
       "nextTier": "距離 {name} 還差 NT${amount}",
       "maxTier": "已達最高等級",
+      "retentionWarning": "距離保級還差 NT${amount}，年底前達標可保留{tier}等級",
+      "tierHistoryTitle": "等級變更紀錄",
+      "tierReasonUpgrade": "升等",
+      "tierReasonAnnualReset": "年度重置",
       "expiringWarning": "提醒：有 NT${amount} 點數將在 30 天內到期",
+      "earliestExpiry": "（最早到期：{date}）",
       "recentHistory": "近期記錄",
       "earnDefault": "消費回饋",
       "redeemDefault": "點數折抵",
@@ -474,6 +482,22 @@
       "couponUsedOn": " · 使用於 {date}",
       "couponValidUntil": " · 有效至 {date}",
       "noCoupons": "目前沒有折價券記錄。"
+    },
+    "pointsLedger": {
+      "earn": "消費回饋",
+      "redeem": "折抵 NT${amount}",
+      "cancelRefund": "取消退還點數",
+      "orderCancelRefund": "訂單取消退還點數",
+      "bookingCancelRefund": "體驗預約取消退還點數",
+      "orderCompleteEarn": "訂單完成回饋",
+      "bookingCompleteEarn": "體驗完成回饋",
+      "orderRedeem": "訂單折抵 NT${amount}",
+      "bookingRedeem": "體驗預約折抵 NT${amount}",
+      "sessionCancelRefund": "場次取消退還點數",
+      "paymentExpiredRefund": "逾期未付款取消退還點數",
+      "paypalFailedRefund": "PayPal 建立失敗退還點數",
+      "adminAdjust": "管理員調整：{note}",
+      "systemBackfill": "（系統補發）"
     },
     "orders": {
       "noOrdersTitle": "尚無訂單紀錄",

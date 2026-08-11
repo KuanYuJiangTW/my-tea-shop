@@ -6,6 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import type { Product } from "@/types";
+import { productDisplayName, productDisplayWeight, productDisplayOrigin } from "@/lib/product-display";
 import {
   DOMESTIC_FREE_THRESHOLD,
   INTERNATIONAL_FREE_SHIPPING_THRESHOLD,
@@ -38,8 +39,10 @@ interface Adjustment {
 
 export default function CartClient() {
   const t = useTranslations("cart");
+  const tProducts = useTranslations("products");
   const locale = useLocale();
-  const lp = (path: string) => locale === "en" ? `/en${path}` : path;
+  const isEn = locale === "en";
+  const lp = (path: string) => isEn ? `/en${path}` : path;
   const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
   const { user } = useAuth();
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
@@ -69,10 +72,12 @@ export default function CartClient() {
           if (item.quantity > freshStock) {
             updateQuantity(item.product.id, freshStock); // freshStock=0 → 自動呼叫 removeFromCart
 
+            // 茶包規格的名稱本身已含「茶包組」，再接規格會變成疊字
+            const displayName = productDisplayName(item.product, isEn, tProducts("teaBagSet"));
             const label =
               item.product.weight === "15包 × 3g"
-                ? item.product.name
-                : `${item.product.name} ${item.product.weight}`;
+                ? displayName
+                : `${displayName} ${productDisplayWeight(item.product.weight, isEn)}`;
 
             newAdjustments.push({
               id: item.product.id,
@@ -190,10 +195,10 @@ export default function CartClient() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h3 className="font-serif font-bold text-tea-text">
-                        {item.product.name}
+                        {productDisplayName(item.product, isEn, tProducts("teaBagSet"))}
                       </h3>
                       <p className="text-xs text-tea-text-light mt-0.5">
-                        {item.product.origin} · {item.product.weight}
+                        {productDisplayOrigin(item.product, isEn)} · {productDisplayWeight(item.product.weight, isEn)}
                       </p>
                     </div>
                     <button
