@@ -1468,6 +1468,65 @@ export async function sendPointsExpiryEmail(data: {
   });
 }
 
+// ─── 折價券到期通知 ───────────────────────────────────────────────────────
+
+/**
+ * 券即將到期提醒。一位會員一封信（多張券彙總），不逐張轟炸。
+ *
+ * 用 escapeHtml 而非 points 那支的單一 `.replace(/</g, ...)`——姓名是使用者
+ * 自填欄位，只擋 `<` 擋不住 `"` 造成的屬性逃逸。
+ */
+export async function sendCouponExpiryEmail(data: {
+  customerEmail: string;
+  customerName: string;
+  couponCount: number;
+  totalValue: number;
+  minOrderAmount: number;
+  expiryDate: string;
+  daysLeft: number;
+}) {
+  const safeName = escapeHtml(data.customerName);
+  const isSingle = data.couponCount === 1;
+  const subjectValue = `NT$${data.totalValue}`;
+  const couponPhrase = isSingle
+    ? `一張 <strong style="color:#58745F;">${subjectValue}</strong> 的折價券`
+    : `<strong style="color:#58745F;">${data.couponCount} 張</strong>折價券（合計 <strong style="color:#58745F;">${subjectValue}</strong>）`;
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:0;background:#F5F1EB;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F1EB;padding:24px 0;">
+    <tr><td align="center">
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;">
+        <tr><td style="background:#3D4A42;padding:20px 28px;">
+          <p style="margin:0;font-size:18px;font-weight:700;color:#E8E0D2;">霧抉茶 WuJue Tea</p>
+        </td></tr>
+        <tr><td style="padding:28px;">
+          <p style="margin:0 0 12px;font-size:15px;color:#3D4A42;">親愛的 ${safeName} 您好，</p>
+          <p style="margin:0 0 16px;font-size:14px;color:#5A6B5E;line-height:1.6;">
+            您有${couponPhrase}將於 <strong>${data.expiryDate}</strong>（${data.daysLeft} 天後）到期。
+          </p>
+          <p style="margin:0 0 20px;font-size:14px;color:#5A6B5E;line-height:1.6;">
+            單筆消費滿 NT$${data.minOrderAmount} 即可使用，結帳時會自動列出可選用的折價券。
+          </p>
+          <a href="https://taiwantea.store/products" style="display:inline-block;padding:10px 24px;background:#7D9B84;color:#fff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">立即選購</a>
+        </td></tr>
+        <tr><td style="padding:0 28px 20px;">
+          <p style="margin:0;font-size:11px;color:#9CA89E;">此為系統自動通知，如有疑問請聯繫客服。</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  await getResend().emails.send({
+    from: FROM,
+    to: data.customerEmail,
+    subject: `【霧抉茶】您有 ${subjectValue} 折價券即將到期（${data.daysLeft} 天後）`,
+    html,
+  });
+}
+
 // ─── 升等通知 ─────────────────────────────────────────────────────────────
 
 export async function sendTierUpgradeEmail(data: {

@@ -173,6 +173,12 @@
 - 規則：**`next build` 失敗而錯誤落在 `next/font`、`@vercel/turbopack-*` 或其他你這次沒碰的框架內部模組時，第一步是停掉 dev server ＋ `rm -rf .next` 再跑一次，不要先去查那個模組**。Next 16 的 dev（`.next/dev`）與 build 共用 `.next` 母目錄，dev 寫進去的中繼產物會讓後續 build 解析不到 turbopack 的內部 import。判準：錯誤訊息裡的檔案若不在你的 diff 範圍內，先懷疑快取
 - 去處：暫存於此（與歸檔區「perl -pi 批次改檔後 dev server 500——是 .next 的 Tailwind 快取」同一個病灶的第二張臉：那次毒的是 dev，這次毒的是 build）
 
+## 2026-08-11 mock 回傳 select 沒要求的欄位，讓「忘了 select 主鍵」的 bug 綠燈上線
+- 情境：要修 `points-expiry-notify` 一個「寄信失敗仍被標記已通知」的問題。讀碼時發現更嚴重的一層：7 天段的查詢是 `.select("user_id, points, expires_at")`（**沒有 `id`**），標記段卻用 `expiring7d.map(t => t.id).filter(Boolean)` 組主鍵清單 → `ids` 恆為空陣列 → `if (ids.length > 0)` 恆為 false → **update 從未執行**
+- 代價：`notification_sent_7d` 永遠是 false，所以**同一批人在點數到期前每天都收一封信**（最後 3 天還會 7d+3d 各一封）。這支 cron 已在正式站每日執行。而它有 5 條測試、全綠——因為 `createChainMock` 不管 `select()` 傳什麼都回傳完整物件，測試裡 `t.id` 永遠有值，真實 Supabase 只回傳 select 指定的欄位
+- 規則：**驗證「查詢欄位與後續使用是否對得上」時，mock 必須依 `select()` 裁切回傳資料**。本 repo 已備 `createSelectAwareChainMock`（`src/__tests__/points/helpers/supabase-mock.ts`），會記錄 select 的欄位並只回傳那些欄位，另提供 `_selectedCols()` 供直接斷言。凡是「查出來的列之後要拿主鍵回寫」的程式，測試一律用它，並加一條 `expect(cols).toContain("id")`
+- 去處：暫存於此。與 2026-08-01「SELECT 少一個欄位，`??` 的 fallback 就從保險變成預設路徑」同源——**同一個坑第二次了**，兩次都是 select 漏欄位而下游靜默拿到 undefined。若再出現第三次，應升格為 playbook 正式規則
+
 ## 已歸檔（2026-08-06 精簡，共 18 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。

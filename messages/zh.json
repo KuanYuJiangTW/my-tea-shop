@@ -1,6 +1,13 @@
 {
   "common": {
     "brand": "霧抉茶",
+    "announcement": {
+      "welcome": "新朋友註冊即送 NT${amount} 購物金",
+      "welcomeNote": "（滿 NT${min} 可用・{days} 天內有效）",
+      "shipping": "全球配送・單筆滿 NT${amount} 免國際運費",
+      "shippingNote": "（海外訂單以 PayPal 結帳）",
+      "dismiss": "關閉公告"
+    },
     "nav": {
       "home": "首頁",
       "products": "產品",
@@ -147,6 +154,8 @@
     "noResults": "此分類暫無茶品",
     "perPerson": "/ 人",
     "countLabel": "共 {count} 款茶品",
+    "shippingNoteDomestic": "台灣本島滿 NT${amount} 免運",
+    "shippingNoteIntl": "海外配送滿 NT${amount} 免國際運費（以 PayPal 結帳）",
     "selectVariant": "選擇規格",
     "quantity": "數量",
     "stockCount": "庫存 {count} 包",
@@ -207,6 +216,7 @@
     "freeShipping": "免費",
     "shippingOptions": "宅配 NT$250 / 超商 NT$60",
     "freeShippingHint": "再買 NT${amount} 即享免運費",
+    "intlFreeShippingHint": "寄到海外？滿 NT${threshold} 免國際運費，還差 NT${amount}",
     "total": "總金額",
     "checkout": "前往結帳",
     "loginToCheckout": "登入後結帳",
@@ -586,6 +596,8 @@
     "register": {
       "title": "建立帳號",
       "subtitle": "加入霧抉茶，享受會員專屬服務",
+      "couponBadge": "完成註冊即獲 NT${amount} 購物金",
+      "couponBadgeNote": "滿 NT${min} 可用・{days} 天內有效",
       "inAppBrowser": {
         "banner": "您正在 LINE 內開啟，Google 註冊將無法使用。",
         "openExternal": "用瀏覽器開啟",
@@ -609,6 +621,7 @@
         "title": "驗證信已寄出！",
         "checkEmail": "請前往 {email} 的信箱",
         "clickLink": "點擊驗證連結後即可開始使用會員功能。",
+        "couponPending": "完成驗證後，NT${amount} 購物金會自動存入你的帳戶。",
         "goLogin": "前往登入",
         "checkSpam": "沒有收到？請檢查垃圾信件夾"
       },

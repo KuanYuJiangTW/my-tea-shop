@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 import { supabase as adminSupabase } from "@/lib/supabase";
+import { WELCOME_COUPON } from "@/lib/coupon-constants";
 
 function genCouponCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -45,14 +46,15 @@ export async function GET(request: NextRequest) {
       );
 
       // 新用戶發送歡迎折價券（unique index 確保每人只發一次，重複時自動忽略）
+      // 金額／門檻／效期一律取 WELCOME_COUPON——公告條與註冊頁對外宣傳的是同一組值
       const expires = new Date();
-      expires.setDate(expires.getDate() + 30);
+      expires.setDate(expires.getDate() + WELCOME_COUPON.expiryDays);
       await adminSupabase.from("coupons").insert({
         user_id:          data.user.id,
         code:             genCouponCode(),
         source:           "welcome",
-        discount_amount:  50,
-        min_order_amount: 350,
+        discount_amount:  WELCOME_COUPON.discountAmount,
+        min_order_amount: WELCOME_COUPON.minOrderAmount,
         expires_at:       expires.toISOString(),
       });
     }

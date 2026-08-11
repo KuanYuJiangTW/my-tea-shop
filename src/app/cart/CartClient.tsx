@@ -6,6 +6,10 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import type { Product } from "@/types";
+import {
+  DOMESTIC_FREE_THRESHOLD,
+  INTERNATIONAL_FREE_SHIPPING_THRESHOLD,
+} from "@/lib/shipping-constants";
 
 function getItemStock(product: Product): number | undefined {
   if (product.weight === "75g") return product.stock75g;
@@ -261,15 +265,28 @@ export default function CartClient() {
                 </div>
                 <div className="flex justify-between text-sm text-tea-text-light">
                   <span>{t("shipping")}</span>
-                  {totalPrice >= 1000 ? (
+                  {totalPrice >= DOMESTIC_FREE_THRESHOLD ? (
                     <span className="text-tea-green">{t("freeShipping")}</span>
                   ) : (
                     <span>{t("shippingOptions")}</span>
                   )}
                 </div>
-                {totalPrice < 1000 && (
-                  <div className="text-xs text-amber-600">
-                    {t("freeShippingHint", { amount: (1000 - totalPrice).toLocaleString() })}
+                {totalPrice < DOMESTIC_FREE_THRESHOLD && (
+                  // amber-600 順手收進 status-warn（WORKLOG 排隊工作 1 的既定方向）。
+                  // 這裡正要新增第二行提示，留著 amber 會讓新舊兩種樣式並存
+                  <div className="text-xs text-status-warn">
+                    {t("freeShippingHint", { amount: (DOMESTIC_FREE_THRESHOLD - totalPrice).toLocaleString() })}
+                  </div>
+                )}
+                {/* 國際免運。購物車還不知道客人要寄哪裡，所以用邀請句而不是警示句，
+                    樣式也刻意比國內那行低調——多數客人寄台灣，這行對他們是資訊不是提醒。
+                    它真正的作用是讓「不知道能寄國外」的人在這裡第一次知道。 */}
+                {totalPrice < INTERNATIONAL_FREE_SHIPPING_THRESHOLD && (
+                  <div className="text-xs text-tea-text-muted">
+                    {t("intlFreeShippingHint", {
+                      threshold: INTERNATIONAL_FREE_SHIPPING_THRESHOLD.toLocaleString(),
+                      amount: (INTERNATIONAL_FREE_SHIPPING_THRESHOLD - totalPrice).toLocaleString(),
+                    })}
                   </div>
                 )}
                 <div className="border-t border-tea-green-pale pt-3 flex justify-between font-bold text-tea-text">
