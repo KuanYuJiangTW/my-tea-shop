@@ -5,6 +5,10 @@ import ProductCard from "@/components/ProductCard";
 import { categories } from "@/data/products";
 import type { Product } from "@/types";
 import { useTranslations } from "next-intl";
+import {
+  DOMESTIC_FREE_THRESHOLD,
+  INTERNATIONAL_FREE_SHIPPING_THRESHOLD,
+} from "@/lib/shipping-constants";
 
 interface StockRow {
   id:            number;
@@ -62,8 +66,17 @@ export default function ProductsClient({ products }: Props) {
       </div>
 
       {/* Count */}
-      <p className="text-tea-text-light text-sm mb-8 text-center">
+      <p className="text-tea-text-light text-sm mb-3 text-center">
         {t("countLabel", { count: filtered.length })}
+      </p>
+
+      {/* 運送信任標。刻意放在清單頁而不是商品卡上——商品卡固定 632px 是拍板的
+          硬約束，往卡片裡加東西會破壞三張等高。兩段用 flex-wrap 各自成行，
+          比讓一長串中文在窄螢幕任意斷行好看。 */}
+      <p className="mb-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-caption text-tea-text-muted">
+        <span>{t("shippingNoteDomestic", { amount: DOMESTIC_FREE_THRESHOLD.toLocaleString() })}</span>
+        <span aria-hidden className="text-tea-green-pale">・</span>
+        <span>{t("shippingNoteIntl", { amount: INTERNATIONAL_FREE_SHIPPING_THRESHOLD.toLocaleString() })}</span>
       </p>
 
       {/* Grid */}

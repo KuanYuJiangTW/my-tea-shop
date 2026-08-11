@@ -5,6 +5,23 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
+import { WELCOME_COUPON } from "@/lib/coupon-constants";
+
+function CouponIcon() {
+  return (
+    <svg
+      width="14" height="14" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+      className="flex-shrink-0" aria-hidden
+    >
+      <rect x="3" y="10" width="18" height="11" rx="1.5" />
+      <line x1="12" y1="10" x2="12" y2="21" />
+      <path d="M3 10h18" />
+      <path d="M12 10S10.5 4.5 8 4.5a2.5 2.5 0 000 5" />
+      <path d="M12 10s1.5-5.5 4-5.5a2.5 2.5 0 010 5" />
+    </svg>
+  );
+}
 
 function isLineInAppBrowser() {
   if (typeof navigator === "undefined") return false;
@@ -139,9 +156,19 @@ function RegisterForm() {
           <p className="text-tea-text-light text-sm leading-relaxed mb-2">
             {t.rich("success.checkEmail", { email, strong: (chunks) => <strong className="text-tea-text">{chunks}</strong> })}
           </p>
-          <p className="text-tea-text-light text-sm leading-relaxed mb-8">
+          <p className="text-tea-text-light text-sm leading-relaxed mb-5">
             {t("success.clickLink")}
           </p>
+
+          {/* 這裡刻意**不**秀券碼——券是 /auth/callback 在信箱驗證後才發的，
+              此刻資料庫裡還沒有這張券，秀不出真的碼。改成把券當成「去點驗證信」
+              的誘因，反而打在真正的流失點上：沒點驗證信的人一張券都拿不到。 */}
+          <div className="mb-8 px-4 py-3 rounded-card bg-tea-green-mist border border-tea-green-pale">
+            <p className="text-caption text-tea-green-ink">
+              {t("success.couponPending", { amount: WELCOME_COUPON.discountAmount.toLocaleString() })}
+            </p>
+          </div>
+
           <Link
             href={lp("/auth/login")}
             className="inline-block px-8 py-3 bg-tea-green hover:bg-tea-green-dark text-white rounded-full font-medium text-sm transition-colors"
@@ -169,6 +196,24 @@ function RegisterForm() {
           </Link>
           <h1 className="text-2xl font-bold text-tea-text mt-4 mb-1">{t("title")}</h1>
           <p className="text-sm text-tea-text-light">{t("subtitle")}</p>
+
+          {/* 券的誘因擺在表單「上方」而不是下方：這是決定要不要填這張表的當下，
+              放在送出鈕旁邊就太晚了。金額走 WELCOME_COUPON，與實際發券同源。 */}
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-pill bg-tea-green-mist border border-tea-green-pale">
+            <CouponIcon />
+            <span className="text-caption text-tea-green-ink">
+              <strong className="font-medium">
+                {t("couponBadge", { amount: WELCOME_COUPON.discountAmount.toLocaleString() })}
+              </strong>
+              <span className="hidden sm:inline">
+                {" "}
+                {t("couponBadgeNote", {
+                  min: WELCOME_COUPON.minOrderAmount.toLocaleString(),
+                  days: WELCOME_COUPON.expiryDays.toString(),
+                })}
+              </span>
+            </span>
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-8">
