@@ -740,6 +740,13 @@ Tailwind 產物一律以 `npm run build` 為準
   點數明細顯示 `Points refunded — booking cancelled`、`NT$10 redeemed on booking`。
   **其中 `(system reissue)` 那三筆是歷史 SQL 補資料留下的後綴**——證明對照表確實涵蓋舊資料，
   不是只有新寫入的才對得到（這正是選 A 方案的理由，實測到此為止成立）
+- **補洞：`product-display.ts` 原本零測試覆蓋**。業主實測的購物車只有 150g 散茶，
+  茶包組那條分支（規格字串 ＋ `Tea Bag Set` 後綴）當時既無測試也沒被看過。
+  已補 8 條單元測試，關鍵那條斷言的是**「茶包組與散茶不可同名」**而非字面值，
+  反向驗證（拿掉補後綴邏輯）確實紅在該條
+- **拍板：茶包規格英文寫法維持 `15 bags × 3g`**（業主 2026-08-11）。
+  測試用 `expect(...).toBe(en.products.teaBagHint)` 把它與 messages 綁在一起——
+  全站只能有一種寫法，任一處改動就會變紅，避免出現 `15 bags` 與 `15 tea bags` 並存
 
 ---
 
