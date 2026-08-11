@@ -734,7 +734,12 @@ Tailwind 產物一律以 `npm run build` 為準
   5s timeout 的假失敗（transform 花了 45 秒），重跑即過——不要當成改動造成的
 - 狀態：已完成（證據：44 檔 578 測試全過／baseline stash 對比為 43 檔 568 全過、
   `tsc --noEmit` exit 0、`npm run build` exit 0）
-- **尚未做**：瀏覽器實跑覆驗（本波只有測試＋型別＋build 三項）
+- **瀏覽器覆驗：業主實測通過**（2026-08-11，截圖三張）。`/en/checkout` 的 order summary
+  顯示 `Ali Shan High Mountain Oolong 150g × 1` 與 `You're a Gold member — up to NT$227 off this order`；
+  `/en/account` 預約顯示 `Tea Ceremony`／`Tea Fruit Wine` 與 `Sun, August 9, 2026 14:00`；
+  點數明細顯示 `Points refunded — booking cancelled`、`NT$10 redeemed on booking`。
+  **其中 `(system reissue)` 那三筆是歷史 SQL 補資料留下的後綴**——證明對照表確實涵蓋舊資料，
+  不是只有新寫入的才對得到（這正是選 A 方案的理由，實測到此為止成立）
 
 ---
 
