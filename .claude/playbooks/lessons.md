@@ -161,6 +161,18 @@
 - 規則：**在本環境的內建瀏覽器驗互動，一律用 production build**（`npm run build` ＋ `npx next start -p <另一個埠>`），不要用 dev server。原因：該瀏覽器的 CSP 沒有 `unsafe-eval`，而 React **dev 模式**要用 `eval()` 做除錯功能，於是 client bundle 起不來、頁面永遠停在未 hydrate 狀態——**畫面是對的、量測也正常，只有事件處理器全部無效**，最像「你自己改壞了」。判準：點擊沒反應時先 `read_console_messages`，看到 `eval() is not supported in this environment` 就是這條
 - 去處：暫存於此（與上一條同源：兩者都是「渲染看起來正常，但量到／點到的不是真實狀態」）
 
+## 2026-08-11 flex 版面吃緊時，「誰讓步」不指定就由瀏覽器替你決定——它挑了品牌 logo
+- 情境：1024px ＋ 英文 ＋ 登入長名字時，header 整列差約 10px。flex 預設每個項目 `flex-shrink: 1`，瀏覽器把缺口分攤下去，結果被壓的是 logo——「霧抉茶」擠成兩行、SVG 從 34 縮到 30。而同一列裡明明有一個**本來就設計成會讓步**的元素（使用者名稱有 `max-w-[80px] truncate`，壓縮它只會多出省略號）
+- 代價：這個症狀在站上活了不知多久。它不會報錯、不會溢出、`scrollWidth == clientWidth` 完全正常，只有量高度才看得出來（`brandH` 28 → 56）
+- 規則：**一列 flex 裡若有「絕不能變形」的元素（logo、圖示、徽章），就明確標 `flex-shrink-0`，讓缺口落到有 `truncate`／`line-clamp` 的那個元素上**。判準：問「這列不夠寬時，我希望誰先讓步？」——答得出來就把答案寫進 class，答不出來表示版面配置還沒想清楚。特別注意 SVG 圖示：它們是 flex item，不標 `flex-shrink-0` 會被壓成變形的橢圓，而且沒有任何錯誤訊息
+- 去處：暫存於此（與同日「字型還沒載完就量版面」同源：兩者的共同點是**沒有溢出不代表版面是對的**，折行與變形都是無聲的）
+
+## 2026-08-11 dev server 留下的 .next 會毒化 next build，錯誤指向 next/font 完全無關的地方
+- 情境：改完 Header 跑 `npm run build`，失敗於 `Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'`，指向 `noto_sans_tc_*.module.css` 與 `layout.tsx`。我這次只動了三個 Tailwind class，跟字型毫無關係
+- 代價：差點花時間去查 `next/font` 設定。實際上停掉 dev server ＋ `rm -rf .next` 後，連跑兩次 build 都 exit 0
+- 規則：**`next build` 失敗而錯誤落在 `next/font`、`@vercel/turbopack-*` 或其他你這次沒碰的框架內部模組時，第一步是停掉 dev server ＋ `rm -rf .next` 再跑一次，不要先去查那個模組**。Next 16 的 dev（`.next/dev`）與 build 共用 `.next` 母目錄，dev 寫進去的中繼產物會讓後續 build 解析不到 turbopack 的內部 import。判準：錯誤訊息裡的檔案若不在你的 diff 範圍內，先懷疑快取
+- 去處：暫存於此（與歸檔區「perl -pi 批次改檔後 dev server 500——是 .next 的 Tailwind 快取」同一個病灶的第二張臉：那次毒的是 dev，這次毒的是 build）
+
 ## 已歸檔（2026-08-06 精簡，共 18 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。

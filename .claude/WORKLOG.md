@@ -641,6 +641,21 @@ Tailwind 產物一律以 `npm run build` 為準
 - 環境坑兩個（已入 lessons）：量測要等 `document.fonts.ready`；
   內建瀏覽器 CSP 擋 `eval()` 導致 **dev 版不 hydrate**，驗互動要用 production build
 
+**第二十四波（2026-08-11）：1024px 的 logo 折行（第二十三波留下的尾巴）**
+- 業主追加要求，把第二十三波標記為「既有問題、暫不處理」的那項收掉
+- 症狀：1024px ＋ 英文 ＋ 登入且名字長時，整列差約 10px，flex 預設收縮挑上 logo，
+  把「霧抉茶」擠成兩行、SVG 也從 34 縮到 30
+- 修法（三處，都是把「誰該讓步」講清楚）：
+  - logo 的 `<Link>` 加 `flex-shrink-0`、品牌字加 `whitespace-nowrap`——品牌標記永不讓步
+  - 使用者選單按鈕的兩個 SVG 加 `flex-shrink-0`——擠壓要落在名字上，
+    它本來就有 `max-w-[80px] truncate` 會出省略號，圖示被壓則會變形且看不出原因
+- 驗證：320／375／768／1024／1280 × 中英 × 登入態，`over` 全為 0，
+  `brandH` 全為 28（單行）、logo 106、SVG 34；1024 EN 登入態的擠壓確實轉嫁到名字
+  （量到 80px 且 `scrollWidth > clientWidth`＝出現省略號）。prod build 上覆驗過
+- **踩到的坑**：`npm run build` 一度失敗（`@vercel/turbopack-next/internal/font/google/font`
+  解析不到），與本次改動無關——是 dev server 留下的 `.next` 毒化了建置。
+  `rm -rf .next` 後連跑兩次都 exit 0。已入 lessons
+
 **還沒改回上線版的項目**（業主看過清單後的決定）：
 - **陰影顏色維持茶墨色**（`rgb(61 74 66)`，上線版是純黑 `rgb(0 0 0)`）。
   這是我在「所有顏色改回上線版」時漏掉的一項——還原腳本只掃 text／bg／border 類 class，

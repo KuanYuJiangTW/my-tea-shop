@@ -59,7 +59,10 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href={lp("/")} className="flex items-center gap-2.5">
+          {/* flex-shrink-0：品牌標記永遠不讓步。1024px＋英文＋登入長名字時整列會差約 10px，
+              預設的 flex 收縮會挑上 logo，把「霧抉茶」擠成兩行、SVG 也縮成 30px。
+              鎖住這裡，那 10px 就轉嫁給下面本來就設計成會 truncate 的使用者名稱 */}
+          <Link href={lp("/")} className="flex flex-shrink-0 items-center gap-2.5">
             {/* 顏色走 fill-/stroke- utility，不寫死 hex——這是全站最顯眼的品牌標記，
                 色盤調整時漏掉這裡等於 logo 與其他地方不同色 */}
             <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
@@ -76,7 +79,7 @@ export default function Header() {
               <line x1="14" y1="31" x2="17" y2="29" className="stroke-tea-green-dark" strokeWidth="1.5" strokeLinecap="round" />
               <line x1="20" y1="31" x2="17" y2="29" className="stroke-tea-green-dark" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
-            <span className="font-serif text-xl font-bold text-tea-text tracking-wide">霧抉茶</span>
+            <span className="font-serif text-xl font-bold text-tea-text tracking-wide whitespace-nowrap">霧抉茶</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -113,11 +116,13 @@ export default function Header() {
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-control hover:bg-tea-green-mist transition-colors duration-base ease-standard text-label text-tea-text-light hover:text-tea-green"
                     >
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                      {/* 兩個圖示 flex-shrink-0：版面吃緊時要被壓縮的是名字（它有 truncate
+                          會出現省略號），不是圖示——圖示被壓會變形且看不出原因 */}
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0 fill-current">
                         <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
                       </svg>
                       <span className="max-w-[80px] truncate font-medium">{displayName}</span>
-                      <svg viewBox="0 0 24 24" className={`w-3 h-3 fill-current transition-transform ${isUserMenuOpen ? "rotate-180" : ""}`}>
+                      <svg viewBox="0 0 24 24" className={`w-3 h-3 flex-shrink-0 fill-current transition-transform ${isUserMenuOpen ? "rotate-180" : ""}`}>
                         <path d="M7 10l5 5 5-5z"/>
                       </svg>
                     </button>
