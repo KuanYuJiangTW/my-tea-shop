@@ -149,6 +149,18 @@
 - 規則：**`line-clamp-N` 要配 `min-h-[Nlh]`**——clamp 只設了上限，沒設下限。卡片並排（不論 grid 或單欄堆疊）而內容長度不一時，只有同時鎖上下限才會等高。`lh` 單位＝當前行高，會跟著字級走，不必寫死 px。另一個判準：**「在某個寬度沒問題」不等於「沒問題」**，斷行類的 bug 要掃過 375／390／414／430 四個常見手機寬度
 - 去處：已寫進 `ProductCard.tsx` 的描述註解（含 414px 的實測數字）。與同期三條同源——都是拿單一情境的判斷去蓋全部情境，這次是拿單一螢幕寬度蓋所有寬度
 
+## 2026-08-11 字型還沒載完就量版面，量到的是 fallback 字型的尺寸
+- 情境：修 Header 在 768px 的水平溢出。`navigate` 之後直接跑 `getBoundingClientRect`，量到 logo 65px、EN 導覽連結合計 336px，據此算出「缺 58px」並照這個預算設計修法。實際上 `next/font` 的三支字型還在載，量到的是 fallback 字型的排版——字型 ready 後 logo 是 106px，真正的缺口是 132px
+- 代價：整套尺寸預算算錯。第一版修法（nav gap 收到 20px ＋ 精簡右側）量出 `scrollWidth == clientWidth`，看起來修好了，實際上是**三個英文連結折成兩行硬塞進去**的假通過；而且那個折行在改前就存在，我第一輪完全沒看見。差點照這個假證據回報完成
+- 規則：**量版面尺寸的腳本，第一行一律 `await document.fonts.ready`**。並且**每次量寬度都要一起量高度**（`getBoundingClientRect().height`），用高度判斷有沒有折行——單看寬度或 `scrollWidth` 分不出「放得下」與「折行之後才放得下」。要確認量測時機沒問題，就同一段量兩次（載入當下、字型 ready 後）比對，不一致以後者為準
+- 去處：暫存於此（JUDG-8「證據要有鑑別力」的延伸：`scrollWidth == clientWidth` 這個證據分不出「真的放得下」與「內容自己折行了」，屬於典型的無鑑別力證據）
+
+## 2026-08-11 內建瀏覽器擋 eval()，dev 版不會 hydrate，點擊全部沒反應
+- 情境：改完 Header 斷點後要驗「768px 點漢堡選單會不會開」。在 dev server（`npm run dev`）上用 `computer` 點兩次，面板都沒展開，`isMenuOpen` 毫無反應。一度懷疑是自己把行動選單面板的斷點改壞了
+- 代價：兩次無效點擊＋一次錯誤懷疑。若沒查 console 就會回頭去「修」根本沒壞的斷點
+- 規則：**在本環境的內建瀏覽器驗互動，一律用 production build**（`npm run build` ＋ `npx next start -p <另一個埠>`），不要用 dev server。原因：該瀏覽器的 CSP 沒有 `unsafe-eval`，而 React **dev 模式**要用 `eval()` 做除錯功能，於是 client bundle 起不來、頁面永遠停在未 hydrate 狀態——**畫面是對的、量測也正常，只有事件處理器全部無效**，最像「你自己改壞了」。判準：點擊沒反應時先 `read_console_messages`，看到 `eval() is not supported in this environment` 就是這條
+- 去處：暫存於此（與上一條同源：兩者都是「渲染看起來正常，但量到／點到的不是真實狀態」）
+
 ## 已歸檔（2026-08-06 精簡，共 18 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。

@@ -80,12 +80,16 @@ export default function Header() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          {/* 斷點是 lg 不是 md：768px（md 起點）放不下六項導覽。實測 EN 標籤單行合計
+              約 386px，加 logo 104 與右側控制 160 就是 650，容器只剩 705，五道間距
+              每道剩 11px——不是調 gap 能解的。舊版停在 md 的代價是橫向捲軸 34px、
+              logo 被壓到 65px、三個 EN 連結折成兩行。加導覽項目前先在 1024px 量一次 */}
+          <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-tea-text-light hover:text-tea-green transition-colors duration-base ease-standard text-label font-medium tracking-wide"
+                className="whitespace-nowrap text-tea-text-light hover:text-tea-green transition-colors duration-base ease-standard text-label font-medium tracking-wide"
               >
                 {link.label}
               </Link>
@@ -94,13 +98,15 @@ export default function Header() {
 
           {/* Right: Language + User + Cart + Mobile toggle */}
           <div className="flex items-center gap-2">
-            <div className="hidden md:flex items-center mr-1">
+            {/* 完整的「中文 / EN」切換器 74px，與導覽列同進退（lg 以上才出現）；
+                lg 以下改用 36px 的 QuickLocaleSwitcher，功能不減只是變窄 */}
+            <div className="hidden lg:flex items-center mr-1">
               <LanguageSwitcher />
             </div>
 
             {/* User Menu (Desktop) */}
             {!loading && (
-              <div className="hidden md:block relative" ref={userMenuRef}>
+              <div className="hidden lg:block relative" ref={userMenuRef}>
                 {user ? (
                   <>
                     <button
@@ -165,8 +171,8 @@ export default function Header() {
               </div>
             )}
 
-            {/* Mobile Quick Locale Switch */}
-            <div className="md:hidden">
+            {/* Quick Locale Switch：手機到平板（< lg）都用這顆窄的 */}
+            <div className="lg:hidden">
               <QuickLocaleSwitcher />
             </div>
 
@@ -191,7 +197,7 @@ export default function Header() {
             {/* Mobile hamburger */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-tea-text"
+              className="lg:hidden p-2 text-tea-text"
               aria-label="選單"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -211,7 +217,7 @@ export default function Header() {
 
         {/* Mobile Nav */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-tea-green-pale space-y-1">
+          <div className="lg:hidden py-4 border-t border-tea-green-pale space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
