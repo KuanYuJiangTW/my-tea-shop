@@ -104,7 +104,14 @@ export default async function HomePage() {
           priority
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-tea-text/55" />
+        {/* 方向性漸層取代全幅均勻遮罩。設計原則 1「產地即證據，介面是茶席」：
+            採茶實景是這個品牌的信任資產，均勻壓 55% 會把它變成背景紋理。
+            文字側加深到 80% 讓可讀性反而變好，照片側放到 20% 把實景露出來。
+
+            **手機刻意不變**（`from`／`to` 同為 55%，等同原本的均勻遮罩）：
+            手機的文字區幾乎滿版，拉開左右落差會讓文字右緣壓在亮處。
+            落差只在 md 以上才有意義，因為那裡文字只佔 max-w-2xl。 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-tea-text/55 to-tea-text/55 md:from-tea-text/80 md:via-tea-text/55 md:to-tea-text/20" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
           <div className="max-w-2xl">
