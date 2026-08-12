@@ -185,12 +185,6 @@
 - 規則：**把某欄位改成「依語系取 `xxxEn`」之前，先查該欄位在寫入端是不是被加工過**（grep 該欄位名在 `addToCart`／snapshot 組裝處的賦值，看右手邊是不是模板字串）。加工過就代表 `xxxEn` 與它不對等，要嘛在顯示層補回加工，要嘛在寫入端一起合成
 - 去處：暫存於此。與「SELECT 少一個欄位」同屬「兩個欄位看起來平行、實際不對等」，但那組是查詢面、這組是寫入面
 
-## 2026-08-12 Browser pane 不合成畫面、rAF 不執行——「畫面沒動」不能推論程式壞了
-- 情境：修 `NumberTicker` 的初始值（SSR 原本吐出 `<span>0</span>+ 年製茶經驗`）。改完在 Browser pane 用 JS 捲到統計區、讀 span 文字，數字一直停在 0
-- 代價：判定「`useInView` 沒觸發、三個 effect 互相等待太脆弱」，把一支**本來就正常**的元件從 `motion` 的 `useInView + useSpring` 重寫成自持 `IntersectionObserver` + rAF 並 commit，業主要原本 spring 的手感（過阻尼的長尾巴）又整支改回來——兩個多餘的 commit。真正原因是 pane 的 `document.visibilityState === "hidden"`，rAF 一秒 0 次回呼，任何動畫都不會前進
-- 規則：**用 Browser pane 驗任何動畫前先跑探針**——`let n=0; requestAnimationFrame(()=>n++)` 等 1 秒讀 `n`，或直接讀 `document.visibilityState`。`n === 0` 或狀態是 `hidden` 時**不得用「畫面沒動」推論程式有問題**；改驗靜態產物（SSR HTML、computed style、class 名、DOM 文字的非動畫分支），動畫本身交給使用者目視並在完成報告裡標明「未驗」
-- 去處：暫存於此。與 `diagnosis.md` 的「失焦」模式同源（環境限制被誤讀成程式缺陷），若再出現第二次應併入該檔的環境事實速查表
-
 ## 已歸檔（2026-08-06 精簡，共 18 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
