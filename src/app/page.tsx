@@ -106,12 +106,20 @@ export default async function HomePage() {
         />
         {/* 方向性漸層取代全幅均勻遮罩。設計原則 1「產地即證據，介面是茶席」：
             採茶實景是這個品牌的信任資產，均勻壓 55% 會把它變成背景紋理。
-            文字側加深到 80% 讓可讀性反而變好，照片側放到 20% 把實景露出來。
 
-            **手機刻意不變**（`from`／`to` 同為 55%，等同原本的均勻遮罩）：
-            手機的文字區幾乎滿版，拉開左右落差會讓文字右緣壓在亮處。
+            **左半維持 55%**，也就是改版前的那個程度；只有右半從 55% 漸淡到 20%，
+            把照片露出來。初版把左側加深到 80%，業主看實物後覺得太重，退回原深度。
+
+            手法是給第一個色階一個**位置**（`md:from-50%`）：漸層在第一個色階的位置
+            之前會維持該色，所以 0–50% 是平的 55%、50–100% 才降到 20%。
+            **不要改用 `via-*` 寫三色階**——`via` 產生的 `--tw-gradient-stops` 會被
+            斷點上的 `to-*` 覆寫掉，實測 computed 只剩兩個色階、變成整條線性下降，
+            文字區右緣（43%）會掉到約 40%，比改版前還淡。
+
+            **手機刻意不做漸層**：`from`／`to` 同為 55% 且沒有位置，等同原本的均勻遮罩。
+            手機文字區幾乎滿版，拉開左右落差會讓文字右緣壓在亮處；
             落差只在 md 以上才有意義，因為那裡文字只佔 max-w-2xl。 */}
-        <div className="absolute inset-0 bg-gradient-to-r from-tea-text/55 to-tea-text/55 md:from-tea-text/80 md:via-tea-text/55 md:to-tea-text/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-tea-text/55 to-tea-text/55 md:from-50% md:to-tea-text/20" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
           <div className="max-w-2xl">
