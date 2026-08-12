@@ -15,11 +15,12 @@ import {
  * **為什麼不塞進公告條**：`AnnouncementBar` 明文「刻意只講一件事，不做輪播」
  * （該檔 L11-15）——第三則訊息會把註冊禮與國際配送那兩則一起稀釋掉。
  *
- * **三項都有出處，不是行銷話術**：免運門檻取自 `shipping-constants`、
+ * **四項都有出處，不是行銷話術**：免運門檻取自 `shipping-constants`、
  * 運費數字對齊購物車的 `products.shippingOptions`、鑑賞期文案對齊
  * `/return-policy` 的消保法第 19 條與「應保持未拆封」但書。
- * 出貨天數**刻意不放**：全站唯一出處是 `chat-knowledge.ts`，而同一句話裡的
- * 免運金額是錯的（見該檔），出貨時效是對客人的服務承諾，要業主確認過才寫。
+ * 出貨天數「2–3 個工作天」原本只存在於 `chat-knowledge.ts`（同一句話裡的免運
+ * 金額還是錯的），**業主 2026-08-12 拍板確認後才寫進來**——出貨時效是對客人的
+ * 服務承諾，不能拿一個已知有錯的句子當唯一來源。
  */
 export default async function TrustRow({ locale }: { locale: string }) {
   const t = await getTranslations("common.trust");
@@ -27,7 +28,15 @@ export default async function TrustRow({ locale }: { locale: string }) {
 
   return (
     <div className="mt-12 rounded-card bg-tea-green-mist p-card md:p-card-lg">
-      <ul className="grid gap-6 sm:grid-cols-3">
+      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <li className="flex items-start gap-3">
+          <ClockIcon />
+          <div>
+            <p className="text-label font-semibold text-tea-text">{t("dispatch")}</p>
+            <p className="text-caption text-tea-text-muted mt-1">{t("dispatchNote")}</p>
+          </div>
+        </li>
+
         <li className="flex items-start gap-3">
           <TruckIcon />
           <div>
@@ -72,6 +81,19 @@ export default async function TrustRow({ locale }: { locale: string }) {
 // 圖示沿用 AnnouncementBar／Header 的線條語言（stroke 1.8、無填色、不用 emoji）。
 // 色用 green-ink 不用 tea-green：後者在 green-mist 底上達不到 UI 元件的 3:1
 // （design-system 2.3），green-ink 在四種淺底皆 ≥4.54。
+
+function ClockIcon() {
+  return (
+    <svg
+      width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+      className="flex-shrink-0 mt-0.5 text-tea-green-ink" aria-hidden
+    >
+      <circle cx="12" cy="12" r="9.25" />
+      <path d="M12 6.75V12l3.5 2.25" />
+    </svg>
+  );
+}
 
 function TruckIcon() {
   return (

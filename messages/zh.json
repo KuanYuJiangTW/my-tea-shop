@@ -9,6 +9,8 @@
       "dismiss": "關閉公告"
     },
     "trust": {
+      "dispatch": "2–3 個工作天出貨",
+      "dispatchNote": "自家茶園直送，不經第三方倉儲",
       "freeShipping": "台灣本島滿 NT${amount} 免運",
       "freeShippingNote": "海外配送滿 NT${intl} 免國際運費",
       "delivery": "宅配到府・超商取貨",
