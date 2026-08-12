@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import {
+  DOMESTIC_FEES,
   DOMESTIC_FREE_THRESHOLD,
   INTERNATIONAL_FREE_SHIPPING_THRESHOLD,
 } from "@/lib/shipping-constants";
@@ -55,7 +56,9 @@ export default async function TrustRow({ locale }: { locale: string }) {
           <StoreIcon />
           <div>
             <p className="text-label font-semibold text-tea-text">{t("delivery")}</p>
-            <p className="text-caption text-tea-text-muted mt-1">{t("deliveryNote")}</p>
+            <p className="text-caption text-tea-text-muted mt-1">
+              {t("deliveryNote", { home: DOMESTIC_FEES.home, cvs: DOMESTIC_FEES.cvs })}
+            </p>
           </div>
         </li>
 

@@ -10,7 +10,9 @@
 
 #### Scenario: 國內宅配未達免運
 - **WHEN** deliveryType = "home"，subtotal < 1000
-- **THEN** fee = 250
+- **THEN** fee = 150（黑貓「3 斤以下・本島」實收 130 ＋ 包材緩衝；2026-08-12 由 250 修正，
+  原值是黑貓「15–30 斤」費率，與實際出貨量體不符）
+- **THEN** 離島不另計（已知缺口：黑貓離島 3 斤以下為 220）
 
 #### Scenario: 超商取貨
 - **WHEN** deliveryType = "cvs"，subtotal >= 1000

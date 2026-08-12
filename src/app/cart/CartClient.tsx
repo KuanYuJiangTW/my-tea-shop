@@ -8,6 +8,7 @@ import { useTranslations, useLocale } from "next-intl";
 import type { Product } from "@/types";
 import { productDisplayName, productDisplayWeight, productDisplayOrigin } from "@/lib/product-display";
 import {
+  DOMESTIC_FEES,
   DOMESTIC_FREE_THRESHOLD,
   INTERNATIONAL_FREE_SHIPPING_THRESHOLD,
 } from "@/lib/shipping-constants";
@@ -273,7 +274,7 @@ export default function CartClient() {
                   {totalPrice >= DOMESTIC_FREE_THRESHOLD ? (
                     <span className="text-tea-green">{t("freeShipping")}</span>
                   ) : (
-                    <span>{t("shippingOptions")}</span>
+                    <span>{t("shippingOptions", { home: DOMESTIC_FEES.home, cvs: DOMESTIC_FEES.cvs })}</span>
                   )}
                 </div>
                 {totalPrice < DOMESTIC_FREE_THRESHOLD && (

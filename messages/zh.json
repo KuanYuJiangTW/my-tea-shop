@@ -14,7 +14,7 @@
       "freeShipping": "台灣本島滿 NT${amount} 免運",
       "freeShippingNote": "海外配送滿 NT${intl} 免國際運費",
       "delivery": "宅配到府・超商取貨",
-      "deliveryNote": "宅配 NT$250／超商 NT$60",
+      "deliveryNote": "宅配 NT${home}／超商 NT${cvs}",
       "returns": "七天鑑賞期",
       "returnsNote": "未拆封可申請退貨（消保法第 19 條）",
       "returnsLink": "退換貨政策"
@@ -230,7 +230,7 @@
     "quantityUnit": "{count} 件",
     "shipping": "運費",
     "freeShipping": "免費",
-    "shippingOptions": "宅配 NT$250 / 超商 NT$60",
+    "shippingOptions": "宅配 NT${home} / 超商 NT${cvs}",
     "freeShippingHint": "再買 NT${amount} 即享免運費",
     "intlFreeShippingHint": "寄到海外？滿 NT${threshold} 免國際運費，還差 NT${amount}",
     "total": "總金額",

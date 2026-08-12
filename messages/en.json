@@ -14,7 +14,7 @@
       "freeShipping": "Free shipping in Taiwan over NT${amount}",
       "freeShippingNote": "Free international shipping over NT${intl}",
       "delivery": "Home delivery or store pickup",
-      "deliveryNote": "Home NT$250 / Store NT$60",
+      "deliveryNote": "Home NT${home} / Store NT${cvs}",
       "returns": "7-day inspection period",
       "returnsNote": "Unopened items may be returned (CPA Art. 19)",
       "returnsLink": "Return policy"
@@ -230,7 +230,7 @@
     "quantityUnit": "{count} items",
     "shipping": "Shipping",
     "freeShipping": "Free",
-    "shippingOptions": "Home delivery NT$250 / Convenience store NT$60",
+    "shippingOptions": "Home delivery NT${home} / Convenience store NT${cvs}",
     "freeShippingHint": "Add NT${amount} more for free shipping",
     "intlFreeShippingHint": "Shipping overseas? Free over NT${threshold} — NT${amount} to go",
     "total": "Total",
