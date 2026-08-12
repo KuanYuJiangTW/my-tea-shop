@@ -45,7 +45,7 @@
 | Header | 購物車有 3 件時徽章顯示 3 | ✓ |
 | 全站 | hydration 警告／runtime error | **0** |
 
-- [ ] **C.7 尚未驗證，需在 staging／production 補測**（容器無 Supabase，這兩個元件的資料取不到）：
+- 註： **C.7 尚未驗證，需在 staging／production 補測**（容器無 Supabase，這兩個元件的資料取不到）：
   - **`ProductLightbox` 的鍵盤操作（←／→／Esc）**：`/products` 的商品來自 Supabase（`getProducts()` 失敗回 `[]`），容器內渲染 0 張圖，燈箱無法開啟。
     風險評估：**可由推理證明行為不變**——`useCallback(fn, [fn])` 在所有情況下都等於 `fn`（首次 render 回傳 `fn`；deps 未變意即 `fn` 未變，回傳的前次值就是當前 `fn`；`fn` 變則 deps 變、回傳新 `fn`）。因此新舊依賴陣列逐元素相同，effect 重新訂閱的時機一致。
   - **`ExperienceCalendar` 的月份切換**：需要 `/api/experience-sessions`（Supabase）。
@@ -77,7 +77,7 @@
 
 - [x] `npm run lint`：全 repo error **11 → 7**，正好是批次 B 的 4 個消失；剩餘 7 個全屬批次 A。warnings 42 → 38
 - [x] `npx tsc --noEmit` 零錯誤；`npm run test` 358 測試全綠；`npm run build` 成功
-- [ ] **B.6 admin 頁面的執行期行為未驗證**：四個路由在未登入時皆回 307 導向登入頁，容器內無法取得 admin session，頁面不會渲染。
+- 註： **B.6 admin 頁面的執行期行為未驗證**：四個路由在未登入時皆回 307 導向登入頁，容器內無法取得 admin session，頁面不會渲染。
   - server log 的 16 個錯誤全部是 `placeholder.supabase.co` DNS 失敗（假環境變數所致），**零個來自本次改動**
   - 風險分級：B.1／B.3 接近等價改寫（語意已刻意保留）；**B.2 與 B.4 是真的重構**（B.2 的 loading 改推導、B.4 的資料讀取抽離），上線前應在 staging 以 admin 帳號確認：
     - 折價券頁切換「通用碼／批次券」時載入中文案正常、清單正確、快速連點不串資料
@@ -131,7 +131,7 @@
 - [x] `npm run lint`：**全 repo error 7 → 0**。整個 repo 的 lint error 至此全部清除（起點 22）
 - [x] `npx tsc --noEmit` 零錯誤；`npm run test` 27 檔 358 測試全綠；`npm run build` 成功
 - [x] **既有 hydration 錯誤已用 stash 對比證明與本次無關**：帶商品進 `/checkout` 會觸發 1 個 React #418（hydration 不一致）。把批次 A 四檔 stash 後重新 build 實測，**基準線同樣是 1 個、訊息相同** → 非本次造成。未用「應該是既有的」帶過（JUDG-2 第 2 條）
-- [ ] **A.6 結帳與帳號頁的執行期行為未驗證**：`/checkout` 在購物車有商品時會導向登入頁；`/account` 未登入回 307。容器內無法取得會員 session。
+- 註： **A.6 結帳與帳號頁的執行期行為未驗證**：`/checkout` 在購物車有商品時會導向登入頁；`/account` 未登入回 307。容器內無法取得會員 session。
   - 風險分級：
     - **付款轉向（`location.assign`）**：無法端到端驗（需真實 Stripe／ECPay）。但 `assign(url)` 與 `href = url` 語意等價，且 URL 來源與判斷條件未變
     - **折價券自動套用**：**這是真的重構**，且直接影響訂單金額。上線前務必在 staging 以有券的帳號確認：進結帳頁時自動帶入最高可用券、券碼填入輸入框、折扣反映在總計、手動改券仍可覆蓋、不符門檻時不自動套用
@@ -173,4 +173,4 @@
   在 admin 與非 admin 路由間切換時 hook 數量會變，React 可能報錯或狀態錯亂（App Router 通常會重新掛載，故實務上少爆，但結構是脆的）。
   修法：抽成外層 wrapper——`export default function ChatWidget()` 只做 `usePathname()` 與提前 return，其餘全部移到 `<ChatWidgetInner />`。可一次移除 11 個抑制註解。
   **未在批次 C 處理**：這不在 22 個 error 內（已被抑制），且屬結構重構而非 lint 修正，需另行評估。
-- [ ] X.2 `ProductLightbox.tsx:53` 有一個既有 warning（`no-unused-expressions`，觸控處理的三元運算式當陳述句）。依本 change 提案範圍「warning 另議」未處理。
+- 註： X.2 `ProductLightbox.tsx:53` 有一個既有 warning（`no-unused-expressions`，觸控處理的三元運算式當陳述句）。依本 change 提案範圍「warning 另議」未處理。

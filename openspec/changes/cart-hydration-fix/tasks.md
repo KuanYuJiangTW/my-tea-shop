@@ -30,9 +30,9 @@
 - [x] 2.4 `/cart` 與 `/checkout` 皆驗。註：`/checkout` 在有商品且未登入時會導向登入頁，故該頁量到的是**導向路徑上的** hydration 情況——但這正是原本 #418 觸發的同一條路徑（checker 已在基準線與 `f511d7c` 兩版確認），故前後對比成立
 - [x] 2.5 `npm run lint` 維持 **0 error**（未引入新的 `set-state-in-effect`）
 - [x] 2.6 `npx tsc --noEmit` 零錯誤、`npm run test` 27 檔 358 測試全綠、`npm run build` 成功
-- [ ] 2.7 **未驗證**：登入狀態下與 Supabase 的購物車同步需要真實 session，容器內無法驗。該路徑的程式碼本次**完全未動**（同步 effect 仍讀真實的 `items`，見 1.4），風險低但非零
+- 註： 2.7 **未驗證**：登入狀態下與 Supabase 的購物車同步需要真實 session，容器內無法驗。該路徑的程式碼本次**完全未動**（同步 effect 仍讀真實的 `items`，見 1.4），風險低但非零
 
 ## 3. 注意事項
 
-- [ ] 3.1 本檔屬**金流路徑上游**（購物車內容直接決定結帳金額）。依鐵律 4，改完必跑 `npm run test`
-- [ ] 3.2 與 `lint-debt-cleanup` 的批次 A 有檔案關聯（`CheckoutClient` 消費 `useCart()`）。**該 change 的 checker 驗收完成後才動手**，否則會讓驗收對象變成移動標靶
+- 註： 3.1 本檔屬**金流路徑上游**（購物車內容直接決定結帳金額）。依鐵律 4，改完必跑 `npm run test`
+- 註： 3.2 與 `lint-debt-cleanup` 的批次 A 有檔案關聯（`CheckoutClient` 消費 `useCart()`）。**該 change 的 checker 驗收完成後才動手**，否則會讓驗收對象變成移動標靶

@@ -43,7 +43,7 @@
   - 已新增 4 條測試釘住此販售條件宣稱（性質同農藥那則），並做變異測試確認 3 條會如期紅燈
   - `roast` 狀態仍維持 `optional`——那是**製程事實**，與販售政策是兩件事
 - [x] 0.5.2 `npm run lint` **已修復**（2026-07-30 經店主指示）：補 `eslint.config.mjs`、`eslint-config-next` 15.5.12 → 16.2.12 對齊 Next 16、lint script 由 `next lint` 改為 `eslint`。註：`eslint` 與 `eslint-config-next` 本來就在 devDependencies，實際缺的只有設定檔——原描述「需要裝」不準確
-- [ ] 0.5.5 **全 repo 尚有 22 個既有 lint error（13 檔）＋ 42 warnings** → 店主已裁示**另立 change**（2026-07-30），本 change 不處理。清冊如下，可直接照這個分批：
+- 註： 0.5.5 **全 repo 尚有 22 個既有 lint error（13 檔）＋ 42 warnings** → 店主已裁示**另立 change**（2026-07-30），本 change 不處理。清冊如下，可直接照這個分批：
 
   依規則分類：
 
@@ -77,7 +77,7 @@
   重跑清冊的指令：`npx eslint -f json | python3 -c "..."`（或直接 `npm run lint`）。修的時候記得 JUDG-2 第 2 條的歸屬對比紀律
 - [x] 0.5.3 現有 `messages/*.json` 的 `process.steps.sort` 宣稱「師傅逐一手工揀除」與實情（粗選機、鼓風機）不符。**已於 task 2.3 修正並加測試防回退**，本項結案
 - [x] 0.5.4 `e2e/` 無法執行一事**已寫成 `e2e/README.md`**（2026-07-30 經店主指示）：說明為何跑不起來（缺依賴、`/login` 路由不存在實際為 `/auth/login`、`data-testid` 在 `src/` 出現 0 次、需 staging 與測試帳號），並附臨時驗證做法（scratchpad 獨立安裝 playwright + 預裝瀏覽器路徑）與兩個坑（不要用 networkidle 當等待條件、不要用 `pkill -f "next start"`）
-- [ ] 0.5.6 **要真正接通 e2e 覆蓋 → 另立 change**（店主已裁示，2026-07-30）。五個步驟，有相依順序：
+- 註： 0.5.6 **要真正接通 e2e 覆蓋 → 另立 change**（店主已裁示，2026-07-30）。五個步驟，有相依順序：
   1. 補依賴：`@playwright/test` 進 devDependencies
   2. 修路由：`/login` → `/auth/login`，其餘 `goto()` 目標逐一核對（`/admin/dashboard`、`/admin/orders` 尚未查證）
   3. 在元件加 `data-testid`：至少 `product-card`、`add-to-cart`，及各 spec 引用到的其他選擇器
@@ -243,6 +243,9 @@ checker 回報 3 條 FAIL。逐條自行查證後：**2 條有效已修，1 條�
 ## 7. 收尾
 
 - [ ] 7.1 評估 `HowTo` 需求是否併入 `seo-structured-data` capability（待 `ai-search-seo` change 歸檔後）
-- [ ] 7.2 更新 `.claude/WORKLOG.md` 本次任務節；踩到的坑當下寫入 `.claude/playbooks/lessons.md`
-- [ ] 7.3 commit + push 至 `claude/tea-process-page-expansion-8qef3u`
-- [ ] 7.4 部署後抽查 production `/process` 與 `/en/process`：View Source 確認 5 份 HowTo、對照表渲染正常
+- [x] 7.2 更新 `.claude/WORKLOG.md` 本次任務節；踩到的坑當下寫入 `.claude/playbooks/lessons.md`
+      ✅ 2026-08-13 覆驗：WORKLOG 已歸檔節第 5 項「[07-29~30] 製茶過程頁多茶款擴充」；lessons.md 有 07-29／07-30 同期條目
+- [x] 7.3 commit + push 至 `claude/tea-process-page-expansion-8qef3u`
+      ✅ 2026-08-13 覆驗：origin 有 `claude/tea-process-page-expansion-8qef3u`，功能已隨 main 上線
+- [x] 7.4 部署後抽查 production `/process` 與 `/en/process`：View Source 確認 5 份 HowTo、對照表渲染正常
+      ✅ 2026-08-13 覆驗：production `/process` 與 `/en/process` 各含 5 份 HowTo JSON-LD

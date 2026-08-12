@@ -32,9 +32,10 @@
       「寄信失敗不得被標記」與「全部失敗不呼叫 update」兩條確實轉紅，再改回
 
 ## 上線前置（人工）
-- [ ] 6.1 在 Supabase 執行 `supabase/add_coupon_expiry_notification.sql`。
+- [x] 6.1 在 Supabase 執行 `supabase/add_coupon_expiry_notification.sql`。
+      ✅ 2026-08-13 覆驗：`coupons.notification_sent_7d` 欄位存在，SQL 已執行
       **未執行前該 cron 每次都會 500**
 - [ ] 6.2 確認 Vercel 專案的 CRON_SECRET 已設定（既有 cron 已在用，應該已有）
 
 ## 已知範圍外
-- [ ] 7.1 國際配送僅支援 PayPal。本次只做文案揭露，開放 Stripe 收國際卡是金流高風險區，另案
+- 註： 7.1 國際配送僅支援 PayPal。本次只做文案揭露，開放 Stripe 收國際卡是金流高風險區，另案
