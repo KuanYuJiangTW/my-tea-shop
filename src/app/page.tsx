@@ -104,35 +104,57 @@ export default async function HomePage() {
           priority
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-tea-text/55" />
+        {/* 方向性漸層取代全幅均勻遮罩。設計原則 1「產地即證據，介面是茶席」：
+            採茶實景是這個品牌的信任資產，均勻壓 55% 會把它變成背景紋理。
+            文字側加深到 80% 讓可讀性反而變好，照片側放到 20% 把實景露出來。
+
+            **手機刻意不變**（`from`／`to` 同為 55%，等同原本的均勻遮罩）：
+            手機的文字區幾乎滿版，拉開左右落差會讓文字右緣壓在亮處。
+            落差只在 md 以上才有意義，因為那裡文字只佔 max-w-2xl。 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-tea-text/55 to-tea-text/55 md:from-tea-text/80 md:via-tea-text/55 md:to-tea-text/20" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
           <div className="max-w-2xl">
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-6 leading-none">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-4 md:mb-6 leading-none">
               {t("hero.title")}
             </h1>
-            <div className="w-16 h-0.5 bg-tea-green-pale mb-7" />
+            <div className="w-16 h-0.5 bg-tea-green-pale mb-5 md:mb-7" />
             <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
               {t("hero.tagline")}
             </p>
-            <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg">
+            <p className="text-tea-cream text-body md:text-body-lg mb-8 md:mb-10 max-w-lg">
               {t("hero.description")}
             </p>
-            <div className="flex flex-wrap gap-4">
+            {/* 主 CTA 用米白實心而不是品牌綠：綠底壓在綠遮罩上、遮罩下面又是綠色茶園照，
+                三層同色相家族，CTA 浮不起來。這不是 AA 問題（白字對 tea-green 的 3.05
+                是業主拍板的已知取捨，見 design-system 2.3），是顯著性問題。
+
+                **不用暖色是刻意的**：業主偏好莫蘭迪低彩度，而 `process-*` 那組工序色
+                彩度 0.137–0.194，是品牌綠（0.0476）的三四倍。低彩度色盤要靠**明度**
+                製造重點——米白壓在 80% 深遮罩上是全站最大的明暗落差（深字 8.7:1），
+                而且沒引入任何新色，它本來就是 h1 的顏色。
+
+                次要 CTA 改純文字連結：原本兩顆都是 56px 高的膠囊、視覺重量相當，
+                等於沒有主次；而它 hover 態的米白實心正好會跟新的主 CTA 撞樣式。 */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <Link
                 href={lp("/products")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
+                className="bg-tea-cream-light hover:bg-tea-cream text-tea-text px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
               >
                 {t("hero.exploreBtn")}
               </Link>
+              {/* py-3.5 讓點擊區與主 CTA 同高（56px），不是靠行高——見 design-system 2.1.4 */}
               <Link
                 href={lp("/about")}
-                className="border-2 border-tea-cream/70 text-tea-cream hover:bg-tea-cream hover:text-tea-text px-8 py-3.5 rounded-pill font-medium transition-colors"
+                className="group inline-flex items-center gap-1.5 px-4 py-3.5 text-tea-cream font-medium underline underline-offset-4 decoration-tea-cream/40 hover:decoration-tea-cream transition-colors duration-base ease-standard"
               >
                 {t("hero.storyBtn")}
+                <span aria-hidden className="transition-transform duration-base ease-standard group-hover:translate-x-0.5">
+                  →
+                </span>
               </Link>
             </div>
           </div>
