@@ -8,6 +8,17 @@
       "shippingNote": "(PayPal for overseas orders)",
       "dismiss": "Dismiss announcement"
     },
+    "trust": {
+      "dispatch": "Ships in 2–3 business days",
+      "dispatchNote": "Straight from our own tea garden",
+      "freeShipping": "Free shipping in Taiwan over NT${amount}",
+      "freeShippingNote": "Free international shipping over NT${intl}",
+      "delivery": "Home delivery or store pickup",
+      "deliveryNote": "Home NT${home} / Store NT${cvs}",
+      "returns": "7-day inspection period",
+      "returnsNote": "Unopened items may be returned (CPA Art. 19)",
+      "returnsLink": "Return policy"
+    },
     "nav": {
       "home": "Home",
       "products": "Products",
@@ -219,7 +230,7 @@
     "quantityUnit": "{count} items",
     "shipping": "Shipping",
     "freeShipping": "Free",
-    "shippingOptions": "Home delivery NT$250 / Convenience store NT$60",
+    "shippingOptions": "Home delivery NT${home} / Convenience store NT${cvs}",
     "freeShippingHint": "Add NT${amount} more for free shipping",
     "intlFreeShippingHint": "Shipping overseas? Free over NT${threshold} — NT${amount} to go",
     "total": "Total",

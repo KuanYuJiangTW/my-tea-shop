@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Mountain, Flame, Sprout, Clock, Users } from "lucide-react";
 import FeaturedSection from "./FeaturedSection";
 import BrandStats from "./BrandStats";
+import TrustRow from "@/components/TrustRow";
 import { getFeaturedProducts } from "@/lib/products";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
 import { getTranslations, getLocale } from "next-intl/server";
@@ -92,7 +93,10 @@ export default async function HomePage() {
       />
       <div>
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* 100svh 不是 100vh：手機瀏覽器的 100vh 不扣工具列，實測 375×812 時
+          主 CTA 底邊在 y=689，而 iOS Safari 的實際可視高約 650px——CTA 會被切掉。
+          svh 用的是「工具列展開時」的高度，桌機與 vh 等值 */}
+      <section className="relative min-h-[100svh] flex items-center overflow-hidden">
         <Image
           src="/images/gallery/picking2.jpg"
           alt="阿里山梅山採茶實景"
@@ -218,6 +222,9 @@ export default async function HomePage() {
             </Link>
           </div>
           <FeaturedSection products={featuredProducts} />
+          {/* 情緒段（品牌故事）之後沒有接證據，客人讀完「一家三口 40 年」
+              也不知道運費多少、能不能退。信任列收在商品區內部，見 TrustRow 的註解 */}
+          <TrustRow locale={locale} />
         </div>
       </section>
 

@@ -6,6 +6,7 @@ import {
   getItemWeightG,
   calcTotalWeightG,
   calcDomesticFee,
+  DOMESTIC_FEES,
 } from "@/lib/shipping-constants";
 
 describe("DEFAULT_SPEC_WEIGHT_G", () => {
@@ -91,9 +92,16 @@ describe("calcDomesticFee", () => {
     expect(calcDomesticFee("home", 2000)).toBe(0);
   });
 
-  it("returns 250 for home delivery when subtotal < 1000", () => {
-    expect(calcDomesticFee("home", 999)).toBe(250);
-    expect(calcDomesticFee("home", 0)).toBe(250);
+  it("returns 150 for home delivery when subtotal < 1000", () => {
+    expect(calcDomesticFee("home", 999)).toBe(150);
+    expect(calcDomesticFee("home", 0)).toBe(150);
+  });
+
+  // 文案與計算必須讀同一組值。shippingOptions 原本硬寫「宅配 NT$250」，
+  // 費率一改就會對客人講錯價——這條把顯示值釘回計算值
+  it("DOMESTIC_FEES 與 calcDomesticFee 同源", () => {
+    expect(calcDomesticFee("home", 0)).toBe(DOMESTIC_FEES.home);
+    expect(calcDomesticFee("cvs", 0)).toBe(DOMESTIC_FEES.cvs);
   });
 
   it("returns 0 for cvs when subtotal >= 1000", () => {

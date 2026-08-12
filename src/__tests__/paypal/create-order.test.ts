@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import { TEST_USER, TEST_PRODUCT, BASE_ORDER_BODY } from "./helpers";
+import { DOMESTIC_FEES } from "@/lib/shipping-constants";
 
 // ─── Hoisted mocks ──────────────────────────────────────────────────────────
 const { mockFrom, mockGetUser, mockCreatePayPalOrder } = vi.hoisted(() => ({
@@ -288,8 +289,10 @@ describe("POST /api/paypal/create-order", () => {
     const res = await POST(makeRequest(body));
     expect(res.status).toBe(200);
 
+    // 用 TEST_PRODUCT.price + DOMESTIC_FEES.home 而不是寫死總額：
+    // 費率改動時這條該跟著走，不該變成「要手動追的數字」
     expect(mockCreatePayPalOrder).toHaveBeenCalledWith(
-      850, "order-abc", expect.any(String), expect.any(String), undefined,
+      TEST_PRODUCT.price + DOMESTIC_FEES.home, "order-abc", expect.any(String), expect.any(String), undefined,
     );
   });
 
@@ -395,7 +398,7 @@ describe("POST /api/paypal/create-order", () => {
     expect(res.status).toBe(200);
 
     expect(mockCreatePayPalOrder).toHaveBeenCalledWith(
-      950, "order-abc", expect.any(String), expect.any(String), undefined,
+      TEST_PRODUCT.price_75g * 2 + DOMESTIC_FEES.home, "order-abc", expect.any(String), expect.any(String), undefined,
     );
   });
 

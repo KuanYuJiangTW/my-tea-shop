@@ -254,7 +254,7 @@ export default function ProductCard({ product }: { product: Product }) {
                       key={v.key}
                       onClick={(e) => { e.stopPropagation(); if (!variantSoldOut) selectVariant(v.key); }}
                       disabled={variantSoldOut}
-                      className={`flex flex-col items-center px-3 py-2 rounded-control border text-caption font-medium transition-all duration-fast ease-standard min-w-[60px] ${
+                      className={`flex flex-col items-center justify-center px-3 py-2 rounded-control border text-caption font-medium transition-all duration-fast ease-standard min-w-[60px] ${
                         variantSoldOut
                           ? "border-gray-200 text-gray-300 cursor-not-allowed"
                           : selectedKey === v.key
@@ -266,11 +266,18 @@ export default function ProductCard({ product }: { product: Product }) {
                       <span className="text-[10px] opacity-70 leading-tight">
                         {variantSoldOut ? t("outOfStock") : v.hint}
                       </span>
-                      {!variantSoldOut && v.stock !== undefined && (
-                        <span className={`text-[10px] leading-tight mt-0.5 ${v.stock <= 10 ? "text-amber-500 font-semibold" : "opacity-50"}`}>
-                          {t("stockLeft", { count: v.stock })}
-                        </span>
-                      )}
+                      {/* 只在真的稀缺時出聲。>10 顯示數字等於告訴客人「不用急」，
+                          而且九個 chip 都有數字時，唯一該搶眼的那個橘字要對抗的是
+                          八個同位置同字級的兄弟——彩度要有效，前提是周圍安靜。
+                          充足庫存改由數量旁的 stockCount 揭露（那裡是操作上限，語意不同）。 */}
+                      {/* 這一行**永遠佔位**（`min-h-[1lh]`，同 L241 描述容器的手法）。
+                          條件式渲染會讓「沒有低庫存規格」的卡片矮 15px——實測 /products
+                          出現 632 與 617 兩種高度，正是 L232-235 在防的不等高。 */}
+                      <span className="text-[10px] leading-tight mt-0.5 min-h-[1lh] text-amber-500 font-semibold">
+                        {!variantSoldOut && v.stock !== undefined && v.stock <= 10
+                          ? t("stockLeft", { count: v.stock })
+                          : ""}
+                      </span>
                     </button>
                   );
                 })}

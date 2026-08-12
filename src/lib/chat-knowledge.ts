@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { DOMESTIC_FREE_THRESHOLD } from "./shipping-constants";
 import type { Product, ExperienceType } from "@/types";
 
 // ── 快取 ─────────────────────────────────────────────────────────────────────
@@ -105,7 +106,7 @@ function buildFAQ(locale: string): string {
   if (locale === "en") {
     return `- How to brew: Use 5g of tea leaves, 150ml of water at 90-95°C, steep for 60 seconds. Re-steep multiple times.
 - Tea storage: Keep in a sealed, dry, cool place away from sunlight. Consume within 6 months after opening.
-- Shipping: Orders ship within 2-3 business days via home delivery or convenience store pickup. Free shipping over NT$1500.
+- Shipping: Orders ship within 2-3 business days via home delivery or convenience store pickup. Free shipping over NT$${DOMESTIC_FREE_THRESHOLD}.
 - Returns: Unopened products can be returned within 7 days. Opened food products cannot be returned per food safety regulations.
 - Gift packaging: Gift box packaging is available. Please mention in the order notes.
 - Location: Wu Jue Tea is located in Meishan Township, Chiayi County, Taiwan.`;
@@ -113,7 +114,7 @@ function buildFAQ(locale: string): string {
 
   return `- 泡茶方式：取茶葉約 5g，以 90-95°C 熱水 150ml 沖泡，第一泡約 60 秒，可多次回沖。
 - 茶葉保存：密封保存於乾燥陰涼處，避免日曬。開封後建議 6 個月內飲用完畢。
-- 運送方式：下單後 2-3 個工作天內出貨，支援宅配到府或超商取貨。滿 NT$1500 免運費。
+- 運送方式：下單後 2-3 個工作天內出貨，支援宅配到府或超商取貨。滿 NT$${DOMESTIC_FREE_THRESHOLD} 免運費。
 - 退換貨：未開封商品可於 7 天內退換。食品類商品一經開封恕無法退貨（食品衛生法規）。
 - 送禮包裝：可提供禮盒包裝服務，請於訂單備註欄說明。
 - 地點：霧抉茶位於台灣嘉義縣梅山鄉，屬阿里山茶區。`;

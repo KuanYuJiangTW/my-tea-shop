@@ -26,4 +26,5 @@ DeliveryType 新增 "international" 選項。
 
 #### Scenario: 國內訂單不受影響
 - **WHEN** deliveryType = "home" 或 "cvs"
-- **THEN** 運費結果與現有邏輯完全一致（滿 1000 免運，宅配 250，超商 60）
+- **THEN** 運費結果與 `calcDomesticFee` 完全一致（滿 1000 免運，宅配 150，超商 60）
+  ——費率以 `shipping-constants.ts` 的 `DOMESTIC_FEES` 為單一真相，本文不再另記數字
