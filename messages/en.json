@@ -8,6 +8,15 @@
       "shippingNote": "(PayPal for overseas orders)",
       "dismiss": "Dismiss announcement"
     },
+    "trust": {
+      "freeShipping": "Free shipping in Taiwan over NT${amount}",
+      "freeShippingNote": "Free international shipping over NT${intl}",
+      "delivery": "Home delivery or store pickup",
+      "deliveryNote": "Home NT$250 / Store NT$60",
+      "returns": "7-day inspection period",
+      "returnsNote": "Unopened items may be returned (CPA Art. 19)",
+      "returnsLink": "Return policy"
+    },
     "nav": {
       "home": "Home",
       "products": "Products",

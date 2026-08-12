@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Mountain, Flame, Sprout, Clock, Users } from "lucide-react";
 import FeaturedSection from "./FeaturedSection";
 import BrandStats from "./BrandStats";
+import TrustRow from "@/components/TrustRow";
 import { getFeaturedProducts } from "@/lib/products";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
 import { getTranslations, getLocale } from "next-intl/server";
@@ -218,6 +219,9 @@ export default async function HomePage() {
             </Link>
           </div>
           <FeaturedSection products={featuredProducts} />
+          {/* 情緒段（品牌故事）之後沒有接證據，客人讀完「一家三口 40 年」
+              也不知道運費多少、能不能退。信任列收在商品區內部，見 TrustRow 的註解 */}
+          <TrustRow locale={locale} />
         </div>
       </section>
 

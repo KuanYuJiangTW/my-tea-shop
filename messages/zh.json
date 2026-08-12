@@ -8,6 +8,15 @@
       "shippingNote": "（海外訂單以 PayPal 結帳）",
       "dismiss": "關閉公告"
     },
+    "trust": {
+      "freeShipping": "台灣本島滿 NT${amount} 免運",
+      "freeShippingNote": "海外配送滿 NT${intl} 免國際運費",
+      "delivery": "宅配到府・超商取貨",
+      "deliveryNote": "宅配 NT$250／超商 NT$60",
+      "returns": "七天鑑賞期",
+      "returnsNote": "未拆封可申請退貨（消保法第 19 條）",
+      "returnsLink": "退換貨政策"
+    },
     "nav": {
       "home": "首頁",
       "products": "產品",
