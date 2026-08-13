@@ -9,12 +9,18 @@
 
 ## 1. 前置：修既有的部分扣減缺陷
 
-- [ ] 1.1 讀 `src/app/api/orders/route.ts:190-215`，確認現況：`Promise.all` 平行扣減，任一失敗回 400 但**已成功的不回補**；訂單 insert 失敗回 500 時也不回補
-- [ ] 1.2 先寫**會紅的測試**：兩品項訂單，第二項庫存不足 → 斷言第一項的庫存維持原值
-- [ ] 1.3 再寫一條：扣減全成功但 `orders` insert 回錯 → 斷言所有品項庫存回補
-- [ ] 1.4 實作回補（呼叫既有的 `increment_stock`），四條建單路徑都要：`orders`、`ecpay/checkout`、`stripe/checkout`、`paypal/create-order`
-- [ ] 1.5 `npm run test` 全綠，且 1.2／1.3 兩條由紅轉綠
-- [ ] 1.6 反向驗證：拿掉回補邏輯，確認 1.2／1.3 確實變紅（見 `reverse-verify` skill）
+- [x] 1.1 讀 `src/app/api/orders/route.ts:190-215`，確認現況：`Promise.all` 平行扣減，任一失敗回 400 但**已成功的不回補**；訂單 insert 失敗回 500 時也不回補
+      ✅ 查證結果與提案假設不同：**扣減點不是「四條建單路徑」**。只有 `orders/route.ts`（貨到付款）在建單前扣；`ecpay/return`、`stripe/webhook`、`paypal` capture 是付款成功後才扣，扣失敗時標記 `order_status = "stock_issue"` 交人工處理——那是正確設計，不在本章範圍。**缺陷只在 `orders/route.ts` 一支**
+- [x] 1.2 先寫**會紅的測試**：兩品項訂單，第二項庫存不足 → 斷言第一項的庫存維持原值
+      ✅ `src/__tests__/orders/create-order-stock-rollback.test.ts`「其中一項扣減失敗」，實跑先紅
+- [x] 1.3 再寫一條：扣減全成功但 `orders` insert 回錯 → 斷言所有品項庫存回補
+      ✅ 同檔「扣減全成功但訂單寫入失敗」，實跑先紅
+- [x] 1.4 實作回補（呼叫既有的 `increment_stock`），四條建單路徑都要：`orders`、`ecpay/checkout`、`stripe/checkout`、`paypal/create-order`
+      ✅ 加 `rollbackStock()`，只補 `data === true` 的項目（失敗那項沒扣成功，補了會無中生有）。**範圍修正為 `orders/route.ts` 一支**，理由見 1.1
+- [x] 1.5 `npm run test` 全綠，且 1.2／1.3 兩條由紅轉綠
+      ✅ 46 檔 590 測試全過（新增 3 條），1.2／1.3 由紅轉綠；tsc 0 錯誤、lint 0 error、build 成功
+- [x] 1.6 反向驗證：拿掉回補邏輯，確認 1.2／1.3 確實變紅（見 `reverse-verify` skill）
+      ✅ 移除兩處 `rollbackStock()` 後 1.2／1.3 立刻變紅（2 failed），確認測試不是空過
 
 ## 2. 資料層
 

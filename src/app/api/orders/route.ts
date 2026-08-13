@@ -194,8 +194,31 @@ export async function POST(req: NextRequest) {
       supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity, spec: item.spec })
     )
   );
+  /**
+   * 回補已經扣掉的庫存。
+   *
+   * 扣減是 `Promise.all` 平行送出的，所以任一項失敗時，**其餘的可能已經扣成功**。
+   * 這條路徑是「先扣庫存、再建訂單」（為了防超賣，方向正確），但只要中途失敗
+   * 又不回補，就會留下「庫存被扣掉但訂單不存在」的狀態——庫存憑空蒸發。
+   *
+   * 只補 `data === true` 的那幾項：失敗的那項根本沒扣成功，補了會無中生有。
+   *
+   * 對照組：三條線上金流路徑（ecpay/return、stripe/webhook、paypal capture）
+   * 是**付款成功後**才扣，那時已無法回滾付款，所以它們的做法是標記
+   * `order_status = "stock_issue"` 交人工處理——那是對的，不要照搬這裡的回補。
+   */
+  const rollbackStock = () =>
+    Promise.all(
+      validatedItems
+        .filter((_, i) => decrementResults[i]?.data === true)
+        .map((item) =>
+          supabase.rpc("increment_stock", { p_id: item.productId, qty: item.quantity, spec: item.spec })
+        )
+    );
+
   const failedIdx = decrementResults.findIndex((r) => r.data === false || r.error);
   if (failedIdx !== -1) {
+    await rollbackStock();
     return NextResponse.json({ error: `庫存不足：${validatedItems[failedIdx].name}，請減少數量或選擇其他商品` }, { status: 400 });
   }
 
@@ -225,6 +248,8 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) {
+    // 庫存已扣但訂單沒建成——不補就是憑空蒸發
+    await rollbackStock();
     console.error("建立訂單失敗:", error);
     return NextResponse.json({ error: "建立訂單失敗" }, { status: 500 });
   }
