@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useAuth } from "@/context/AuthContext";
 import { INTERNATIONAL_FREE_SHIPPING_THRESHOLD } from "@/lib/shipping-constants";
@@ -18,41 +19,62 @@ import { WELCOME_COUPON } from "@/lib/coupon-constants";
 const DISMISS_DAYS = 7;
 const DISMISS_KEY = "wj-announcement-dismissed-until";
 
+/** 關閉狀態改用 external store：`dismiss()` 寫完 localStorage 後派事件通知訂閱者 */
+const DISMISS_EVENT = "wj-announcement-dismissed";
+
+function subscribeDismissed(onChange: () => void) {
+  window.addEventListener(DISMISS_EVENT, onChange);
+  return () => window.removeEventListener(DISMISS_EVENT, onChange);
+}
+
+function readDismissed() {
+  try {
+    const until = Number(window.localStorage.getItem(DISMISS_KEY));
+    return Boolean(until) && Date.now() < until;
+  } catch {
+    // 無痕模式／封鎖儲存時 localStorage 會丟例外——照常顯示即可
+    return false;
+  }
+}
+
 export default function AnnouncementBar() {
   const t = useTranslations("common.announcement");
   const locale = useLocale();
+  const pathname = usePathname();
   const { user, loading } = useAuth();
 
-  // 初值刻意是「顯示」：絕大多數訪客沒關過，這樣他們零版面位移（CLS）。
-  // 關過的人由下面的 effect 在 hydration 後移除——初值設成隱藏的話，
-  // 反而是所有人都要被推一次版面。
-  const [dismissed, setDismissed] = useState(false);
+  /**
+   * 伺服器端快照固定回 `false`（顯示）：絕大多數訪客沒關過，這樣他們零版面位移（CLS）。
+   * 關過的人由 hydration 後的 client 快照移除——初值設成隱藏的話，反而是所有人
+   * 都要被推一次版面。這個取捨與原本的寫法完全相同。
+   *
+   * **為什麼不是 `useState` + `useEffect`**：原本在 effect 裡同步 `setState`，
+   * 是全 repo 唯一的 lint error（`react-hooks/set-state-in-effect`）。
+   * 「讀外部來源、且伺服器與 client 的答案不同」正是 `useSyncExternalStore`
+   * 的用途，換過來之後行為不變、error 歸零。
+   */
+  const dismissed = useSyncExternalStore(subscribeDismissed, readDismissed, () => false);
 
-  useEffect(() => {
-    try {
-      const until = Number(window.localStorage.getItem(DISMISS_KEY));
-      if (until && Date.now() < until) setDismissed(true);
-    } catch {
-      // 無痕模式／封鎖儲存時 localStorage 會丟例外——照常顯示即可
-    }
-  }, []);
+  const lp = (path: string) => (locale === "en" ? `/en${path}` : path);
 
   if (dismissed) return null;
 
   // auth 還在載入時走配送文案：它對登入與否都成立。
   // 反過來先顯示「新會員」，會讓老客戶看到一則對自己無效的訊息再閃掉。
-  const showWelcome = !loading && !user;
+  //
+  // **在註冊頁不顯示註冊禮**：那則的 CTA 會指向當前頁，點了等於沒事發生。
+  // 改走配送文案——它對還沒註冊的人一樣成立，符合本條的「只講一件事」。
+  const onRegisterPage = pathname === lp("/auth/register");
+  const showWelcome = !loading && !user && !onRegisterPage;
 
   function dismiss() {
-    setDismissed(true);
     try {
       window.localStorage.setItem(DISMISS_KEY, String(Date.now() + DISMISS_DAYS * 86_400_000));
     } catch {
       // 同上，存不進去頂多下次再顯示一遍
     }
+    window.dispatchEvent(new Event(DISMISS_EVENT));
   }
-
-  const lp = (path: string) => (locale === "en" ? `/en${path}` : path);
 
   return (
     <div className="bg-tea-green-dark text-white">

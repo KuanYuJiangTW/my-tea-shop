@@ -162,10 +162,14 @@
 
 剩餘全部 7 個 error 都在這批。
 
-- [ ] A.1 `checkout/CheckoutClient.tsx` — set-state-in-effect ×1, immutability ×2（先讀 `openspec/specs/checkout-flow/`）
-- [ ] A.2 `account/AccountClient.tsx` — immutability ×1, purity ×1（先讀 `openspec/specs/account-page/`）
-- [ ] A.3 `account/page.tsx` — purity ×1
-- [ ] A.4 `account/bookings/[id]/participants/page.tsx` — set-state-in-effect ×1（先讀 `openspec/specs/booking-participants/`）
+- [x] A.1 `checkout/CheckoutClient.tsx` — set-state-in-effect ×1, immutability ×2（先讀 `openspec/specs/checkout-flow/`）
+      ✅ 2026-08-13 覆驗：已由 `f511d7c`／`9703d3e`「清償批次 A 的 7 個 lint error，全 repo error 歸零」修掉；現跑 eslint 該檔 0 error
+- [x] A.2 `account/AccountClient.tsx` — immutability ×1, purity ×1（先讀 `openspec/specs/account-page/`）
+      ✅ 2026-08-13 覆驗：同上，該檔 0 error
+- [x] A.3 `account/page.tsx` — purity ×1
+      ✅ 2026-08-13 覆驗：同上，該檔 0 error
+- [x] A.4 `account/bookings/[id]/participants/page.tsx` — set-state-in-effect ×1（先讀 `openspec/specs/booking-participants/`）
+      ✅ 2026-08-13 覆驗：同上，該檔 0 error
 
 ## 另案回報
 
