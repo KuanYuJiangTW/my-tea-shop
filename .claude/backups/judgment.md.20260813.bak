@@ -57,7 +57,7 @@
 
 **最低門檻（全過才能 commit）**：
 1. 跑 `/verify`（測試＋`tsc --noEmit`＋build）全過；高風險區（金流、庫存、auth/2FA、RLS、cron）改動前先讀 `openspec/specs/` 對應規格
-2. **`npm run lint` 可用，而且要跑**——2026-07-30 已補上 `eslint.config.mjs`、script 改成 `eslint`（Next 16 移除的是 `next lint`，本條在 2026-08-13 前一直停在那個舊事實）。它抓得到 `tsc` 與單元測試都抓不到的 react-hooks 問題（見 lessons 2026-07-30）。**門檻是 0 error**——2026-08-13 實測全 repo 0 error / 36 warnings，warning 屬既有債務不列入門檻。宣稱「錯誤是既有的」一樣要用 `git stash` 前後對比證明，不能用「應該是」
+2. **`npm run lint` 已失效**（Next 16 移除 `next lint`，本專案也無 `eslint.config.js`）——不要跑它、更不要去「修」它的錯誤。型別把關改由 `npx tsc --noEmit` 負責，且宣稱「錯誤是既有的」一樣要用 `git stash` 前後對比證明，不能用「應該是」
 3. diff 讀起來像周圍的 code：命名風格、註解密度一致；使用者可見字串進 `messages/`（zh-TW＋en 兩份），不硬編碼
 4. 無殘留 debug：`console.log`、註解掉的舊碼、沒登記進 WORKLOG 的 TODO
 5. 邊界條件至少想過這四個：空值／未登入／重複提交／zh 與 en 兩語系

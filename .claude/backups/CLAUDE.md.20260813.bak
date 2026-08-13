@@ -6,7 +6,7 @@
 - Next.js 16（App Router）+ React 19 + TypeScript + Tailwind 3；UI 用 shadcn / @base-ui
 - 資料：Supabase（Postgres + RLS）；內容管理：Sanity（`/studio`）；金流：Stripe / PayPal / ECPay 綠界
 - i18n：next-intl（zh-TW / EN），字串在 `messages/`
-- 指令：`/verify` 一次跑完測試＋型別＋lint＋build（`npm run lint` 門檻 0 error，見 JUDG-5）
+- 指令：`/verify` 一次跑完測試＋型別＋build（`npm run lint` 已失效，見 JUDG-5）
 - e2e：`e2e/`（Playwright；瀏覽器已預裝，**不要跑 playwright install**）
 - 規格流程：動功能前先讀 `openspec/specs/<能力>/`；變更提案放 `openspec/changes/`
 - 部署：Vercel（含 cron，見 `vercel.json`）

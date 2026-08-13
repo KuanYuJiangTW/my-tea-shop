@@ -1,12 +1,20 @@
-## ADDED Requirements
+# announcement-bar Specification
 
+## Purpose
+TBD - created by archiving change announcement-bar. Update Purpose after archive.
+## Requirements
 ### Requirement: 公告條依登入狀態擇一顯示
 
 系統 SHALL 在 Header 上方顯示單一則公告，內容依登入狀態決定，且 SHALL NOT 輪播。
 
 #### Scenario: 未登入訪客
-- **WHEN** auth 載入完成且無登入使用者
+- **WHEN** auth 載入完成、無登入使用者，且當前路徑不是註冊頁
 - **THEN** 顯示新會員券文案，整條為連結指向 `/auth/register`（`/en` 時為 `/en/auth/register`）
+
+#### Scenario: 未登入但人已經在註冊頁
+- **WHEN** auth 載入完成、無登入使用者，且當前路徑為 `/auth/register` 或 `/en/auth/register`
+- **THEN** 改顯示國際配送文案——新會員券那則的 CTA 會指向當前頁，點了等於沒事發生；
+  配送文案對還沒註冊的人一樣成立，也維持「只講一件事」
 
 #### Scenario: 已登入會員
 - **WHEN** auth 載入完成且有登入使用者
@@ -44,6 +52,9 @@
 
 ### Requirement: 可關閉並記憶 7 天
 
+系統 SHALL 提供關閉鈕；關閉後 SHALL 於 `localStorage` 記錄 7 天靜默期，期間 SHALL NOT 顯示公告條。
+讀寫 `localStorage` 失敗時 SHALL 照常顯示，SHALL NOT 因此中斷渲染。
+
 #### Scenario: 關閉公告
 - **WHEN** 使用者點擊關閉鈕
 - **THEN** 公告條移除，`localStorage.wj-announcement-dismissed-until` 存入 7 天後的時間戳
@@ -62,6 +73,8 @@
 
 ### Requirement: 結帳流程不顯示公告條
 
+系統 SHALL NOT 在結帳與後台路徑掛載公告條。
+
 #### Scenario: 結帳頁
 - **WHEN** 路徑為 `/checkout` 或 `/en/checkout`
 - **THEN** 不掛載公告條——避免在付款前製造離開誘因
@@ -72,6 +85,9 @@
 
 ### Requirement: 版面與可及性
 
+公告條 SHALL 維持 36px 的單行高度且 SHALL NOT 造成水平溢出，配色 SHALL 通過 AA 內文對比，
+關閉鈕 SHALL 具備 36×36px 觸控區與 `aria-label`。
+
 #### Scenario: 條高固定
 - **WHEN** 於 375／640／768／1280 任一寬度，中文或英文
 - **THEN** 公告條高度為 36px，文字單行不斷行，且不造成水平溢出
@@ -80,3 +96,4 @@
 - **WHEN** 渲染公告條
 - **THEN** 底色 `tea-green-dark`（#5C7A67）配白字，對比 4.74 通過 AA 內文門檻；
   關閉鈕觸控區為 36×36px，並有 `aria-label`
+
