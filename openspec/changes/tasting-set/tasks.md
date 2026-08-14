@@ -24,11 +24,14 @@
 
 ## 2. 資料層
 
-- [ ] 2.1 寫 `supabase/add_product_bundles.sql`：`product_bundles`（name、name_en、price、is_active、slug、description）與 `product_bundle_items`（bundle_id、product_id、spec、quantity）
-- [ ] 2.2 同檔加 `decrement_bundle_stock(p_bundle_id, p_qty)`：在單一交易內逐一扣減成分，任一不足即 `RAISE EXCEPTION` 回滾；**不可設 SECURITY DEFINER**（沿用三參數版 `decrement_stock` 的安全模型，理由見 `supabase/rpc-grants-remediation.sql`）
-- [ ] 2.3 同檔加 RLS：公開只能讀 `is_active = true` 的組合
+- [x] 2.1 寫 `supabase/add_product_bundles.sql`：`product_bundles`（name、name_en、price、is_active、slug、description）與 `product_bundle_items`（bundle_id、product_id、spec、quantity）
+      ✅ `supabase/add_product_bundles.sql`：product_bundles（slug/name/price/is_active）＋ product_bundle_items（bundle_id/product_id/spec/quantity，unique 三欄）＋ 反查索引 (product_id, spec)
+- [x] 2.2 同檔加 `decrement_bundle_stock(p_bundle_id, p_qty)`：在單一交易內逐一扣減成分，任一不足即 `RAISE EXCEPTION` 回滾；**不可設 SECURITY DEFINER**（沿用三參數版 `decrement_stock` 的安全模型，理由見 `supabase/rpc-grants-remediation.sql`）
+      ✅ 同檔 decrement_bundle_stock(integer, integer)：單一 plpgsql 內逐一扣減，任一不足即 RAISE（整個交易回滾）。**不是 SECURITY DEFINER**，且 revoke public/anon/authenticated、只 grant service_role，比照 decrement_stock。NULL 庫存＝不管控，不擋扣減
+- [x] 2.3 同檔加 RLS：公開只能讀 `is_active = true` 的組合
+      ✅ 同檔：兩張表都 enable RLS，公開 select 僅限 is_active = true 的組合與其成分
 - [ ] 2.4 業主在 Supabase 執行該 SQL 並回報
-- [ ] 2.5 建立第一個組合：三款各 75g × 1（烏龍、蜜香紅茶、金萱）——**紅烏龍與四季春的 `stock_75g` 是 0，不能當成分**
+- [ ] 2.5 建立第一個組合：**三款各 75g × 1（烏龍、蜜香紅茶、金萱），定價 650，附手提袋**。紅烏龍與四季春的 `stock_75g` 是 0（業主說明為暫時缺貨），本版不當成分
 
 ## 3. 讀取與可售量
 
@@ -41,7 +44,7 @@
 - [ ] 4.1 新增組合卡片元件（**不要硬塞進 `ProductCard`**：組合沒有規格選擇，但要列三款成分）
 - [ ] 4.2 可售量為 0 時顯示售完，不隱藏商品
 - [ ] 4.3 加入購物車：`CartContext` 能承載組合品項（帶 `bundleId` 與成分快照）
-- [ ] 4.4 文案：定位為入門組合，並說明「再加一包即達 NT$1,000 免運」——組合定價低於免運門檻是刻意的加購動線
+- [ ] 4.4 文案：定位為「第一次買茶的人從這裡開始」，並把加購話術寫成算術——**「再加一包金萱就免運」**（650 ＋ 金萱 150g 350 ＝ 1,000，差額正好等於一包金萱的售價）。組合定價低於免運門檻是刻意的加購動線，不是缺點
 - [ ] 4.5 中英文案進 `messages/zh.json` 與 `en.json`
 
 ## 5. 建單與取消
@@ -60,11 +63,12 @@
 - [ ] 6.3 反向驗證：把 `decrement_bundle_stock` 的回滾拿掉，確認「其中一項成分不足」的測試會紅
 - [ ] 6.4 端對端：下單一組 → 確認三款成分各扣 1 → 取消 → 確認各回補 1
 - [ ] 6.5 英文版 `/en` 無中文殘留
-- [ ] 6.6 業主提供包材成本後拍板售價，並確認是否上首頁
+- [ ] 6.6 確認是否上首頁（售價已定 650；首頁目前三張卡是烏龍、蜜香紅茶、金萱）
 
 ## 7. 待業主提供
 
-- [ ] 7.1 組合的外盒與包材成本
-- [ ] 7.2 組合售價（成分單買合計 700）
+- [x] 7.1 ~~組合的外盒與包材成本~~ → 業主 2026-08-13 提供：單包 75g 包材 11.16、禮盒 175–210（本版不用禮盒，改手提袋）
+- [x] 7.2 ~~組合售價~~ → **已定 NT$650**（單買合計 700，折 50；差額 350 剛好等於一包金萱 150g，命中免運門檻）
 - [ ] 7.3 是否上首頁（目前三張卡是烏龍、蜜香紅茶、金萱）
-- [ ] 7.4 紅烏龍與四季春的 75g 是暫時缺貨還是不做——決定要不要出第二種組合
+- [x] 7.4 ~~紅烏龍與四季春的 75g~~ → 業主 2026-08-13 說明是**暫時缺貨**；補貨後再評估四款散茶版或禮盒版
+- [ ] 7.5 **手提袋的實際成本**，以及是否印品牌（印刷會讓單價跳一階）——不阻擋定價（10–30 元區間內淨利率皆 ≥47%），但成本表要填實
