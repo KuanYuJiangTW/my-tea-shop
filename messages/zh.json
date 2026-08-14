@@ -182,7 +182,18 @@
     "teaBagHint": "15入 × 3g",
     "unitServing": "份",
     "unitBox": "盒",
-    "teaBagSet": "茶包組"
+    "teaBagSet": "茶包組",
+    "bundle": {
+      "eyebrow": "入門首選",
+      "contains": "內含",
+      "perItem": "{name} 75g",
+      "soldOut": "暫時售完",
+      "lowStock": "僅剩 {count} 組",
+      "addToCart": "加入購物車",
+      "added": "已加入購物車",
+      "freeShippingHint": "再加一包阿里山金萱（NT$350）即達 NT$1,000 免運",
+      "savedNote": "單買合計 NT${sum}，組合現省 NT${saved}"
+    }
   },
   "experiences": {
     "pageTitle": "茶山體驗",
@@ -1460,7 +1471,13 @@
       "title": "每個生意，都有自己的風土。",
       "subtitle": "你的手藝、你的故事、你的客人——構成別人複製不了的獨特性。我們幫你把它種到網路上，長成能收單、能預約、能被 Google 與 AI 找到的數位門面。",
       "quote": "你現在瀏覽的霧抉茶官網，就是我們的作品。",
-      "chips": ["雙語系統", "3 種金流", "線上預約系統", "會員點數制", "AI 搜尋優化"],
+      "chips": [
+        "雙語系統",
+        "3 種金流",
+        "線上預約系統",
+        "會員點數制",
+        "AI 搜尋優化"
+      ],
       "ctaPrimary": "看方案報價",
       "ctaSecondary": "直接聊聊"
     },
@@ -1583,7 +1600,12 @@
       "sectionTitle": "上線之後，才是生意的開始",
       "intro": "網站跟茶園一樣，需要人照顧。",
       "price": "月費 NT$ 3,000 起",
-      "items": ["內容更新代管", "安全性更新", "每月流量報告", "異常監控"]
+      "items": [
+        "內容更新代管",
+        "安全性更新",
+        "每月流量報告",
+        "異常監控"
+      ]
     },
     "terms": {
       "sectionTitle": "先小人後君子，都寫清楚",

@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import type { Product } from "@/types";
 import { productDisplayName, productDisplayWeight, productDisplayOrigin } from "@/lib/product-display";
+import { decodeCartId } from "@/lib/cart-item-id";
 import {
   DOMESTIC_FEES,
   DOMESTIC_FREE_THRESHOLD,
@@ -19,10 +20,14 @@ function getItemStock(product: Product): number | undefined {
   return product.stockQuantity;
 }
 
-function getOriginalId(product: Product): number {
-  if (product.weight === "75g") return product.id - 10000;
-  if (product.weight === "15包 × 3g") return product.id - 20000;
-  return product.id;
+/**
+ * 取回真實的 `products.id`（合成 id 的反解，見 `lib/cart-item-id.ts`）。
+ * 原本靠 `product.weight` 字串比對推規格，等於同一套編碼有兩種解法；
+ * 組合沒有對應的 `products.id`，回 null 讓呼叫端略過庫存比對。
+ */
+function getOriginalId(product: Product): number | null {
+  const d = decodeCartId(product.id);
+  return d.kind === "product" ? d.productId : null;
 }
 
 interface StockEntry {

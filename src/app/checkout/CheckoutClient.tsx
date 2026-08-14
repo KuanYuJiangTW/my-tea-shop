@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import { isKnownMemberTier } from "@/lib/points-i18n";
 import { productDisplayName, productDisplayWeight } from "@/lib/product-display";
+import { decodeCartId, specOfCartId } from "@/lib/cart-item-id";
 import type {
   PaymentMethod,
   DeliveryType,
@@ -143,14 +144,11 @@ export default function CheckoutClient() {
   }
 
   // 國際配送重量計算
-  const cartWeightItems = items.map(i => {
-    const rawId = i.product.id;
-    let spec: string;
-    if (rawId >= 20000) spec = "teabag";
-    else if (rawId >= 10000) spec = "75g";
-    else spec = "150g";
-    return { spec, quantity: i.quantity };
-  });
+  const cartWeightItems = items.map(i => ({
+    // 組合沒有單一規格，配送重量先以 150g 計（成分皆為 75g 時會高估，偏保守不會少收）
+    spec: specOfCartId(i.product.id) ?? "150g",
+    quantity: i.quantity,
+  }));
   const totalWeightG = calcTotalWeightG(cartWeightItems);
   const isOverweight = totalWeightG > EPACKET_MAX_WEIGHT_G;
   const selectedCountry = countries.find(c => c.countryCode === form.internationalAddress.country);
@@ -379,21 +377,15 @@ export default function CheckoutClient() {
       : delivery === "home"
         ? { shippingAddress: { city: form.city, address: form.address } }
         : { cvsInfo: { company: form.cvsCompany, storeId: form.cvsStoreId, storeName: form.cvsStoreName } }),
+    // 組合的送出格式要改 CreateOrderRequest 的契約，屬 tasting-set 第 5 章。
+    // 在那之前寧可讓它炸開也不要默默丟掉品項——靜默丟棄會讓客人付了錢卻少收到東西。
+    // 實務上碰不到：組合的 is_active 目前是 false，前台加不進購物車。
     items: items.map(i => {
-      const rawId = i.product.id;
-      let productId: number;
-      let spec: "150g" | "75g" | "teabag";
-      if (rawId >= 20000) {
-        productId = rawId - 20000;
-        spec = "teabag";
-      } else if (rawId >= 10000) {
-        productId = rawId - 10000;
-        spec = "75g";
-      } else {
-        productId = rawId;
-        spec = "150g";
+      const d = decodeCartId(i.product.id);
+      if (d.kind === "bundle") {
+        throw new Error(`組合商品尚未開放結帳（bundleId=${d.bundleId}），見 tasting-set 任務 5.1`);
       }
-      return { productId, quantity: i.quantity, spec };
+      return { productId: d.productId, quantity: i.quantity, spec: d.spec };
     }),
     note:        form.note || undefined,
     couponCode:  appliedCoupon?.code,

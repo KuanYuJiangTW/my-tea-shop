@@ -1,4 +1,5 @@
-import type { Bundle, BundleItem, ProductSpec } from "@/types";
+import type { Bundle, BundleItem, Product, ProductSpec } from "@/types";
+import { encodeBundleCartId } from "./cart-item-id";
 
 /**
  * 組合商品的**純邏輯**：可售量計算與資料列對映。
@@ -64,5 +65,37 @@ export function mapBundle(row: any): Bundle {
     descriptionEn: row.description_en ?? "",
     price: row.price,
     items,
+  };
+}
+
+/**
+ * 把組合包成購物車能存的形狀。
+ *
+ * 購物車以 `CartItem.product` 為單位，而規格早就是用「合成 Product」表達的
+ * （`TeaBagCard` 就是 `{...product, id: product.id + 20000, price: priceTeaBag}`）。
+ * 組合沿用同一套，只是 id 落在 30000+ 的區間，解碼由 `cart-item-id.ts` 統一負責。
+ *
+ * 這樣做的代價是要湊出 `Product` 的必填欄位；換到的是**購物車、Header 徽章、
+ * 訂單摘要全部不用改**——它們看到的仍然是一個有 id、名稱、價格的東西。
+ *
+ * `stockQuantity` 帶入可售量，讓購物車既有的「庫存不足自動下修數量」直接生效。
+ */
+export function bundleToCartProduct(bundle: Bundle): Product {
+  const available = calcBundleAvailable(bundle.items);
+  return {
+    id: encodeBundleCartId(bundle.id),
+    name: bundle.name,
+    nameEn: bundle.nameEn,
+    category: "烏龍茶",
+    origin: "",
+    originEn: "",
+    altitude: "",
+    price: bundle.price,
+    weight: bundle.items.map((i) => i.spec).join(" + "),
+    description: bundle.description,
+    descriptionEn: bundle.descriptionEn,
+    color: "from-tea-green-pale to-tea-cream",
+    featured: false,
+    stockQuantity: available,
   };
 }
