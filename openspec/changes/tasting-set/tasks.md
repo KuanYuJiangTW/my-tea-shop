@@ -59,13 +59,19 @@
 
 ## 5. 建單與取消
 
-- [ ] 5.1 四條建單 API 辨識組合品項，改呼叫 `decrement_bundle_stock`
+- [x] 5.1 四條建單 API 辨識組合品項，改呼叫 `decrement_bundle_stock`
+      ✅ 共 7 個接點。**建單 4 條**（orders／ecpay·checkout／stripe·checkout／paypal·create-order）用 `splitOrderItems` 分流，單品照既有迴圈、組合走 `validateBundleItems`——刻意不在既有迴圈裡加分支，那四段是各自複製的金流程式碼。**付款後扣減 3 處**（ecpay/return、stripe/webhook、paypal capture）改用共用的 `decrementOrderItems`，組合走 `decrement_bundle_stock`（單一交易），單品走 `decrement_stock`。另解開 `CheckoutClient` 第 4 章留下的刻意 throw
       ⚠️ 前置：`CheckoutClient` 送出時對組合目前是**刻意 throw**（`組合商品尚未開放結帳`），避免靜默丟棄品項讓客人付了錢少收東西。5.1 要連同 `CreateOrderRequest` 的契約一起改掉
-- [ ] 5.2 單價取 `product_bundles.price`，**不由成分加總推導**
-- [ ] 5.3 `orders.items` 寫入組合時附成分快照
-- [ ] 5.4 取消訂單依**快照**回補成分庫存（不是依目前的成分設定）
-- [ ] 5.5 缺貨錯誤訊息指出是哪一款成分不足
-- [ ] 5.6 測試：只含組合／混合單品與組合／組合成分與單品指向同一款茶（庫存合計扣 2）
+- [x] 5.2 單價取 `product_bundles.price`，**不由成分加總推導**
+      ✅ 單價取 `product_bundles.price`，測試釘住：組合 ×2 的 `unitPrice` 是 650、`subtotal` 是 1300，而不是成分加總的 700／1400
+- [x] 5.3 `orders.items` 寫入組合時附成分快照
+      ✅ `orders.items` 寫入 `[...validatedItems, ...validatedBundles]`。組合與單品共用 name/quantity/unitPrice/subtotal 四欄，下游（信件、後台、訂單明細）照舊讀得到；組合另帶 `bundleItems` 快照。測試驗到三筆成分快照都在
+- [x] 5.4 取消訂單依**快照**回補成分庫存（不是依目前的成分設定）
+      ✅ 兩條取消路徑（`orders/[id]/cancel`、`admin/orders/[id]`）都改用 `isBundleOrderItem` 判斷後走 `restoreBundleStock`，**依下單當時的快照回補**而非目前的成分設定。原本的寫法會對組合送出 `p_id: undefined`
+- [x] 5.5 缺貨錯誤訊息指出是哪一款成分不足
+      ✅ 兩層都有：`validateBundleItems` 在下單前指出「庫存不足：品飲組（阿里山金萱茶 不足）」；DB 的 `decrement_bundle_stock` 在競態下 RAISE 的訊息也含成分名，直接透出給客人。測試斷言錯誤訊息含成分名
+- [x] 5.6 測試：只含組合／混合單品與組合／組合成分與單品指向同一款茶（庫存合計扣 2）
+      ✅ `src/__tests__/orders/create-order-bundle.test.ts` 7 條：只含組合（不對成分逐一扣）／單價取組合定價／成分快照/混合單品與組合（小計 1050）／組合扣減失敗要回補已扣的單品／`splitOrderItems`／`isBundleOrderItem`。**反向驗證**：移除組合失敗時的 `rollbackAll()` 後該條立刻變紅（1 failed）
 
 ## 6. 驗收
 

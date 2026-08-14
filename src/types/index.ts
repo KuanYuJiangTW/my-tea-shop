@@ -187,11 +187,16 @@ export interface CreateOrderRequest {
     storeId?:  string;
     storeName: string;
   };
-  items: {
-    productId: number;
-    quantity:  number;
-    spec?:     "150g" | "75g" | "teabag";
-  }[];
+  /**
+   * 訂單品項：單品或組合。
+   *
+   * 用 `bundleId` 有沒有值來分辨，不加 `kind` 欄位——既有的購物車與四條建單路徑
+   * 都已經在傳單品的形狀，加辨識欄位等於要求所有舊呼叫端一起改。
+   */
+  items: (
+    | { productId: number; quantity: number; spec?: ProductSpec; bundleId?: undefined }
+    | { bundleId: number; quantity: number; productId?: undefined; spec?: undefined }
+  )[];
   note?:        string;
   couponCode?:  string;
   pointsToUse?: number;

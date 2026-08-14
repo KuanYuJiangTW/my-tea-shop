@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import Stripe from "stripe";
 import { supabase } from "@/lib/supabase";
 import { sendOrderEmails, type EmailOrderData } from "@/lib/email";
+import { decrementOrderItems } from "@/lib/order-bundles";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -55,12 +56,8 @@ export async function POST(req: NextRequest) {
     if (order) {
       // Deduct stock (atomic)
       const orderItems = order.items as { productId: number; quantity: number; spec: string }[];
-      const decrementResults = await Promise.all(
-        orderItems.map((item) =>
-          supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity, spec: item.spec ?? "150g" })
-        )
-      );
-      const stockFailed = decrementResults.some((r) => r.data === false || r.error);
+      // 組合走 decrement_bundle_stock（單一交易），單品走 decrement_stock
+      const stockFailed = !(await decrementOrderItems(orderItems));
       if (stockFailed) {
         await supabase
           .from("orders")

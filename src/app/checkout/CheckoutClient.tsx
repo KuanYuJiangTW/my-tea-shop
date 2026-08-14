@@ -377,15 +377,13 @@ export default function CheckoutClient() {
       : delivery === "home"
         ? { shippingAddress: { city: form.city, address: form.address } }
         : { cvsInfo: { company: form.cvsCompany, storeId: form.cvsStoreId, storeName: form.cvsStoreName } }),
-    // 組合的送出格式要改 CreateOrderRequest 的契約，屬 tasting-set 第 5 章。
-    // 在那之前寧可讓它炸開也不要默默丟掉品項——靜默丟棄會讓客人付了錢卻少收到東西。
-    // 實務上碰不到：組合的 is_active 目前是 false，前台加不進購物車。
+    // 組合送 bundleId、單品送 productId + spec。後端用 bundleId 有沒有值分辨，
+    // 不加 kind 欄位——既有呼叫端都在傳單品的形狀，加辨識欄位等於要它們一起改
     items: items.map(i => {
       const d = decodeCartId(i.product.id);
-      if (d.kind === "bundle") {
-        throw new Error(`組合商品尚未開放結帳（bundleId=${d.bundleId}），見 tasting-set 任務 5.1`);
-      }
-      return { productId: d.productId, quantity: i.quantity, spec: d.spec };
+      return d.kind === "bundle"
+        ? { bundleId: d.bundleId, quantity: i.quantity }
+        : { productId: d.productId, quantity: i.quantity, spec: d.spec };
     }),
     note:        form.note || undefined,
     couponCode:  appliedCoupon?.code,
