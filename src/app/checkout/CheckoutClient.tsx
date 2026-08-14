@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import { isKnownMemberTier } from "@/lib/points-i18n";
 import { productDisplayName, productDisplayWeight } from "@/lib/product-display";
+import { decodeCartId, specOfCartId } from "@/lib/cart-item-id";
 import type {
   PaymentMethod,
   DeliveryType,
@@ -143,14 +144,11 @@ export default function CheckoutClient() {
   }
 
   // 國際配送重量計算
-  const cartWeightItems = items.map(i => {
-    const rawId = i.product.id;
-    let spec: string;
-    if (rawId >= 20000) spec = "teabag";
-    else if (rawId >= 10000) spec = "75g";
-    else spec = "150g";
-    return { spec, quantity: i.quantity };
-  });
+  const cartWeightItems = items.map(i => ({
+    // 組合沒有單一規格，配送重量先以 150g 計（成分皆為 75g 時會高估，偏保守不會少收）
+    spec: specOfCartId(i.product.id) ?? "150g",
+    quantity: i.quantity,
+  }));
   const totalWeightG = calcTotalWeightG(cartWeightItems);
   const isOverweight = totalWeightG > EPACKET_MAX_WEIGHT_G;
   const selectedCountry = countries.find(c => c.countryCode === form.internationalAddress.country);
@@ -379,21 +377,13 @@ export default function CheckoutClient() {
       : delivery === "home"
         ? { shippingAddress: { city: form.city, address: form.address } }
         : { cvsInfo: { company: form.cvsCompany, storeId: form.cvsStoreId, storeName: form.cvsStoreName } }),
+    // 組合送 bundleId、單品送 productId + spec。後端用 bundleId 有沒有值分辨，
+    // 不加 kind 欄位——既有呼叫端都在傳單品的形狀，加辨識欄位等於要它們一起改
     items: items.map(i => {
-      const rawId = i.product.id;
-      let productId: number;
-      let spec: "150g" | "75g" | "teabag";
-      if (rawId >= 20000) {
-        productId = rawId - 20000;
-        spec = "teabag";
-      } else if (rawId >= 10000) {
-        productId = rawId - 10000;
-        spec = "75g";
-      } else {
-        productId = rawId;
-        spec = "150g";
-      }
-      return { productId, quantity: i.quantity, spec };
+      const d = decodeCartId(i.product.id);
+      return d.kind === "bundle"
+        ? { bundleId: d.bundleId, quantity: i.quantity }
+        : { productId: d.productId, quantity: i.quantity, spec: d.spec };
     }),
     note:        form.note || undefined,
     couponCode:  appliedCoupon?.code,

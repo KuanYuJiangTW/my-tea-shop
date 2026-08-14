@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { sendShippingEmail } from "@/lib/email";
 import { issuePoints, refundOrderPoints } from "@/lib/points";
 import { withAdminAuth } from "@/lib/admin-auth-guard";
+import { isBundleOrderItem, restoreBundleStock } from "@/lib/order-bundles";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -137,15 +138,20 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
       prevOrder.payment_method !== "ecpay" || prevOrder.payment_status === "paid";
 
     if (shouldRestoreStock && Array.isArray(prevOrder.items)) {
-      const orderItems = prevOrder.items as { productId: number; quantity: number; spec: string }[];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const orderItems = prevOrder.items as any[];
       await Promise.all(
-        orderItems.map((item) =>
-          supabase.rpc("increment_stock", {
+        orderItems.map((item) => {
+          // 組合依下單當時的成分快照回補（成分被改過的話，照現況回補會補錯商品）
+          if (isBundleOrderItem(item)) {
+            return restoreBundleStock(item.bundleItems, item.quantity, supabase);
+          }
+          return supabase.rpc("increment_stock", {
             p_id: item.productId,
             qty:  item.quantity,
             spec: item.spec ?? "150g",
-          })
-        )
+          });
+        })
       );
     }
   }

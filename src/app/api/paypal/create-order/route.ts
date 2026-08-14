@@ -8,6 +8,7 @@ import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints, refundPoints } from "@/lib/points";
 import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
 import { isValidCvs } from "@/lib/cvs";
+import { splitOrderItems, validateBundleItems, type ValidatedBundleItem } from "@/lib/order-bundles";
 
 const RL_KEY = (ip: string) => `paypal-create:${ip}`;
 
@@ -79,7 +80,9 @@ export async function POST(req: NextRequest) {
   if (body.note && body.note.length > MAX_LENGTHS.note) return NextResponse.json({ error: "Note too long" }, { status: 400 });
 
   // ── 1. Server-side price lookup ──────────────────────────────────────────
-  const productIds = body.items.map(i => i.productId);
+  // 組合品項先分流：單品照既有迴圈走，組合交給 order-bundles 的共用邏輯
+  const { productItems, bundleItems: bundleReqs } = splitOrderItems(body.items);
+  const productIds = productItems.map(i => i.productId);
   let products: ProductRow[] | null = null;
 
   const { data: productsData, error: productError } = await supabase
@@ -104,7 +107,7 @@ export async function POST(req: NextRequest) {
   type ValidatedItem = { productId: number; name: string; quantity: number; unitPrice: number; subtotal: number; spec: string };
   const validatedItems: ValidatedItem[] = [];
 
-  for (const reqItem of body.items) {
+  for (const reqItem of productItems) {
     const product = products.find(p => p.id === reqItem.productId);
     if (!product) {
       return NextResponse.json({ error: `Product not found: ${reqItem.productId}` }, { status: 400 });
@@ -138,7 +141,17 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 3. Shipping fee ──────────────────────────────────────────────────────
-  const subtotal = validatedItems.reduce((sum, i) => sum + i.subtotal, 0);
+
+  // ── 驗證組合品項 ────────────────────────────────────────────────────────
+  // 單價一律取 product_bundles.price，不由成分售價加總推導——組合的定價是
+  // 獨立決策（650 vs 單買 700），加總會讓折扣憑空消失
+  const bundleResult = await validateBundleItems(bundleReqs);
+  if (!bundleResult.ok) {
+    return NextResponse.json({ error: bundleResult.error }, { status: 400 });
+  }
+  const validatedBundles: ValidatedBundleItem[] = bundleResult.items;
+  const subtotal = validatedItems.reduce((sum, i) => sum + i.subtotal, 0) +
+    validatedBundles.reduce((sum, b) => sum + b.subtotal, 0);
   let shippingFeeResult;
   try {
     shippingFeeResult = await calculateShippingFee({
@@ -229,7 +242,7 @@ export async function POST(req: NextRequest) {
     customer_phone: body.customer.phone,
     payment_method: "paypal",
     shipping_address: shippingAddress,
-    items: validatedItems,
+    items: [...validatedItems, ...validatedBundles],
     shipping_fee: shippingFee,
     total_amount: totalAmount,
     order_status: "new",

@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { sendOrderEmails, type EmailOrderData } from "@/lib/email";
+import { decrementOrderItems } from "@/lib/order-bundles";
 
 // ─── PayPal 環境設定 ────────────────────────────────────────────────────────
 
@@ -220,17 +221,8 @@ export async function processPayPalCapture(
 
   // 4. 扣庫存（原子性）
   const orderItems = updated.items as { productId: number; quantity: number; spec: string }[];
-  const decrementResults = await Promise.all(
-    orderItems.map((item) =>
-      supabase.rpc("decrement_stock", {
-        p_id: item.productId,
-        qty: item.quantity,
-        spec: item.spec ?? "150g",
-      }),
-    ),
-  );
-
-  const stockFailed = decrementResults.some((r) => r.data === false || r.error);
+  // 組合走 decrement_bundle_stock（單一交易），單品走 decrement_stock
+      const stockFailed = !(await decrementOrderItems(orderItems));
   if (stockFailed) {
     await supabase.from("orders").update({ order_status: "stock_issue" }).eq("id", dbOrderId);
     console.error("PayPal capture succeeded but stock deduction failed, order needs manual review:", dbOrderId);

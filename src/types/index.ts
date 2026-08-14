@@ -28,6 +28,39 @@ export interface Product {
 
 export type ProductCategory = "烏龍茶" | "紅茶";
 
+/** 商品規格。原本這組字面值散在各處（CreateOrderRequest、shipping-constants、
+ *  orders route 的白名單），組合功能需要在型別上談論規格，趁這次收斂成具名型別 */
+export type ProductSpec = "150g" | "75g" | "teabag";
+
+/** 組合成分：指向某商品的某個規格，以及每組需要幾件 */
+export interface BundleItem {
+  productId: number;
+  productName: string;
+  productNameEn: string;
+  spec: ProductSpec;
+  quantity: number;
+  /** 該成分目前的庫存；undefined = 資料庫未設定，視同不限量（與 Product 的庫存欄位同語意） */
+  stock?: number;
+}
+
+/**
+ * 組合商品（品飲組）。
+ *
+ * **沒有自己的庫存欄位**：組合不預先打包，可售量一律由成分推導
+ * （`calcBundleAvailable`）。存一份獨立庫存等於同一個事實有兩個來源，一定會不同步。
+ */
+export interface Bundle {
+  id: number;
+  slug: string;
+  name: string;
+  nameEn: string;
+  description: string;
+  descriptionEn: string;
+  /** 組合定價，不由成分售價加總推導 */
+  price: number;
+  items: BundleItem[];
+}
+
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 
 export interface CartItem {
@@ -154,11 +187,16 @@ export interface CreateOrderRequest {
     storeId?:  string;
     storeName: string;
   };
-  items: {
-    productId: number;
-    quantity:  number;
-    spec?:     "150g" | "75g" | "teabag";
-  }[];
+  /**
+   * 訂單品項：單品或組合。
+   *
+   * 用 `bundleId` 有沒有值來分辨，不加 `kind` 欄位——既有的購物車與四條建單路徑
+   * 都已經在傳單品的形狀，加辨識欄位等於要求所有舊呼叫端一起改。
+   */
+  items: (
+    | { productId: number; quantity: number; spec?: ProductSpec; bundleId?: undefined }
+    | { bundleId: number; quantity: number; productId?: undefined; spec?: undefined }
+  )[];
   note?:        string;
   couponCode?:  string;
   pointsToUse?: number;

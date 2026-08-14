@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase as adminSupabase } from "@/lib/supabase";
 import { refundOrderPoints } from "@/lib/points";
+import { isBundleOrderItem, restoreBundleStock } from "@/lib/order-bundles";
 
 const CANCELLABLE_STATUSES = ["new"];
 
@@ -56,15 +57,22 @@ export async function POST(
     order.payment_method === "cod" || order.payment_status === "paid";
 
   if (shouldRestoreStock && Array.isArray(order.items)) {
-    const orderItems = order.items as { productId: number; quantity: number; spec: string }[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const orderItems = order.items as any[];
     await Promise.all(
-      orderItems.map((item) =>
-        adminSupabase.rpc("increment_stock", {
+      orderItems.map((item) => {
+        // 組合要依**下單當時的成分快照**回補，不是依目前的成分設定——
+        // 成分被改過的話，照現況回補會補到錯的商品上。
+        // 組合品項沒有 productId，直接照舊路徑走會送出 p_id: undefined
+        if (isBundleOrderItem(item)) {
+          return restoreBundleStock(item.bundleItems, item.quantity, adminSupabase);
+        }
+        return adminSupabase.rpc("increment_stock", {
           p_id: item.productId,
           qty:  item.quantity,
           spec: item.spec ?? "150g",
-        })
-      )
+        });
+      })
     );
   }
 

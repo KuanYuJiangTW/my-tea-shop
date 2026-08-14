@@ -9,6 +9,7 @@ import { validateRedemption, deductPoints } from "@/lib/points";
 import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { isValidCvs } from "@/lib/cvs";
+import { splitOrderItems, validateBundleItems, type ValidatedBundleItem } from "@/lib/order-bundles";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
 const HASH_KEY  = process.env.ECPAY_HASH_KEY!;
@@ -88,7 +89,9 @@ export async function POST(req: NextRequest) {
   if (body.note && body.note.length > MAX_LENGTHS.note)   return NextResponse.json({ error: "備註過長" },   { status: 400 });
 
   // ── 1. 後端查詢真實價格，完全不信任前端傳來的金額 ──────────────────────
-  const productIds = body.items.map(i => i.productId);
+  // 組合品項先分流：單品照既有迴圈走，組合交給 order-bundles 的共用邏輯
+  const { productItems, bundleItems: bundleReqs } = splitOrderItems(body.items);
+  const productIds = productItems.map(i => i.productId);
   const { data: products, error: productError } = await supabase
     .from("products")
     .select("id, name, price, price_75g, price_tea_bag, stock_quantity, stock_75g, stock_tea_bag")
@@ -102,7 +105,7 @@ export async function POST(req: NextRequest) {
   type ValidatedItem = { productId: number; name: string; quantity: number; unitPrice: number; subtotal: number; spec: string };
   const validatedItems: ValidatedItem[] = [];
 
-  for (const reqItem of body.items) {
+  for (const reqItem of productItems) {
     const product = products.find(p => p.id === reqItem.productId);
     if (!product) {
       return NextResponse.json({ error: `商品不存在：${reqItem.productId}` }, { status: 400 });
@@ -141,7 +144,17 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 3. 後端計算運費 ──────────────────────────────────────────────────────
-  const subtotal    = validatedItems.reduce((sum, i) => sum + i.subtotal, 0);
+
+  // ── 驗證組合品項 ────────────────────────────────────────────────────────
+  // 單價一律取 product_bundles.price，不由成分售價加總推導——組合的定價是
+  // 獨立決策（650 vs 單買 700），加總會讓折扣憑空消失
+  const bundleResult = await validateBundleItems(bundleReqs);
+  if (!bundleResult.ok) {
+    return NextResponse.json({ error: bundleResult.error }, { status: 400 });
+  }
+  const validatedBundles: ValidatedBundleItem[] = bundleResult.items;
+  const subtotal    = validatedItems.reduce((sum, i) => sum + i.subtotal, 0) +
+    validatedBundles.reduce((sum, b) => sum + b.subtotal, 0);
   const { fee: shippingFee } = await calculateShippingFee({ deliveryType: body.deliveryType, subtotal });
 
   // ── 4. 驗證 token ────────────────────────────────────────────────────────
@@ -228,7 +241,7 @@ export async function POST(req: NextRequest) {
     customer_phone:   body.customer.phone,
     payment_method:   "online",
     shipping_address: shippingAddress,
-    items:            validatedItems,
+    items:            [...validatedItems, ...validatedBundles],
     shipping_fee:     shippingFee,
     total_amount:     totalAmount,
     order_status:     "new",

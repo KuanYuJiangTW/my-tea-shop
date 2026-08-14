@@ -8,6 +8,7 @@ import { calculateShippingFee } from "@/lib/shipping";
 import { validateRedemption, deductPoints } from "@/lib/points";
 import { isValidCvs, cvsSupportsCod } from "@/lib/cvs";
 import { resolveCouponCode, recordCouponUsage } from "@/lib/coupons";
+import { splitOrderItems, validateBundleItems, restoreBundleStock, type ValidatedBundleItem } from "@/lib/order-bundles";
 
 const RL_KEY = (ip: string) => `orders:${ip}`; // 20 req/min per IP
 import type { CreateOrderRequest } from "@/types";
@@ -64,8 +65,12 @@ export async function POST(req: NextRequest) {
   if (body.cvsInfo?.storeName       && body.cvsInfo.storeName.length       > MAX_LENGTHS.storeName) return NextResponse.json({ error: "門市名稱過長" }, { status: 400 });
   if (body.note && body.note.length > MAX_LENGTHS.note)   return NextResponse.json({ error: "備註過長" },   { status: 400 });
 
+  // 組合品項先分流出去：單品照既有迴圈走，組合交給 order-bundles 的共用邏輯。
+  // 不在既有迴圈裡加分支，是為了不動到四條建單路徑各自複製的那段金流程式碼
+  const { productItems, bundleItems: bundleReqs } = splitOrderItems(body.items);
+
   // ── 1. 後端查詢真實價格，完全不信任前端傳來的金額 ──────────────────────
-  const productIds = body.items.map(i => i.productId);
+  const productIds = productItems.map(i => i.productId);
   const { data: products, error: productError } = await supabase
     .from("products")
     .select("id, name, price, price_75g, price_tea_bag, stock_quantity, stock_75g, stock_tea_bag")
@@ -79,7 +84,7 @@ export async function POST(req: NextRequest) {
   type ValidatedItem = { productId: number; name: string; quantity: number; unitPrice: number; subtotal: number; spec: string };
   const validatedItems: ValidatedItem[] = [];
 
-  for (const reqItem of body.items) {
+  for (const reqItem of productItems) {
     const product = products.find(p => p.id === reqItem.productId);
     if (!product) {
       return NextResponse.json({ error: `商品不存在：${reqItem.productId}` }, { status: 400 });
@@ -117,8 +122,19 @@ export async function POST(req: NextRequest) {
     validatedItems.push({ productId: product.id, name: product.name, quantity: qty, unitPrice, subtotal: unitPrice * qty, spec });
   }
 
+  // ── 2b. 驗證組合品項 ────────────────────────────────────────────────────
+  // 單價一律取 product_bundles.price，不由成分售價加總推導——組合的定價是獨立
+  // 決策（650 vs 單買 700），加總會讓折扣憑空消失
+  const bundleResult = await validateBundleItems(bundleReqs);
+  if (!bundleResult.ok) {
+    return NextResponse.json({ error: bundleResult.error }, { status: 400 });
+  }
+  const validatedBundles = bundleResult.items;
+
   // ── 3. 後端計算運費 ──────────────────────────────────────────────────────
-  const subtotal    = validatedItems.reduce((sum, i) => sum + i.subtotal, 0);
+  const subtotal =
+    validatedItems.reduce((sum, i) => sum + i.subtotal, 0) +
+    validatedBundles.reduce((sum, b) => sum + b.subtotal, 0);
   const { fee: shippingFee } = await calculateShippingFee({ deliveryType: body.deliveryType, subtotal });
 
   // ── 4. 驗證 token，未登入直接拒絕 ──────────────────────────────────────
@@ -222,6 +238,33 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `庫存不足：${validatedItems[failedIdx].name}，請減少數量或選擇其他商品` }, { status: 400 });
   }
 
+  /**
+   * 組合的扣減。每組一次 RPC，函式內部是單一交易——任一成分不足就整組回滾，
+   * 不會留下扣了一半的狀態（單品那邊做不到這件事，所以才需要上面的 rollbackStock）。
+   *
+   * 已成功的組合要連同單品一起回補，否則就是換一種方式製造「庫存被扣但訂單不存在」。
+   */
+  const decrementedBundles: ValidatedBundleItem[] = [];
+  const rollbackAll = async () => {
+    await rollbackStock();
+    await Promise.all(
+      decrementedBundles.map((b) => restoreBundleStock(b.bundleItems, b.quantity)),
+    );
+  };
+
+  for (const b of validatedBundles) {
+    const { error: bundleErr } = await supabase.rpc("decrement_bundle_stock", {
+      p_bundle_id: b.bundleId,
+      p_qty: b.quantity,
+    });
+    if (bundleErr) {
+      await rollbackAll();
+      // 資料庫的錯誤訊息已含「庫存不足：紅烏龍茶（75g）」這種成分名，直接透出
+      return NextResponse.json({ error: bundleErr.message || `庫存不足：${b.name}` }, { status: 400 });
+    }
+    decrementedBundles.push(b);
+  }
+
   const { data, error } = await supabase
     .from("orders")
     .insert({
@@ -230,7 +273,9 @@ export async function POST(req: NextRequest) {
       customer_phone:   body.customer.phone,
       payment_method:   body.paymentMethod,
       shipping_address: shippingAddress,
-      items:            validatedItems,
+      // 組合與單品並存於同一個陣列：兩者都有 name/quantity/unitPrice/subtotal，
+      // 下游（信件、後台、訂單明細）照舊讀得到；組合另帶 bundleItems 快照供取消時回補
+      items:            [...validatedItems, ...validatedBundles],
       subtotal,
       shipping_fee:     shippingFee,
       total_amount:     totalAmount,
@@ -248,8 +293,8 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) {
-    // 庫存已扣但訂單沒建成——不補就是憑空蒸發
-    await rollbackStock();
+    // 庫存已扣但訂單沒建成——不補就是憑空蒸發。組合也要一起補
+    await rollbackAll();
     console.error("建立訂單失敗:", error);
     return NextResponse.json({ error: "建立訂單失敗" }, { status: 500 });
   }

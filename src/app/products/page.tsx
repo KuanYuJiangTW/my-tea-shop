@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getProducts } from "@/lib/products";
+import { getActiveBundles } from "@/lib/bundles";
 import ProductsClient from "./ProductsClient";
 import { getTranslations } from "next-intl/server";
 import { langAlternates, jsonLdString } from "@/lib/seo";
@@ -19,7 +20,11 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage() {
-  const [products, t] = await Promise.all([getProducts(), getTranslations("products")]);
+  const [products, bundles, t] = await Promise.all([
+    getProducts(),
+    getActiveBundles(),
+    getTranslations("products"),
+  ]);
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
@@ -70,7 +75,7 @@ export default async function ProductsPage() {
         </div>
       </div>
 
-      <ProductsClient products={products} />
+      <ProductsClient products={products} bundles={bundles} />
     </div>
     </>
   );

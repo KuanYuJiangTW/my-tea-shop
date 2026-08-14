@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import { NextRequest } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendOrderEmails, sendBookingEmails, type EmailOrderData, type BookingEmailData } from "@/lib/email";
+import { decrementOrderItems } from "@/lib/order-bundles";
 
 const HASH_KEY = process.env.ECPAY_HASH_KEY!;
 const HASH_IV  = process.env.ECPAY_HASH_IV!;
@@ -118,12 +119,8 @@ export async function POST(req: NextRequest) {
       // order 非 null 代表本次確實由 pending → paid，才扣庫存與寄信（重放時 order 為 null，跳過）
       // 扣除庫存（線上付款，付款成功後才扣，原子性防超賣）
       const orderItems = order.items as { productId: number; quantity: number; spec: string }[];
-      const decrementResults = await Promise.all(
-        orderItems.map((item) =>
-          supabase.rpc("decrement_stock", { p_id: item.productId, qty: item.quantity, spec: item.spec ?? "150g" })
-        )
-      );
-      const stockFailed = decrementResults.some((r) => r.data === false || r.error);
+      // 組合走 decrement_bundle_stock（單一交易），單品走 decrement_stock
+      const stockFailed = !(await decrementOrderItems(orderItems));
       if (stockFailed) {
         // 付款已成功但庫存不足（極端競態），標記訂單需人工處理
         await supabase

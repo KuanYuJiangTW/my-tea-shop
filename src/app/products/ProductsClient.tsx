@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import ProductCard from "@/components/ProductCard";
+import BundleCard from "@/components/BundleCard";
 import { categories } from "@/data/products";
-import type { Product } from "@/types";
+import type { Product, Bundle } from "@/types";
 import { useTranslations } from "next-intl";
 import {
   DOMESTIC_FREE_THRESHOLD,
@@ -19,9 +20,11 @@ interface StockRow {
 
 interface Props {
   products: Product[];
+  /** 上架中的組合。目前只有品飲組；未上架時為空陣列，畫面等同沒有這一段 */
+  bundles?: Bundle[];
 }
 
-export default function ProductsClient({ products }: Props) {
+export default function ProductsClient({ products, bundles = [] }: Props) {
   const t = useTranslations("products");
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
   const [liveProducts, setLiveProducts] = useState<Product[]>(products);
@@ -81,6 +84,10 @@ export default function ProductsClient({ products }: Props) {
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 組合排在單品之前：它是給第一次買茶的人的入口，擺後面等於沒有。
+            只在「全部」分類顯示——組合橫跨烏龍與紅茶，放進任一分類都不誠實 */}
+        {selectedCategory === "全部" &&
+          bundles.map((b) => <BundleCard key={`bundle-${b.id}`} bundle={b} />)}
         {filtered.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

@@ -182,7 +182,18 @@
     "teaBagHint": "15 bags × 3g",
     "unitServing": "pack",
     "unitBox": "box",
-    "teaBagSet": "Tea Bag Set"
+    "teaBagSet": "Tea Bag Set",
+    "bundle": {
+      "eyebrow": "Start Here",
+      "contains": "Includes",
+      "perItem": "{name} 75g",
+      "soldOut": "Sold out",
+      "lowStock": "Only {count} left",
+      "addToCart": "Add to Cart",
+      "added": "Added to cart",
+      "freeShippingHint": "Add one Ali Shan Jin Xuan (NT$350) to reach NT$1,000 and ship free",
+      "savedNote": "NT${sum} if bought separately — you save NT${saved}"
+    }
   },
   "experiences": {
     "pageTitle": "Tea Experiences",
@@ -1460,7 +1471,13 @@
       "title": "Every business has its own terroir.",
       "subtitle": "Your craft, your story, your customers — that's the uniqueness no one else can copy. We help you plant it online, growing it into a digital storefront that takes orders, books appointments, and gets found by Google and AI.",
       "quote": "The Wu Jue Tea site you're browsing right now is our work.",
-      "chips": ["Bilingual system", "3 payment gateways", "Online booking system", "Membership points", "AI search optimization"],
+      "chips": [
+        "Bilingual system",
+        "3 payment gateways",
+        "Online booking system",
+        "Membership points",
+        "AI search optimization"
+      ],
       "ctaPrimary": "See pricing",
       "ctaSecondary": "Let's talk"
     },
@@ -1583,7 +1600,12 @@
       "sectionTitle": "Launch is just the beginning",
       "intro": "A website needs care, just like a tea garden.",
       "price": "From NT$3,000/month",
-      "items": ["Managed content updates", "Security updates", "Monthly traffic reports", "Uptime monitoring"]
+      "items": [
+        "Managed content updates",
+        "Security updates",
+        "Monthly traffic reports",
+        "Uptime monitoring"
+      ]
     },
     "terms": {
       "sectionTitle": "Clear terms, no surprises",
