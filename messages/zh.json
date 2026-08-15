@@ -183,6 +183,17 @@
     "unitServing": "份",
     "unitBox": "盒",
     "teaBagSet": "茶包組",
+    "reviews": {
+      "sectionTitle": "顧客回饋",
+      "sectionTagline": "以下是喝過的客人說的話，未經改寫。",
+      "count": "（{count} 則）",
+      "source": {
+        "site": "站內評價",
+        "line": "來自 LINE 的顧客回饋",
+        "facebook": "來自 Facebook 的顧客回饋",
+        "other": "來自顧客的回饋"
+      }
+    },
     "bundle": {
       "eyebrow": "入門首選",
       "contains": "內含",
@@ -539,7 +550,10 @@
       "discount": "折扣",
       "total": "合計",
       "homeDelivery": "宅配｜{city} {address}",
-      "cvsPickup": "超商｜{store} {storeName}"
+      "cvsPickup": "超商｜{store} {storeName}",
+      "reviewTeas": "評價這次的茶",
+      "writeReview": "留評",
+      "reviewed": "已評價 ★"
     },
     "modal": {
       "cancelOrderTitle": "確認取消訂單？",
@@ -566,6 +580,8 @@
       "confirm": "確認",
       "reviewTitle": "留下您的評價",
       "reviewPlaceholder": "分享您的體驗心得（選填）",
+      "reviewProductTitle": "評價{name}",
+      "reviewProductPlaceholder": "分享您的品飲心得（選填）",
       "submitting": "送出中…",
       "submitReview": "送出評價",
       "cancel": "取消",

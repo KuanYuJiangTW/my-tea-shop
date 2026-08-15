@@ -809,3 +809,37 @@ Tailwind 產物一律以 `npm run build` 為準
 
 **必讀**：`docs/design-system.md`（三條設計原則、token 表、**已知取捨：AA 三組對比是業主拍板
 的取捨不是待修缺陷，請勿自行「修正」**）、`docs/contrast-audit.js`（對比稽核器，後台遷移用過）
+
+---
+
+### [2026-08-15] 商品評價（product-reviews）階段一＋階段二
+
+- 目標：`openspec/changes/product-reviews` 從 0/31 做到可上線。茶葉是「不能試喝就要先付
+  400 元」的品類，社會證明的權重高於任何視覺優化，而商品端原本是零評價
+- 驗收條件：
+  - [x] `/verify` 四項全過（測試 652、tsc 0、lint 0 error、build 成功）
+  - [x] 對**真資料庫**驗過寫入／軟刪除／JSON-LD 門檻（驗證用資料已刪乾淨）
+  - [x] 反向驗證「訂單含此商品」那道防線的測試會紅
+  - [ ] 合併進 `main` 並部署（**未做，等業主決定**）
+- **已完成（branch `feat/product-reviews`，`3fe89ab` ＋ `10e3511`，未合併）**：
+  - 資料層 `supabase/add_product_reviews.sql`（業主已執行）：RLS 公開只讀 `is_visible`、
+    partial UNIQUE `(order_id, product_id)`（`where order_id is not null`，
+    所以手動建檔的 NULL 不受約束）
+  - 後台「商品評價」頁（側欄→商品）：手動建檔既有口碑，`source` 是必填下拉
+  - `PATCH /api/admin/reviews/[id]?type=product|experience`，未帶預設 experience
+  - `/products` 底部「顧客回饋」區：≥3 則顯示平均、1–2 則只列清單、0 則整區不存在
+  - `POST /api/product-reviews`（站內留評）＋ 會員中心已完成訂單的留評入口
+  - Product JSON-LD 的 `aggregateRating`（≥3 則才輸出）
+- **決策紀錄**：
+  - **商品卡不放星等**（design.md D4 的退路）。實測 1280／768／375 三個斷點：加一行星等
+    是 632 → 664，固定 +32px；632 是業主指定值、卡內 6 處間距早在 08-12 為了描述第三行
+    各縮過 2–4px，最多再擠 22px。理由已寫進 `ProductCard.tsx` 註解，**不要再試一次**
+  - 「訂單含此商品」把**組合展開比對**（`bundleItems` 裡的 `productId`）——買品飲組的人
+    真的喝過那三款茶，不讓他們留評沒道理
+  - 重複留評靠 DB 的 UNIQUE，不先 select 再 insert（併發下兩個請求都會查到「沒有」）
+  - 評價區暫掛 `/products`：商品詳情頁（`product-detail-pages`）還沒做，做好後搬過去
+- **待業主**：
+  1. 輸入既有的 LINE／FB 口碑（同一款茶滿 3 則才會顯示平均星等與 `aggregateRating`）
+  2. 驗會員中心的留評 UI（要登入有已完成訂單的帳號，我不能代輸密碼）——tasks.md 8.4
+  3. 決定要不要合併 `main`
+- 狀態：程式碼完成並已推送；**未合併、未部署**

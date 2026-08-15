@@ -183,6 +183,17 @@
     "unitServing": "pack",
     "unitBox": "box",
     "teaBagSet": "Tea Bag Set",
+    "reviews": {
+      "sectionTitle": "Customer Reviews",
+      "sectionTagline": "What customers said, quoted as written.",
+      "count": "({count, plural, one {# review} other {# reviews}})",
+      "source": {
+        "site": "Verified purchase",
+        "line": "Shared via LINE",
+        "facebook": "Shared via Facebook",
+        "other": "Customer feedback"
+      }
+    },
     "bundle": {
       "eyebrow": "Start Here",
       "contains": "Includes",
@@ -539,7 +550,10 @@
       "discount": "Discount",
       "total": "Total",
       "homeDelivery": "Home Delivery | {city} {address}",
-      "cvsPickup": "Pickup | {store} {storeName}"
+      "cvsPickup": "Pickup | {store} {storeName}",
+      "reviewTeas": "Review these teas",
+      "writeReview": "Review",
+      "reviewed": "Reviewed ★"
     },
     "modal": {
       "cancelOrderTitle": "Cancel this order?",
@@ -566,6 +580,8 @@
       "confirm": "OK",
       "reviewTitle": "Write a Review",
       "reviewPlaceholder": "Share your experience (optional)",
+      "reviewProductTitle": "Review {name}",
+      "reviewProductPlaceholder": "Share your tasting notes (optional)",
       "submitting": "Submitting…",
       "submitReview": "Submit Review",
       "cancel": "Cancel",

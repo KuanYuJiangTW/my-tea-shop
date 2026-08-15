@@ -191,6 +191,12 @@
 - 規則：**用 Browser pane 驗任何動畫前先跑探針**——`let n=0; requestAnimationFrame(()=>n++)` 等 1 秒讀 `n`，或直接讀 `document.visibilityState`。`n === 0` 或狀態是 `hidden` 時**不得用「畫面沒動」推論程式有問題**；改驗靜態產物（SSR HTML、computed style、class 名、DOM 文字的非動畫分支），動畫本身交給使用者目視並在完成報告裡標明「未驗」
 - 去處：暫存於此。與 `diagnosis.md` 的「失焦」模式同源（環境限制被誤讀成程式缺陷），若再出現第二次應併入該檔的環境事實速查表
 
+## 2026-08-15 `.claude/launch.json` 用 `set VAR=1 && ` 傳環境變數，值會多一個尾空白
+- 情境：要量「商品卡加星等列會不會破壞 632px」，但 `product_reviews` 表還沒建（DDL 要業主執行），所以在讀取層加一個 `process.env.MEASURE_REVIEWS === "1"` 的假資料開關，並在 launch.json 的 `runtimeArgs` 用 `cmd /c "set NODE_OPTIONS=... && set MEASURE_REVIEWS=1 && npm run dev"` 傳進去
+- 代價：dev server 起來後假資料沒生效，log 仍是真實查詢的「表不存在」。原因是 **cmd 的 `set FOO=1 && ` 會把 `&&` 前的空白一起吃進值**，實際值是 `"1 "`，嚴格比較永遠 false。多花一輪重啟才發現
+- 規則：**launch.json 經 `cmd /c set` 傳的環境變數，讀取端一律 `?.trim()` 再比較**（或把該 `set` 放在整串命令最後、緊接 `&&` 前不留空白）。同理適用於任何 `set A=1 && set B=2 && cmd` 的串接
+- 去處：暫存於此。屬一次性環境事實，若沒有第二次出現，下次精簡時壓成一行歸檔
+
 ## 已歸檔（2026-08-06 精簡，共 18 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。

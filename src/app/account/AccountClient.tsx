@@ -23,10 +23,16 @@ type Order = {
   payment_status: string;
   payment_method: string;
   items: { name: string; quantity: number; unitPrice: number; subtotal: number }[];
+  /** 這筆訂單可留評的茶（組合已展開成成分）。未完成的訂單為空陣列 */
+  reviewables: { productId: number; name: string; has_review: boolean }[];
   shipping_address: { type: string; city?: string; address?: string; company?: string; storeName?: string; country?: string; countryName?: string; state?: string; addressLine1?: string; addressLine2?: string; postalCode?: string };
   shipping_fee: number;
   discount_amount: number;
 };
+
+type ReviewTarget =
+  | { kind: "booking"; bookingId: string }
+  | { kind: "product"; orderId: string; productId: number; name: string };
 
 type PointTx = {
   id: string;
@@ -209,7 +215,9 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   const [retryingId, setRetryingId] = useState<string | null>(null);
 
   // ── Review state ─────────────────────────────────────────────────────────────
-  const [reviewBookingId, setReviewBookingId] = useState<string | null>(null);
+  // 同一個 modal 服務兩種評價：體驗預約與訂單裡的茶。差別只在送去哪一支 API
+  // 與標題文案，共用星等／留言／送出狀態
+  const [reviewTarget, setReviewTarget] = useState<ReviewTarget | null>(null);
   const [reviewRating, setReviewRating]       = useState(5);
   const [reviewHover, setReviewHover]         = useState(0);
   const [reviewComment, setReviewComment]     = useState("");
@@ -442,14 +450,19 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
   }
 
   async function handleSubmitReview() {
-    const bookingId = reviewBookingId; // 立即捕獲，避免 async 後閉包過期
-    if (!bookingId) return;
+    const target = reviewTarget; // 立即捕獲，避免 async 後閉包過期
+    if (!target) return;
     setReviewSubmitting(true);
     setReviewError("");
-    const res = await fetch("/api/reviews", {
+
+    const [url, payload] = target.kind === "booking"
+      ? ["/api/reviews", { bookingId: target.bookingId, rating: reviewRating, comment: reviewComment }]
+      : ["/api/product-reviews", { orderId: target.orderId, productId: target.productId, rating: reviewRating, comment: reviewComment }];
+
+    const res = await fetch(url as string, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ bookingId, rating: reviewRating, comment: reviewComment }),
+      body:    JSON.stringify(payload),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -457,11 +470,26 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
       setReviewError(json.error ?? t("errors.reviewFailed"));
       return;
     }
-    setBookingList(prev => prev.map(b => b.id === bookingId ? { ...b, has_review: true } : b));
-    setReviewBookingId(null);
+
+    if (target.kind === "booking") {
+      setBookingList(prev => prev.map(b => b.id === target.bookingId ? { ...b, has_review: true } : b));
+    } else {
+      setOrderList(prev => prev.map(o => o.id === target.orderId
+        ? { ...o, reviewables: o.reviewables.map(r => r.productId === target.productId ? { ...r, has_review: true } : r) }
+        : o));
+    }
+    setReviewTarget(null);
     setReviewComment("");
     setReviewRating(5);
     setReviewSubmitting(false);
+  }
+
+  function openReview(target: ReviewTarget) {
+    setReviewTarget(target);
+    setReviewRating(5);
+    setReviewHover(0);
+    setReviewComment("");
+    setReviewError("");
   }
 
   function openEditAddress(order: Order) {
@@ -784,7 +812,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           )}
                           {canReview && (
                             <button
-                              onClick={() => { setReviewBookingId(booking.id); setReviewRating(5); setReviewHover(0); setReviewComment(""); setReviewError(""); }}
+                              onClick={() => openReview({ kind: "booking", bookingId: booking.id })}
                               className="px-4 py-2 border border-amber-300 text-amber-600 hover:bg-amber-50 text-sm font-medium rounded-full transition-colors"
                             >
                               {t("bookings.writeReview")}
@@ -1080,6 +1108,37 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           )}
                         </div>
 
+                        {/* 留評。組合已在伺服器端展開成成分，所以買品飲組的人
+                            評的是裡面那三款茶（product_reviews 指向 products，
+                            組合沒有對應的列）。只有 completed 的訂單會有項目 */}
+                        {order.reviewables.length > 0 && (
+                          <div>
+                            <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-2">
+                              {t("orders.reviewTeas")}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {order.reviewables.map((r) =>
+                                r.has_review ? (
+                                  <span
+                                    key={r.productId}
+                                    className="text-xs text-tea-text-light border border-tea-green-pale rounded-full px-3 py-1.5"
+                                  >
+                                    {r.name} · {t("orders.reviewed")}
+                                  </span>
+                                ) : (
+                                  <button
+                                    key={r.productId}
+                                    onClick={() => openReview({ kind: "product", orderId: order.id, productId: r.productId, name: r.name })}
+                                    className="text-xs border border-amber-300 text-amber-600 hover:bg-amber-50 rounded-full px-3 py-1.5 font-medium transition-colors"
+                                  >
+                                    {r.name} · {t("orders.writeReview")}
+                                  </button>
+                                ),
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         {/* Shipping */}
                         <div>
                           <p className="text-xs font-semibold text-tea-text-light uppercase tracking-wider mb-1">{t("orders.shipping")}</p>
@@ -1246,11 +1305,15 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
       )}
 
       {/* ─── Review Modal ─── */}
-      {reviewBookingId && (
+      {reviewTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => { if (!reviewSubmitting) setReviewBookingId(null); }} />
+          <div className="absolute inset-0 bg-black/40" onClick={() => { if (!reviewSubmitting) setReviewTarget(null); }} />
           <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <h3 className="font-semibold text-tea-text text-lg mb-4">{t("modal.reviewTitle")}</h3>
+            <h3 className="font-semibold text-tea-text text-lg mb-4">
+              {reviewTarget.kind === "product"
+                ? t("modal.reviewProductTitle", { name: reviewTarget.name })
+                : t("modal.reviewTitle")}
+            </h3>
 
             {/* 星星評分 */}
             <div className="flex gap-1.5 mb-5 justify-center">
@@ -1274,7 +1337,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
             <textarea
               value={reviewComment}
               onChange={e => setReviewComment(e.target.value)}
-              placeholder={t("modal.reviewPlaceholder")}
+              placeholder={reviewTarget.kind === "product" ? t("modal.reviewProductPlaceholder") : t("modal.reviewPlaceholder")}
               rows={4}
               className="w-full px-4 py-3 rounded-xl border border-tea-green-pale text-sm text-tea-text placeholder-tea-text-light/50 focus:outline-none focus:ring-2 focus:ring-tea-green bg-tea-cream-light/50 resize-none mb-4"
             />
@@ -1285,7 +1348,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
             <div className="flex gap-3">
               <button
-                onClick={() => setReviewBookingId(null)}
+                onClick={() => setReviewTarget(null)}
                 disabled={reviewSubmitting}
                 className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition disabled:opacity-50"
               >
