@@ -71,9 +71,9 @@ type Props = {
   /** OAuth 完成後導回的 `/auth/callback` 絕對網址（含 `next` 參數） */
   callbackUrl: () => string;
   /**
-   * 是否顯示 Facebook。註冊頁目前關閉：FB 只要 `public_profile`、不拿 email，
-   * 而 `POST /api/bookings` 直接寫 `booker_email: user.email`，FB 新客的預約會存成 null。
-   * 修好那條再打開。
+   * 是否顯示 Facebook。登入頁與註冊頁目前都開啟。
+   * FB 只要 `public_profile`、不拿 email，所以這樣建立的帳號 `user.email` 是空的；
+   * 會員中心可以事後綁定，但綁定前 `/api/bookings` 與 `/api/waitlist` 尚無防護。
    */
   showFacebook?: boolean;
   /** 錯誤訊息交給頁面顯示（兩頁的錯誤區塊位置不同） */

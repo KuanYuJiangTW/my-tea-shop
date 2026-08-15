@@ -156,12 +156,17 @@ function RegisterForm() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-8">
-          {/* 第三方一鍵註冊。Facebook 暫不開放：它只要 public_profile、不拿 email，
-              而 `POST /api/bookings` 直接寫 `booker_email: user.email`，FB 新客的
-              預約會存成 null。修好那條再打開 showFacebook。 */}
+          {/* 第三方一鍵註冊，三個 provider 與登入頁一致。
+              注意：FB 只要 public_profile、不拿 email，所以這裡進來的新帳號
+              `user.email` 會是空的。會員中心有綁定入口（AccountClient 的
+              handleBindEmail），但在他綁定之前：
+                - `POST /api/bookings` 會撞 `booker_email NOT NULL` → 500
+                - `POST /api/waitlist` 會存空字串 → 遞補通知靜默失效
+              這兩條的防護尚未補上，見 WORKLOG。 */}
           <SocialAuthButtons
             namespace="auth.register"
             callbackUrl={callbackUrl}
+            showFacebook
             onError={setGeneralError}
           />
 

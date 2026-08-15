@@ -669,6 +669,7 @@
       "registering": "Processing…",
       "googleLogin": "Continue with Google",
       "lineLogin": "Continue with LINE",
+      "facebookLogin": "Continue with Facebook",
       "connecting": "Connecting…",
       "orEmail": "or sign up with Email",
       "haveAccount": "Already have an account?",
