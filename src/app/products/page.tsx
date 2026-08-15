@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getProducts } from "@/lib/products";
 import { getActiveBundles } from "@/lib/bundles";
 import { getVisibleProductReviews } from "@/lib/product-reviews";
+import { summarizeReviews } from "@/lib/product-review-core";
 import ProductsClient from "./ProductsClient";
 import ProductReviews from "@/components/ProductReviews";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -37,6 +38,21 @@ export default async function ProductsPage() {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
+  // 評價數 < 3 不輸出 aggregateRating，與體驗頁同一個門檻
+  // （`experiences/[slug]/page.tsx`）——樣本太少時標星反而減分
+  const aggregateRatingOf = (productId: number) => {
+    const { count, average, showAverage } = summarizeReviews(reviewsByProduct.get(productId) ?? []);
+    return showAverage
+      ? {
+          "@type": "AggregateRating",
+          "ratingValue": average,
+          "reviewCount": count,
+          "bestRating": 5,
+          "worstRating": 1,
+        }
+      : undefined;
+  };
+
   const productsJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -57,6 +73,7 @@ export default async function ProductsPage() {
           "priceCurrency": "TWD",
           "availability": "https://schema.org/InStock",
         },
+        "aggregateRating": aggregateRatingOf(p.id),
       },
     })),
   };

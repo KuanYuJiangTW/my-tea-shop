@@ -550,7 +550,10 @@
       "discount": "折扣",
       "total": "合計",
       "homeDelivery": "宅配｜{city} {address}",
-      "cvsPickup": "超商｜{store} {storeName}"
+      "cvsPickup": "超商｜{store} {storeName}",
+      "reviewTeas": "評價這次的茶",
+      "writeReview": "留評",
+      "reviewed": "已評價 ★"
     },
     "modal": {
       "cancelOrderTitle": "確認取消訂單？",
@@ -577,6 +580,8 @@
       "confirm": "確認",
       "reviewTitle": "留下您的評價",
       "reviewPlaceholder": "分享您的體驗心得（選填）",
+      "reviewProductTitle": "評價{name}",
+      "reviewProductPlaceholder": "分享您的品飲心得（選填）",
       "submitting": "送出中…",
       "submitReview": "送出評價",
       "cancel": "取消",

@@ -52,6 +52,59 @@ export function summarizeReviews(reviews: { rating: number }[]): ReviewSummary {
   };
 }
 
+/**
+ * 這筆訂單有沒有買過這款茶。
+ *
+ * `orders.items` 是 JSONB，同一個陣列裡混著兩種形狀（`api/orders/route.ts` 的註解）：
+ *   * 單品：`{ productId, spec, name, quantity, unitPrice, subtotal }`
+ *   * 組合：`{ bundleId, name, ..., bundleItems: [{ productId, spec, quantity }] }`
+ *
+ * **組合也算買過**——品飲組裡的三款茶是真的喝過了，不讓他們留評沒有道理。
+ * 規格（150g／75g／茶包）不列入比對：評的是茶，不是包裝。
+ */
+export function orderContainsProduct(items: unknown, productId: number): boolean {
+  if (!Array.isArray(items)) return false;
+  return items.some((item) => {
+    if (!item || typeof item !== "object") return false;
+    const it = item as { productId?: unknown; bundleItems?: unknown };
+    if (it.productId === productId) return true;
+    return Array.isArray(it.bundleItems)
+      && it.bundleItems.some((bi) => (bi as { productId?: unknown })?.productId === productId);
+  });
+}
+
+/**
+ * 這筆訂單裡「可以留評的茶」清單，供會員中心顯示留評入口。
+ *
+ * 組合會被展開成成分（買品飲組的人評的是裡面那三款茶，不是「品飲組」這個 SKU——
+ * `product_reviews.product_id` 指向 `products`，組合沒有對應的列）。
+ * 同一款茶在同一筆訂單出現多次（例如單買一包又買了組合）只出現一次。
+ */
+export function collectOrderProducts(items: unknown): { productId: number; name: string }[] {
+  if (!Array.isArray(items)) return [];
+  const out: { productId: number; name: string }[] = [];
+  const seen = new Set<number>();
+
+  const push = (productId: unknown, name: unknown) => {
+    if (typeof productId !== "number" || seen.has(productId)) return;
+    seen.add(productId);
+    out.push({ productId, name: typeof name === "string" ? name : `#${productId}` });
+  };
+
+  for (const item of items) {
+    if (!item || typeof item !== "object") continue;
+    const it = item as { productId?: unknown; name?: unknown; bundleItems?: unknown };
+    push(it.productId, it.name);
+    if (Array.isArray(it.bundleItems)) {
+      for (const bi of it.bundleItems) {
+        const b = bi as { productId?: unknown; productName?: unknown };
+        push(b?.productId, b?.productName);
+      }
+    }
+  }
+  return out;
+}
+
 export type NewProductReview = {
   product_id:   number;
   rating:       number;

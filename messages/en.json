@@ -550,7 +550,10 @@
       "discount": "Discount",
       "total": "Total",
       "homeDelivery": "Home Delivery | {city} {address}",
-      "cvsPickup": "Pickup | {store} {storeName}"
+      "cvsPickup": "Pickup | {store} {storeName}",
+      "reviewTeas": "Review these teas",
+      "writeReview": "Review",
+      "reviewed": "Reviewed ★"
     },
     "modal": {
       "cancelOrderTitle": "Cancel this order?",
@@ -577,6 +580,8 @@
       "confirm": "OK",
       "reviewTitle": "Write a Review",
       "reviewPlaceholder": "Share your experience (optional)",
+      "reviewProductTitle": "Review {name}",
+      "reviewProductPlaceholder": "Share your tasting notes (optional)",
       "submitting": "Submitting…",
       "submitReview": "Submit Review",
       "cancel": "Cancel",

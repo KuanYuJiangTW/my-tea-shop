@@ -9,8 +9,8 @@
 - [x] 1.2 同檔加 RLS：公開讀取只回 `is_visible = true`，比照 `experience_reviews` 的 policy 寫法
 - [x] 1.3 同檔加 UNIQUE `(order_id, product_id)`（階段二才會用到，先建好避免二次 migration）與查詢索引 `(product_id, is_visible)`
       ＊UNIQUE 用 partial index（`where order_id is not null`），手動建檔的 NULL 不受約束
-- [ ] 1.4 業主在 Supabase 執行該 SQL，並回報成功（DDL 無法由程式碼執行）
-      **← 卡在這裡，其餘階段一的程式碼都已就緒**
+- [x] 1.4 業主在 Supabase 執行該 SQL，並回報成功（DDL 無法由程式碼執行）
+      2026-08-15 業主執行完成，已對真資料庫寫入／查詢／軟刪除驗過
 
 ## 2. 後台建檔
 
@@ -59,11 +59,12 @@
       2026-08-15：測試 635 passed（50 檔）、`tsc --noEmit` 無輸出、`npm run lint` 0 error
       （36 warning 全是既有檔案）、`npm run build` 成功
 - [x] 5.2 瀏覽器實測：0 則／1 則／3 則三種狀態的顯示都正確（可用後台建檔造資料）
-      **注意：資料是暫時塞在讀取層的假資料**（量高度時一併驗的，量完已移除），不是走後台建檔。
-      實測結果：3 則的阿里山高山烏龍顯示「5.0（3 則）」；1 則的蜜香紅茶只顯示「（1 則）」
-      無平均；其餘三款 0 則完全不出現。**待業主執行 SQL 後要用真資料重跑一次**
-- [ ] 5.3 實測隱藏一則後前台立即不顯示
-      程式面已接：`PATCH ?type=product` 會 `revalidatePath("/products")`，但**尚未對真資料庫實測**（等 1.4）
+      2026-08-15 業主執行 SQL 後**用真資料庫重驗**（4 則臨時資料，驗完已刪）：
+      3 則的阿里山高山烏龍顯示「4.7（3 則）」＝(5+5+4)/3；1 則的蜜香紅茶只有「（1 則）」
+      無平均；其餘三款 0 則整區不出現；三種來源標註（LINE／Facebook／其他）都正確
+- [x] 5.3 實測隱藏一則後前台立即不顯示
+      把 3 則中的一則設為 `is_visible = false` 後重整：該則消失、則數 3→2、
+      **平均星等也跟著收起來**（掉到門檻以下），符合規格
 - [x] 5.4 英文版 `/en` 無中文殘留
       `/en/products` 的顧客回饋區介面字串全英文（`Customer Reviews`／`Shared via LINE`／
       `(1 review)`／`(3 reviews)`）；評價原文與顧客稱呼維持中文是刻意的——原話不改寫
@@ -71,19 +72,38 @@
 
 ## 6. 階段二：留評 API
 
-- [ ] 6.1 `POST /api/product-reviews`：驗證訂單屬本人（403）、`order_status = completed`（409）、訂單 `items` 含此商品（409）
-- [ ] 6.2 `source` 一律寫入 `site`，忽略請求帶入的值
-- [ ] 6.3 重複留評由 UNIQUE constraint 擋下，捕捉 PG 23505 回 409
-- [ ] 6.4 單元測試涵蓋上述四種錯誤路徑 ＋ 成功路徑；`items` 是 JSONB，測試要用真實形狀的資料
+- [x] 6.1 `POST /api/product-reviews`：驗證訂單屬本人（403）、`order_status = completed`（409）、訂單 `items` 含此商品（409）
+      「訂單含此商品」用 `orderContainsProduct`，**組合也算**——買品飲組的人真的喝過那三款茶，
+      `bundleItems` 裡的 `productId` 一併比對
+- [x] 6.2 `source` 一律寫入 `site`，忽略請求帶入的值
+- [x] 6.3 重複留評由 UNIQUE constraint 擋下，捕捉 PG 23505 回 409
+      不先 select 再 insert——那在併發下擋不住（兩個請求都查到「沒有」）
+- [x] 6.4 單元測試涵蓋上述四種錯誤路徑 ＋ 成功路徑；`items` 是 JSONB，測試要用真實形狀的資料
+      `src/__tests__/products/product-review-submission.test.ts`（17 條）。測試資料的形狀
+      **對照真實訂單抓出來核對過**：單品 `productId` 在頂層、組合藏在 `bundleItems`
 
 ## 7. 階段二：會員中心與 JSON-LD
 
-- [ ] 7.1 會員中心訂單商品列標記 `has_review`，顯示「留評」或「已評價」
-- [ ] 7.2 留評表單（星等必填、留言選填）
-- [ ] 7.3 商品 Product JSON-LD 在可見評價 ≥ 3 時輸出 `aggregateRating`，沿用 `experiences/[slug]/page.tsx:57-64` 的判斷寫法
+- [x] 7.1 會員中心訂單商品列標記 `has_review`，顯示「留評」或「已評價」
+      伺服器端用 `collectOrderProducts` 把訂單展開成「可評的茶」（組合展開成成分、去重），
+      只有 `completed` 的訂單會有項目。**UI 尚未瀏覽器實測**（需要登入某位有已完成訂單的
+      會員，我不能代為輸入密碼），見下方 8.4
+- [x] 7.2 留評表單（星等必填、留言選填）
+      與體驗預約共用同一個 modal（`ReviewTarget` 判別聯集），差別只在送去哪支 API 與標題文案
+- [x] 7.3 商品 Product JSON-LD 在可見評價 ≥ 3 時輸出 `aggregateRating`，沿用 `experiences/[slug]/page.tsx:57-64` 的判斷寫法
 
 ## 8. 階段二驗收
 
-- [ ] 8.1 `/verify` 三項全過
-- [ ] 8.2 反向驗證：拿掉「訂單含此商品」的驗證，確認測試會紅（這條是防止亂留評的關鍵）
-- [ ] 8.3 實測 JSON-LD：2 則時無 `aggregateRating`、3 則時有
+- [x] 8.1 `/verify` 三項全過
+      2026-08-15：測試 652 passed（51 檔）、`tsc --noEmit` 無輸出、lint 0 error、build 成功
+- [x] 8.2 反向驗證：拿掉「訂單含此商品」的驗證，確認測試會紅（這條是防止亂留評的關鍵）
+      把該行改成 `if (false && ...)` 後，`訂單不含此商品回 409` **確實變紅**（16 passed / 1 failed），
+      改回後全綠。這條測試擋得住東西，不是裝飾
+- [x] 8.3 實測 JSON-LD：2 則時無 `aggregateRating`、3 則時有
+      對真資料庫實測：2 則時 `aggregateRating` 欄位不存在；補到 3 則後出現
+      `{ ratingValue: 4.7, reviewCount: 3, bestRating: 5, worstRating: 1 }`，
+      其餘四款商品沒有該欄位。驗完資料已刪
+
+- [ ] 8.4 **待業主驗**：登入一個有「已完成」訂單的會員帳號，在會員中心展開該訂單，
+      確認底下出現「評價這次的茶」，按下去能送出、送完變「已評價 ★」，且同一項不能再評
+      （目前資料庫有 5 筆 completed 訂單，其中 2 筆非測試單）

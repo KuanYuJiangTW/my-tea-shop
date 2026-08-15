@@ -4,6 +4,7 @@ import { getLocale } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase as adminSupabase } from "@/lib/supabase";
 import { getValidBalance, getUserTier } from "@/lib/points";
+import { collectOrderProducts } from "@/lib/product-review-core";
 import AccountClient from "./AccountClient";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +70,15 @@ export default async function AccountPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
+  // 已留評的 (訂單, 商品) 組合。用來在訂單裡顯示「留評／已評價」
+  const { data: productReviewRows } = await adminSupabase
+    .from("product_reviews")
+    .select("order_id, product_id")
+    .eq("user_id", user.id);
+  const reviewedProducts = new Set(
+    (productReviewRows ?? []).map((r: { order_id: string; product_id: number }) => `${r.order_id}:${r.product_id}`),
+  );
+
   // 點數記錄 + 有效餘額 + 等級
   const { data: pointTxs } = await adminSupabase
     .from("point_transactions")
@@ -129,7 +139,19 @@ export default async function AccountPage() {
       <AccountClient
         user={{ id: user.id, email: user.email ?? "" }}
         profile={profile ?? null}
-        orders={orders ?? []}
+        orders={
+          (orders ?? []).map((o: Record<string, unknown>) => ({
+            ...o,
+            // 只有已完成的訂單能留評（API 也擋，這裡是不要給看得到卻按不了的按鈕）
+            reviewables:
+              o.order_status === "completed"
+                ? collectOrderProducts(o.items).map((p) => ({
+                    ...p,
+                    has_review: reviewedProducts.has(`${o.id as string}:${p.productId}`),
+                  }))
+                : [],
+          })) as unknown as Parameters<typeof AccountClient>[0]["orders"]
+        }
         pointsBalance={pointsBalance}
         memberTier={{ id: memberTier.id, name: memberTier.name, points_rate: memberTier.points_rate, max_discount_rate: memberTier.max_discount_rate, min_annual_spend: memberTier.min_annual_spend }}
         annualSpend={annualSpend}
