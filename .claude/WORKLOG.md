@@ -759,3 +759,24 @@ lint 0 error（36 warning 是既有債務）、build 成功。
   真機上 UA 恆為 `Line/...`，推論會反覆重載，且 1.5 秒的橫幅計時器可能撐不到顯示。
   **此迴圈無法在本環境實證**（UA 覆寫活不過重載），需真 iPhone 從 LINE 對話點連結確認。
   → iOS 分支建議改成「不自動跳，直接顯示橫幅教他用選單開啟」
+
+## 2026-08-15（續二）｜註冊頁開放 FB＋預約/候補的 email 防線（branch `feat/register-facebook`）
+
+- **前情更正**：我一度斷言「會員中心沒有補 email 的入口」，**是錯的**——業主指正後查證，
+  `AccountClient.tsx:314` 的 `handleBindEmail` 走 `supabase.auth.updateUser({ email })`
+  寄驗證信，UI 有輸入框／綁定鈕／「驗證信已寄出」狀態／重新輸入，`emailRedirectTo`
+  也正確帶 `?next=/account`。教訓：只 grep 到 `{user.email ? (` 就下結論，沒讀 else 分支。
+- **`c32f26c`**：註冊頁開放 Facebook（業主指示）。補 `auth.register.facebookLogin`——
+  這個鍵原本只有 `auth.login` 有，只加 prop 會噴缺字串。
+- **`0a018f0`**：補上 email 防線，這是開放 FB 的前置條件
+  - `POST /api/bookings`：寫入前 `if (!user.email) → 400`，不再撞 NOT NULL 變 500
+  - `POST /api/waitlist`：原本 `user.email ?? ""` 存空字串（NOT NULL 過得去，遞補通知
+    寄到空信箱且不報錯），改成同樣 400；順手清掉查了沒用的 `profile` 與 `void profile;`
+  - `BookingFlow.tsx`：缺 email 時原本整個欄位消失 → 改成顯示說明與「前往會員中心
+    設定 Email」連結（預約 step 2 與候補區塊都有），送出前也先擋
+  - **設計取捨**：沒有做「就地內嵌綁定表單」。綁定一定要收驗證信才生效，流程無論如何
+    都會被打斷，內嵌只是把同一個中斷點換個位置，不值得為它抽元件
+- **反向驗證已做**：`git stash` 退回兩道防線後，`email-required.test.ts` 兩個「應為 400」
+  的案例確實轉紅、「有 email → 200」維持綠；還原後三個全綠
+- **`/verify` 四項全過**（52 檔／655 測試、tsc 0、lint 0 error、build 成功）
+- **仍未解**：`openInExternalBrowser()` 的 iOS 分支無效（見上一節），待真機確認
