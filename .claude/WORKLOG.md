@@ -820,7 +820,10 @@ Tailwind 產物一律以 `npm run build` 為準
   - [x] `/verify` 四項全過（測試 652、tsc 0、lint 0 error、build 成功）
   - [x] 對**真資料庫**驗過寫入／軟刪除／JSON-LD 門檻（驗證用資料已刪乾淨）
   - [x] 反向驗證「訂單含此商品」那道防線的測試會紅
-  - [ ] 合併進 `main` 並部署（**未做，等業主決定**）
+  - [x] 合併進 `main` 並部署（`babb455`，2026-08-15）。正式站實證：部署前 POST
+        `/api/product-reviews` 回 HTML、部署後回 `401 {"error":"請先登入"}`（同一支探針
+        打本機回 401 JSON，證明探針有鑑別力）；`/products` 與 `/en/products` 皆 200、
+        五張卡仍 632px
 - **已完成（branch `feat/product-reviews`，`3fe89ab` ＋ `10e3511`，未合併）**：
   - 資料層 `supabase/add_product_reviews.sql`（業主已執行）：RLS 公開只讀 `is_visible`、
     partial UNIQUE `(order_id, product_id)`（`where order_id is not null`，
@@ -842,4 +845,8 @@ Tailwind 產物一律以 `npm run build` 為準
   1. 輸入既有的 LINE／FB 口碑（同一款茶滿 3 則才會顯示平均星等與 `aggregateRating`）
   2. 驗會員中心的留評 UI（要登入有已完成訂單的帳號，我不能代輸密碼）——tasks.md 8.4
   3. 決定要不要合併 `main`
-- 狀態：程式碼完成並已推送；**未合併、未部署**
+- 狀態：已合併 `main` 並上線。**已知待處理**：業主 08-15 自行輸入的兩則口碑
+  （蜜香紅茶、阿里山金萱茶，各 1 則五星）`source` 都存成 `site`，所以前台沒有來源標註——
+  那兩則不是站內投稿，等於現況正在以站內評價的樣子呈現既有口碑（正是 design.md D2
+  要避免的事）。後台目前只能下架不能改欄位，修法是下架後重新新增並選對來源，
+  或加一個編輯功能。**等業主決定**
