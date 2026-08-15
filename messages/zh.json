@@ -183,6 +183,17 @@
     "unitServing": "份",
     "unitBox": "盒",
     "teaBagSet": "茶包組",
+    "reviews": {
+      "sectionTitle": "顧客回饋",
+      "sectionTagline": "以下是喝過的客人說的話，未經改寫。",
+      "count": "（{count} 則）",
+      "source": {
+        "site": "站內評價",
+        "line": "來自 LINE 的顧客回饋",
+        "facebook": "來自 Facebook 的顧客回饋",
+        "other": "來自顧客的回饋"
+      }
+    },
     "bundle": {
       "eyebrow": "入門首選",
       "contains": "內含",

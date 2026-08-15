@@ -238,6 +238,12 @@ export default function ProductCard({ product }: { product: Product }) {
               （產地 mb-1.5、英文名 mb-2、描述 mb-3、規格 mb-3、數量 mb-3、價格列 pt-3），
               好讓卡片維持上線版的 632px。**動這些間距或描述行數前，先量總高**——
               632 是業主指定的值，不是巧合。 */}
+          {/* ⚠️ 星等列試過了，放不下：加一行星等（含 mb-2）在 1280／768／375 三個
+              斷點都讓總高從 632 變成 664（+32px，2026-08-15 實測，五張卡一致）。
+              632 是業主指定值、且卡內間距已經為了描述那第三行各縮過 2–4px，
+              再擠 32px 會動到已經拍板的排版，所以依 design.md D4 退回
+              「商品卡不顯示星等，只在 /products 的顧客回饋區呈現」。
+              要改回來的前提是業主同意卡片變高，不是重排間距。 */}
           <p className="text-label text-tea-text-light line-clamp-3 min-h-[3lh] flex-1 mb-3">
             {isEn ? (product.descriptionEn || product.description) : product.description}
           </p>

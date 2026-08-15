@@ -183,6 +183,17 @@
     "unitServing": "pack",
     "unitBox": "box",
     "teaBagSet": "Tea Bag Set",
+    "reviews": {
+      "sectionTitle": "Customer Reviews",
+      "sectionTagline": "What customers said, quoted as written.",
+      "count": "({count, plural, one {# review} other {# reviews}})",
+      "source": {
+        "site": "Verified purchase",
+        "line": "Shared via LINE",
+        "facebook": "Shared via Facebook",
+        "other": "Customer feedback"
+      }
+    },
     "bundle": {
       "eyebrow": "Start Here",
       "contains": "Includes",

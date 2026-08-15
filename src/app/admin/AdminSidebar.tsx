@@ -92,6 +92,15 @@ const navGroups: NavGroup[] = [
           </svg>
         ),
       },
+      {
+        href: "/admin/product-reviews",
+        label: "商品評價",
+        icon: (
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-6.6 11.5L12 12.3l-1.4 1.2.4-1.8-1.4-1.2 1.9-.2.7-1.7.7 1.7 1.9.2-1.4 1.2.4 1.8z" />
+          </svg>
+        ),
+      },
     ],
   },
   {
