@@ -646,13 +646,6 @@
         "banner": "You're browsing inside LINE. Google login is not available here.",
         "openExternal": "Open in Browser",
         "googleDisabled": "Please open this page in an external browser to use Google login"
-      },
-      "mobileLineWarning": {
-        "title": "Mobile Device Notice",
-        "desc1": "Using LINE login on a mobile or tablet may redirect to another browser, causing the login to fail.",
-        "desc2": "We recommend using Google or Email login instead, or set your preferred browser as the default on your device.",
-        "cancel": "Cancel",
-        "confirm": "Continue with LINE"
       }
     },
     "register": {
@@ -675,6 +668,7 @@
       "registerBtn": "Create Account",
       "registering": "Processing…",
       "googleLogin": "Continue with Google",
+      "lineLogin": "Continue with LINE",
       "connecting": "Connecting…",
       "orEmail": "or sign up with Email",
       "haveAccount": "Already have an account?",

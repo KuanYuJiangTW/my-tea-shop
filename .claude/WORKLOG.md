@@ -695,3 +695,67 @@ lint 0 error（36 warning 是既有債務）、build 成功。
 - **小瑕疵（業主自行斟酌）**：兩則後台建檔的 `source_note` 日期與前台顯示的 `reviewed_at`
   對不上（陳小姐 note 2023-05-17／顯示 2024-10-16；簡先生 note 2026-05-07／顯示 2026-04-30）。
   前台顯示的是 `reviewed_at`，要對齊就改那欄
+
+## 2026-08-15｜註冊頁補 LINE 登入＋抽 SocialAuthButtons（branch `feat/register-line-oauth`，`3ec3ca1`，未合併）
+
+- **起因**：業主發現登入頁有 Google／LINE／FB，註冊頁只有 Google。功能上其實沒缺口
+  （`signInWithOAuth` 對新用戶會自動建帳號，歡迎券也走同一支 `/auth/callback`，
+  從登入頁用 LINE 進來的新客一樣拿得到），**缺的是入口**。
+- **關鍵證據**：註冊頁本來就有 `isLineInAppBrowser`、跳外部瀏覽器的 effect、
+  fallback banner、LINE 內建瀏覽器時停用 Google 的提示——LINE 的**配套全在，就缺按鈕**。
+  `messages/zh.json` 的 `auth.login.lineLogin` 也早就有。判定是漏做而非刻意。
+- **做法**：新增 `src/app/auth/SocialAuthButtons.tsx`，把 icon、內建瀏覽器偵測與跳轉、
+  fallback banner、行動裝置警告 Modal、三個 provider 的 OAuth 呼叫全部集中。
+  兩頁只傳 `namespace` / `callbackUrl` / `showFacebook` / `onError`。
+  **文案刻意不共用**：登入頁講「登入」、註冊頁講「繼續」，各讀各的 namespace。
+- **順手修掉的 en bug**：`callbackUrl()` 原本跟 `lp("/account")` 比，en 版比出來相等
+  → 不帶 `next` → 英文使用者登入後被 callback 導去中文版 `/account`。改成跟 callback
+  自己的預設 `"/account"` 比。實測 en 註冊頁點 Google，`redirect_to` 解碼後確為
+  `http://localhost:3000/auth/callback?next=/en/account`。
+- **Facebook 刻意不放上註冊頁**（`showFacebook` 預設 false）：FB 只要 `public_profile`、
+  不拿 email，而 `src/app/api/bookings/route.ts:87` 直接寫 `booker_email: user.email`，
+  FB 新客第一次來就預約體驗會存成 null。**要開 FB 之前先修那條。**
+- **驗證**：`/verify` 四項全過（測試 51 檔／652、tsc 0、lint 0 error＋36 warning、build 成功）。
+  瀏覽器實測：註冊頁 zh／en 皆為 Google＋LINE 無 FB、登入頁維持三顆；
+  mobile 375 下點註冊頁 LINE 會跳「行動裝置提醒」且文案是註冊版（「使用 LINE 註冊時…」）。
+- **追加（`0aaf544`）**：登入頁補上歡迎券提示。抽出 `src/app/auth/WelcomeCouponBadge.tsx`，
+  文案固定讀 `auth.register` namespace（券講的是註冊，不管哪頁顯示），登入頁用精簡版
+  （不含門檻／效期附註）、註冊頁 `showNote` 開啟。`CouponIcon` 一併收進元件。
+  zh／en 皆實測：登入頁底部出現「完成註冊即獲 NT$50 購物金」／「Get NT$50 off when you sign up」。
+- **FB 的真實影響（查證後，比原本記的更明確）**：
+  - `supabase/booking_schema.sql:48` 的 `booker_email` 是 **NOT NULL**，所以 FB 用戶預約
+    體驗不是存成 null 而是 **500 硬失敗**（Postgres 原文錯誤），`BookingFlow.tsx:442`
+    的 email 欄位在無 email 時整個不顯示，使用者連填的機會都沒有
+  - `src/app/api/waitlist/route.ts:43` 是 `user.email ?? ""` → 存空字串、NOT NULL 過關，
+    之後遞補通知信寄到空信箱，**靜默失效**，這條最危險
+  - 商品訂單有守住：`verifiedEmail` 會 fallback 到 `body.customer.email`，沒有就 400；
+    但 `api/orders/route.ts:322` 的 `if (!user.email) return` 表示 FB 用戶下單成功卻收不到確認信
+- **待業主**：
+  1. 決定要不要合併 `main`
+  2. FB 上註冊頁的前置修正——建議做「補填 Email 關卡」（callback 後若無 email 導去
+     補填頁，`supabase.auth.updateUser({ email })` 會寄驗證信），一處修好下游全對；
+     即刻止血則是先把 waitlist 的 `?? ""` 改成擋下。單靠跟 Meta 要 email scope 不夠：
+     需要 App Review，且使用者可在同意畫面取消勾選
+
+## 2026-08-15（續）｜移除 LINE 行動裝置警告彈窗（`42727c2`）
+
+- **業主指定移除**的就是這段：「使用 LINE 登入時，手機或平板裝置可能會跳轉到其他
+  瀏覽器，導致登入失敗。建議改用 Google 帳號 或 Email 登入⋯」
+- **考古結果（這是移除的正當理由，不是憑感覺砍）**：
+  - `4b49fca`（2026-03-27）加入此彈窗，針對「Android 跳去三星瀏覽器導致失敗」
+  - `0e8c4d4`（2026-04-23）加入 LINE 內建瀏覽器自動跳外部瀏覽器，commit 訊息寫的
+    目的是「解決 Google OAuth 被封鎖問題」（Google 拒絕在 embedded webview 跑 OAuth），
+    但**順帶**讓使用者在按下登入前就離開 LINE 瀏覽器 → 跨瀏覽器失聯大多不再發生
+  - 彈窗晚了一個月才被它的成因解決，卻沒跟著撤 → 殘留貼紙。業主回報「用家人手機
+    試好像又可以了」與這條時間線吻合
+- **另一個移除理由**：兩段文案互相矛盾——橫幅說「Google 登入將無法使用」、
+  彈窗說「建議改用 Google 帳號」。對只會用 LINE 的長輩客群等於死路
+- **實測**（Android LINE UA 覆寫 + 前端軟導航讓元件重新掛載）：移除前彈窗與橫幅
+  同時出現；移除後點 LINE 直接進「連線中…」開始 OAuth，彈窗不再出現
+- **`/verify` 四項全過**（652 測試、tsc 0、lint 0 error、build 成功）
+- **已知未解（重要）**：`openInExternalBrowser()` 對非 Android 只做
+  `window.location.href = url`（同一網址）。實測證明會觸發**整頁重載**（全域變數與
+  UA 覆寫都被清掉），但這跳不出 iOS 的 in-app browser，只是在 LINE 瀏覽器裡重載。
+  真機上 UA 恆為 `Line/...`，推論會反覆重載，且 1.5 秒的橫幅計時器可能撐不到顯示。
+  **此迴圈無法在本環境實證**（UA 覆寫活不過重載），需真 iPhone 從 LINE 對話點連結確認。
+  → iOS 分支建議改成「不自動跳，直接顯示橫幅教他用選單開啟」
