@@ -718,8 +718,21 @@ lint 0 error（36 warning 是既有債務）、build 成功。
 - **驗證**：`/verify` 四項全過（測試 51 檔／652、tsc 0、lint 0 error＋36 warning、build 成功）。
   瀏覽器實測：註冊頁 zh／en 皆為 Google＋LINE 無 FB、登入頁維持三顆；
   mobile 375 下點註冊頁 LINE 會跳「行動裝置提醒」且文案是註冊版（「使用 LINE 註冊時…」）。
+- **追加（`0aaf544`）**：登入頁補上歡迎券提示。抽出 `src/app/auth/WelcomeCouponBadge.tsx`，
+  文案固定讀 `auth.register` namespace（券講的是註冊，不管哪頁顯示），登入頁用精簡版
+  （不含門檻／效期附註）、註冊頁 `showNote` 開啟。`CouponIcon` 一併收進元件。
+  zh／en 皆實測：登入頁底部出現「完成註冊即獲 NT$50 購物金」／「Get NT$50 off when you sign up」。
+- **FB 的真實影響（查證後，比原本記的更明確）**：
+  - `supabase/booking_schema.sql:48` 的 `booker_email` 是 **NOT NULL**，所以 FB 用戶預約
+    體驗不是存成 null 而是 **500 硬失敗**（Postgres 原文錯誤），`BookingFlow.tsx:442`
+    的 email 欄位在無 email 時整個不顯示，使用者連填的機會都沒有
+  - `src/app/api/waitlist/route.ts:43` 是 `user.email ?? ""` → 存空字串、NOT NULL 過關，
+    之後遞補通知信寄到空信箱，**靜默失效**，這條最危險
+  - 商品訂單有守住：`verifiedEmail` 會 fallback 到 `body.customer.email`，沒有就 400；
+    但 `api/orders/route.ts:322` 的 `if (!user.email) return` 表示 FB 用戶下單成功卻收不到確認信
 - **待業主**：
   1. 決定要不要合併 `main`
-  2. 另一個未做的建議：登入頁沒提歡迎券——從登入頁用 LINE 進來的新客實際拿得到
-     NT$50 卻沒被告知，誘因只講給走 email 的人聽
-  3. FB 上註冊頁的前置修正（`api/bookings` 的 null email）
+  2. FB 上註冊頁的前置修正——建議做「補填 Email 關卡」（callback 後若無 email 導去
+     補填頁，`supabase.auth.updateUser({ email })` 會寄驗證信），一處修好下游全對；
+     即刻止血則是先把 waitlist 的 `?? ""` 改成擋下。單靠跟 Meta 要 email scope 不夠：
+     需要 App Review，且使用者可在同意畫面取消勾選
