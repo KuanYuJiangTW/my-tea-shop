@@ -91,7 +91,6 @@ export default function SocialAuthButtons({
   const [lineLoading, setLineLoading]         = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
   const [showLineFallback, setShowLineFallback]   = useState(false);
-  const [showMobileWarning, setShowMobileWarning] = useState(false);
 
   const busy = googleLoading || lineLoading || facebookLoading;
 
@@ -124,18 +123,20 @@ export default function SocialAuthButtons({
     startOAuth("google");
   }
 
+  /**
+   * 行動裝置原本會先跳一個警告 Modal 勸退（`4b49fca`，2026-03-27，針對 Android
+   * 跳去三星瀏覽器導致登入失敗）。該貼紙已於 2026-08-15 移除，理由：
+   *
+   * 一個月後的 `0e8c4d4`（2026-04-23）加了 LINE 內建瀏覽器自動跳外部瀏覽器——
+   * 那是為了繞開 Google 拒絕在 embedded webview 跑 OAuth，但**順帶**也讓使用者
+   * 在按下登入之前就已經離開 LINE 瀏覽器，跨瀏覽器失聯因此大多不再發生。
+   * 警告卻沒跟著撤，變成舊問題的殘留貼紙，而且它建議的「改用 Google」跟同頁
+   * 橫幅的「Google 登入將無法使用」互相矛盾。
+   *
+   * 注意：`openInExternalBrowser()` 的自動跳轉在 iOS 上是無效的（只是重載同一頁），
+   * 所以 iPhone 從 LINE 對話點進來時仍可能踩到原本的跨瀏覽器問題。
+   */
   function handleLine() {
-    // 行動裝置提示跨瀏覽器問題（Android / iOS / iPadOS 皆可能發生）
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      setShowMobileWarning(true);
-      return;
-    }
-    setLineLoading(true);
-    startOAuth(LINE_PROVIDER);
-  }
-
-  function handleLineConfirm() {
-    setShowMobileWarning(false);
     setLineLoading(true);
     startOAuth(LINE_PROVIDER);
   }
@@ -197,39 +198,6 @@ export default function SocialAuthButtons({
           </button>
         )}
       </div>
-
-      {/* 行動裝置 LINE 跨瀏覽器警告 Modal */}
-      {showMobileWarning && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowMobileWarning(false)} />
-          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" className="flex-shrink-0">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              <h3 className="font-semibold text-tea-text">{t("mobileLineWarning.title")}</h3>
-            </div>
-            <p className="text-sm text-tea-text-light mb-2">{t("mobileLineWarning.desc1")}</p>
-            <p className="text-sm text-tea-text-light mb-5">{t("mobileLineWarning.desc2")}</p>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowMobileWarning(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-tea-green-pale text-sm font-medium text-tea-text hover:bg-tea-cream-light transition"
-              >
-                {t("mobileLineWarning.cancel")}
-              </button>
-              <button
-                type="button"
-                onClick={handleLineConfirm}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-[#06C755] text-sm font-medium text-[#06C755] hover:bg-[#f0fdf4] transition"
-              >
-                {t("mobileLineWarning.confirm")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

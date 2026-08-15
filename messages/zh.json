@@ -646,13 +646,6 @@
         "banner": "您正在 LINE 內開啟，Google 登入將無法使用。",
         "openExternal": "用瀏覽器開啟",
         "googleDisabled": "請用外部瀏覽器開啟本網頁以使用 Google 登入"
-      },
-      "mobileLineWarning": {
-        "title": "行動裝置提醒",
-        "desc1": "使用 LINE 登入時，手機或平板裝置可能會跳轉到其他瀏覽器，導致登入失敗。",
-        "desc2": "建議改用 Google 帳號 或 Email 登入，或將常用瀏覽器設為裝置的預設瀏覽器後再試。",
-        "cancel": "取消",
-        "confirm": "仍要使用 LINE"
       }
     },
     "register": {
@@ -664,13 +657,6 @@
         "banner": "您正在 LINE 內開啟，Google 註冊將無法使用。",
         "openExternal": "用瀏覽器開啟",
         "googleDisabled": "請用外部瀏覽器開啟本網頁以使用 Google 註冊"
-      },
-      "mobileLineWarning": {
-        "title": "行動裝置提醒",
-        "desc1": "使用 LINE 註冊時，手機或平板裝置可能會跳轉到其他瀏覽器，導致註冊失敗。",
-        "desc2": "建議改用 Google 帳號 或 Email 註冊，或將常用瀏覽器設為裝置的預設瀏覽器後再試。",
-        "cancel": "取消",
-        "confirm": "仍要使用 LINE"
       },
       "email": "電子郵件",
       "password": "密碼",
