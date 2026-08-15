@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import SocialAuthButtons from "../SocialAuthButtons";
+import WelcomeCouponBadge from "../WelcomeCouponBadge";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -231,15 +232,20 @@ export default function LoginForm() {
           )}
         </div>
 
-        <p className="text-center text-sm text-tea-text-light mt-6">
-          {t("noAccount")}{" "}
-          <Link
-            href={lp(`/auth/register${redirectTo !== lp("/account") ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`)}
-            className="text-tea-green hover:text-tea-green-dark font-medium transition-colors"
-          >
-            {t("register")}
-          </Link>
-        </p>
+        {/* 券的提示要放在登入頁：從這頁用 LINE／Google 進來的新客同樣會拿到券，
+            原本只有註冊頁講，等於誘因只講給走 email 的那一半人聽。 */}
+        <div className="text-center mt-6">
+          <p className="text-sm text-tea-text-light">
+            {t("noAccount")}{" "}
+            <Link
+              href={lp(`/auth/register${redirectTo !== lp("/account") ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`)}
+              className="text-tea-green hover:text-tea-green-dark font-medium transition-colors"
+            >
+              {t("register")}
+            </Link>
+          </p>
+          <WelcomeCouponBadge className="mt-2.5" />
+        </div>
       </div>
     </div>
   );
