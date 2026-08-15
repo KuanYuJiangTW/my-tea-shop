@@ -12,6 +12,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "請先登入" }, { status: 401 });
   }
 
+  // 同 /api/bookings：FB 帳號沒有 email。這裡原本是 `user.email ?? ""`，
+  // 空字串能過 NOT NULL，於是候補紀錄留下一個寄不到的信箱——遞補通知寄出去石沉大海，
+  // 而且不會有任何錯誤，沒人會發現。寧可在這裡擋下。
+  if (!user.email) {
+    return NextResponse.json(
+      { error: "請先到會員中心設定 Email，我們需要它通知你遞補結果。" },
+      { status: 400 }
+    );
+  }
+
   const body = await req.json();
   const { sessionId, participantCount, bookerName, bookerPhone, dietaryNotes, adultConfirmed } = body;
 
@@ -33,14 +43,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "此場次仍有名額，請直接預約" }, { status: 409 });
   }
 
-  // 取得使用者 email
-  const { data: profile } = await supabaseUser
-    .from("profiles")
-    .select("name")
-    .eq("id", user.id)
-    .single();
-
-  const bookerEmail = user.email ?? "";
+  const bookerEmail = user.email;
 
   const { data: entry, error } = await supabase
     .from("waitlist_entries")
@@ -63,9 +66,6 @@ export async function POST(req: NextRequest) {
 
   // 更新場次的候補人數
   await supabase.rpc("increment_waitlist_count", { session_id_arg: sessionId });
-
-  // 使用 profile 避免 unused variable warning
-  void profile;
 
   return NextResponse.json({ waitlistId: entry.id });
 }

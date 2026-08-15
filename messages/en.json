@@ -669,6 +669,7 @@
       "registering": "Processing…",
       "googleLogin": "Continue with Google",
       "lineLogin": "Continue with LINE",
+      "facebookLogin": "Continue with Facebook",
       "connecting": "Connecting…",
       "orEmail": "or sign up with Email",
       "haveAccount": "Already have an account?",
@@ -744,6 +745,11 @@
     "nextStep": "Continue to Booking Details",
     "back": "← Back",
     "bookerInfo": "Booking Details",
+    "emailMissing": {
+      "desc": "Your account has no email yet. Booking confirmations, pre-visit reminders and refund notices are all sent there, so please set one first.",
+      "descWaitlist": "Your account has no email yet. We'll email you if a spot opens up, so please set one first.",
+      "action": "Set your email in Account"
+    },
     "bookerName": "Full Name",
     "bookerPhone": "Phone Number",
     "bookerEmail": "Email",
@@ -758,6 +764,8 @@
     "errors": {
       "nameRequired": "Please enter your name",
       "phoneRequired": "Please enter your phone number",
+      "emailRequired": "Please set an email in your account first — we need it to send your booking confirmation",
+      "emailRequiredWaitlist": "Please set an email in your account first — we need it to notify you about your waitlist spot",
       "agreeRequired": "Please agree to the cancellation policy",
       "adultRequired": "Please confirm all participants are 18 or older"
     },
