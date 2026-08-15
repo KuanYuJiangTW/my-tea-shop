@@ -695,3 +695,31 @@ lint 0 error（36 warning 是既有債務）、build 成功。
 - **小瑕疵（業主自行斟酌）**：兩則後台建檔的 `source_note` 日期與前台顯示的 `reviewed_at`
   對不上（陳小姐 note 2023-05-17／顯示 2024-10-16；簡先生 note 2026-05-07／顯示 2026-04-30）。
   前台顯示的是 `reviewed_at`，要對齊就改那欄
+
+## 2026-08-15｜註冊頁補 LINE 登入＋抽 SocialAuthButtons（branch `feat/register-line-oauth`，`3ec3ca1`，未合併）
+
+- **起因**：業主發現登入頁有 Google／LINE／FB，註冊頁只有 Google。功能上其實沒缺口
+  （`signInWithOAuth` 對新用戶會自動建帳號，歡迎券也走同一支 `/auth/callback`，
+  從登入頁用 LINE 進來的新客一樣拿得到），**缺的是入口**。
+- **關鍵證據**：註冊頁本來就有 `isLineInAppBrowser`、跳外部瀏覽器的 effect、
+  fallback banner、LINE 內建瀏覽器時停用 Google 的提示——LINE 的**配套全在，就缺按鈕**。
+  `messages/zh.json` 的 `auth.login.lineLogin` 也早就有。判定是漏做而非刻意。
+- **做法**：新增 `src/app/auth/SocialAuthButtons.tsx`，把 icon、內建瀏覽器偵測與跳轉、
+  fallback banner、行動裝置警告 Modal、三個 provider 的 OAuth 呼叫全部集中。
+  兩頁只傳 `namespace` / `callbackUrl` / `showFacebook` / `onError`。
+  **文案刻意不共用**：登入頁講「登入」、註冊頁講「繼續」，各讀各的 namespace。
+- **順手修掉的 en bug**：`callbackUrl()` 原本跟 `lp("/account")` 比，en 版比出來相等
+  → 不帶 `next` → 英文使用者登入後被 callback 導去中文版 `/account`。改成跟 callback
+  自己的預設 `"/account"` 比。實測 en 註冊頁點 Google，`redirect_to` 解碼後確為
+  `http://localhost:3000/auth/callback?next=/en/account`。
+- **Facebook 刻意不放上註冊頁**（`showFacebook` 預設 false）：FB 只要 `public_profile`、
+  不拿 email，而 `src/app/api/bookings/route.ts:87` 直接寫 `booker_email: user.email`，
+  FB 新客第一次來就預約體驗會存成 null。**要開 FB 之前先修那條。**
+- **驗證**：`/verify` 四項全過（測試 51 檔／652、tsc 0、lint 0 error＋36 warning、build 成功）。
+  瀏覽器實測：註冊頁 zh／en 皆為 Google＋LINE 無 FB、登入頁維持三顆；
+  mobile 375 下點註冊頁 LINE 會跳「行動裝置提醒」且文案是註冊版（「使用 LINE 註冊時…」）。
+- **待業主**：
+  1. 決定要不要合併 `main`
+  2. 另一個未做的建議：登入頁沒提歡迎券——從登入頁用 LINE 進來的新客實際拿得到
+     NT$50 卻沒被告知，誘因只講給走 email 的人聽
+  3. FB 上註冊頁的前置修正（`api/bookings` 的 null email）
