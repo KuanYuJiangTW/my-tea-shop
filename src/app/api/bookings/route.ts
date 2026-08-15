@@ -20,6 +20,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "請先登入" }, { status: 401 });
   }
 
+  // Facebook 只給 public_profile、不給 email，所以 FB 建立的帳號 user.email 是空的。
+  // 沒有這道防線的話會一路撞到 experience_bookings.booker_email 的 NOT NULL，
+  // 使用者看到的是 Postgres 原文錯誤（500）。預約確認信、行前提醒、取消退款通知
+  // 全都寄到這個欄位，所以這裡不接受空值，請他先去會員中心綁定（那裡會寄驗證信）。
+  if (!user.email) {
+    return NextResponse.json(
+      { error: "請先到會員中心設定 Email，我們需要它寄送預約確認信與行前提醒。" },
+      { status: 400 }
+    );
+  }
+
   const body = await req.json();
   const { sessionId, participantCount, bookerName, bookerPhone, dietaryNotes, adultConfirmed } = body;
 

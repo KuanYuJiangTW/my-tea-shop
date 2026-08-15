@@ -745,6 +745,11 @@
     "nextStep": "填寫訂購資料",
     "back": "← 返回",
     "bookerInfo": "訂購人資料",
+    "emailMissing": {
+      "desc": "你的帳號還沒有 Email。預約確認信、行前提醒與取消退款通知都會寄到這裡，請先設定。",
+      "descWaitlist": "你的帳號還沒有 Email。有名額釋出時我們會用 Email 通知你遞補，請先設定。",
+      "action": "前往會員中心設定 Email"
+    },
     "bookerName": "姓名",
     "bookerPhone": "手機號碼",
     "bookerEmail": "Email",
@@ -759,6 +764,8 @@
     "errors": {
       "nameRequired": "請填寫姓名",
       "phoneRequired": "請填寫手機號碼",
+      "emailRequired": "請先到會員中心設定 Email，我們需要它寄送預約確認信",
+      "emailRequiredWaitlist": "請先到會員中心設定 Email，我們需要它通知你遞補結果",
       "agreeRequired": "請同意退款政策",
       "adultRequired": "請確認所有參加者均已年滿 18 歲"
     },

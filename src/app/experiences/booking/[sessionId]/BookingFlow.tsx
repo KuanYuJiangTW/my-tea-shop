@@ -78,6 +78,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
   const handleJoinWaitlist = async () => {
     if (!name.trim())  return setError(t("errors.nameRequired"));
     if (!phone.trim()) return setError(t("errors.phoneRequired"));
+    if (!userEmail)    return setError(t("errors.emailRequiredWaitlist"));
     if (exp.requiresAdult && !adultConfirmed) return setError(t("errors.adultRequired"));
 
     setLoading(true);
@@ -119,6 +120,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
   const handleSubmit = async () => {
     if (!name.trim())  return setError(t("errors.nameRequired"));
     if (!phone.trim()) return setError(t("errors.phoneRequired"));
+    if (!userEmail)    return setError(t("errors.emailRequired"));
     if (!agreed)       return setError(t("errors.agreeRequired"));
     if (exp.requiresAdult && !adultConfirmed) return setError(t("errors.adultRequired"));
 
@@ -251,6 +253,18 @@ export default function BookingFlow({ session, userEmail }: Props) {
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder={t("bookerPhonePlaceholder")}
                 className="w-full border border-tea-green-pale rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-tea-green/30 focus:border-tea-green" />
             </div>
+            {/* 沒有帳號 email 就收不到遞補通知——候補的唯一價值就是那封信，所以這裡也要擋 */}
+            {!userEmail && (
+              <div className="flex items-start gap-2 border border-amber-200 bg-amber-50 rounded-xl px-4 py-3">
+                <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-amber-800">{t("emailMissing.descWaitlist")}</p>
+                  <a href={lp("/account")} className="inline-block mt-1.5 text-sm font-medium text-tea-green-ink underline">
+                    {t("emailMissing.action")}
+                  </a>
+                </div>
+              </div>
+            )}
             {exp.requiresAdult && (
               <label className="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" checked={adultConfirmed} onChange={e => setAdult(e.target.checked)} className="mt-0.5 accent-tea-green w-4 h-4 shrink-0" />
@@ -439,17 +453,33 @@ export default function BookingFlow({ session, userEmail }: Props) {
               />
             </div>
 
-            {userEmail && (
-              <div>
-                <label className="block text-sm font-medium text-tea-text mb-1.5">Email</label>
+            <div>
+              <label className="block text-sm font-medium text-tea-text mb-1.5">Email</label>
+              {userEmail ? (
                 <input
                   type="email"
                   value={userEmail}
                   disabled
                   className="w-full border border-tea-green-pale rounded-xl px-4 py-2.5 text-sm bg-tea-green-mist text-tea-text-light"
                 />
-              </div>
-            )}
+              ) : (
+                /* Facebook 建立的帳號沒有 email。原本這裡整塊不顯示，使用者送出後才撞
+                   NOT NULL 變成 500。改成當場說明並給入口——綁定要收驗證信，本來就
+                   沒辦法在這一頁完成，所以導去會員中心而不是內嵌表單。 */
+                <div className="flex items-start gap-2 border border-amber-200 bg-amber-50 rounded-xl px-4 py-3">
+                  <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-amber-800">{t("emailMissing.desc")}</p>
+                    <a
+                      href={lp("/account")}
+                      className="inline-block mt-1.5 text-sm font-medium text-tea-green-ink underline"
+                    >
+                      {t("emailMissing.action")}
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-tea-text mb-1.5">
