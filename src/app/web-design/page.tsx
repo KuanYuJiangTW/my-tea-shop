@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import InquiryFormClient from "./InquiryFormClient";
-import { langAlternates } from "@/lib/seo";
+import { langAlternates, openGraphFor } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("webDesign.meta");
@@ -11,11 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("title"),
     description: t("description"),
     alternates,
-    openGraph: {
+    openGraph: await openGraphFor("/web-design", {
       title: t("title"),
       description: t("description"),
-      url: alternates.canonical,
-    },
+    }),
   };
 }
 

@@ -9,7 +9,8 @@ import ChatWidget from "@/components/ChatWidget";
 import { Geist, Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { openGraphFor } from "@/lib/seo";
 
 // 字體單一來源：三支都走 next/font（自架 + 自動 preload），globals.css 不再定義字體變數。
 // 拉丁字排在 font-sans 最前面走 Geist，中文由 Noto Sans TC 接手——這是既有的視覺結果，
@@ -37,52 +38,50 @@ export const viewport: Viewport = {
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(baseUrl),
-  title: {
-    default: "霧抉茶 | 台灣嘉義阿里山梅山高山茶",
-    template: "%s | 霧抉茶",
-  },
-  description: "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。從茶園到您手上，每一泡都由我們親手把關。",
-  keywords: ["霧抉茶", "台灣茶", "台灣高山茶", "Taiwanese tea", "Taiwan tea", "阿里山高山茶", "嘉義阿里山", "梅山茶", "阿里山茶", "烏龍茶", "金萱茶", "四季春", "高山茶葉", "自產自銷", "嘉義茶葉"],
-  authors: [{ name: "霧抉茶" }],
-  creator: "霧抉茶",
-  openGraph: {
-    type: "website",
-    locale: "zh_TW",
-    url: baseUrl,
-    siteName: "霧抉茶",
-    title: "霧抉茶 | 台灣嘉義阿里山梅山高山茶",
-    description: "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山茶。從茶園到您手上，每一泡都由我們親手把關。",
-    images: [
-      {
-        url: "/opengraph-image",
-        width: 1200,
-        height: 630,
-        alt: "霧抉茶 | 台灣嘉義阿里山梅山高山茶",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "霧抉茶 | 台灣嘉義阿里山梅山高山茶",
-    description: "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山茶。從茶園到您手上，每一泡都由我們親手把關。",
-    images: ["/opengraph-image"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+// 全站 metadata 的預設值。**必須是 generateMetadata 而非靜態物件**：
+// title.template、og:locale、og:site_name 等都要跟著語言換，而 locale 只有在
+// request 期間才拿得到（/en 是 proxy 內部 rewrite，沒有 [locale] 路由段）。
+// 這裡的 openGraph／twitter 會被「沒有自己宣告 og」的頁面繼承，所以不雙語化
+// 的話，那些英文頁分享出去仍是中文卡片。
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("siteMeta");
+  const brand = t("brand");
+  return {
+    metadataBase: new URL(baseUrl),
+    title: {
+      default: t("defaultTitle"),
+      template: t("titleTemplate"),
+    },
+    description: t("description"),
+    keywords: t.raw("keywords") as string[],
+    authors: [{ name: brand }],
+    creator: brand,
+    // 全站預設值。各頁一律用同一個 openGraphFor() 覆寫（見 src/lib/seo.ts 的說明）。
+    openGraph: await openGraphFor("/", {
+      title: t("ogTitle"),
+      description: t("ogDescription"),
+    }),
+    twitter: {
+      card: "summary_large_image",
+      title: t("ogTitle"),
+      description: t("ogDescription"),
+      images: ["/opengraph-image"],
+    },
+    robots: {
       index: true,
       follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+      },
     },
-  },
-  verification: {
-    google: "KeiUxoKScCoDWTyzLMF-tXp_qLuIfFsKxX0L-977Mik",
-  },
-  // 注意：canonical 由各頁自行宣告（src/lib/seo.ts 的 langAlternates），
-  // 不在 root layout 設全站 canonical，避免未宣告的頁面被誤標為首頁的重複內容。
-};
+    verification: {
+      google: "KeiUxoKScCoDWTyzLMF-tXp_qLuIfFsKxX0L-977Mik",
+    },
+    // 注意：canonical 由各頁自行宣告（src/lib/seo.ts 的 langAlternates），
+    // 不在 root layout 設全站 canonical，避免未宣告的頁面被誤標為首頁的重複內容。
+  };
+}
 
 export default async function RootLayout({
   children,

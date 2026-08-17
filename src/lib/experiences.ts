@@ -18,7 +18,8 @@ export interface ExperienceContent {
   includesEn?:     string[];
   notes:           string[];
   notesEn?:        string[];
-  seoDescription?: string;
+  seoDescription?:   string;
+  seoDescriptionEn?: string;
 }
 
 // 靜態備援（Sanity 尚未建立內容時使用）

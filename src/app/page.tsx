@@ -8,17 +8,20 @@ import TrustRow from "@/components/TrustRow";
 import { getFeaturedProducts } from "@/lib/products";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
 import { getTranslations, getLocale } from "next-intl/server";
-import { langAlternates, jsonLdString } from "@/lib/seo";
+import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-// canonical 需跟著當前語言，而 locale 只有在 request 期間才拿得到，
+// canonical 與文案都需跟著當前語言，而 locale 只有在 request 期間才拿得到，
 // 因此不能用靜態 metadata 物件（見 src/lib/seo.ts 的說明）。
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("home.meta");
+  const alternates = await langAlternates("/");
   return {
-    title: "霧抉茶 | 台灣嘉義阿里山梅山高山茶",
-    description: "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。從茶園到您手上，每一泡都是我們親手把關的好茶。",
-    alternates: await langAlternates("/"),
+    title: t("title"),
+    description: t("description"),
+    alternates,
+    openGraph: await openGraphFor("/", { title: t("title"), description: t("description") }),
   };
 }
 

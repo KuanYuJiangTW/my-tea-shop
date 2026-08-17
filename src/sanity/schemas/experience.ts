@@ -91,6 +91,13 @@ export const experienceSchema = defineType({
       type:  "text",
       rows:  3,
     }),
+    defineField({
+      name:  "seoDescriptionEn",
+      title: "SEO Description (EN)",
+      type:  "text",
+      rows:  3,
+      description: "留空時英文頁會退回使用 Tagline (EN)，不會顯示中文的 SEO 說明文字",
+    }),
   ],
   preview: {
     select: { title: "name", media: "coverImage" },

@@ -8,11 +8,26 @@ import ExperienceCalendar from "./ExperienceCalendar";
 import ExperienceReviews from "./ExperienceReviews";
 import ExperienceGallery from "./ExperienceGallery";
 import { getTranslations, getLocale } from "next-intl/server";
-import { langAlternates, jsonLdString } from "@/lib/seo";
+import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 
 export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
+
+// 體驗頁的描述文字，metadata 與 JSON-LD 共用同一份（兩邊不一致會讓爬蟲看到兩種說法）。
+//
+// **英文版必須優先讀英文欄位**：`seoDescription` 只有中文版，`seoDescriptionEn` 是
+// 2026-08-17 才加進 Sanity schema 的，舊資料多半留空。原本的寫法是
+// `content.seoDescription ?? (...)`，於是只要中文 SEO 欄位有填，英文頁的
+// description 就是中文——用 `||` 而非 `??` 是為了讓 Sanity 的空字串也往下退。
+function localizedDescription(
+  content: { seoDescription?: string; seoDescriptionEn?: string; tagline: string; taglineEn?: string },
+  isEn: boolean,
+): string {
+  return isEn
+    ? (content.seoDescriptionEn || content.taglineEn || content.tagline)
+    : (content.seoDescription || content.tagline);
+}
 
 export async function generateStaticParams() {
   const types = await getExperienceTypes();
@@ -29,19 +44,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // 會變成「茶藝體驗 | 霧抉茶體驗 | 霧抉茶」，品牌名重複佔掉標題長度。
   // 體驗名稱本身已含「體驗」二字，交給 template 收尾即可。
   const name        = (isEn && content.nameEn) ? content.nameEn : content.name;
-  const description = content.seoDescription ?? ((isEn && content.taglineEn) ? content.taglineEn : content.tagline);
+  const description = localizedDescription(content, isEn);
   const ogImage     = content.coverImage ?? "/images/gallery/tea-cup.jpg";
   const alternates  = await langAlternates(`/experiences/${slug}`);
   return {
     title:       name,
     description,
     alternates,
-    openGraph: {
-      title:       `${name} | 霧抉茶`,
+    openGraph: await openGraphFor(`/experiences/${slug}`, {
+      // og:title 不吃 title.template，品牌名由 openGraphFor 依語言接上
+      titleWithBrand: name,
       description,
-      url:         alternates.canonical,
       images: [{ url: ogImage, width: 1200, height: 630, alt: name }],
-    },
+    }),
   };
 }
 
@@ -81,7 +96,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
   const baseUrl     = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
   const pagePath    = `${isEn ? "/en" : ""}/experiences/${slug}`;
   const ldName      = isEn ? experience.nameEn : experience.name;
-  const ldDesc      = content.seoDescription ?? ((isEn && content.taglineEn) ? content.taglineEn : content.tagline);
+  const ldDesc      = localizedDescription(content, isEn);
   const ldImage     = imgSrc.startsWith("http") ? imgSrc : `${baseUrl}${imgSrc}`;
 
   const productJsonLd = {

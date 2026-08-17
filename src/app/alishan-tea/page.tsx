@@ -1,31 +1,43 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
-import { langAlternates, jsonLdString } from "@/lib/seo";
+import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 
+// metadata 的雙語文案跟本頁其他文案一起放在下方的 CONTENT，不進 messages/——
+// 這頁的長文本來就刻意留在檔內（見 CONTENT 上方註解），metadata 若拆去 messages/
+// 會讓同一頁的文案散在兩個地方，改文案的人得記得兩處。
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const m = CONTENT[locale === "en" ? "en" : "zh"].meta;
   const alternates = await langAlternates("/alishan-tea");
   return {
-    title: "阿里山高山茶指南｜梅山太興茶區",
-    description:
-      "阿里山茶區在哪裡？梅山茶跟阿里山茶有什麼不同？大阿里山茶區涵蓋梅山、竹崎、番路、阿里山鄉，其中梅山鄉種植面積最大。霧抉茶位於梅山太興，40年自產自銷阿里山高山烏龍、金萱與蜜香紅茶，並提供茶園體驗預約。",
-    keywords: [
-      "嘉義阿里山", "阿里山高山茶", "阿里山茶區", "阿里山茶推薦", "阿里山茶園體驗",
-      "梅山茶", "梅山鄉茶區", "太興村", "阿里山烏龍茶", "阿里山金萱",
-    ],
+    title: m.title,
+    description: m.description,
+    keywords: [...m.keywords],
     alternates,
-    openGraph: {
-      title: "阿里山高山茶指南｜梅山太興茶區 | 霧抉茶",
-      description: "認識大阿里山茶區與梅山鄉——阿里山高山茶種植面積最大的產地。霧抉茶 40 年自產自銷，茶園體驗線上預約。",
-      url: alternates.canonical,
-      images: [{ url: "/images/gallery/picking2.jpg", width: 1200, height: 630, alt: "阿里山茶區梅山太興採茶實景" }],
-    },
+    openGraph: await openGraphFor("/alishan-tea", {
+      title: m.ogTitle,
+      description: m.ogDescription,
+      images: [{ url: "/images/gallery/picking2.jpg", width: 1200, height: 630, alt: m.ogImageAlt }],
+    }),
   };
 }
 
 // 雙語內容（比照 experiences 的 zh/en 欄位模式，長文不進 messages/）
 const CONTENT = {
   zh: {
+    meta: {
+      title: "阿里山高山茶指南｜梅山太興茶區",
+      description:
+        "阿里山茶區在哪裡？梅山茶跟阿里山茶有什麼不同？大阿里山茶區涵蓋梅山、竹崎、番路、阿里山鄉，其中梅山鄉種植面積最大。霧抉茶位於梅山太興，40年自產自銷阿里山高山烏龍、金萱與蜜香紅茶，並提供茶園體驗預約。",
+      keywords: [
+        "嘉義阿里山", "阿里山高山茶", "阿里山茶區", "阿里山茶推薦", "阿里山茶園體驗",
+        "梅山茶", "梅山鄉茶區", "太興村", "阿里山烏龍茶", "阿里山金萱",
+      ],
+      ogTitle: "阿里山高山茶指南｜梅山太興茶區 | 霧抉茶",
+      ogDescription: "認識大阿里山茶區與梅山鄉——阿里山高山茶種植面積最大的產地。霧抉茶 40 年自產自銷，茶園體驗線上預約。",
+      ogImageAlt: "阿里山茶區梅山太興採茶實景",
+    },
     label: "ALISHAN TEA GUIDE",
     title: "阿里山高山茶指南",
     tagline: "從產區地圖認識阿里山茶，以及梅山太興——我們的茶園所在",
@@ -61,6 +73,19 @@ const CONTENT = {
     breadcrumbHome: "首頁",
   },
   en: {
+    // 逐句譯自上方 zh.meta，不新增任何中文版沒有的事實宣稱
+    meta: {
+      title: "Alishan High Mountain Tea Guide | Meishan Taixing Tea Region",
+      description:
+        "Where is the Alishan tea region? How is Meishan tea different from Alishan tea? The Greater Alishan tea region covers Meishan, Zhuqi, Fanlu and Alishan townships, and Meishan has the largest planted area of them all. Wu Jue Tea is in Taixing, Meishan — 40 years growing and selling our own Alishan high mountain oolong, Jin Xuan and honey black tea, with tea garden experiences bookable online.",
+      keywords: [
+        "Chiayi Alishan", "Alishan high mountain tea", "Alishan tea region", "Alishan tea recommendation", "Alishan tea garden experience",
+        "Meishan tea", "Meishan township tea region", "Taixing village", "Alishan oolong", "Alishan Jin Xuan",
+      ],
+      ogTitle: "Alishan High Mountain Tea Guide | Meishan Taixing Tea Region | Wu Jue Tea",
+      ogDescription: "Get to know the Greater Alishan tea region and Meishan — the township with the largest Alishan high mountain tea acreage. Wu Jue Tea: 40 years growing and selling our own, with tea garden experiences bookable online.",
+      ogImageAlt: "Tea picking in Taixing, Meishan, in the Alishan tea region",
+    },
     label: "ALISHAN TEA GUIDE",
     title: "Alishan High Mountain Tea Guide",
     tagline: "Understand the Alishan tea region — and Taixing, Meishan, where our farm is",

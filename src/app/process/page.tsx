@@ -2,37 +2,21 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
 import ProcessContent from "./ProcessContent";
-import { langAlternates, jsonLdString } from "@/lib/seo";
+import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 import { getProductFor, resolveSteps, teaProcesses } from "@/data/tea-process";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("process.meta");
   const alternates = await langAlternates("/process");
   return {
-    title: "製茶過程",
-    description:
-      "高山烏龍、金萱、四季春、蜜香紅茶、紅烏龍五款茶的完整製程對照。五款茶共用同一套前後段工序，差別只在中間的分歧段——炒菁擺在最前是烏龍、沒有炒菁是紅茶、擺在最後是紅烏龍。",
-    keywords: [
-      "製茶過程",
-      "台灣製茶工藝",
-      "高山茶製作",
-      "紅茶製程",
-      "球形紅茶",
-      "蜜香紅茶製作",
-      "紅烏龍",
-      "四季春",
-      "金萱",
-      "炒菁",
-      "布球團揉",
-      "焙火烘焙",
-      "嘉義茶葉",
-    ],
+    title: t("title"),
+    description: t("description"),
+    keywords: t.raw("keywords") as string[],
     alternates,
-    openGraph: {
-      title: "製茶過程 | 霧抉茶職人工藝",
-      description:
-        "五款茶走同一條路，只在中間分岔。看懂炒菁擺在哪裡，就看懂了台灣茶的分類。",
-      url: alternates.canonical,
-    },
+    openGraph: await openGraphFor("/process", {
+      title: t("ogTitle"),
+      description: t("ogDescription"),
+    }),
   };
 }
 

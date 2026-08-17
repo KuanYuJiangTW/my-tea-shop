@@ -4,18 +4,21 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { sanityFetch } from "@/sanity/client";
 import { ALL_FAQS_QUERY } from "@/sanity/queries";
 import FaqClient from "./FaqClient";
-import { langAlternates, jsonLdString } from "@/lib/seo";
+import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("faq.meta");
+  const alternates = await langAlternates("/faq");
   return {
     // 不要在頁面 title 寫品牌名：root layout 的 title.template 會接上「| 霧抉茶」，
     // 自己再寫一次會變成「常見問題 | 霧抉茶 | 霧抉茶」。openGraph.title 不吃 template，
     // 那裡才需要自己帶品牌名。
-    title: "常見問題",
-    description: "霧抉茶體驗預約常見問題解答，包含預約流程、退款政策、體驗內容與交通資訊。",
-    alternates: await langAlternates("/faq"),
+    title: t("title"),
+    description: t("description"),
+    alternates,
+    openGraph: await openGraphFor("/faq", { titleWithBrand: t("title"), description: t("description") }),
   };
 }
 

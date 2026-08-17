@@ -1,4 +1,4 @@
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 const EN_PREFIX = "/en";
 
@@ -31,6 +31,48 @@ export async function langAlternates(path: string) {
       "en": enPath,
       "x-default": zhPath,
     },
+  };
+}
+
+interface OgImage {
+  url:    string;
+  width:  number;
+  height: number;
+  alt:    string;
+}
+
+// **每個要宣告 openGraph 的頁面都必須用這個組**，不要自己寫 openGraph 物件。
+//
+// Next 的 metadata 是**淺層合併**：子頁一旦宣告 `openGraph`，root layout 那一整個
+// openGraph 物件就被取代，`type`／`locale`／`site_name` 會一起消失。
+// 2026-08-17 實測 production build，全站 `og:locale` 與 `og:site_name` 都不存在——
+// 有設 og 的 9 個頁面早就掉了，沒設的（首頁、FAQ）才靠繼承留著。
+//
+// 預設圖是品牌 OG 圖（app/opengraph-image.tsx）。**這裡一定要明確帶 images**：
+// 否則會退回 file convention，而那支檔案的 `export const alt` 是模組層常數、
+// 寫死中文，英文頁的 og:image:alt 就會是中文。
+// `title` 原樣使用；`titleWithBrand` 會接上當前語言的品牌名。
+// og:title 不吃 root layout 的 title.template，所以短標題（「FAQ」、「Privacy Policy」）
+// 直接當 og:title 會讓分享卡片看不出是誰的網站——這種頁面用 titleWithBrand。
+export async function openGraphFor(
+  path: string,
+  extra?: { title?: string; titleWithBrand?: string; description?: string; images?: OgImage[] },
+) {
+  const t = await getTranslations("siteMeta");
+  const locale = await getLocale();
+  const { titleWithBrand, ...rest } = extra ?? {};
+
+  const title = rest.title ?? (titleWithBrand ? `${titleWithBrand} | ${t("brand")}` : undefined);
+
+  return {
+    type: "website" as const,
+    locale: t("ogLocale"),
+    siteName: t("ogSiteName"),
+    // 與 canonical 同一個推導方式，兩者不會分岔
+    url: pathForLocale(path, locale),
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: t("ogImageAlt") }],
+    ...rest,
+    ...(title ? { title } : {}),
   };
 }
 

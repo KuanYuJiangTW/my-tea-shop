@@ -881,3 +881,55 @@ lint 0 error（36 warning 是既有債務）、build 成功。
   只能靠縮排或上下文，太脆；寧可不放一條會誤判的測試。
 - 待業主項目沿用上一節（商品照片、英文 metadata 文案、Merchant listing 運費退貨欄位、
   GSC 手動要求索引、lessons.md 精簡）。
+
+## 2026-08-17（續二）｜英文頁 metadata 雙語化
+
+- 業主指示把英文頁的 title／description 也改成雙語（上一節列為「待業主決定」的項目）。
+- **文案位置**：沿用既有慣例 `<namespace>.meta.{title,description}`（`webDesign.meta`
+  本來就是這個形狀）。10 個區塊進 `messages/{zh,en}.json`，另加新的 `siteMeta`
+  namespace 放 root layout 那層（品牌名、title.template、og:locale、og:site_name）。
+  `/alishan-tea` 例外——metadata 放進該頁既有的 `CONTENT.zh/en`，因為那頁的長文本來就
+  刻意不進 messages/，拆開會讓同一頁文案散在兩處。
+- **JSON 改寫方式**：先驗證 `JSON.parse → stringify(indent 2) → CRLF` round-trip
+  byte-identical，才用 Node 程式化插入，diff 是純新增（226 insertions / 4 deletions，
+  那 4 個 deletion 是結尾大括號多了逗號）。
+- **英文文案一律逐句譯自中文版，不新增任何中文版沒有的事實宣稱**（產地、年數、品項、
+  電話都照原文；依 lessons.md 2026-07-30 那條）。`title.template` 英文版用
+  `%s | Wu Jue Tea`、`og:locale` 用 `en_US`。
+
+### 途中發現並修掉的兩件事（都不是這次改動造成的）
+1. **`og:type`／`og:locale`／`og:site_name` 全站都沒輸出**。Next 的 metadata 是
+   **淺層合併**：子頁一旦宣告 `openGraph`，root layout 那整個物件就被取代。
+   有設 og 的 9 個頁面早就掉了這三個欄位；沒設的（首頁、FAQ）才靠繼承留著——而我這輪
+   給它們加了 `openGraph: { url }`，等於把僅存的兩頁也弄掉了。
+   → 抽出 `openGraphFor(path, extra)`（`src/lib/seo.ts`），**所有宣告 og 的頁面一律
+   用它組**，type／locale／siteName／url／images 由它統一給。現在 13 個頁面都有。
+2. **`og:image:alt` 在英文頁是中文**。`app/opengraph-image.tsx` 的 `export const alt`
+   是模組層常數、寫死中文，頁面沒有明確帶 images 時會退回 file convention 用它。
+   → `openGraphFor` 一律明確帶 images（alt 讀 `siteMeta.ogImageAlt`）。
+3. **`og:title` 少了品牌名**：og:title 不吃 `title.template`，faq／privacy／
+   return-policy 的 og:title 會只剩「FAQ」這種短字串，分享卡片看不出是誰的網站。
+   → `openGraphFor` 加 `titleWithBrand` 選項，由它依語言接上品牌名。
+4. **`seoDescription` 只有中文版**：體驗頁原本 `content.seoDescription ?? (...)`，
+   只要中文 SEO 欄位有填，英文頁的 description 就是中文。補 Sanity 欄位
+   `seoDescriptionEn`（留空會退回 Tagline (EN)）、GROQ 兩處查詢、interface，
+   並抽出 `localizedDescription()` 讓 metadata 與 JSON-LD 共用同一份。
+
+### 驗證
+- 改用 **production build（`next start`）驗 metadata**，不用 dev server：dev 期間
+  `next/font/google` 去 fonts.gstatic.com 下載偶爾失敗，整頁變 500（本次就踩到，
+  但 `npm run build` 正常，證明是 dev 的暫時性網路問題不是程式）。已在
+  `.claude/launch.json` 加 `prod` 設定，之後驗 SEO 輸出都用它。
+- 實測 14 個網址：title／description／og:title／og:locale／og:site_name／og:image:alt
+  在 zh／en 各自正確；`/en/*` 全為英文，`og:locale` 為 `en_US`。
+- 新增測試 `metadata-bilingual.test.ts`（43 條）：zh／en 的 meta 區塊必須成對且 key 一致、
+  en 不得含中日韓字元、zh 必須含中文（防貼反）、title.template 與 og:locale 各自成立、
+  `/alishan-tea` 的檔內 meta 也要雙語齊備。
+  **反向驗證**：把 en 的 `about.meta.title` 換回中文 → 1 條轉紅；刪掉 en 的 `faq.meta`
+  → 2 條轉紅；還原後 43 條全綠。
+- `/verify` 四項全過：57 檔／758 測試、tsc 0、lint 0 error（36 warning 未增加）、build 成功。
+
+### 仍未做
+- Merchant listing 的 `hasMerchantReturnPolicy`／`shippingDetails`（沿用上一節理由）
+- 商品照片（紅烏龍茶、四季春）
+- `lessons.md` 精簡（已 34 條）

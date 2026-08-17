@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
-import { langAlternates } from "@/lib/seo";
+import { langAlternates, openGraphFor } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("webDesignCase.meta");
@@ -10,11 +10,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("title"),
     description: t("description"),
     alternates,
-    openGraph: {
+    openGraph: await openGraphFor("/web-design/case", {
       title: t("title"),
       description: t("description"),
-      url: alternates.canonical,
-    },
+    }),
   };
 }
 

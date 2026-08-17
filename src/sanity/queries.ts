@@ -13,7 +13,8 @@ export const ALL_EXPERIENCES_QUERY = `
     includesEn,
     notes,
     notesEn,
-    seoDescription
+    seoDescription,
+    seoDescriptionEn
   }
 `;
 
@@ -46,6 +47,7 @@ export const EXPERIENCE_BY_SLUG_QUERY = `
     includesEn,
     notes,
     notesEn,
-    seoDescription
+    seoDescription,
+    seoDescriptionEn
   }
 `;
