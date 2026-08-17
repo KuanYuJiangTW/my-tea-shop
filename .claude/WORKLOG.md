@@ -857,3 +857,27 @@ lint 0 error（36 warning 是既有債務）、build 成功。
    寫錯比不寫傷害大；建議連同商品獨立頁（openspec 5.4 `/products/[slug]`）一起做，
    那也是「五筆商品共用同一個 url」的真正解法。
 6. `lessons.md` 已 32 條，**超過 MAINT-4 的 30 條門檻**，下次該走 MAINT-3 開精簡任務。
+
+## 2026-08-17（續）｜合併上線與線上驗收
+
+- **已合併並部署到 production**（`2303bc8` merge → `5f3d244` 空 commit → `bdc9aa1`）。
+- **踩到一次部署沒被觸發**：`2303bc8` push 上 main 後 Vercel 完全沒產生部署，
+  Production 標記仍在前一個 `9afdf15`。確認不是快取（`x-vercel-cache: MISS`、
+  `age: 0`、`cf-cache-status: DYNAMIC`），也不是失敗——清單裡根本沒有那筆。
+  推空 commit `5f3d244` 重新觸發後約 6 分鐘上線。後續 `bdc9aa1` 約 3 分鐘正常上線，
+  所以是單次 webhook 漏接。教訓已記進 lessons.md。
+- **線上驗收（production 實測，非本機）**：
+  - 後台守衛：`/admin/dashboard` 與 `/en/admin/dashboard` 皆 307 導回各自登入頁；
+    `/api/admin/orders`、`/en/api/admin/orders` 皆 401；`/admin`、`/en/admin` 維持 200
+  - canonical：7 個網址全部 self-canonical，`/en/*` 不再指回中文頁，x-default 皆指 zh-TW
+  - robots.txt：只剩 `Disallow: /api/`，`Content-Signal` 與 AI 爬蟲群組完好
+  - noindex：`/cart`、`/auth/login`、`/auth/register` 的 zh／en 皆 `noindex, nofollow`；
+    `/products` zh／en 維持 `index, follow`
+  - 商品 JSON-LD：兩語言各 3 筆、缺圖 0 筆，`/en/products` 的 url 帶 `/en` 前綴
+- **`bdc9aa1` 補修**：線上驗收時才發現 `/en/faq` 標題是「常見問題 | 霧抉茶 | 霧抉茶」。
+  root template 已會接品牌名，faq／experiences／admin-layout 三處又自己寫了一次。
+  其餘含品牌名的 title 都是 `openGraph.title`（不吃 template），未動。
+  **刻意沒加靜態掃描測試**：原始碼層要可靠分辨「頁面 title」與「openGraph.title」
+  只能靠縮排或上下文，太脆；寧可不放一條會誤判的測試。
+- 待業主項目沿用上一節（商品照片、英文 metadata 文案、Merchant listing 運費退貨欄位、
+  GSC 手動要求索引、lessons.md 精簡）。
