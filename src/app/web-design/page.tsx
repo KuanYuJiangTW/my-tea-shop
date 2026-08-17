@@ -6,14 +6,15 @@ import { langAlternates } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("webDesign.meta");
+  const alternates = await langAlternates("/web-design");
   return {
     title: t("title"),
     description: t("description"),
-    alternates: langAlternates("/web-design"),
+    alternates,
     openGraph: {
       title: t("title"),
       description: t("description"),
-      url: "/web-design",
+      url: alternates.canonical,
     },
   };
 }

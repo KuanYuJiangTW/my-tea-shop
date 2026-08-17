@@ -5,17 +5,20 @@ import PhotoGallery from "./PhotoGallery";
 import { getLocale, getTranslations } from "next-intl/server";
 import { langAlternates } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "關於我們",
-  description: "霧抉茶源自嘉義阿里山梅山山區，一家三口在高山茶園耕耘超過40年。自產自銷、手工製作，每一泡茶都是我們用時間和心意累積的風味。",
-  keywords: ["霧抉茶品牌故事", "阿里山梅山茶農", "嘉義阿里山茶", "台灣自產自銷茶", "40年製茶經驗"],
-  alternates: langAlternates("/about"),
-  openGraph: {
-    title: "關於霧抉茶 | 阿里山梅山一家三口的茶園故事",
-    description: "霧抉茶源自嘉義阿里山梅山山區，一家三口在高山茶園耕耘超過40年。自產自銷、手工製作。",
-    url: "/about",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const alternates = await langAlternates("/about");
+  return {
+    title: "關於我們",
+    description: "霧抉茶源自嘉義阿里山梅山山區，一家三口在高山茶園耕耘超過40年。自產自銷、手工製作，每一泡茶都是我們用時間和心意累積的風味。",
+    keywords: ["霧抉茶品牌故事", "阿里山梅山茶農", "嘉義阿里山茶", "台灣自產自銷茶", "40年製茶經驗"],
+    alternates,
+    openGraph: {
+      title: "關於霧抉茶 | 阿里山梅山一家三口的茶園故事",
+      description: "霧抉茶源自嘉義阿里山梅山山區，一家三口在高山茶園耕耘超過40年。自產自銷、手工製作。",
+      url: alternates.canonical,
+    },
+  };
+}
 
 const valueKeys = ["selfGrown", "heritage", "region", "delivery"] as const;
 const teaKeys   = ["oolong", "jinxuan", "black", "redOolong", "sijichun"] as const;

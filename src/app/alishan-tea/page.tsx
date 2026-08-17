@@ -3,22 +3,25 @@ import Link from "next/link";
 import { getLocale } from "next-intl/server";
 import { langAlternates, jsonLdString } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "阿里山高山茶指南｜梅山太興茶區",
-  description:
-    "阿里山茶區在哪裡？梅山茶跟阿里山茶有什麼不同？大阿里山茶區涵蓋梅山、竹崎、番路、阿里山鄉，其中梅山鄉種植面積最大。霧抉茶位於梅山太興，40年自產自銷阿里山高山烏龍、金萱與蜜香紅茶，並提供茶園體驗預約。",
-  keywords: [
-    "嘉義阿里山", "阿里山高山茶", "阿里山茶區", "阿里山茶推薦", "阿里山茶園體驗",
-    "梅山茶", "梅山鄉茶區", "太興村", "阿里山烏龍茶", "阿里山金萱",
-  ],
-  alternates: langAlternates("/alishan-tea"),
-  openGraph: {
-    title: "阿里山高山茶指南｜梅山太興茶區 | 霧抉茶",
-    description: "認識大阿里山茶區與梅山鄉——阿里山高山茶種植面積最大的產地。霧抉茶 40 年自產自銷，茶園體驗線上預約。",
-    url: "/alishan-tea",
-    images: [{ url: "/images/gallery/picking2.jpg", width: 1200, height: 630, alt: "阿里山茶區梅山太興採茶實景" }],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const alternates = await langAlternates("/alishan-tea");
+  return {
+    title: "阿里山高山茶指南｜梅山太興茶區",
+    description:
+      "阿里山茶區在哪裡？梅山茶跟阿里山茶有什麼不同？大阿里山茶區涵蓋梅山、竹崎、番路、阿里山鄉，其中梅山鄉種植面積最大。霧抉茶位於梅山太興，40年自產自銷阿里山高山烏龍、金萱與蜜香紅茶，並提供茶園體驗預約。",
+    keywords: [
+      "嘉義阿里山", "阿里山高山茶", "阿里山茶區", "阿里山茶推薦", "阿里山茶園體驗",
+      "梅山茶", "梅山鄉茶區", "太興村", "阿里山烏龍茶", "阿里山金萱",
+    ],
+    alternates,
+    openGraph: {
+      title: "阿里山高山茶指南｜梅山太興茶區 | 霧抉茶",
+      description: "認識大阿里山茶區與梅山鄉——阿里山高山茶種植面積最大的產地。霧抉茶 40 年自產自銷，茶園體驗線上預約。",
+      url: alternates.canonical,
+      images: [{ url: "/images/gallery/picking2.jpg", width: 1200, height: 630, alt: "阿里山茶區梅山太興採茶實景" }],
+    },
+  };
+}
 
 // 雙語內容（比照 experiences 的 zh/en 欄位模式，長文不進 messages/）
 const CONTENT = {

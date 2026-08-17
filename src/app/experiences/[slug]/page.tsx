@@ -23,17 +23,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug }    = await params;
   const content     = await getExperienceContent(slug);
   if (!content) return {};
-  const description = content.seoDescription ?? content.tagline;
+  const locale      = await getLocale();
+  const isEn        = locale === "en";
+  // root layout 的 title.template 已經會接上「| 霧抉茶」，這裡再寫一次
+  // 會變成「茶藝體驗 | 霧抉茶體驗 | 霧抉茶」，品牌名重複佔掉標題長度。
+  // 體驗名稱本身已含「體驗」二字，交給 template 收尾即可。
+  const name        = (isEn && content.nameEn) ? content.nameEn : content.name;
+  const description = content.seoDescription ?? ((isEn && content.taglineEn) ? content.taglineEn : content.tagline);
   const ogImage     = content.coverImage ?? "/images/gallery/tea-cup.jpg";
+  const alternates  = await langAlternates(`/experiences/${slug}`);
   return {
-    title:       `${content.name} | 霧抉茶體驗`,
+    title:       name,
     description,
-    alternates:  langAlternates(`/experiences/${slug}`),
+    alternates,
     openGraph: {
-      title:       `${content.name} | 霧抉茶體驗`,
+      title:       `${name} | 霧抉茶`,
       description,
-      url:         `/experiences/${slug}`,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: content.name }],
+      url:         alternates.canonical,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: name }],
     },
   };
 }
@@ -93,7 +100,8 @@ export default async function ExperienceDetailPage({ params }: Props) {
       "priceCurrency": "TWD",
       "availability": "https://schema.org/InStock",
       "url": `${baseUrl}${pagePath}`,
-      "seller": { "@id": `${baseUrl}/#business` },
+      // 光給 @id 是懸空參照（LocalBusiness 節點定義在首頁），補上 @type 與 name
+      "seller": { "@type": "Organization", "@id": `${baseUrl}/#business`, "name": "霧抉茶 Wu Jue Tea" },
     },
   };
 
