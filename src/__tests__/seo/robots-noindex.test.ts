@@ -130,4 +130,14 @@ describe("sitemap 與 robots.txt 不得互相矛盾", () => {
     expect(paths).toContain("/en/products");
     expect(paths).toContain("/en/experiences/tea-ceremony");
   });
+
+  it("sitemap 的 hreflang 叢集含 x-default，與 HTML head 一致", async () => {
+    // 兩邊給不同的叢集會讓 Google 收到互相矛盾的語言對應（見 src/lib/seo.ts）
+    for (const entry of await sitemap()) {
+      const langs = entry.alternates?.languages ?? {};
+      expect(Object.keys(langs).sort(), `${entry.url} 的 hreflang 不完整`)
+        .toEqual(["en", "x-default", "zh-TW"]);
+      expect(langs["x-default"]).toBe(langs["zh-TW"]);
+    }
+  });
 });

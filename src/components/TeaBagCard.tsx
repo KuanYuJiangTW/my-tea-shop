@@ -4,6 +4,7 @@ import Image from "next/image";
 import type { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
+import { useLocale } from "next-intl";
 
 interface Props {
   product: Product;
@@ -12,6 +13,11 @@ interface Props {
 export default function TeaBagCard({ product }: Props) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
+  const locale = useLocale();
+
+  // 只用於 alt。購物車的商品名維持合成規則（`${product.name} 茶包組`），
+  // 那條不能改成 nameEn——會讓兩個規格在購物車裡同名（lessons.md 2026-08-11）。
+  const altName = locale === "en" ? (product.nameEn || product.name) : product.name;
 
   if (!product.priceTeaBag) return null;
 
@@ -35,7 +41,7 @@ export default function TeaBagCard({ product }: Props) {
         {product.image ? (
           <Image
             src={product.image}
-            alt={product.name}
+            alt={altName}
             fill
             sizes="144px"
             className="object-cover opacity-60"

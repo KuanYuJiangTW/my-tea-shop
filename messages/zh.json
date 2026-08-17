@@ -151,7 +151,9 @@
     "meta": {
       "title": "霧抉茶 | 台灣嘉義阿里山梅山高山茶",
       "description": "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山烏龍茶、金萱茶、紅茶、四季春。從茶園到您手上，每一泡都是我們親手把關的好茶。"
-    }
+    },
+    "heroImageAlt": "阿里山梅山採茶實景",
+    "craftImageAlt": "做茶實景"
   },
   "products": {
     "pageTitle": "茶葉系列",
@@ -224,7 +226,9 @@
       ],
       "ogTitle": "茶葉系列 | 霧抉茶",
       "ogDescription": "嚴選嘉義阿里山梅山高山烏龍茶、金萱茶等台灣頂級茶葉，品質親手把關。"
-    }
+    },
+    "imageAltSecond": "{name} 第二張",
+    "zoomLabel": "放大查看 {name}"
   },
   "experiences": {
     "pageTitle": "茶山體驗",

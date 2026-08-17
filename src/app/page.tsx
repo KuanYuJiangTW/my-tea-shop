@@ -106,7 +106,7 @@ export default async function HomePage() {
       <section className="relative min-h-[100svh] flex items-center overflow-hidden">
         <Image
           src="/images/gallery/picking2.jpg"
-          alt="阿里山梅山採茶實景"
+          alt={t("heroImageAlt")}
           fill
           priority
           className="object-cover"
@@ -210,7 +210,7 @@ export default async function HomePage() {
               <div className="relative h-64 sm:h-80 md:h-[420px] lg:h-full lg:min-h-[480px] rounded-card overflow-hidden">
                 <Image
                   src="/images/gallery/flipped.jpg"
-                  alt="做茶實景"
+                  alt={t("craftImageAlt")}
                   fill
                   className="object-cover"
                 />

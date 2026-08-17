@@ -151,7 +151,9 @@
     "meta": {
       "title": "Wu Jue Tea | Taiwan Alishan Meishan High Mountain Tea",
       "description": "In Meishan, Alishan, Chiayi — a family of three, 40 years of dedication, growing and selling our own Taiwanese high mountain oolong, Jin Xuan, black tea and Four Seasons Spring. From our tea garden to your hands, every cup is one we made ourselves."
-    }
+    },
+    "heroImageAlt": "Tea picking at our farm in Meishan, Alishan",
+    "craftImageAlt": "Crafting tea by hand"
   },
   "products": {
     "pageTitle": "Tea Collection",
@@ -224,7 +226,9 @@
       ],
       "ogTitle": "Tea Collection | Wu Jue Tea",
       "ogDescription": "Hand-selected Taiwanese teas — Alishan Meishan high mountain oolong, Jin Xuan and more, with quality checked by our own hands."
-    }
+    },
+    "imageAltSecond": "{name}, second photo",
+    "zoomLabel": "View larger image of {name}"
   },
   "experiences": {
     "pageTitle": "Tea Experiences",

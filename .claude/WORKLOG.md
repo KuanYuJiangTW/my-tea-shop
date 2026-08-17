@@ -933,3 +933,53 @@ lint 0 error（36 warning 是既有債務）、build 成功。
 - Merchant listing 的 `hasMerchantReturnPolicy`／`shippingDetails`（沿用上一節理由）
 - 商品照片（紅烏龍茶、四季春）
 - `lessons.md` 精簡（已 34 條）
+
+## 2026-08-18｜要求索引前的最後三項（圖片 alt、Article 參照、sitemap x-default）
+
+業主問「重新到 GSC 要求索引前還有什麼要改的」。實掃線上狀態後找到 3 項值得先修、
+5 項建議不動。
+
+### 修掉的三項
+1. **英文頁的圖片 `alt` 是中文**（含寫死的「第二張」「放大查看」）。alt 是 Google
+   圖片搜尋與螢幕閱讀器唯一的文字來源，英文頁塞中文等於兩者都拿到錯的語言。
+   **這不是缺文案而是接線沒接上**：`nameEn` 早就有，`ProductLightbox` 自己在圖說
+   那裡已經在用 `productNameEn`，只有 `alt` 還讀中文欄位。
+   改了 `ProductCard`、`TeaBagCard`、`ProductLightbox`、`ExperienceGallery`、
+   `experiences/page.tsx`、`experiences/[slug]/page.tsx`、`page.tsx`（hero 兩張）。
+   新增 4 個翻譯鍵（`products.imageAltSecond`／`zoomLabel`、`home.heroImageAlt`／
+   `craftImageAlt`）。
+   **刻意不碰購物車的商品名合成規則**（`${product.name} 茶包組`）——改成 nameEn 會讓
+   兩個規格在購物車同名，見 lessons.md 2026-08-11。
+2. **`/alishan-tea` 的 Article `author`／`publisher` 是懸空 `@id`**。Google 的 Article
+   規範要求 author 有 name。這是 2026-08-17 修 `seller` 時漏掉的同一類問題。
+3. **sitemap 缺 `x-default`**（HTML head 已有）。兩邊給不同的 hreflang 叢集會讓
+   Google 收到矛盾的語言對應。36 筆全部補上。
+
+### 建議不動的五項（已向業主說明理由）
+- 中文品名出現在英文卡片上是**刻意的雙語設計**（英文 `<h3>` + 中文斜體副標），不是 bug
+- 中文顧客評價與評價者姓名留著——真實 UGC，翻譯等於偽造評價（`/en/products` 那
+  157 個中文字元幾乎全是這個）
+- footer「© 2026 霧抉茶 Wu Jue Tea」中英並列，刻意
+- sitemap 的 `lastmod` 36 筆同值（build 時間）：不是錯誤，Google 對不可靠的 lastmod
+  會直接忽略，靜態頁也沒有更真實的時間戳，投入產出不划算
+- 寫死中文的 `aria-label`（約 14 處）是無障礙問題**不影響索引**，另外排；
+  其中「切換為中文」本來就該是中文（它是切換到中文的按鈕）
+
+### 驗證
+- production build 實測 7 個英文頁：**中文 alt 歸零**（修前 `/en` 有 8 個、
+  `/en/products` 6 個、tea-ceremony 1 個半中半英的「茶藝體驗 Gallery 1」）。
+  `aria-label` 剩 2–13 個中文，全是上面刻意不動的那批。
+- Article 的 author／publisher 在 zh／en 皆為 `@type=Organization` 且有 name。
+- sitemap 36 筆的 hreflang 皆為 zh-TW／en／x-default 三鍵齊全。
+- 新增 `image-alt.test.ts`（8 條）：掃 `src/app`＋`src/components` 的 `alt` **字面值**
+  不得含中文（排除 admin／studio）、已知三處確實改用翻譯鍵、翻譯鍵 zh/en 齊備且
+  `{name}` 佔位符保留。`robots-noindex.test.ts` 加一條 sitemap x-default 不變量。
+- **反向驗證（第二次才有效）**：第一次用 `node -e` 做突變，PowerShell 把引號吃掉
+  導致檔案根本沒被改、測試全綠——**那是無效對照組**。改用暫存腳本並以
+  `git diff --stat` 證明檔案真的變了之後：退回 hero alt → 2 條轉紅；
+  移除 sitemap x-default → 1 條轉紅；還原後 94 條全綠。教訓已記進 lessons.md。
+- **build 的假警報**：本輪 build 曾兩次失敗在 `next/font/google` 抓不到
+  fonts.gstatic.com。依 JUDG-5 用 `git stash` 做對照——實驗組 fail／fail／**success**、
+  對照組 success／success。**同一份工作樹既失敗也成功過**，證明是該下載不穩定而非
+  程式問題。最終 build 成功。
+- 測試 58 檔／767、tsc 0、lint 0 error（36 warning 未增加）、build 成功。

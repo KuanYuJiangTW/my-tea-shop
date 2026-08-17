@@ -65,7 +65,7 @@ export default async function ExperiencesPage() {
                 <div className="relative h-56 md:h-64 overflow-hidden">
                   <Image
                     src={imgSrc}
-                    alt={exp.name}
+                    alt={locale === "en" ? (exp.nameEn || exp.name) : exp.name}
                     fill
                     {...(isExternal ? {} : {})}
                     className="object-cover group-hover:scale-105 transition-transform duration-500"

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import ProductLightbox, { type LightboxPhoto } from "@/components/ProductLightbox";
 
 export default function ExperienceGallery({
@@ -16,6 +16,11 @@ export default function ExperienceGallery({
 }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const t = useTranslations("experiences");
+  const locale = useLocale();
+
+  // galleryAlt 的模板本身是雙語的，但塞進去的 name 也得跟著語言換——
+  // 否則英文頁會輸出「茶藝體驗 Gallery 1」這種半中半英的 alt。
+  const altName = locale === "en" ? (nameEn || name) : name;
 
   const photos: LightboxPhoto[] = gallery.map((src) => ({
     src,
@@ -46,7 +51,7 @@ export default function ExperienceGallery({
             >
               <Image
                 src={url}
-                alt={t("galleryAlt", { name, index: idx + 1 })}
+                alt={t("galleryAlt", { name: altName, index: idx + 1 })}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 160px"
                 className="object-cover"

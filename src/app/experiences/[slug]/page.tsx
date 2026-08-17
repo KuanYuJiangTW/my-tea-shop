@@ -142,7 +142,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
       />
       {/* Hero */}
       <div className="relative h-64 md:h-96 overflow-hidden">
-        <Image src={imgSrc} alt={experience.name} fill priority className="object-cover" />
+        <Image src={imgSrc} alt={ldName} fill priority className="object-cover" />
         <div className="absolute inset-0 bg-tea-text/45" />
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 w-full">

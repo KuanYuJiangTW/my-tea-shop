@@ -141,8 +141,11 @@ export default async function AlishanTeaPage() {
     "inLanguage": isEn ? "en" : "zh-TW",
     "image": `${baseUrl}/images/gallery/picking2.jpg`,
     "mainEntityOfPage": `${baseUrl}${pagePath}`,
-    "author": { "@id": `${baseUrl}/#business` },
-    "publisher": { "@id": `${baseUrl}/#business` },
+    // Google 的 Article 規範要求 author 有 name。光給 @id 是懸空參照——
+    // LocalBusiness 節點定義在首頁，只讀這一頁的爬蟲解析不出這是什麼。
+    // 與體驗頁、商品頁的 seller 同一個修法（2026-08-17 漏掉這兩個）。
+    "author": { "@type": "Organization", "@id": `${baseUrl}/#business`, "name": "霧抉茶 Wu Jue Tea" },
+    "publisher": { "@type": "Organization", "@id": `${baseUrl}/#business`, "name": "霧抉茶 Wu Jue Tea" },
   };
 
   const breadcrumbJsonLd = {

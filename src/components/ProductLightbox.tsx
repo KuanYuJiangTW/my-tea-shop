@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import { useLocale } from "next-intl";
 
 export type LightboxPhoto = {
   src: string;
@@ -21,6 +22,12 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
   const photo = photos[index];
   const total = photos.length;
   const touchStartX = useRef<number | null>(null);
+  const locale = useLocale();
+
+  // 標題區刻意雙語（中文為主、英文為副標，與商品卡一致），但 alt 只能有一種語言，
+  // 要跟著當前語言走——Google 圖片搜尋與螢幕閱讀器讀的是它。
+  const altOf = (p: LightboxPhoto) =>
+    locale === "en" ? (p.productNameEn || p.productName) : p.productName;
 
   // 鎖定 body 捲動
   useEffect(() => {
@@ -107,7 +114,7 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
           <Image
             key={photo.src}
             src={photo.src}
-            alt={photo.productName}
+            alt={altOf(photo)}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 85vw, 75vw"
             className="object-contain"
@@ -149,7 +156,7 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
                 }`}
                 aria-label={`跳到第 ${i + 1} 張`}
               >
-                <Image src={p.src} alt={p.productName} fill sizes="56px" className="object-cover" />
+                <Image src={p.src} alt={altOf(p)} fill sizes="56px" className="object-cover" />
               </button>
             ))}
           </div>

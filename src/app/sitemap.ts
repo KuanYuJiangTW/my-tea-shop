@@ -29,7 +29,10 @@ function localizedEntries(
 ): MetadataRoute.Sitemap {
   const zhUrl = `${baseUrl}${path}` || baseUrl;
   const enUrl = `${baseUrl}/en${path}`;
-  const languages = { "zh-TW": zhUrl, en: enUrl };
+  // x-default 指向 zh-TW（預設語言），與各頁 HTML head 的 hreflang 叢集一致——
+  // 兩邊給不同的叢集內容會讓 Google 收到互相矛盾的語言對應。
+  // 見 src/lib/seo.ts 的 langAlternates。
+  const languages = { "zh-TW": zhUrl, en: enUrl, "x-default": zhUrl };
 
   return [
     { url: zhUrl, lastModified, changeFrequency, priority, alternates: { languages } },

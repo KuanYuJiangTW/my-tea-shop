@@ -102,6 +102,12 @@ export default function ProductCard({ product }: { product: Product }) {
   const allSoldOut      = variants.every((v) => v.stock === 0);
   const maxQty          = selected.stock !== undefined ? Math.min(selected.stock, 99) : 99;
 
+  // 圖片的 alt／aria-label 用當前語言的品名。**不要用 product.name**：
+  // 卡片標題本來就是雙語（英文當標題、中文當斜體副標），但 alt 是給 Google 圖片
+  // 搜尋與螢幕閱讀器讀的單一字串，英文頁塞中文品名等於這兩者都拿到錯的語言。
+  // 購物車的商品名另有合成規則（見 lessons.md 2026-08-11），這裡刻意不碰。
+  const altName = locale === "en" ? (product.nameEn || product.name) : product.name;
+
   // Lightbox
   const photos: LightboxPhoto[] = [];
   if (product.image)  photos.push({ src: product.image,  productName: product.name, productNameEn: product.nameEn });
@@ -143,20 +149,20 @@ export default function ProductCard({ product }: { product: Product }) {
           className={`h-56 bg-gradient-to-br ${product.color} relative overflow-hidden flex-shrink-0 ${product.image ? "cursor-zoom-in" : ""}`}
           onClick={() => product.image && open()}
           role={product.image ? "button" : undefined}
-          aria-label={product.image ? `放大查看 ${product.name}` : undefined}
+          aria-label={product.image ? t("zoomLabel", { name: altName }) : undefined}
         >
           {product.image ? (
             <>
               <Image
                 src={product.image}
-                alt={product.name}
+                alt={altName}
                 fill
                 className={`object-cover transition-opacity duration-reveal ease-standard ${product.image2 ? "group-hover:opacity-0" : ""}`}
               />
               {product.image2 && (
                 <Image
                   src={product.image2}
-                  alt={`${product.name} 第二張`}
+                  alt={t("imageAltSecond", { name: altName })}
                   fill
                   className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-reveal ease-standard"
                 />
