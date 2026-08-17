@@ -11,7 +11,8 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   const alternates = await langAlternates("/experiences");
   return {
-    title: "茶山體驗 | 霧抉茶",
+    // 品牌名交給 root layout 的 title.template 接，這裡不重複寫（見 faq/page.tsx 註解）
+    title: "茶山體驗",
     description: "親身走入嘉義阿里山梅山茶園，體驗茶藝、烤茶、採茶、紅茶製作與淺漬茶果酒，感受從茶葉到生活的每一個細節。",
     alternates,
     openGraph: {
