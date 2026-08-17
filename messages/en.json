@@ -73,6 +73,15 @@
       "standard": "Standard",
       "silver": "Silver",
       "gold": "Gold"
+    },
+    "a11y": {
+      "prevPhoto": "Previous photo",
+      "nextPhoto": "Next photo",
+      "goToPhoto": "Go to photo {index}",
+      "openLargeImage": "Open larger image: {caption}",
+      "decreaseQuantity": "Decrease quantity",
+      "increaseQuantity": "Increase quantity",
+      "remove": "Remove"
     }
   },
   "home": {

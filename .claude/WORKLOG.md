@@ -983,3 +983,41 @@ lint 0 error（36 warning 是既有債務）、build 成功。
   對照組 success／success。**同一份工作樹既失敗也成功過**，證明是該下載不穩定而非
   程式問題。最終 build 成功。
 - 測試 58 檔／767、tsc 0、lint 0 error（36 warning 未增加）、build 成功。
+
+## 2026-08-18（續）｜aria-label 的中文也修掉
+
+業主指示連無障礙標籤一起處理（上一節列為「不影響索引、另外排」的那批）。
+
+- **新增 `common.a11y`**（7 鍵：prevPhoto／nextPhoto／goToPhoto／openLargeImage／
+  decreaseQuantity／increaseQuantity／remove）。**close 不放這裡**——
+  `common.buttons.close` 已經有了，一條規則只有一個家（MAINT-3）。
+  `menu` 也是沿用既有的 `common.menu`。
+- 改了 13 處：`Header`、`ProductLightbox`（4）、`ProductCard`（2）、
+  `cart/CartClient`（2）、`about/PhotoGallery`（5，其中 `openLargeImage` 帶 caption 參數）。
+- **`LanguageSwitcher` 刻意不改**：「切換為中文」配「中文」鈕、「Switch to English」
+  配「EN」鈕——**每個標籤用它的目標語言**是語言切換器的標準做法，不是漏翻。
+  已寫進測試的例外名單，並附一條「名單裡的字串必須還存在」防止它腐爛成免死金牌。
+- **踩到的坑**：hooks 一開始插進 `usePhotos()`（那是回傳資料的 hook，不是元件），
+  tsc 報 5 個 `Cannot find name 'ta'`。PhotoGallery 一檔內有三個元件，
+  aria-label 分別在 `GalleryCell` 與 `Lightbox`，hooks 要各自插。
+
+### 驗證
+- production build 實測：英文頁的中文 aria-label 從 2–13 個降到 **只剩「切換為中文」
+  那一個刻意的例外**；中文頁不受影響（仍是「關閉公告」「選單」「放大查看 …」）。
+  英文頁樣本：`Dismiss announcement`／`Menu`／`View larger image of Ali Shan High
+  Mountain Oolong`。
+- `image-alt.test.ts` 擴充為同時掃 `alt` 與 `aria-label` 的**字面值**（12 條），
+  並驗 `common.a11y` 7 鍵雙語齊備、`{index}`／`{caption}` 佔位符兩邊都保留。
+- **反向驗證**：退回 Header 的 `aria-label={t("menu")}` → 1 條轉紅。
+  這次先確認突變真的生效才看紅綠：突變腳本找不到目標字串就 `throw`，
+  且 `git diff --stat` 從「1 insertion/1 deletion」變成空（因為突變把檔案改回 HEAD
+  的舊狀態）、還原後又變回來——diff 的方向與預期相反但邏輯正確。
+- 58 檔／771 測試、tsc 0、lint 0 error（36 warning 未增加）、build 成功。
+
+### 順帶掃到、**未處理**的一項（需要業主決定）
+`src/app/account/bookings/[id]/participants/page.tsx` **整頁沒有翻譯**——
+它 import 了 `useLocale` 但 11 處 UI 文案全是寫死中文（驗證錯誤訊息、placeholder、
+送出按鈕）。這是會員預約後填寫參加者資料的頁面，noindex 不影響 SEO，但**英文客人
+訂了體驗之後會遇到一張全中文的表單**。屬頁面級翻譯工作，不在本輪範圍，已向業主報告。
+
+admin／studio 的中文 placeholder 與 title 刻意不動：內部工具，中文單語是設計。

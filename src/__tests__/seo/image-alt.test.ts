@@ -39,6 +39,25 @@ const files = [
 
 // alt="…" / alt='…' / alt={`…`}
 const ALT_LITERAL = /\balt=(?:"([^"]*)"|'([^']*)'|\{`([^`]*)`\})/g;
+const ARIA_LITERAL = /\baria-label=(?:"([^"]*)"|'([^']*)'|\{`([^`]*)`\})/g;
+
+// 語言切換器刻意讓每個標籤用它的**目標語言**：「切換為中文」配「中文」鈕、
+// 「Switch to English」配「EN」鈕。這是語言切換器的標準做法，不是漏翻。
+const ARIA_ALLOWED = new Set(["切換為中文"]);
+
+function scanLiterals(re: RegExp): string[] {
+  const offenders: string[] = [];
+  for (const file of files) {
+    const src = readFileSync(file, "utf8");
+    for (const m of src.matchAll(re)) {
+      const value = m[1] ?? m[2] ?? m[3] ?? "";
+      if (!CJK.test(value) || ARIA_ALLOWED.has(value)) continue;
+      const line = src.slice(0, m.index).split("\n").length;
+      offenders.push(`${relative(SRC, file).split(sep).join("/")}:${line}  ${JSON.stringify(value)}`);
+    }
+  }
+  return offenders;
+}
 
 describe("公開頁面的圖片 alt 不得寫死中文", () => {
   it("掃到的檔案數量合理（防呆：路徑寫錯會掃到 0 個而假性通過）", () => {
@@ -46,23 +65,29 @@ describe("公開頁面的圖片 alt 不得寫死中文", () => {
   });
 
   it("沒有任何 alt 字面值含中文", () => {
-    const offenders: string[] = [];
-
-    for (const file of files) {
-      const src = readFileSync(file, "utf8");
-      for (const m of src.matchAll(ALT_LITERAL)) {
-        const value = m[1] ?? m[2] ?? m[3] ?? "";
-        if (CJK.test(value)) {
-          const line = src.slice(0, m.index).split("\n").length;
-          offenders.push(`${relative(SRC, file).split(sep).join("/")}:${line}  alt=${JSON.stringify(value)}`);
-        }
-      }
-    }
-
+    const offenders = scanLiterals(ALT_LITERAL);
     expect(
       offenders,
       `以下 alt 寫死中文，英文頁會拿到錯的語言：\n${offenders.join("\n")}`,
     ).toEqual([]);
+  });
+
+  it("沒有任何 aria-label 字面值含中文（語言切換器例外）", () => {
+    // aria-label 不影響索引，但螢幕閱讀器在英文頁會念中文——同一個接線問題的另一面
+    const offenders = scanLiterals(ARIA_LITERAL);
+    expect(
+      offenders,
+      `以下 aria-label 寫死中文，螢幕閱讀器在英文頁會念中文：\n${offenders.join("\n")}`,
+    ).toEqual([]);
+  });
+
+  it("語言切換器的例外名單確實還在用（防止名單腐爛成免死金牌）", () => {
+    const src = readFileSync(join(SRC, "components", "LanguageSwitcher.tsx"), "utf8");
+    for (const allowed of ARIA_ALLOWED) {
+      expect(src, `例外名單裡的 ${allowed} 已不存在，該從名單移除`).toContain(allowed);
+    }
+    // 對照：EN 鈕的標籤是英文，兩顆各用目標語言才是正確設計
+    expect(src).toContain('aria-label="Switch to English"');
   });
 
   it("已知該用翻譯鍵的三處確實改掉了（防止測試被繞過）", () => {
@@ -95,6 +120,23 @@ describe("alt 用的翻譯鍵 zh／en 都存在", () => {
       expect(CJK.test(en[ns][key]), `en 的 ${ns}.${key} 含中文`).toBe(false);
     });
   }
+
+  it("common.a11y 的 7 個鍵兩種語言齊備，en 不含中文", () => {
+    const keys = ["prevPhoto", "nextPhoto", "goToPhoto", "openLargeImage", "decreaseQuantity", "increaseQuantity", "remove"];
+    expect(Object.keys(zh.common.a11y).sort()).toEqual([...keys].sort());
+    expect(Object.keys(en.common.a11y).sort()).toEqual([...keys].sort());
+    for (const k of keys) {
+      expect(CJK.test(en.common.a11y[k]), `en 的 common.a11y.${k} 含中文`).toBe(false);
+      expect(zh.common.a11y[k]).toBeTruthy();
+    }
+  });
+
+  it("common.a11y 帶佔位符的鍵，兩種語言都要保留佔位符", () => {
+    expect(zh.common.a11y.goToPhoto).toContain("{index}");
+    expect(en.common.a11y.goToPhoto).toContain("{index}");
+    expect(zh.common.a11y.openLargeImage).toContain("{caption}");
+    expect(en.common.a11y.openLargeImage).toContain("{caption}");
+  });
 
   it("帶 {name} 佔位符的鍵，兩種語言都要保留佔位符", () => {
     for (const key of ["imageAltSecond", "zoomLabel"]) {

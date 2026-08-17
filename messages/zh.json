@@ -73,6 +73,15 @@
       "standard": "一般會員",
       "silver": "銀卡會員",
       "gold": "金卡會員"
+    },
+    "a11y": {
+      "prevPhoto": "上一張",
+      "nextPhoto": "下一張",
+      "goToPhoto": "跳到第 {index} 張",
+      "openLargeImage": "開啟大圖：{caption}",
+      "decreaseQuantity": "減少數量",
+      "increaseQuantity": "增加數量",
+      "remove": "移除"
     }
   },
   "home": {

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export type LightboxPhoto = {
   src: string;
@@ -23,6 +23,8 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
   const total = photos.length;
   const touchStartX = useRef<number | null>(null);
   const locale = useLocale();
+  const ta = useTranslations("common.a11y");
+  const tb = useTranslations("common.buttons");
 
   // 標題區刻意雙語（中文為主、英文為副標，與商品卡一致），但 alt 只能有一種語言，
   // 要跟著當前語言走——Google 圖片搜尋與螢幕閱讀器讀的是它。
@@ -86,7 +88,7 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
           <button
             onClick={onClose}
             className="text-white/70 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
-            aria-label="關閉"
+            aria-label={tb("close")}
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -102,7 +104,7 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
           <button
             onClick={onPrev}
             className="absolute left-1 sm:left-3 z-10 text-white/60 hover:text-white transition-colors p-2 sm:p-3 rounded-full hover:bg-white/10"
-            aria-label="上一張"
+            aria-label={ta("prevPhoto")}
           >
             <svg className="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="15 18 9 12 15 6"/>
@@ -127,7 +129,7 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
           <button
             onClick={onNext}
             className="absolute right-1 sm:right-3 z-10 text-white/60 hover:text-white transition-colors p-2 sm:p-3 rounded-full hover:bg-white/10"
-            aria-label="下一張"
+            aria-label={ta("nextPhoto")}
           >
             <svg className="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="9 18 15 12 9 6"/>
@@ -154,7 +156,7 @@ export default function ProductLightbox({ photos, index, onClose, onPrev, onNext
                     ? "w-14 h-14 ring-2 ring-tea-green opacity-100 scale-110"
                     : "w-12 h-12 opacity-40 hover:opacity-70"
                 }`}
-                aria-label={`跳到第 ${i + 1} 張`}
+                aria-label={ta("goToPhoto", { index: i + 1 })}
               >
                 <Image src={p.src} alt={altOf(p)} fill sizes="56px" className="object-cover" />
               </button>

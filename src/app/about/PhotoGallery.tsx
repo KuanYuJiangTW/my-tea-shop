@@ -62,12 +62,13 @@ function GalleryCell({
   labelDesc?: string;
   hideLabelDescOnMobile?: boolean;
 }) {
+  const ta = useTranslations("common.a11y");
   return (
     <button
       type="button"
       onClick={() => onOpen(index)}
       className={`relative overflow-hidden group cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-tea-green ${className}`}
-      aria-label={`開啟大圖：${photo.caption}`}
+      aria-label={ta("openLargeImage", { caption: photo.caption })}
     >
       <Image
         src={photo.src}
@@ -115,6 +116,8 @@ function Lightbox({
 }) {
   const photo = photos[index];
   const TOTAL = photos.length;
+  const ta = useTranslations("common.a11y");
+  const tb = useTranslations("common.buttons");
   const touchStartX = useRef<number | null>(null);
 
   // 鎖定 body 捲動
@@ -160,7 +163,7 @@ function Lightbox({
         <button
           onClick={onClose}
           className="text-white/70 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
-          aria-label="關閉"
+          aria-label={tb("close")}
         >
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -174,7 +177,7 @@ function Lightbox({
         <button
           onClick={onPrev}
           className="absolute left-2 sm:left-4 z-10 text-white/70 hover:text-white transition-colors p-2 sm:p-3 rounded-full hover:bg-white/10"
-          aria-label="上一張"
+          aria-label={ta("prevPhoto")}
         >
           <svg className="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6"/>
@@ -198,7 +201,7 @@ function Lightbox({
         <button
           onClick={onNext}
           className="absolute right-2 sm:right-4 z-10 text-white/70 hover:text-white transition-colors p-2 sm:p-3 rounded-full hover:bg-white/10"
-          aria-label="下一張"
+          aria-label={ta("nextPhoto")}
         >
           <svg className="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="9 18 15 12 9 6"/>
@@ -223,7 +226,7 @@ function Lightbox({
                   ? "ring-2 ring-tea-green opacity-100 scale-110"
                   : "opacity-40 hover:opacity-70"
               }`}
-              aria-label={`跳到第 ${i + 1} 張`}
+              aria-label={ta("goToPhoto", { index: i + 1 })}
             >
               <Image src={p.src} alt={p.alt} fill sizes="40px" className="object-cover" />
             </button>

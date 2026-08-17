@@ -46,6 +46,8 @@ interface Adjustment {
 export default function CartClient() {
   const t = useTranslations("cart");
   const tProducts = useTranslations("products");
+  const ta = useTranslations("common.a11y");
+  const tb = useTranslations("common.buttons");
   const locale = useLocale();
   const isEn = locale === "en";
   const lp = (path: string) => isEn ? `/en${path}` : path;
@@ -158,7 +160,7 @@ export default function CartClient() {
                 <button
                   onClick={() => setAdjustments((prev) => prev.filter((a) => a.id !== adj.id))}
                   className="text-amber-500 hover:text-amber-700 transition-colors flex-shrink-0"
-                  aria-label="關閉"
+                  aria-label={tb("close")}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -210,7 +212,7 @@ export default function CartClient() {
                     <button
                       onClick={() => removeFromCart(item.product.id)}
                       className="text-tea-text-light hover:text-red-400 transition-colors flex-shrink-0"
-                      aria-label="移除"
+                      aria-label={ta("remove")}
                     >
                       <svg
                         width="18"

@@ -77,6 +77,7 @@ function buildVariants(p: Product, labels: VariantLabels): Variant[] {
 
 export default function ProductCard({ product }: { product: Product }) {
   const t             = useTranslations("products");
+  const ta            = useTranslations("common.a11y");
   const locale        = useLocale();
   const isEn          = locale === "en";
   const { addToCart } = useCart();
@@ -312,7 +313,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.max(1, q - 1)); }}
                 disabled={selectedSoldOut || quantity <= 1}
                 className="w-7 h-7 rounded-pill border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors duration-base ease-standard disabled:opacity-30 disabled:cursor-default"
-                aria-label="減少數量"
+                aria-label={ta("decreaseQuantity")}
               >
                 −
               </button>
@@ -323,7 +324,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 onClick={(e) => { e.stopPropagation(); setQuantity((q) => Math.min(maxQty, q + 1)); }}
                 disabled={selectedSoldOut || quantity >= maxQty}
                 className="w-7 h-7 rounded-pill border border-tea-green-pale flex items-center justify-center text-tea-text-light hover:border-tea-green hover:text-tea-green transition-colors duration-base ease-standard disabled:opacity-30 disabled:cursor-default"
-                aria-label="增加數量"
+                aria-label={ta("increaseQuantity")}
               >
                 +
               </button>
