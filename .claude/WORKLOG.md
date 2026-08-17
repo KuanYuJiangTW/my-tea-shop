@@ -780,3 +780,80 @@ lint 0 error（36 warning 是既有債務）、build 成功。
   的案例確實轉紅、「有 email → 200」維持綠；還原後三個全綠
 - **`/verify` 四項全過**（52 檔／655 測試、tsc 0、lint 0 error、build 成功）
 - **仍未解**：`openInExternalBrowser()` 的 iOS 分支無效（見上一節），待真機確認
+
+## 2026-08-17｜Google 索引通知診斷：/en 前綴的三處漏洞（branch `fix/en-prefix-seo-and-admin-guard`）
+
+- **起點**：業主轉來 Google Search Console 三封「網頁未編入索引」通知，原因分別是
+  「替代頁面（有適當的標準標記）」、「遭到 noindex 標記排除」、「遭到 robots.txt 封鎖」。
+- **根因是同一個**：`/en/*` 由 `src/proxy.ts` 內部 rewrite 到無前綴路徑（**沒有
+  `[locale]` 路由段**），凡拿 `pathname` 做判斷的邏輯都得自己處理 `/en`——三處都忘了。
+  教訓已寫進 `lessons.md`（2026-08-17 兩條）。
+
+### 一、安全漏洞（`f36bbf9`，不在業主的原始需求內，是查 SEO 時撞到的）
+- **`/en/admin/dashboard` 未登入回 200**，實測那份 HTML 含 32 筆 `NT$` 金額。
+  `proxy.ts` 的守衛用原始 `pathname`，`"/en/admin/dashboard".startsWith("/admin/")` 為 false。
+  對照組 `/admin/dashboard` 正確 307。違反 `openspec/specs/admin-auth`「所有後台路由
+  須驗證 `admin_session`」，屬實作沒對上規格，**規格不需要改**。
+- **API 層倖免**：25 條 `api/admin` route 有 23 條套 `withAdminAuth`（另 2 條是登入端點），
+  資料寫入未被打開。但後台頁面是 server component 直查 Supabase，
+  `admin/(protected)/layout.tsx` 沒有自帶驗證，middleware 是唯一那道門。
+- 修法：新增 `routePath = rewritePath ?? pathname`，所有路由判斷改看它；轉址目的地帶
+  locale 前綴。Studio 的寬鬆 CSP 判斷同樣改看 `routePath`（否則 `/en/studio` 會被誤套
+  nonce CSP 而跑不起來——順帶修掉的既有 bug）。
+- 證據：dev server 實測 `/en/admin/dashboard` → 307 `/en/admin`、`/en/api/admin/orders`
+  → 401、`/admin` 與 `/en/admin` 登入頁維持 200。回歸測試 18 條 zh/en 成對。
+  **反向驗證**：退回修正後 7 條 `/en` 案例轉紅、11 條 zh 維持綠。
+
+### 二、canonical（`8bf696a`）——三封信裡唯一真正有害的一項
+- `langAlternates` 寫死 `canonical: path`，兩語言共用同一份 metadata → **每個英文頁都
+  宣告「我的正式版本是中文頁」**，而 sitemap 同時列出那 16 個 `/en` 網址要求收錄。
+  線上實測（修正前）：`/en/products` canonical 為 `https://taiwantea.store/products`。
+- 修法：`canonical` 跟著當前語言 self-canonical，補 `x-default` → zh-TW。
+  locale 只有 request 期間拿得到，因此 **10 個頁面的靜態 `metadata` 改成
+  `generateMetadata`**；`og:url` 一併沿用 canonical。
+- 證據：dev server 實測 6 個網址，`/en/*` 全部 self-canonical，hreflang 叢集三鍵一致。
+  **反向驗證**：退回後 5 條 en 案例轉紅、zh 維持綠。
+
+### 三、robots.txt 與 noindex 的矛盾（`8bf696a`）
+- **第二、三封信不是錯誤**——是 Google 回報「你刻意排除的頁面確實被排除了」。但配置
+  有典型矛盾：`/cart`、`/checkout`、`/order/result` **同時**被 robots.txt 封鎖又帶
+  `noindex`，而被封鎖的頁面 Google 抓不到、永遠讀不到那個 `noindex`。
+- 且 DISALLOW 清單沒有 `/en` 版本 → `/en/cart` 反而可抓取（這就是「noindex 排除」那類
+  的來源）。
+- 修法：robots.txt 收斂成**只封鎖 `/api/`**，排除索引一律交給頁面自己的 `noindex`
+  （rewrite 後兩種前綴都會輸出，不需逐語言維護）。新增 4 個 noindex layout：
+  `auth/`、`account/`、`waitlist/`、`experiences/booking/`——**後兩者從來沒被 robots.txt
+  擋過，等於一直可被索引**。
+- 保留不動：`Content-Signal: search=yes, ai-input=yes, ai-train=yes` 與 AI 爬蟲 Allow 群組
+  （AI SEO 那套是健康的，不要在收斂 DISALLOW 時一起弄掉——已有測試釘住）。
+
+### 四、順帶修掉的 SEO 缺陷
+- 體驗頁標題「茶藝體驗 | 霧抉茶體驗 | 霧抉茶」**品牌名重複兩次**（自己寫了一次又被
+  root layout 的 `title.template` 接一次），且英文頁用中文名。改交給 template 收尾，
+  並用**既有的** `nameEn`／`taglineEn` 欄位（不是新寫文案）。
+  實測 `/en/experiences/tea-ceremony` → `Tea Ceremony | 霧抉茶`。
+- `/products` 的 ItemList **有兩筆商品沒有 `image`**（Merchant listing 必填，是 error
+  不是 warning）：紅烏龍茶與四季春在 DB 沒照片，商品卡本身也只顯示漸層底色、
+  **沒有 fallback 圖**。抽出 `src/lib/product-jsonld.ts` 並過濾掉無圖商品——硬塞品牌圖
+  等於謊報商品外觀。照片補進 DB 就會自動出現。一併補 `brand`、`offers.url`，
+  讓 `seller` 不再是懸空 `@id`，名稱描述跟著語言走。
+  **反向驗證**：拿掉圖片過濾後 3 條轉紅。
+
+- **`/verify` 四項全過**：56 檔／715 測試、tsc 0、lint 0 error（36 warning，數量未增加，
+  `baseUrl` 那條在 `api/admin/products/route.ts`，與本次無關）、build 成功 92 頁。
+
+### 待業主／未解
+1. **決定要不要合併**（本分支已 push，未開 PR）。合併後 Google 需重新抓取才會恢復
+   英文頁索引，可在 GSC 對 `/en` 網址手動要求索引加速。
+2. **合併後會收到新的 GSC 通知**：`/cart`、`/en/cart` 等從「robots.txt 封鎖」轉為
+   「noindex 排除」。**那是預期結果不是退步**，別以為修壞了。
+3. **業主要做的資料補齊**：紅烏龍茶、四季春上傳商品照片（缺照片同時影響商品頁外觀
+   與結構化資料）。
+4. **未做，需業主決定**：英文頁的 title／description 目前仍是中文（頁面本體已翻譯，
+   只有 metadata 沒有）。約 10 個頁面要把文案搬進 `messages/`，屬文案工作不是 bug 修復，
+   已向業主說明並暫不動。`web-design` 與體驗頁已是正確寫法，可當範本。
+5. **未做，刻意的**：Merchant listing 的 `hasMerchantReturnPolicy` 與 `shippingDetails`
+   仍缺（GSC 會列為 warning）。要填得**正確**需要真實運費與退貨天數進機器可讀欄位，
+   寫錯比不寫傷害大；建議連同商品獨立頁（openspec 5.4 `/products/[slug]`）一起做，
+   那也是「五筆商品共用同一個 url」的真正解法。
+6. `lessons.md` 已 32 條，**超過 MAINT-4 的 30 條門檻**，下次該走 MAINT-3 開精簡任務。

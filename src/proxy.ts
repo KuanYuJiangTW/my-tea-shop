@@ -40,6 +40,14 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // 之後所有「這是哪條路由」的判斷一律用 rewrite 後的路徑。
+  // `/en/admin/dashboard` 實際渲染的是 `/admin/dashboard`，若沿用原始 pathname，
+  // 下方的 `startsWith("/admin/")` 對它不成立 → 後台守衛被 `/en` 前綴整個繞過
+  // （2026-08-17 實測：未登入 GET /en/admin/dashboard 回 200 並含營收資料）。
+  // Studio 的寬鬆 CSP 判斷同理，否則 /en/studio 會拿到 nonce CSP 而跑不起來。
+  const routePath = rewritePath ?? pathname;
+  const localePrefix = rewritePath !== null ? `/${locale}` : "";
+
   // ─── Nonce 生成（Web Crypto API，相容 Edge Runtime）──────────────────────────
   const nonce = btoa(crypto.randomUUID());
 
@@ -88,24 +96,24 @@ export async function proxy(request: NextRequest) {
 
   // ─── Admin Route Protection ───────────────────────────────────────────────────
   // 登入頁、auth API、2FA 驗證頁（需有 admin_pending cookie）不需 session
-  if (pathname === "/admin" || pathname.startsWith("/api/admin/auth")) {
-    if (!pathname.startsWith("/studio")) {
+  if (routePath === "/admin" || routePath.startsWith("/api/admin/auth")) {
+    if (!routePath.startsWith("/studio")) {
       response.headers.set("Content-Security-Policy", buildCSP(nonce));
     }
     return response;
   }
 
   // /admin/verify-2fa：允許持有本站簽發之 admin_pending token 的請求通過
-  if (pathname === "/admin/verify-2fa") {
+  if (routePath === "/admin/verify-2fa") {
     const pending = request.cookies.get("admin_pending")?.value;
     if (await verifyPendingToken(pending)) {
       response.headers.set("Content-Security-Policy", buildCSP(nonce));
       return response;
     }
-    return NextResponse.redirect(new URL("/admin", request.url));
+    return NextResponse.redirect(new URL(`${localePrefix}/admin`, request.url));
   }
 
-  if (pathname.startsWith("/admin/") || pathname.startsWith("/api/admin/")) {
+  if (routePath.startsWith("/admin/") || routePath.startsWith("/api/admin/")) {
     const session = request.cookies.get("admin_session")?.value;
 
     // 以 security definer RPC 查 DB 驗證 session（不需把 service_role key 帶進 Edge Runtime）
@@ -128,16 +136,16 @@ export async function proxy(request: NextRequest) {
     })();
 
     if (!isValid) {
-      if (pathname.startsWith("/api/")) {
+      if (routePath.startsWith("/api/")) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
-      return NextResponse.redirect(new URL("/admin", request.url));
+      return NextResponse.redirect(new URL(`${localePrefix}/admin`, request.url));
     }
   }
 
   // ─── 動態 CSP（含 nonce）───────────────────────────────────────────────────
   // Studio 使用寬鬆 CSP（Sanity Studio 需要 unsafe-eval），其餘路由套用 nonce CSP
-  if (!pathname.startsWith("/studio")) {
+  if (!routePath.startsWith("/studio")) {
     response.headers.set("Content-Security-Policy", buildCSP(nonce));
   }
 

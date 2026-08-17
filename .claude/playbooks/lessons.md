@@ -192,6 +192,18 @@
 - 規則：**新建一張開了 RLS 的表時，先問「業主要用什麼點它」**。若該表有任何需要人工切換的欄位（上下架、顯示與否、審核狀態），三選一：(a) 同時做後台入口，(b) 加對應的寫入政策，(c) 在 SQL 檔頂端明寫「本表只能由 SQL 或 API 維護」並在 WORKLOG 記一筆待辦。**不要讓「安全的預設」變成「沒人維護得動」**
 - 去處：暫存於此。與 2026-08-01「SELECT 少一個欄位」同屬「權限／欄位的預設值悄悄改變了行為」，但那組是讀取面、這組是寫入面
 
+## 2026-08-17 `/en` 是 middleware rewrite 不是路由段——三處 `pathname` 判斷同時被繞過
+- 情境：業主轉來 Google Search Console 的「網頁未編入索引」通知，查 SEO 時發現根因是 `/en/*` 由 `src/proxy.ts` 內部 rewrite 到無前綴路徑，**沒有 `[locale]` 路由段**。凡是拿 `pathname` 做判斷的邏輯都得自己處理 `/en`，而三處都忘了：(a) 後台守衛 `pathname.startsWith("/admin/")` 對 `/en/admin/...` 不成立 → 未登入可讀後台營收；(b) `langAlternates` 的 `canonical: path` 讓每個英文頁宣告中文頁為正式版本 → 英文頁全被排除索引；(c) `robots.txt` 的 Disallow 清單沒有 `/en` 版本 → `/en/cart` 反而可抓取
+- 代價：(a) 是線上安全漏洞，存在期間不明；(b) 讓 16 個英文網址的 SEO 長期歸零，且要等 Google 重新抓取才會恢復。三個都是同一個心智模型缺口造成的，卻分別在三次不同的開發中埋下
+- 規則：**改動或新增任何讀 `request.nextUrl.pathname`／依路徑做分支的邏輯前，先確認它有沒有處理 `/en` 前綴**。判斷路由身分一律用 rewrite 後的路徑（`proxy.ts` 的 `routePath`）；面向外部的 URL（canonical、og:url、轉址目的地）一律用帶當前語言前綴的路徑。新增這類邏輯時，測試一律 zh／en 成對寫（見 `src/__tests__/admin/proxy-locale-guard.test.ts` 與 `src/__tests__/seo/canonical.test.ts` 的寫法）
+- 去處：暫存於此。與 2026-08-08「兩兩比對否定序列設計」不同類；這條屬「同一個隱含前提在多處各壞一次」，若再出現第二個 locale 就升格為 playbook 規則
+
+## 2026-08-17 用猜的函式名 grep 授權守衛，差點回報「23 條 admin 路由全裸奔」
+- 情境：確認 `/en/admin` 繞過後，要判斷 API 層是否也失守。我用一串**憑印象猜的**守衛名（`requireAdmin|validate_admin_session|admin_session|getAdminSession|assertAdmin`）grep `src/app/api/admin`，25 條中有 23 條沒命中，看起來像整層裸奔。實際的守衛叫 `withAdminAuth`，不在我的猜測清單裡——那 23 條全都有防護
+- 代價：只差一步就把「後台 API 全面失守」寫進回報。真要送出去，業主會以為金流與訂單資料已外洩。實際只多花一次 `Read` 就翻案
+- 規則：**要斷言「某目錄的路由缺少守衛」之前，先 Read 其中任一個檔，確認該專案實際使用的守衛識別字，再用那個字去 grep**。不得用猜測的名稱清單推導「不存在」；grep 命中 0 次先當成「我 pattern 寫錯」，不是「程式碼缺這東西」
+- 去處：暫存於此。與 JUDG-8「對照組要有鑑別力」同源——這次的無效測試是 pattern 本身沒有鑑別力
+
 ## 已歸檔（2026-08-06 精簡 18 條；2026-08-15 再精簡 2 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。

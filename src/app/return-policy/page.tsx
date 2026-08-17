@@ -2,16 +2,19 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { langAlternates } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "退換貨政策",
-  description: "霧抉茶退換貨政策，包含七天鑑賞期、退貨流程、退款方式及不接受退貨之例外情況說明。",
-  alternates: langAlternates("/return-policy"),
-  openGraph: {
-    title: "退換貨政策 | 霧抉茶",
+export async function generateMetadata(): Promise<Metadata> {
+  const alternates = await langAlternates("/return-policy");
+  return {
+    title: "退換貨政策",
     description: "霧抉茶退換貨政策，包含七天鑑賞期、退貨流程、退款方式及不接受退貨之例外情況說明。",
-    url: "/return-policy",
-  },
-};
+    alternates,
+    openGraph: {
+      title: "退換貨政策 | 霧抉茶",
+      description: "霧抉茶退換貨政策，包含七天鑑賞期、退貨流程、退款方式及不接受退貨之例外情況說明。",
+      url: alternates.canonical,
+    },
+  };
+}
 
 const STEP_KEYS = ["s1", "s2", "s3", "s4"] as const;
 const METHOD_KEYS = ["m1", "m2"] as const;

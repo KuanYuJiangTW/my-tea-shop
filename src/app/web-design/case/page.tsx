@@ -5,14 +5,15 @@ import { langAlternates } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("webDesignCase.meta");
+  const alternates = await langAlternates("/web-design/case");
   return {
     title: t("title"),
     description: t("description"),
-    alternates: langAlternates("/web-design/case"),
+    alternates,
     openGraph: {
       title: t("title"),
       description: t("description"),
-      url: "/web-design/case",
+      url: alternates.canonical,
     },
   };
 }
