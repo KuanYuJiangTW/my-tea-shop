@@ -9,6 +9,7 @@ import ExperienceReviews from "./ExperienceReviews";
 import ExperienceGallery from "./ExperienceGallery";
 import SeasonBadge from "@/components/SeasonBadge";
 import RelatedExperiences from "./RelatedExperiences";
+import AdmissionTiers from "./AdmissionTiers";
 import { getTranslations, getLocale } from "next-intl/server";
 import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 
@@ -249,7 +250,10 @@ export default async function ExperienceDetailPage({ params }: Props) {
           </div>
 
           {/* 右側：日曆（手機版優先顯示） */}
-          <div className="lg:col-span-3 order-first lg:order-last">
+          <div className="lg:col-span-3 order-first lg:order-last space-y-6">
+            {/* 價格層級放在月曆之前：看到「450 才能看鳥」就走掉的人，
+                應該先知道還有免費與入園兩種選擇 */}
+            <AdmissionTiers tiers={content.admissionTiers} bookablePrice={experience.price} />
             <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
               <h2 className="font-serif text-xl font-bold text-tea-text mb-6">{t("selectSession")}</h2>
               <ExperienceCalendar experience={experience} />

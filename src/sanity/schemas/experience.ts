@@ -1,4 +1,4 @@
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 
 export const experienceSchema = defineType({
   name:  "experience",
@@ -84,6 +84,35 @@ export const experienceSchema = defineType({
       title: "Important Notes (EN)",
       type:  "array",
       of:    [{ type: "string" }],
+    }),
+    defineField({
+      name:        "admissionTiers",
+      title:       "入園／參加方式與價格",
+      type:        "array",
+      description:
+        "同一個地點可能有好幾種參加方式（只是來看／入園坐著看／參加導覽）。" +
+        "填了才會在頁面上出現價格比較區；不填就完全不顯示。價格改了這裡就好，不用改程式。",
+      of: [
+        defineArrayMember({
+          type:  "object",
+          name:  "tier",
+          title: "一種方式",
+          fields: [
+            defineField({ name: "name",   title: "名稱（中文）", type: "string", validation: (r) => r.required() }),
+            defineField({ name: "nameEn", title: "名稱（英文）", type: "string" }),
+            defineField({
+              name:        "price",
+              title:       "每人價格（元）",
+              type:        "number",
+              description: "填 0 會顯示成「免費」",
+              validation:  (r) => r.required().min(0),
+            }),
+            defineField({ name: "description",   title: "包含什麼（中文）", type: "text", rows: 2 }),
+            defineField({ name: "descriptionEn", title: "包含什麼（英文）", type: "text", rows: 2 }),
+          ],
+          preview: { select: { title: "name", subtitle: "price" } },
+        }),
+      ],
     }),
     defineField({
       name:  "seoDescription",

@@ -295,6 +295,14 @@
       "title": "Stay a little longer, same day",
       "intro": "The drive up the mountain is the same either way — a second experience only costs you the other half of the day. Book two on the same day and the second is 10% off. Pick what you'd like online, then message us on LINE or call, and we'll arrange the timings.",
       "askLine": "Ask on LINE about same-day plans"
+    },
+    "admission": {
+      "title": "Three ways to visit",
+      "intro": "You don't have to book a tour to see the birds. Pick whichever suits you:",
+      "free": "Free",
+      "perPerson": " / person",
+      "bookableOnline": "Bookable online",
+      "onSiteNote": "Free viewing and garden admission need no booking — just turn up. Tour places are limited, so book a session in the calendar below."
     }
   },
   "cart": {
