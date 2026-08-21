@@ -144,6 +144,24 @@ export function sortExperiences<T extends Sortable>(list: T[], today: string): T
   });
 }
 
+/**
+ * **只依手動順序排**（`sort_order` → `id`），刻意忽略釘選與季節。
+ *
+ * 這是給後台的排序介面用的。踩過的坑：後台原本顯示「前台實際順序」（含季節
+ * 置頂），而重排是把「當下看到的順序」整份重新編號——於是**只要在季節中按一
+ * 下移動，季節造成的第一名就被固化成手動的第一名**，自動排序悄悄變成手動，
+ * 季節結束後也不會退回去。2026-08-21 業主按了一下就中招。
+ *
+ * 修法是把兩件事分開：箭頭調的是這裡的手動順序，季節與釘選只當標籤顯示，
+ * 前台的實際順序另外用 `sortExperiences()` 算給業主看。
+ */
+export function sortByManualOrder<T extends Sortable>(list: T[]): T[] {
+  return [...list].sort((a, b) => {
+    const order = (a.sortOrder ?? DEFAULT_SORT_ORDER) - (b.sortOrder ?? DEFAULT_SORT_ORDER);
+    return order !== 0 ? order : a.id - b.id;
+  });
+}
+
 /** 卡片要呈現哪一種狀態。UI 只認這四種，不要在元件裡再判斷日期 */
 export type SeasonState =
   | { kind: "none" }                                              // 不分季節，維持現狀

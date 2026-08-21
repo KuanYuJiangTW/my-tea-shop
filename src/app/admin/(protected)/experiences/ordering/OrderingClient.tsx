@@ -3,43 +3,57 @@
 import { useEffect, useState } from "react";
 import { AlertCircle, ArrowDown, ArrowUp, CalendarClock, CheckCircle, Pin, Plus, Trash2 } from "lucide-react";
 
-interface WindowRow { id: string; start_date: string; end_date: string; note: string | null }
-interface TypeRow {
+import {
+  type Sortable,
+  sortByManualOrder,
+  sortExperiences,
+} from "@/lib/experience-ordering";
+
+// note 用 `string | undefined` 而非 `| null`，才與 AvailabilityWindow 相容
+// （Row 要能直接餵給 sortExperiences／sortByManualOrder）
+interface Win { id: string; startDate: string; endDate: string; note?: string }
+interface Row extends Sortable {
   id: number;
   slug: string;
   name: string;
-  name_en: string;
   price: number;
-  is_active: boolean;
-  sort_order: number | null;
-  pinned_until: string | null;
-  experience_availability_windows: WindowRow[];
+  sortOrder: number | null;
+  pinnedUntil: string | null;
+  windows: Win[];
 }
 
+interface ApiWindow { id: string; start_date: string; end_date: string; note: string | null }
+interface ApiRow {
+  id: number; slug: string; name: string; price: number;
+  sort_order: number | null; pinned_until: string | null;
+  experience_availability_windows: ApiWindow[];
+}
+type ApiResult = { today: string; types: ApiRow[] } | { error: string };
+
 /** 取資料、不碰 state（避免 effect 內同步 setState，沿用 SessionsClient 的作法） */
-async function fetchOrdering(): Promise<{ today: string; types: TypeRow[] } | { error: string }> {
+async function fetchOrdering(): Promise<ApiResult> {
   const res = await fetch("/api/admin/experience-ordering");
   return res.json();
 }
 
-/** 排序鍵與前台一致：釘選中 → 季節中 → sort_order → id */
-function rank(t: TypeRow, today: string) {
-  const pinned = t.pinned_until && t.pinned_until >= today ? 0 : 1;
-  const season = t.experience_availability_windows.some(
-    w => w.start_date <= today && today <= w.end_date,
-  ) ? 0 : 1;
-  return [pinned, season, t.sort_order ?? 100, t.id];
+function toRow(t: ApiRow): Row {
+  return {
+    id: t.id, slug: t.slug, name: t.name, price: t.price,
+    sortOrder: t.sort_order, pinnedUntil: t.pinned_until,
+    windows: t.experience_availability_windows.map(w => ({
+      id: w.id, startDate: w.start_date, endDate: w.end_date, note: w.note ?? undefined,
+    })),
+  };
 }
 
-function inSeason(t: TypeRow, today: string) {
-  return t.experience_availability_windows.find(w => w.start_date <= today && today <= w.end_date) ?? null;
+function inSeason(r: Row, today: string) {
+  return r.windows.find(w => w.startDate <= today && today <= w.endDate) ?? null;
 }
 
 /** 最後一段區間的結束日距今不到 30 天 → 該續填明年了 */
-function needsRenewal(t: TypeRow, today: string) {
-  const ws = t.experience_availability_windows;
-  if (ws.length === 0) return false;
-  const last = ws.map(w => w.end_date).sort().at(-1)!;
+function needsRenewal(r: Row, today: string) {
+  if (r.windows.length === 0) return false;
+  const last = r.windows.map(w => w.endDate).sort().at(-1)!;
   if (last < today) return true;
   const days = Math.round(
     (Date.parse(`${last}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000,
@@ -48,29 +62,25 @@ function needsRenewal(t: TypeRow, today: string) {
 }
 
 export default function OrderingClient() {
-  const [types, setTypes] = useState<TypeRow[]>([]);
+  const [rows, setRows] = useState<Row[]>([]);
   const [today, setToday] = useState("");
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // 新增季節區間的表單（哪一款正在展開）
   const [openForm, setOpenForm] = useState<number | null>(null);
   const [form, setForm] = useState({ startDate: "", endDate: "", note: "" });
 
   /** 只寫 state，不發請求——effect 與事件處理器共用同一段落地邏輯 */
-  function apply(data: Awaited<ReturnType<typeof fetchOrdering>>) {
+  function apply(data: ApiResult) {
     if ("error" in data) {
       setMsg({ type: "err", text: data.error });
-      setTypes([]);
+      setRows([]);
     } else {
       setToday(data.today);
-      setTypes([...data.types].sort((a, b) => {
-        const ra = rank(a, data.today);
-        const rb = rank(b, data.today);
-        for (let i = 0; i < ra.length; i++) if (ra[i] !== rb[i]) return ra[i] - rb[i];
-        return 0;
-      }));
+      // **依手動順序顯示，不是依前台的實際順序。**
+      // 箭頭調的是手動順序；季節與釘選只是標籤。理由見 sortByManualOrder 的註解
+      setRows(sortByManualOrder(data.types.map(toRow)) as Row[]);
     }
     setLoading(false);
   }
@@ -85,7 +95,6 @@ export default function OrderingClient() {
    * 首次載入。**不能直接 `useEffect(refresh, [])`**——refresh 開頭同步
    * setLoading(true)，那是 effect body 內的同步 setState
    * （`react-hooks/set-state-in-effect`，SessionsClient 也踩過同一條）。
-   * loading 的初始值本來就是 true，這裡只要在回應到達時落地即可。
    */
   useEffect(() => {
     let cancelled = false;
@@ -110,15 +119,19 @@ export default function OrderingClient() {
     return true;
   }
 
-  /** 上移／下移：整份順序重送，後端重新編號（見 API route 的註解） */
+  /**
+   * 上移／下移：整份**手動順序**重送，後端重新編號。
+   * 因為 rows 已經是手動順序（不含季節置頂的結果），重新編號不會把季節
+   * 固化成手動順序——那正是 2026-08-21 踩到的坑。
+   */
   async function move(index: number, dir: -1 | 1) {
     const target = index + dir;
-    if (target < 0 || target >= types.length) return;
-    const next = [...types];
+    if (target < 0 || target >= rows.length) return;
+    const next = [...rows];
     [next[index], next[target]] = [next[target], next[index]];
-    setTypes(next);   // 先動畫面，成功與否都會 refresh 回真實狀態
-    const ok = await send("PATCH", { order: next.map(t => t.id) });
-    if (ok) setMsg({ type: "ok", text: "順序已更新" });
+    setRows(next);   // 先動畫面，成功與否都會 refresh 回真實狀態
+    const ok = await send("PATCH", { order: next.map(r => r.id) });
+    if (ok) setMsg({ type: "ok", text: "手動順序已更新" });
     refresh();
   }
 
@@ -151,8 +164,7 @@ export default function OrderingClient() {
 
   if (loading) return <p className="text-tea-text-light">載入中…</p>;
 
-  const pinnedExists = types.some(t => t.pinned_until && t.pinned_until >= today);
-  const seasonExists = types.some(t => inSeason(t, today));
+  const effective = sortExperiences(rows, today) as Row[];
 
   return (
     <div className="space-y-4">
@@ -167,34 +179,54 @@ export default function OrderingClient() {
         </div>
       )}
 
-      {pinnedExists && seasonExists && (
-        <div className="flex items-start gap-2 rounded-lg bg-amber-50 text-amber-800 px-4 py-3 text-sm">
-          <Pin className="w-4 h-4 mt-0.5 shrink-0" />
-          <span>目前有釘選中的體驗，它會排在季節中的體驗之前。</span>
-        </div>
-      )}
+      {/* 前台實際順序：跟下面的手動順序刻意分開顯示，
+          否則會誤以為箭頭調的就是客人看到的順序 */}
+      <div className="bg-white rounded-xl border border-tea-green-pale/60 p-4">
+        <h2 className="text-sm font-medium text-tea-text mb-2">客人實際看到的順序</h2>
+        <ol className="text-sm text-tea-text-light space-y-1">
+          {effective.map((r, i) => {
+            const s = inSeason(r, today);
+            const p = !!r.pinnedUntil && r.pinnedUntil >= today;
+            return (
+              <li key={r.id} className="flex items-center gap-2">
+                <span className="tabular-nums text-xs w-5">{i + 1}.</span>
+                <span className="text-tea-text">{r.name}</span>
+                {p && <span className="text-xs text-amber-700">釘選中</span>}
+                {s && <span className="text-xs text-tea-green">季節中</span>}
+              </li>
+            );
+          })}
+        </ol>
+        <p className="text-xs text-tea-text-light mt-3">
+          今天（台灣時間）{today}　·　順序：釘選中 → 季節中 → 下方的手動順序 → 建立順序
+        </p>
+      </div>
 
-      <p className="text-xs text-tea-text-light">
-        今天（台灣時間）{today}　·　順序：釘選中 → 季節中 → 手動順序 → 建立順序
-      </p>
+      <div>
+        <h2 className="text-sm font-medium text-tea-text mb-1">手動順序</h2>
+        <p className="text-xs text-tea-text-light mb-3">
+          箭頭調的是這一份順序。季節中與釘選中的體驗在前台會排到它之上，
+          所以這裡的第一名不一定是客人看到的第一張。
+        </p>
+      </div>
 
-      {types.map((t, i) => {
-        const season = inSeason(t, today);
-        const pinned = !!t.pinned_until && t.pinned_until >= today;
+      {rows.map((r, i) => {
+        const season = inSeason(r, today);
+        const pinned = !!r.pinnedUntil && r.pinnedUntil >= today;
         return (
-          <div key={t.id} className="bg-white rounded-xl border border-tea-green-pale/60 p-4">
+          <div key={r.id} className="bg-white rounded-xl border border-tea-green-pale/60 p-4">
             <div className="flex items-start gap-3">
               <div className="flex flex-col gap-1 pt-0.5">
                 <button
                   onClick={() => move(i, -1)}
                   disabled={busy || i === 0}
-                  aria-label={`${t.name} 上移`}
+                  aria-label={`${r.name} 上移`}
                   className="p-1 rounded hover:bg-tea-cream disabled:opacity-30 disabled:cursor-not-allowed"
                 ><ArrowUp className="w-4 h-4" /></button>
                 <button
                   onClick={() => move(i, 1)}
-                  disabled={busy || i === types.length - 1}
-                  aria-label={`${t.name} 下移`}
+                  disabled={busy || i === rows.length - 1}
+                  aria-label={`${r.name} 下移`}
                   className="p-1 rounded hover:bg-tea-cream disabled:opacity-30 disabled:cursor-not-allowed"
                 ><ArrowDown className="w-4 h-4" /></button>
               </div>
@@ -202,19 +234,19 @@ export default function OrderingClient() {
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs text-tea-text-light tabular-nums">#{i + 1}</span>
-                  <span className="font-medium text-tea-text">{t.name}</span>
-                  <span className="text-xs text-tea-text-light">NT$ {t.price}</span>
+                  <span className="font-medium text-tea-text">{r.name}</span>
+                  <span className="text-xs text-tea-text-light">NT$ {r.price}</span>
                   {pinned && (
                     <span className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
-                      <Pin className="w-3 h-3" />釘選到 {t.pinned_until}
+                      <Pin className="w-3 h-3" />釘選到 {r.pinnedUntil}
                     </span>
                   )}
                   {season && (
                     <span className="inline-flex items-center gap-1 text-xs bg-tea-green text-white px-2 py-0.5 rounded-full">
-                      <CalendarClock className="w-3 h-3" />季節中，到 {season.end_date}
+                      <CalendarClock className="w-3 h-3" />季節中，到 {season.endDate}
                     </span>
                   )}
-                  {needsRenewal(t, today) && (
+                  {needsRenewal(r, today) && (
                     <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
                       季節快用完了，記得續填明年
                     </span>
@@ -222,19 +254,19 @@ export default function OrderingClient() {
                 </div>
 
                 <div className="mt-3 space-y-1.5">
-                  {t.experience_availability_windows.length === 0 && (
+                  {r.windows.length === 0 && (
                     <p className="text-xs text-tea-text-light">未設定季節區間——這一款不受季節限制</p>
                   )}
-                  {[...t.experience_availability_windows]
-                    .sort((a, b) => a.start_date.localeCompare(b.start_date))
+                  {[...r.windows]
+                    .sort((a, b) => a.startDate.localeCompare(b.startDate))
                     .map(w => (
                       <div key={w.id} className="flex items-center gap-2 text-sm text-tea-text-light">
-                        <span className="tabular-nums">{w.start_date} → {w.end_date}</span>
+                        <span className="tabular-nums">{w.startDate} → {w.endDate}</span>
                         {w.note && <span className="text-xs">（{w.note}）</span>}
                         <button
                           onClick={() => removeWindow(w.id)}
                           disabled={busy}
-                          aria-label={`刪除 ${t.name} 的 ${w.start_date} 至 ${w.end_date} 區間`}
+                          aria-label={`刪除 ${r.name} 的 ${w.startDate} 至 ${w.endDate} 區間`}
                           className="p-1 rounded hover:bg-red-50 text-red-500 disabled:opacity-30"
                         ><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
@@ -243,13 +275,13 @@ export default function OrderingClient() {
 
                 <div className="mt-3 flex flex-wrap gap-2 items-center">
                   <button
-                    onClick={() => setOpenForm(openForm === t.id ? null : t.id)}
+                    onClick={() => setOpenForm(openForm === r.id ? null : r.id)}
                     className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-tea-green-pale hover:bg-tea-cream"
                   ><Plus className="w-3.5 h-3.5" />新增季節區間</button>
 
                   {pinned ? (
                     <button
-                      onClick={() => pin(t.id, null)}
+                      onClick={() => pin(r.id, null)}
                       disabled={busy}
                       className="text-xs px-3 py-1.5 rounded-lg border border-tea-green-pale hover:bg-tea-cream"
                     >取消釘選</button>
@@ -259,15 +291,15 @@ export default function OrderingClient() {
                       <input
                         type="date"
                         min={today}
-                        aria-label={`${t.name} 的釘選到期日`}
-                        onChange={e => e.target.value && pin(t.id, e.target.value)}
+                        aria-label={`${r.name} 的釘選到期日`}
+                        onChange={e => e.target.value && pin(r.id, e.target.value)}
                         className="border border-tea-green-pale rounded-lg px-2 py-1"
                       />
                     </label>
                   )}
                 </div>
 
-                {openForm === t.id && (
+                {openForm === r.id && (
                   <div className="mt-3 flex flex-wrap items-end gap-2 bg-tea-cream-light rounded-lg p-3">
                     <label className="text-xs text-tea-text-light">
                       開始
@@ -300,7 +332,7 @@ export default function OrderingClient() {
                       />
                     </label>
                     <button
-                      onClick={() => addWindow(t.id)}
+                      onClick={() => addWindow(r.id)}
                       disabled={busy || !form.startDate || !form.endDate}
                       className="text-xs px-4 py-2 rounded-lg bg-tea-green text-white disabled:opacity-40"
                     >新增</button>
