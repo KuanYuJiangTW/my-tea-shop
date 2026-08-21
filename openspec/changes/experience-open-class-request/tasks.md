@@ -1,0 +1,127 @@
+# 任務：客製開課請求
+
+> **動手前先讀**：`openspec/specs/experience-booking/`、`openspec/specs/waitlist/`、
+> `openspec/specs/admin-experience-management/`，以及本 change 的 `design.md`。
+>
+> **本 change 碰到的高風險區**：新建的場次會進入既有的預約與付款流程（金流），
+> 且 `visibility` 過濾若失效等於私人場次外洩。依 CLAUDE.md 鐵律 4，第 6、7 章
+> 改完必跑 `npm run test`，並依 `.claude/playbooks/judgment.md` 套用高風險驗證。
+>
+> **第 1 至 8 章是 Phase 1（可獨立上線）**，第 9 章是 Phase 2，第 10 章是上線試跑。
+> 沒做完第 6 章不要開始第 7 章——先確保私人場次不會外洩，再開始製造私人場次。
+
+## 1. 資料層
+
+- [ ] 1.1 寫 `supabase/add_experience_requests.sql`：`experience_requests`（含 `request_no` unique、`status` CHECK 七種狀態、聯絡欄位、`token` unique、`token_expires_at`、`session_id`、`booking_id`、`admin_note`、`decline_reason`、`reviewed_at`、`reviewed_by`、`locale`、`user_id` 可為 null）
+- [ ] 1.2 同檔加 `experience_request_alternatives`（`request_id`、`alt_date`、`alt_start_time`、`existing_session_id` 可為 null、`sort_order`）
+- [ ] 1.3 同檔加 `experience_blackout_dates`（`blackout_date` unique、`reason`、`created_at`）
+- [ ] 1.4 同檔對 `experience_types` 增欄：`accepts_requests BOOLEAN NOT NULL DEFAULT FALSE`、`request_min_slots INTEGER`、`request_lead_days INTEGER NOT NULL DEFAULT 7`、`request_start_times TEXT[] NOT NULL DEFAULT '{10:00,14:00}'`（全部 `ADD COLUMN IF NOT EXISTS`）
+- [ ] 1.4b 同檔加 `experience_availability_windows`（`experience_type_id`、`start_date`、`end_date`、`note`、`created_at`；一款可多段）——**與 `experience-seasonal-ordering` 共用同一張表，誰先實作誰建表**；用 `CREATE TABLE IF NOT EXISTS`，若該 change 已上線則此步為 no-op
+- [ ] 1.5 同檔對 `experience_sessions` 增欄：`visibility TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public','private'))`、`created_from_request_id UUID`（既有場次自動為 `public`，行為不變）
+- [ ] 1.6 三張新表 `ENABLE ROW LEVEL SECURITY` 且**不建立任何 anon／authenticated policy**（比照 `supabase/add_web_inquiries.sql`）
+- [ ] 1.7 索引：`experience_requests(status, created_at DESC)`、`(experience_type_id, preferred_date, preferred_start_time)`、`token`
+- [ ] 1.8 填入 `request_min_slots`：**採茶 4／烤茶 4／茶藝 4／淺漬茶果酒 4／萬鷺朝鳳 3／紅茶製作 6**（業主 2026-08-21 確認成本後定案；茶藝 2 人只賺 20 元、紅茶是兩人帶，理由見 proposal 的淨貢獻表）；`accepts_requests` 全部維持 `false`
+- [ ] 1.8d 萬鷺朝鳳的 `request_start_times` 只填 `{14:00}`（鳥況 15:00–18:00，早上場看不到鳥）
+- [ ] 1.9 `src/types/index.ts` 補上 `ExperienceRequest`、`ExperienceRequestStatus`、`ExperienceRequestAlternative` 型別，並在 `ExperienceSession` 補 `visibility`
+
+## 2. 共用邏輯（`src/lib/experience-requests.ts`）
+
+- [ ] 2.1 `calcRequestSlots(type, headcount)`：`max(request_min_slots, headcount)`，上限 `max_participants`
+- [ ] 2.2 `calcRequestTotal(type, slots, date, today)`：`slots × price`，距今 7–13 天 ×1.2 並四捨五入至百位（**不做平日折扣**，理由見 design.md D3）
+- [ ] 2.3 `isRequestableDate(date, { leadDays, blackoutDates, windows, today })`：前置天數、90 天上限、公休日、可申請期間（**有 window 即白名單制，無 window 不限期間**），全部以台灣時間的當日 00:00 為基準
+- [ ] 2.3b `nextAvailableWindow(windows, today)`：回傳最近一段可申請期間，供前台顯示「最近的可採期是 ⋯」
+- [ ] 2.4 時段白名單取自 `experience_types.request_start_times`（**不得寫成全站常數**，理由見 design.md D12）；`CONTACT_PREFERENCE_WHITELIST` 維持常數
+- [ ] 2.5 `generateRequestToken()`（32 bytes crypto random → base64url）與 `generateRequestNo()`（人可讀，如 `R2608-0001`）
+- [ ] 2.6 `canTransition(from, to)`：實作 design.md D5 的狀態機，非法轉換回 false
+- [ ] 2.7 單元測試覆蓋 2.1–2.3b、2.6：單人申請仍收最低名額、申請人數超過最低名額、急件加價、名額上限、邊界日（剛好第 7 天／第 90 天）、落在／落在期間外、無 window 不受季節限制、所有 window 過期、每一種非法狀態轉換
+
+## 3. 客人端 API
+
+- [ ] 3.1 `POST /api/experience-requests`：白名單與長度驗證、`headcount` 1–50 整數、日期規則、rate limit（`@/lib/rate-limit`，每 IP 每日上限）、honeypot 靜默丟棄、service_role 寫入、回 `{ requestNo, token }`
+- [ ] 3.2 同一 Email 對同一體驗＋日期＋時段的重複提交回 409
+- [ ] 3.3 `GET /api/experience-requests/[token]`：回該筆請求的狀態與內容，**不得回其他請求的資料、不得回 `admin_note`**
+- [ ] 3.4 `DELETE /api/experience-requests/[token]`：`pending`／`alternative_offered` 可撤回，其餘回 409
+- [ ] 3.5 `POST /api/experience-requests/[token]/choose-alternative`：申請人選定替代方案，進入與核准相同的建場次流程
+- [ ] 3.6 測試：合法提交、未登入提交、人數非法、非白名單時段、公休日、日期過近、超過 90 天、限流 429、honeypot 回 200 但不寫庫、重複提交 409、token 查詢不外洩他人資料與內部備註
+
+## 4. Email 樣板（`src/lib/email.ts`）
+
+- [ ] 4.1 `sendRequestReceivedEmail()`：申請確認信（查詢編號、自助查詢連結、最低消費與名額數、回覆時效）
+- [ ] 4.2 `sendRequestApprovedEmail()`：核准信（專屬預約連結、48 小時期限、場次日期時段、應付金額）
+- [ ] 4.3 `sendRequestAlternativeEmail()`：替代方案信（1–3 組選項，每組一鍵選擇連結）
+- [ ] 4.4 `sendRequestDeclinedEmail()`：婉拒信（原因、自訂訊息、附最近 3 個可預約場次或聯絡方式）
+- [ ] 4.5 `sendAdminRequestDigest()`：業主待審彙整信（沿用 `sendAdminPendingRefundDigest` 的版型）
+- [ ] 4.6 五封信皆依 `locale` 產出 zh／en 兩版；寄信失敗一律 best-effort（不影響 API 回應，錯誤進 log）
+- [ ] 4.7 測試：locale 決定語言、寄信例外不影響 API 回應
+
+## 5. 客人端 UI
+
+- [ ] 5.1 `messages/zh.json`／`en.json` 新增 `experienceRequest` 命名空間（入口文案、表單標籤、錯誤訊息、狀態文字、a11y 標籤），兩份鍵齊備
+- [ ] 5.2 開課請求入口元件：顯示條件為 `accepts_requests = true`，內容含最低消費、名額數、回覆時效；`NEXT_PUBLIC_LINE_ADD_URL` 有設定時附 LINE 按鈕
+- [ ] 5.3 掛進 `src/app/experiences/[slug]/ExperienceCalendar.tsx` 的圖例與開課門檻提示之後；該月無場次時切換為主要 CTA 樣式
+- [ ] 5.4 申請表單（對話框或獨立頁）：不可申請的日期反灰不可選，送出前顯示「這一場的最低消費與名額數」
+- [ ] 5.5 成功畫面：顯示查詢編號與自助查詢連結，並提示已寄出確認信
+- [ ] 5.6 `src/app/experiences/request/[token]/page.tsx`：狀態查詢、撤回、選替代方案；`noindex` 且不進 sitemap
+- [ ] 5.7 測試：入口在 `accepts_requests = false` 時完全不出現；沿用既有的 `image-alt.test.ts` 規則確認新元件無寫死中文的 `alt`／`aria-label`
+- [ ] 5.8 手機版檢查：表單與自助查詢頁在 375px 寬度可正常操作
+- [ ] 5.9 `src/lib/experiences.ts` 的 `FALLBACK_CONTENT` 補 `cattle-egret-tour` 一筆備援（目前只有五款，Sanity 掛掉時該頁會 404）
+- [ ] 5.10 天候條款「遇雨可免費改期一次，不退費」寫進該體驗在 Sanity 的注意事項
+- [ ] 5.11 Sanity 的烤茶「包含項目」補上「**自製竹筒帶回**」（業主確認可帶回，目前沒列出來，是零成本的感知價值）
+- [ ] 5.12 萬鷺朝鳳的頁面與月曆標示「**鳥況最佳時段 15:00–18:00**」，做期待管理也做轉換
+
+## 6. 場次可見性（做在核准功能之前）
+
+- [ ] 6.1 先寫**會紅的測試**：月份內含 1 個 `visibility = 'private'` 場次時，`GET /api/experience-sessions` 只回公開場次
+- [ ] 6.2 修改 `src/app/api/experience-sessions/route.ts` 加上 `.eq("visibility", "public")`，確認 6.1 由紅轉綠
+- [ ] 6.3 反向驗證：拿掉該過濾條件，確認 6.1 確實變紅（見 `reverse-verify` skill；務必先以 `git diff --stat` 證明突變真的改到檔案，`.claude/playbooks/lessons.md` 有無效對照組的前例）
+- [ ] 6.4 檢查其他讀取場次的路徑（後台場次頁、體驗列表頁、任何 sitemap／JSON-LD 產生器）是否需要一併過濾，並在測試中固定該決定
+
+## 7. 後台審核
+
+- [ ] 7.1 `GET /api/admin/experience-requests`：狀態／體驗／日期區間篩選，回傳時以「體驗 × 日期 × 時段」聚合，附每組的筆數、合計人數、合計預估營收
+- [ ] 7.2 `POST /api/admin/experience-requests/[id]/approve`：衝突檢查 → 建場次（`private`、`created_from_request_id`）→ 產生 48 小時 token → 狀態 `approved` → 寄核准信 → 寫 `admin_audit_log`
+- [ ] 7.3 整組核准：同一時段的多筆請求只建一個場次，每筆各自取得 token 與核准信
+- [ ] 7.4 `POST .../[id]/decline`：原因＋自訂訊息、狀態 `declined`、婉拒信附最近 3 個可預約場次、寫稽核
+- [ ] 7.5 `POST .../[id]/alternatives`：1–3 組候選寫入 `experience_request_alternatives`、狀態 `alternative_offered`、寄信、寫稽核
+- [ ] 7.5b 替代方案要能提「**改成半日雙體驗組合**」（人數不足 4 時的標準回應，見 proposal「不足 4 人時，正確的回應不是拒絕」）：後台可選兩款體驗組成一筆建議，信中說明組合內容與每人價格
+- [ ] 7.6 `POST .../[id]/revoke`：未付款可撤銷（回收場次、token 失效、狀態回 `pending`）；已有 `confirmed` 預約回 409
+- [ ] 7.7 `PATCH .../[id]/note`：內部備註，**不得出現在任何客人端回應或信件**
+- [ ] 7.8 付款完成後轉公開：在既有 ECPay 成功回調路徑上，若該場次 `created_from_request_id` 不為 null 且請求非包場，將 `visibility` 更新為 `public`、請求狀態更新為 `converted`（**這條碰金流回調，改動要最小、要有測試**）
+- [ ] 7.9 後台頁面 `src/app/admin/(protected)/experiences/requests/`：聚合清單、狀態分頁、四個動作、`tel:`／`mailto:` 一鍵聯絡（`mailto:` 預填請求編號、體驗、日期時段、人數）、內部備註欄
+- [ ] 7.10 `AdminSidebar.tsx` 新增「開課請求」項目與待審筆數標記
+- [ ] 7.11 後台公休日維護、可申請期間維護（多段、續填提醒）與各體驗請求參數設定（`accepts_requests`／`request_min_slots`／`request_lead_days`／`request_start_times`）
+- [ ] 7.12 測試：核准建場次且為 private、衝突時回 409 並帶既有場次、整組核准只建一個場次、非待審狀態核准回 409、撤銷已付款回 409、備註不外洩、稽核紀錄有寫入
+- [ ] 7.13 `npm run test` 全綠（高風險區要求）
+
+## 8. 排程
+
+- [ ] 8.1 `/api/cron/experience-request-digest`：`CRON_SECRET` 驗證、彙整待審超過 24 小時者、無項目不寄信
+- [ ] 8.2 逾期回收：`approved` 超過 48 小時未建立預約 → 狀態 `expired`、回收無預約的場次；場次已有 `confirmed` 預約時只標請求不動場次
+- [ ] 8.3 `alternative_offered` 超過 7 天未回應 → `expired`
+- [ ] 8.4 `vercel.json` 加入新 cron（避開既有 01:00–04:00 的時段擁擠，建議 `0 5 * * *`）
+- [ ] 8.5 測試：未授權回 401、無項目不寄信、逾期回收的兩種分支
+
+## 9. Phase 2：需求標記與附議
+
+- [ ] 9.1 `GET /api/experience-requests/demand?slug=&year=&month=`：回 `{ date, startTime, headcount, requestCount }`，**只回聚合數字，不含任何個資**；累計未滿 2 人的日期不回
+- [ ] 9.2 月曆日期格顯示需求標記（樣式有別於既有三色圓點），點選後顯示「已有 N 人想在這天開課」
+- [ ] 9.3 「＋1 我也想這天」簡化表單：預填體驗／日期／時段，只需聯絡資訊；重複 Email 回 409
+- [ ] 9.4 累計達開團門檻時通知業主（併入第 8 章的 digest，或即時寄信）
+- [ ] 9.5 測試：1 人不顯示標記、2 人顯示、API 回應不含姓名／電話／Email
+
+## 9b. 業主決策後的商品調整（可與其他章節並行）
+
+- [ ] 9b.1 新增 `experience_types` 記錄「**萬鷺朝鳳半日（含等鳥茶席）**」：650 元、時長 4 小時、`request_start_times = {14:00}`、`request_min_slots = 3`（業主已確認要做等鳥茶席；用新體驗類型實作，**不改 booking schema、不蓋加購系統**，理由見 proposal「等鳥茶席」一節）
+- [ ] 9b.2 Sanity 建立該款的雙語內容：包含項目（導覽＋一壺茶可續水＋炭火小點）、注意事項（鳥況時段、天候條款）、相簿
+- [ ] 9b.3 `FALLBACK_CONTENT` 補該款備援
+- [ ] 9b.4 確認 450 元的單純導覽仍保留，兩款並存讓客人自選；季節排序需同時處理兩款（見 `experience-seasonal-ordering`）
+
+## 10. 上線與試跑
+
+- [ ] 10.1 業主在 Supabase SQL Editor 執行 `add_experience_requests.sql`，確認既有場次的 `visibility` 全為 `public`、既有月曆與預約行為不變
+- [ ] 10.2 跑 `/verify`（測試＋型別＋lint＋build），lint 0 error
+- [ ] 10.3 部署後在線上實跑一次完整流程：申請 → 收確認信 → 後台核准 → 收核准信 → 點連結 → 完成付款 → 場次轉公開 → 出現在公開月曆
+- [ ] 10.4 另跑一次婉拒流程與一次替代方案流程，確認信件內容與連結正確
+- [ ] 10.5 **先開啟茶藝體驗**的 `accepts_requests`，其餘維持 false；黃頭鷺與採茶等業主提供可申請期間後再開
+- [ ] 10.6 兩週後回收數據：申請量、核准率、成交率、每筆審核耗時，據此調整最低消費與前置天數，再逐款開啟
+- [ ] 10.7 把過程中踩到的坑寫進 `.claude/playbooks/lessons.md`，並更新 `.claude/WORKLOG.md`
