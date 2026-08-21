@@ -213,6 +213,12 @@ export interface EcpayCheckoutResponse {
 
 // ─── Experience Booking ───────────────────────────────────────────────────────
 
+export interface AvailabilityWindow {
+  startDate: string;   // YYYY-MM-DD
+  endDate:   string;   // YYYY-MM-DD，含當天
+  note?:     string;
+}
+
 export interface ExperienceType {
   id:               number;
   slug:             string;
@@ -224,6 +230,12 @@ export interface ExperienceType {
   minParticipants:  number;
   requiresAdult:    boolean;
   isActive:         boolean;
+
+  // ── 排序與季節（見 openspec/changes/experience-seasonal-ordering）──
+  // 全部選填：SQL 還沒執行時它們會是 undefined，排序安全地退回 id 順序
+  sortOrder?:       number | null;
+  pinnedUntil?:     string | null;          // YYYY-MM-DD，含當天
+  windows?:         AvailabilityWindow[];   // 空陣列＝不分季節，不是「季節外」
 }
 
 export interface ExperienceSession {

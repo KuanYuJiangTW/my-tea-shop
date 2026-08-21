@@ -41,13 +41,17 @@ ORDER BY
 
 **理由**：布林值的置頂在人的記憶裡沒有到期日。這個功能一年只會用到兩三次，用到的當下都是忙的時候（季節剛開始、報導剛出來），撤下的時機則沒有任何事件提醒。**把到期日變成必填，是用資料結構取代記憶。**
 
-### D3：季節判定放在資料庫，不放在應用層過濾
+### D3：排序集中在單一純函式，不建資料庫 view
 
-排序在 SQL 完成（透過 view 或 RPC），而不是把全部資料撈回 Node 再排。
+**選擇**：`getExperienceTypes()` 一次查詢帶出體驗與其季節區間（PostgREST embedded resource），排序交給 `src/lib/experience-ordering.ts` 的 `sortExperiences()`。**所有讀取路徑都經過 `getExperienceTypes()`，所以排序只有一份。**
 
-**替代方案**：撈回來用 JS 排。六款體驗確實可以這樣做，但商品列表會成長，而且**排序邏輯散在多個呼叫點就會各排各的**（首頁、列表頁、後台）。放在一個 view 裡，所有讀取路徑自動一致。
+**原本的規劃是建 `experience_types_ordered` view，實作時改掉，理由有三**：
 
-**做法**：建 `experience_types_ordered` view（帶 `is_in_season`、`season_ends_on`、`days_left` 三個衍生欄位），`getExperienceTypes()` 改讀這個 view。前台需要的季節資訊一次拿到，不必再查一次。
+1. **本專案沒有 migration 流程，SQL 由業主手動貼上執行。** 少一個資料庫物件就少一件會出錯、會漏掉、日後沒人記得它存在的東西。增欄與建表已經是必要的，view 不是。
+2. **部署順序耦合**：程式若查一個還不存在的 view，`getExperienceTypes()` 會回空陣列，體驗列表整頁空白。純函式版本在欄位還沒建好時，只是拿不到 `sort_order`（`undefined` 排序穩定退回 id 順序），**壞的方向是安全的**。
+3. **時區邏輯測得到**。季節判定要用台灣時間（見 Risks），寫在 SQL 裡只能靠實際連線驗證；寫在 TS 裡可以用 vitest 固定「台灣時間季節首日 07:00、UTC 仍是前一日」這種邊界。
+
+**原本選 view 的理由（多個呼叫點各排各的）仍然成立，但真正的解法是「只有一個呼叫點」，不是「把邏輯推到資料庫」。** 首頁、列表頁、後台一律呼叫 `getExperienceTypes()`，不得自己查 `experience_types` 再排。
 
 ### D4：季節結束後卡片不下架，改為「明年見 ＋ 留 Email 通知」
 
@@ -66,7 +70,7 @@ ORDER BY
 - **季節區間忘記續填** → 該款回到原位，等同現狀，不會出錯。後台在最後一段季節結束日距今不到 30 天時顯示提醒（與 `experience-open-class-request` 共用同一個提醒）。
 - **季節區間跨年（例如 12/20–1/10）** → 以「多段區間」表達，不做跨年單段；判定一律是 `CURRENT_DATE BETWEEN start_date AND end_date`，避免跨年邏輯的邊界錯誤。
 - **時區** → 季節判定用資料庫的 `CURRENT_DATE`。Supabase 預設 UTC，而台灣是 UTC+8，**季節首日與末日會有 8 小時的落差**。判定一律用台灣時間的當日日期（`(now() AT TIME ZONE 'Asia/Taipei')::date`），並在測試中固定首日與末日兩個邊界。
-- **view 讓排序邏輯離開程式碼** → 排序規則會變成 SQL 檔裡的一段，code review 時容易漏看。緩解：view 的定義寫在 `supabase/add_experience_ordering.sql` 並在 `src/lib/experiences.ts` 的註解指向它，且排序結果要有測試（給定三款體驗與各自狀態，斷言順序）。
+- **排序邏輯散到多個呼叫點** → 唯一的防線是「只有 `getExperienceTypes()` 會排序」。任何直接查 `experience_types` 再自己排的地方都是缺陷，測試要涵蓋排序結果（給定三款體驗與各自狀態，斷言順序）。
 - **釘選與季節同時存在造成困惑** → 後台在釘選其他款時，若當下有季節中的體驗被壓下去，顯示提示告知目前排序結果。
 
 ## Migration Plan

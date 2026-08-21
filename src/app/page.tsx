@@ -7,6 +7,7 @@ import BrandStats from "./BrandStats";
 import TrustRow from "@/components/TrustRow";
 import { getFeaturedProducts } from "@/lib/products";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
+import SeasonBadge from "@/components/SeasonBadge";
 import { getTranslations, getLocale } from "next-intl/server";
 import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 
@@ -295,6 +296,13 @@ export default async function HomePage() {
                           {tc("adultOnly")}
                         </span>
                       )}
+                      {/* 首頁只顯示前 3 張，而季節中的體驗會被排到最前——
+                          也就是說季節一開始，它自己就會出現在首頁 */}
+                      <SeasonBadge
+                        windows={exp.windows}
+                        name={isEn ? exp.nameEn : exp.name}
+                        className="absolute top-3 left-3 shadow-sm"
+                      />
                     </div>
                     <div className="p-5">
                       <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">

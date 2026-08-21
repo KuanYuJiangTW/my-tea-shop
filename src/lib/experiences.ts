@@ -1,3 +1,4 @@
+import { sortExperiences, taipeiToday } from "@/lib/experience-ordering";
 import { supabase } from "@/lib/supabase";
 import { sanityFetch } from "@/sanity/client";
 import { ALL_EXPERIENCES_QUERY, EXPERIENCE_BY_SLUG_QUERY } from "@/sanity/queries";
@@ -89,7 +90,18 @@ export async function getExperienceContent(slug: string): Promise<ExperienceCont
 
 // ── Supabase 體驗類型 ──────────────────────────────────────────
 
+/**
+ * 帶季節區間一起查。這張表可能還不存在（業主尚未執行
+ * supabase/add_experience_ordering.sql），所以查詢要能退回沒有它的版本——
+ * 見 SELECT_WITH_WINDOWS 上方的說明。
+ */
+const SELECT_WITH_WINDOWS =
+  "*, experience_availability_windows(start_date, end_date, note)";
+
+type WindowRow = { start_date: string; end_date: string; note: string | null };
+
 function mapRow(row: Record<string, unknown>): ExperienceType {
+  const windowRows = (row.experience_availability_windows as WindowRow[] | undefined) ?? [];
   return {
     id:              row.id as number,
     slug:            row.slug as string,
@@ -101,10 +113,42 @@ function mapRow(row: Record<string, unknown>): ExperienceType {
     minParticipants: row.min_participants as number,
     requiresAdult:   row.requires_adult as boolean,
     isActive:        row.is_active as boolean,
+    sortOrder:       (row.sort_order as number | null) ?? null,
+    pinnedUntil:     (row.pinned_until as string | null) ?? null,
+    windows:         windowRows.map(w => ({
+      startDate: w.start_date,
+      endDate:   w.end_date,
+      note:      w.note ?? undefined,
+    })),
   };
 }
 
+/**
+ * **排序的唯一入口。** 首頁、體驗列表頁、後台一律呼叫這支，不要自己查
+ * experience_types 再排——排序規則（釘選 → 季節 → sort_order → id）只有
+ * src/lib/experience-ordering.ts 一份。理由見該 change 的 design.md D3。
+ *
+ * 兩段式查詢是刻意的：季節表與新欄位可能還沒建好（程式先於 SQL 部署），
+ * 那時第一段會失敗，退回原本的查法。**壞掉的方向是安全的**——順序退回
+ * id 排序，跟現在一模一樣，而不是整頁空白。
+ */
 export async function getExperienceTypes(): Promise<ExperienceType[]> {
+  const withWindows = await supabase
+    .from("experience_types")
+    .select(SELECT_WITH_WINDOWS)
+    .eq("is_active", true)
+    .order("id");
+
+  if (!withWindows.error && withWindows.data) {
+    return sortExperiences(withWindows.data.map(mapRow), taipeiToday());
+  }
+
+  console.warn(
+    "[experiences] 季節欄位尚未建立，排序退回 id 順序。" +
+    "請執行 supabase/add_experience_ordering.sql。原因：",
+    withWindows.error?.message,
+  );
+
   const { data, error } = await supabase
     .from("experience_types")
     .select("*")
@@ -116,6 +160,16 @@ export async function getExperienceTypes(): Promise<ExperienceType[]> {
 }
 
 export async function getExperienceBySlug(slug: string): Promise<ExperienceType | null> {
+  // 詳細頁的季節徽章要用到 windows，所以這裡也帶；同樣要能退回舊查法
+  const withWindows = await supabase
+    .from("experience_types")
+    .select(SELECT_WITH_WINDOWS)
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .single();
+
+  if (!withWindows.error && withWindows.data) return mapRow(withWindows.data);
+
   const { data, error } = await supabase
     .from("experience_types")
     .select("*")

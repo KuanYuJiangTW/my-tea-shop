@@ -1021,3 +1021,61 @@ lint 0 error（36 warning 是既有債務）、build 成功。
 訂了體驗之後會遇到一張全中文的表單**。屬頁面級翻譯工作，不在本輪範圍，已向業主報告。
 
 admin／studio 的中文 placeholder 與 title 刻意不動：內部工具，中文單語是設計。
+
+## 2026-08-21｜體驗季節排序上線驗收（branch `feat/experience-seasonal-ordering`）
+
+業主要求：萬鷺朝鳳季時要能把它排到體驗卡片第一張，但後台無法調整順序
+（`getExperienceTypes()` 與 `getProducts()` 都是寫死的 `.order("id")`，
+萬鷺朝鳳是 id 6 → 永遠最後一張）。
+
+**不能改 id**：`experience_sessions`、`experience_bookings`、`experience_reviews`
+三張表以外鍵指著 `experience_types.id`。
+
+### 做法
+排序鍵改為 `(釘選中, 季節中, sort_order, id)`，實作集中在
+`src/lib/experience-ordering.ts`（純函式，唯一入口是 `getExperienceTypes()`）。
+季節區間存 `experience_availability_windows`，**與 `experience-open-class-request`
+提案共用同一張表**——同一份季節設定同時決定「能不能申請開課」與「排在哪」。
+
+原 design 規劃建資料庫 view，實作時改成應用層排序（D3 已更新）：本專案 SQL
+由業主手動執行，少一個資料庫物件就少一件會出錯的事；且季節判定要用台灣時間，
+寫在 TS 才測得到「台灣已是首日、UTC 還在前一天」的邊界。
+
+釘選用 `pinned_until DATE` 而非 BOOLEAN——**沒有到期日的置頂將來一定會忘記
+撤下**（12 月首頁還掛著一個沒有場次的季節商品）。API 層也擋，不只 UI。
+
+### 線上驗收（2026-08-21，業主已執行 `supabase/add_experience_ordering.sql`）
+- **增欄沒動到既有資料**：六列的 id／slug／價格／is_active 與執行前逐項相同；
+  `sort_order` 全 100、`pinned_until` 全 NULL、`products.sort_order` 全 100。
+- **順序**：`/experiences` 與 `/en/experiences` 皆為
+  萬鷺朝鳳 → 茶藝 → 烤茶 → 採茶 → 紅茶 → 茶果酒。**首頁只顯示前 3 張，
+  萬鷺朝鳳也自動進了首頁。**
+- **徽章**：中文「季節限定・到 10/11 還有 51 天」（`bg-tea-green`）、
+  採茶與紅茶「季節限定・9/15 開放」（`bg-tea-cream`，因為今天落在兩段可採期之間）；
+  英文「Seasonal · 51 days left, until Oct 11」「Opens Sep 15」。
+- **末日分支**：用一段「今天開始今天結束」的臨時區間（掛在烤茶、驗完即刪，
+  `finally` 清理並確認無殘留）實跑 → 顯示「季節限定・今天是最後一天」、
+  `bg-amber-500`，且**沒有出現「還有 0 天」**。
+- **手機 375px**：三個徽章都單行，最寬 204px（卡片 359px）不溢出，
+  不壓到卡片標題，頁面無水平捲動。
+- **DB 約束**：對萬鷺朝鳳插入重疊區間 → 400 / `23P01`（正是 API 轉成 409
+  的那個碼）；不重疊的可新增（已刪）。
+- **RLS**：匿名讀 200（徽章需要）、匿名寫 401。
+- 退路警告 0 次（走的是主要查詢路徑），server error 0。
+- 811 測試全綠、tsc 0、lint 0 error（36 warning 未增加）、build 成功。
+
+### 實跑才抓到的缺陷（已修，有回歸測試）
+`.order("sort_order")` 加進 `getProducts()` 之後，**欄位還沒建好時商品列表
+會整個變空**——PostgREST 對不存在的欄位排序是讓整個查詢失敗（42703），
+不是忽略排序。tsc 綠、測試綠，只有把 dev server 跑起來看畫面才看得到。
+改成「先試新查法、遇 42703 才退回舊查法」，`ordering-fallback.test.ts` 守住。
+
+### 未完成（下一個 session 接手）
+- **3.3／3.4 季節外的「本季已結束・明年見 ＋ 留 Email 通知我」**。徽章已經會
+  顯示 ended／upcoming，但「預約按鈕停用」與 Email 登記入口沒做。登記名單
+  **要與 `experience-open-class-request` 的需求蒐集共用同一張表**，兩邊一起做
+  比較省。萬鷺朝鳳季到 10/11，這個狀態 51 天後才看得到，不急。
+- **4.4 商品排序的後台 UI**：欄位與查詢都好了，但後台商品頁是 1,035 行的單一
+  client 元件，動它的範圍遠超本次目標。現在要調商品順序可直接改 Supabase 欄位。
+- 後台 `/admin/experiences/ordering` 的**登入後畫面沒有親眼驗過**——需要管理員
+  帳密，不能代輸入。未登入的部分驗過了（API 401、頁面 307 導向 `/admin`）。

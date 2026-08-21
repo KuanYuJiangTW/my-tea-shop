@@ -1,7 +1,35 @@
 import { supabase } from "./supabase";
 import type { Product } from "@/types";
 
+/**
+ * PostgREST 對不存在的欄位排序會讓**整個查詢失敗**（42703），而不是忽略排序
+ * ——也就是說「程式先於 SQL 部署」會讓商品列表變成空的。這是實跑 dev server
+ * 才看得到的缺陷：tsc 綠、單元測試綠，畫面卻是空的。
+ *
+ * 所以帶新排序欄位的查詢一律先試新的、遇到 42703 才退回舊查法。
+ * **壞掉的方向要是安全的**——退回 id 順序（跟現在一樣），不是整頁空白。
+ *
+ * `UNDEFINED_COLUMN` 分辨「該退回舊查法」與「真的壞了」——只有前者靜默
+ * 退回，其他錯誤照樣印出來，不要讓這層退路吃掉真正的故障。
+ * 回歸測試：src/__tests__/experiences/ordering-fallback.test.ts
+ */
+const UNDEFINED_COLUMN = "42703";
+
 export async function getProducts(): Promise<Product[]> {
+  const sorted = await supabase
+    .from("products")
+    .select("*")
+    .eq("is_active", true)
+    .order("sort_order", { nullsFirst: false })
+    .order("id");
+
+  if (!sorted.error && sorted.data) return sorted.data.map(mapRow);
+
+  if (sorted.error?.code !== UNDEFINED_COLUMN) {
+    console.error("讀取產品失敗:", sorted.error);
+    return [];
+  }
+
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -12,11 +40,25 @@ export async function getProducts(): Promise<Product[]> {
     console.error("讀取產品失敗:", error);
     return [];
   }
-
   return data.map(mapRow);
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
+  const sorted = await supabase
+    .from("products")
+    .select("*")
+    .eq("is_active", true)
+    .eq("featured", true)
+    .order("sort_order", { nullsFirst: false })
+    .order("id");
+
+  if (!sorted.error && sorted.data) return sorted.data.map(mapRow);
+
+  if (sorted.error?.code !== UNDEFINED_COLUMN) {
+    console.error("讀取精選產品失敗:", sorted.error);
+    return [];
+  }
+
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -28,7 +70,6 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     console.error("讀取精選產品失敗:", error);
     return [];
   }
-
   return data.map(mapRow);
 }
 

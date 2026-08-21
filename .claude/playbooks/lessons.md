@@ -228,6 +228,22 @@
 - 規則：**本專案的 `supabase/*.sql` 是一次性建置腳本，不是 migration 紀錄，不反映線上 schema 與資料。**任何關於「線上有沒有這筆資料／這個欄位」的判斷，一律查線上：讀 `.env.local` 取 `NEXT_PUBLIC_SUPABASE_URL` 與 `SUPABASE_SERVICE_ROLE_KEY`，用 Node 打 PostgREST（`/rest/v1/<table>?select=*`）。SQL 檔只能拿來看「當初打算建成什麼樣」
 - 去處：暫存於此（與 JUDG-2「完成要有證據」同源：斷言線上狀態就要有線上證據，讀本地檔案不算）
 
+## 2026-08-21 反向驗證用 `git checkout --` 還原，把同一個檔案未 commit 的工作一起洗掉
+- 情境：反向驗證 products.ts 的退路測試。第一次突變不小心造成語法錯誤，想重來，就下了 `git checkout -- src/lib/products.ts`。但那個檔的改動**還沒 commit**——HEAD 是上一個 docs commit，於是整支 `getProducts`／`getFeaturedProducts` 的退路實作瞬間回到原始狀態
+- 代價：重寫整個檔案的兩個函式。真正的風險是它**沒有任何錯誤訊息**——checkout 成功了，只是把你要的東西也還原掉了；如果當下沒去看檔案內容，會以為只還原了突變
+- 規則：**突變前先 `cp <檔案> $SCRATCH/<檔名>.orig`，還原時 `cp` 回來，永遠不要用 `git checkout --` 還原突變**——除非該檔的工作已經 commit。還原後用 `diff <備份> <檔案>` 確認為空，再跑測試確認轉綠
+- 去處：暫存於此（與同日「supabase/*.sql 不是線上現況」同屬「用錯誤的來源當基準」；也補上 `reverse-verify` skill 沒寫的那一半——它教怎麼突變，沒教怎麼安全還原）
+
+## 2026-08-21 這個 repo 的既有 .ts／.json 是 CRLF，用 
+ 字面值比對會靜默 MISS
+- 情境：用 Node 腳本改 `src/types/index.ts`。搜尋字串是多行 template literal（
+ 換行），檔案實際是 CRLF，`s.includes(find)` 直接 false
+- 代價：一次 MISS 中止。不嚴重，但若腳本沒有「找不到就 exit(1)」的保護，就會變成靜默 no-op——寫了一堆 edit、一個都沒生效、還以為成功了
+- 規則：**用 Node 改既有檔案前，先正規化行尾**：讀進來 `split("
+").join("
+")`、比對替換、寫回時依原檔還原。搜尋字串一律用 LF，並且**找不到就 throw／exit(1)，不可以靜默跳過**。（本 session 的 `$SCRATCH/edit.mjs` 就是這支 helper）
+- 去處：暫存於此（與 2026-08-18「node -e 引號被吃掉」同源：本環境改檔的失敗多半是靜默的）
+
 ## 已歸檔（2026-08-06 精簡 18 條；2026-08-15 再精簡 2 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
