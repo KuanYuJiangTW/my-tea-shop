@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
   revalidatePath("/faq");
   revalidatePath("/");
   revalidatePath("/process");
+  revalidatePath("/tea-guide/[slug]", "page");
 
   return NextResponse.json({ revalidated: true });
 }

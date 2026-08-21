@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getArticles } from "@/lib/articles";
 import { getExperienceTypes } from "@/lib/experiences";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
@@ -43,7 +44,10 @@ function localizedEntries(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  const experiences = await getExperienceTypes();
+  const [experiences, articles] = await Promise.all([
+    getExperienceTypes(),
+    getArticles(),
+  ]);
 
   return [
     ...STATIC_PAGES.flatMap(p =>
@@ -51,6 +55,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
     ...experiences.flatMap(exp =>
       localizedEntries(`/experiences/${exp.slug}`, now, "monthly", 0.8),
+    ),
+    // 文章的 lastModified 用實際的更新時間，不用 now——季節性文章一年才動一次，
+    // 每次 build 都謊報成今天會讓爬蟲失去判斷依據
+    ...articles.flatMap(a =>
+      localizedEntries(`/tea-guide/${a.slug}`, new Date(a.updatedAt ?? a.publishedAt), "monthly", 0.7),
     ),
   ];
 }

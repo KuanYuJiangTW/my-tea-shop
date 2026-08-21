@@ -1937,5 +1937,13 @@
     "ogTitle": "霧抉茶 | 台灣嘉義阿里山梅山高山茶",
     "ogDescription": "嘉義阿里山梅山，一家三口40年堅持，自產自銷台灣高山茶。從茶園到您手上，每一泡都由我們親手把關。",
     "ogImageAlt": "霧抉茶 | 台灣嘉義阿里山梅山高山茶"
+  },
+  "teaGuide": {
+    "label": "茶知識",
+    "breadcrumb": "茶知識",
+    "publishedOn": "發布於 {date}",
+    "updatedOn": "最後更新 {date}",
+    "ctaTitle": "想親眼看看？",
+    "ctaIntro": "文章裡寫的都在我們家茶園發生，可以線上預約。"
   }
 }
