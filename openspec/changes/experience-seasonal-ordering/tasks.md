@@ -19,7 +19,8 @@
       ✅ 改為應用層排序、不建 view（design.md D3 已更新理由）
 - [x] 1.5 RLS：`experience_availability_windows` 需可被前台匿名讀取（季節徽章要用），因此**不是 deny-by-default**——啟用 RLS 並建立 `SELECT` 給 anon 的 policy，寫入僅 service_role
       ✅ 改為「季節區間可公開讀取」policy——徽章要在前台顯示，匿名必須讀得到；寫入仍只有 service_role
-- [ ] 1.6 執行前後各查一次 `experience_types`，確認**增欄不改動任何既有列的 id 與其他欄位**
+- [x] 1.6 執行前後各查一次 `experience_types`，確認**增欄不改動任何既有列的 id 與其他欄位**
+      ✅ 執行前後逐項比對：六列的 id／slug／價格／is_active 完全相同；新欄位 sort_order 全 100、pinned_until 全 NULL、products.sort_order 全 100
 - [x] 1.7 `src/types/index.ts` 的 `ExperienceType` 補 `sortOrder`、`pinnedUntil`、`isInSeason`、`seasonEndsOn`、`daysLeft`
       ✅ 新增 `AvailabilityWindow` 型別；`ExperienceType` 補 sortOrder／pinnedUntil／windows（全選填，SQL 沒跑時是 undefined）
 
@@ -52,7 +53,8 @@
       ✅ 查證五個呼叫點（首頁、列表頁、詳細頁、製程頁、sitemap）**都走 `getExperienceTypes()`**，排序天然一致；徽章已掛首頁（只顯示前 3 張，季節中的會自己擠進去）、列表頁卡片、詳細頁 hero
 - [x] 3.6 檢查無寫死中文的文案、`alt`、`aria-label`（沿用 `image-alt.test.ts` 的規則）
       ✅ SeasonBadge 的文案與 aria-label 全部取自 messages，無寫死中文
-- [ ] 3.7 手機版檢查：徽章與倒數在 375px 不擠壓卡片標題
+- [x] 3.7 手機版檢查：徽章與倒數在 375px 不擠壓卡片標題
+      ✅ 375×812 實測：三個徽章都單行、最寬 204px（卡片 359px）不溢出、不壓到標題、頁面無水平捲動
 
 ## 4. 後台
 
@@ -72,9 +74,16 @@
 
 ## 5. 上線
 
-- [ ] 5.1 業主執行 `add_experience_ordering.sql`，**確認執行後前台列表順序與執行前完全相同**（此時所有新欄位皆為預設值）
-- [ ] 5.2 跑 `/verify`（測試＋型別＋lint＋build），lint 0 error
-- [ ] 5.3 部署後填入萬鷺朝鳳的季節區間（**依業主確認的日期，現有場次範圍為 8/18–10/11**），確認它立刻排到第一張並顯示倒數
-- [ ] 5.4 用瀏覽器實看 `/experiences` 與 `/en/experiences` 兩個語系的卡片順序與徽章文案
-- [ ] 5.5 把季節結束當天的行為驗一次（可暫時把區間結束日設為今天，確認顯示「最後一天」，再改回）
-- [ ] 5.6 更新 `.claude/WORKLOG.md`；踩到的坑寫進 `.claude/playbooks/lessons.md`
+- [x] 5.1 業主執行 `add_experience_ordering.sql`，**確認執行後前台列表順序與執行前完全相同**（此時所有新欄位皆為預設值）
+      ✅ 業主已執行；執行當下所有新欄位皆為預設值，排序等同 id 順序（見 1.6）
+- [x] 5.2 跑 `/verify`（測試＋型別＋lint＋build），lint 0 error
+      ✅ 811 測試全綠、tsc 0、lint 0 error（36 warning 未增加）、build 成功
+- [x] 5.3 部署後填入萬鷺朝鳳的季節區間（**依業主確認的日期，現有場次範圍為 8/18–10/11**），確認它立刻排到第一張並顯示倒數
+      ✅ 季節區間已隨 SQL 填入（萬鷺朝鳳 8/18–10/11）。實測 `/experiences` 順序為萬鷺朝鳳 → 茶藝 → 烤茶 → 採茶 → 紅茶 → 茶果酒，徽章顯示「到 10/11 還有 51 天」；**首頁前 3 張也自動含它**
+- [x] 5.4 用瀏覽器實看 `/experiences` 與 `/en/experiences` 兩個語系的卡片順序與徽章文案
+      ✅ zh／en 兩語系都驗：英文為「Seasonal · 51 days left, until Oct 11」與「Opens Sep 15」（採茶與紅茶今天落在兩段可採期之間，屬 upcoming）
+- [x] 5.5 把季節結束當天的行為驗一次（可暫時把區間結束日設為今天，確認顯示「最後一天」，再改回）
+      ✅ 用「今天開始今天結束」的臨時區間（掛烤茶，驗完即刪、確認無殘留）實跑 → 「季節限定・今天是最後一天」＋ bg-amber-500，且無「還有 0 天」。另驗 DB 的 EXCLUDE 約束真的擋重疊（23P01）、RLS 匿名讀 200／寫 401
+- [x] 5.6 更新 `.claude/WORKLOG.md`；踩到的坑寫進 `.claude/playbooks/lessons.md`
+      ✅ WORKLOG 已補一節；lessons.md 本輪記了三條（supabase/*.sql 不反映線上現況、反向驗證不可用 git checkout 還原未 commit 的檔、既有檔案 CRLF 用 
+ 比對會靜默 MISS）
