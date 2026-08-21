@@ -51,3 +51,49 @@ export const EXPERIENCE_BY_SLUG_QUERY = `
     seoDescriptionEn
   }
 `;
+
+// ── 茶知識文章 ─────────────────────────────────────────────────
+// 只取列表／sitemap 需要的欄位，內文不撈（sections 可能很長）
+export const ALL_ARTICLES_QUERY = `
+  *[_type == "article" && defined(slug.current)] | order(publishedAt desc) {
+    "slug": slug.current,
+    title,
+    titleEn,
+    excerpt,
+    excerptEn,
+    "coverImage": coverImage.asset->url,
+    coverImageAlt,
+    coverImageAltEn,
+    publishedAt,
+    updatedAt
+  }
+`;
+
+export const ARTICLE_BY_SLUG_QUERY = `
+  *[_type == "article" && slug.current == $slug][0] {
+    "slug": slug.current,
+    title,
+    titleEn,
+    excerpt,
+    excerptEn,
+    "coverImage": coverImage.asset->url,
+    coverImageAlt,
+    coverImageAltEn,
+    publishedAt,
+    updatedAt,
+    keywords,
+    keywordsEn,
+    sections[]{
+      heading,
+      headingEn,
+      paragraphs,
+      paragraphsEn
+    },
+    "relatedExperiences": relatedExperiences[]->{
+      "slug": slug.current,
+      name,
+      nameEn,
+      "coverImage": coverImage.asset->url
+    }
+  }
+`;

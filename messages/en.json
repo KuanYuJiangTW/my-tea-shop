@@ -1935,5 +1935,13 @@
     "ogTitle": "Wu Jue Tea | Taiwan Alishan Meishan High Mountain Tea",
     "ogDescription": "In Meishan, Alishan, Chiayi — a family of three, 40 years of dedication, growing and selling our own Taiwanese high mountain tea. From our tea garden to your hands, every brew is checked by our own hands.",
     "ogImageAlt": "Wu Jue Tea | Taiwan Alishan Meishan High Mountain Tea"
+  },
+  "teaGuide": {
+    "label": "TEA GUIDE",
+    "breadcrumb": "Tea Guide",
+    "publishedOn": "Published {date}",
+    "updatedOn": "Updated {date}",
+    "ctaTitle": "Want to see it for yourself?",
+    "ctaIntro": "Everything in this guide happens on our own tea farm — you can book online."
   }
 }

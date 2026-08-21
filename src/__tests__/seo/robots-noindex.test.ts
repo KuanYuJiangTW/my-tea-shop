@@ -17,6 +17,14 @@ vi.mock("@/lib/experiences", () => ({
   ],
 }));
 
+// sitemap 也吃文章。不 mock 的話 @/lib/articles 會在模組載入時建 Sanity
+// client，而測試環境沒有 NEXT_PUBLIC_SANITY_PROJECT_ID，整個檔案直接掛掉
+vi.mock("@/lib/articles", () => ({
+  getArticles: async () => [
+    { slug: "cattle-egret-viewing-guide", publishedAt: "2026-08-21T09:00:00.000Z" },
+  ],
+}));
+
 import { GET } from "@/app/robots.txt/route";
 import sitemap from "@/app/sitemap";
 
