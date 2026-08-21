@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Clock, Users } from "lucide-react";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
+import SeasonBadge from "@/components/SeasonBadge";
 import { getTranslations, getLocale } from "next-intl/server";
 import { langAlternates, openGraphFor } from "@/lib/seo";
 
@@ -75,6 +76,12 @@ export default async function ExperiencesPage() {
                       {t("adultOnly")}
                     </span>
                   )}
+                  {/* 季節徽章放左上（成年限制在右上），沒有季節設定的體驗不會渲染任何東西 */}
+                  <SeasonBadge
+                    windows={exp.windows}
+                    name={isEn ? (exp.nameEn || exp.name) : exp.name}
+                    className="absolute top-3 left-3 shadow-sm"
+                  />
                 </div>
 
                 <div className="p-6">

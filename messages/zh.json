@@ -277,6 +277,19 @@
       "description": "親身走入嘉義阿里山梅山茶園，體驗茶藝、烤茶、採茶、紅茶製作與淺漬茶果酒，感受從茶葉到生活的每一個細節。",
       "ogTitle": "茶山體驗 | 霧抉茶",
       "ogImageAlt": "霧抉茶茶山體驗"
+    },
+    "season": {
+      "inSeason": "季節限定・到 {endsOn} 還有 {daysLeft} 天",
+      "lastDay": "季節限定・今天是最後一天",
+      "upcoming": "季節限定・{startsOn} 開放",
+      "ended": "本季已結束，明年再見",
+      "notifyMe": "開放時通知我",
+      "notifyPlaceholder": "你的 Email",
+      "notifySubmit": "登記通知",
+      "notifyDone": "已記下來了，開放時第一時間通知你",
+      "notifyError": "登記失敗，請稍後再試",
+      "notifyInvalidEmail": "請填寫正確的 Email",
+      "badgeAriaLabel": "{name}：季節限定體驗"
     }
   },
   "cart": {

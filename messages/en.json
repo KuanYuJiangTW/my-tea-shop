@@ -277,6 +277,19 @@
       "description": "Step into our tea garden in Meishan, Alishan, Chiayi — tea ceremony, tea roasting, tea picking, black tea making and tea-infused fruit wine. Every detail, from the leaf to daily life.",
       "ogTitle": "Tea Farm Experiences | Wu Jue Tea",
       "ogImageAlt": "Wu Jue Tea farm experiences"
+    },
+    "season": {
+      "inSeason": "Seasonal · {daysLeft} days left, until {endsOn}",
+      "lastDay": "Seasonal · Today is the last day",
+      "upcoming": "Seasonal · Opens {startsOn}",
+      "ended": "This season has ended — see you next year",
+      "notifyMe": "Notify me when it opens",
+      "notifyPlaceholder": "Your email",
+      "notifySubmit": "Notify me",
+      "notifyDone": "Got it — we'll email you as soon as it opens",
+      "notifyError": "Something went wrong. Please try again later.",
+      "notifyInvalidEmail": "Please enter a valid email address",
+      "badgeAriaLabel": "{name}: seasonal experience"
     }
   },
   "cart": {

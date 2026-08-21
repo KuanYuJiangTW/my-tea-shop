@@ -9,32 +9,49 @@
 
 ## 1. 資料層
 
-- [ ] 1.1 寫 `supabase/add_experience_ordering.sql`：`experience_types` 增欄 `sort_order INTEGER NOT NULL DEFAULT 100`、`pinned_until DATE`（`ADD COLUMN IF NOT EXISTS`）
-- [ ] 1.2 同檔 `products` 增欄 `sort_order INTEGER NOT NULL DEFAULT 100`
-- [ ] 1.3 同檔建 `experience_availability_windows`（`experience_type_id`、`start_date`、`end_date`、`note`；`CREATE TABLE IF NOT EXISTS`，**若 `experience-open-class-request` 已建則此步為 no-op**）＋同體驗區間不重疊的約束
-- [ ] 1.4 同檔建 view `experience_types_ordered`：帶 `is_in_season`、`season_ends_on`、`days_left` 三個衍生欄位，排序鍵為 `(釘選中, 季節中, sort_order, id)`；**日期一律用 `(now() AT TIME ZONE 'Asia/Taipei')::date`**，不可用 `CURRENT_DATE`
-- [ ] 1.5 RLS：新表 deny-by-default（比照 `web_inquiries`）；view 的讀取權限與 `experience_types` 一致
+- [x] 1.1 寫 `supabase/add_experience_ordering.sql`：`experience_types` 增欄 `sort_order INTEGER NOT NULL DEFAULT 100`、`pinned_until DATE`（`ADD COLUMN IF NOT EXISTS`）
+      ✅ SQL 已寫：sort_order DEFAULT 100 ＋ pinned_until DATE，皆 ADD COLUMN IF NOT EXISTS
+- [x] 1.2 同檔 `products` 增欄 `sort_order INTEGER NOT NULL DEFAULT 100`
+      ✅ 同檔 products.sort_order
+- [x] 1.3 同檔建 `experience_availability_windows`（`experience_type_id`、`start_date`、`end_date`、`note`；`CREATE TABLE IF NOT EXISTS`，**若 `experience-open-class-request` 已建則此步為 no-op**）＋同體驗區間不重疊的約束
+      ✅ 同檔建表 ＋ 不重疊的 EXCLUDE 約束（btree_gist）；檔末填入萬鷺朝鳳 8/18–10/11、採茶與紅茶製作兩段可採期
+- [x] 1.4 ~~建 view~~ **改為在應用層排序**（design.md D3 已更新）：不建資料庫物件，排序集中在 `src/lib/experience-ordering.ts`
+      ✅ 改為應用層排序、不建 view（design.md D3 已更新理由）
+- [x] 1.5 RLS：`experience_availability_windows` 需可被前台匿名讀取（季節徽章要用），因此**不是 deny-by-default**——啟用 RLS 並建立 `SELECT` 給 anon 的 policy，寫入僅 service_role
+      ✅ 改為「季節區間可公開讀取」policy——徽章要在前台顯示，匿名必須讀得到；寫入仍只有 service_role
 - [ ] 1.6 執行前後各查一次 `experience_types`，確認**增欄不改動任何既有列的 id 與其他欄位**
-- [ ] 1.7 `src/types/index.ts` 的 `ExperienceType` 補 `sortOrder`、`pinnedUntil`、`isInSeason`、`seasonEndsOn`、`daysLeft`
+- [x] 1.7 `src/types/index.ts` 的 `ExperienceType` 補 `sortOrder`、`pinnedUntil`、`isInSeason`、`seasonEndsOn`、`daysLeft`
+      ✅ 新增 `AvailabilityWindow` 型別；`ExperienceType` 補 sortOrder／pinnedUntil／windows（全選填，SQL 沒跑時是 undefined）
 
 ## 2. 排序與季節邏輯
 
-- [ ] 2.1 `getExperienceTypes()` 改讀 `experience_types_ordered` view，移除 `.order("id")`
-- [ ] 2.2 `getProducts()` 兩處 `.order("id")` 改為 `.order("sort_order").order("id")`
-- [ ] 2.3 `src/lib/experiences.ts` 新增 `isInSeason()`、`currentWindow()`、`nextWindow()`、`daysLeftInSeason()`，日期一律以台灣時間當日為基準
-- [ ] 2.4 排序測試：給定三款體驗（一款釘選中、一款季節中、一款皆非），斷言順序為釘選 → 季節 → sort_order
-- [ ] 2.5 邊界測試：季節首日、季節末日（剩餘 0 天不得為負）、末日隔天、釘選到期當日與隔日
-- [ ] 2.6 時區測試：台灣時間季節首日 07:00（UTC 仍是前一日）時，判定 SHALL 為季節中
-- [ ] 2.7 回歸測試：`sort_order` 全預設、`pinned_until` 全 NULL、季節表為空時，排序結果與依 `id` 排序**完全相同**（這條守住「上線當下前台不變」）
+- [x] 2.1 `getExperienceTypes()` 一次查詢帶出季節區間（PostgREST embedded），改呼叫 `sortExperiences()`；**唯一的排序入口**
+      ✅ `getExperienceTypes()` 以 PostgREST embedded 帶出季節區間並呼叫 `sortExperiences()`；查詢失敗會退回舊查法而不是回空陣列
+- [x] 2.2 `getProducts()` 兩處 `.order("id")` 改為 `.order("sort_order").order("id")`
+      ✅ `getProducts()`／`getFeaturedProducts()` 加 sort_order ＋ 42703 退路——**這是實跑 dev server 才抓到的缺陷**，見 2.7
+- [x] 2.3 `src/lib/experiences.ts` 新增 `isInSeason()`、`currentWindow()`、`nextWindow()`、`daysLeftInSeason()`，日期一律以台灣時間當日為基準
+      ✅ `src/lib/experience-ordering.ts`：taipeiToday／daysBetween／currentWindow／nextWindow／isInSeason／hasSeason／daysLeftInSeason／isPinned／seasonState
+- [x] 2.4 排序測試：給定三款體驗（一款釘選中、一款季節中、一款皆非），斷言順序為釘選 → 季節 → sort_order
+      ✅ `ordering.test.ts` 6 條：季節置頂、釘選壓過季節、釘選過期、季節結束自動退回、同分依 id、不改動輸入
+- [x] 2.5 邊界測試：季節首日、季節末日（剩餘 0 天不得為負）、末日隔天、釘選到期當日與隔日
+      ✅ 同檔邊界 5 條：首日／首日前一天／末日（剩 0 天不為負）／末日隔天／多段區間的空窗
+- [x] 2.6 時區測試：台灣時間季節首日 07:00（UTC 仍是前一日）時，判定 SHALL 為季節中
+      ✅ 同檔時區 3 條：台灣 07:00（UTC 仍前一日）算首日、午夜換日、零填補格式
+- [x] 2.7 回歸測試：`sort_order` 全預設、`pinned_until` 全 NULL、季節表為空時，排序結果與依 `id` 排序**完全相同**（這條守住「上線當下前台不變」）
+      ✅ 同檔「回歸」條 ＋ 新增 `ordering-fallback.test.ts` 4 條。**反向驗證做過**：UNDEFINED_COLUMN 改成永遠對不上 → 2 條轉紅（expected [] to deeply equal [2,1]），還原後 30 條全綠
 
 ## 3. 前台呈現
 
-- [ ] 3.1 `messages/zh.json`／`en.json` 新增季節相關文案（徽章、倒數、最後一天、本季已結束、明年見、開放時通知我），兩份鍵齊備
-- [ ] 3.2 體驗卡片季節徽章：顯示結束日與剩餘天數；末日當天顯示「最後一天」
+- [x] 3.1 `messages/zh.json`／`en.json` 新增季節相關文案（徽章、倒數、最後一天、本季已結束、明年見、開放時通知我），兩份鍵齊備
+      ✅ `experiences.season` 11 鍵，zh／en 齊備
+- [x] 3.2 體驗卡片季節徽章：顯示結束日與剩餘天數；末日當天顯示「最後一天」
+      ✅ `src/components/SeasonBadge.tsx`：四種狀態、末日顯示「今天是最後一天」而非「剩 0 天」、日期依語系格式化
 - [ ] 3.3 季節外的卡片：保留在列表、標示本季已結束或下一段季節起始、預約按鈕停用
 - [ ] 3.4 「開放時通知我」Email 登記入口（**與 `experience-open-class-request` 的需求蒐集共用同一張表；若該 change 尚未實作，本 change 建最小版本並在該 change 沿用**）
-- [ ] 3.5 首頁體驗區塊與 `/experiences` 列表共用同一個排序來源，不各排各的
-- [ ] 3.6 檢查無寫死中文的文案、`alt`、`aria-label`（沿用 `image-alt.test.ts` 的規則）
+- [x] 3.5 首頁體驗區塊與 `/experiences` 列表共用同一個排序來源，不各排各的
+      ✅ 查證五個呼叫點（首頁、列表頁、詳細頁、製程頁、sitemap）**都走 `getExperienceTypes()`**，排序天然一致；徽章已掛首頁（只顯示前 3 張，季節中的會自己擠進去）、列表頁卡片、詳細頁 hero
+- [x] 3.6 檢查無寫死中文的文案、`alt`、`aria-label`（沿用 `image-alt.test.ts` 的規則）
+      ✅ SeasonBadge 的文案與 aria-label 全部取自 messages，無寫死中文
 - [ ] 3.7 手機版檢查：徽章與倒數在 375px 不擠壓卡片標題
 
 ## 4. 後台
