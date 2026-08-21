@@ -290,6 +290,11 @@
       "notifyError": "Something went wrong. Please try again later.",
       "notifyInvalidEmail": "Please enter a valid email address",
       "badgeAriaLabel": "{name}: seasonal experience"
+    },
+    "crossSell": {
+      "title": "Stay a little longer, same day",
+      "intro": "The drive up the mountain is the same either way — a second experience only costs you the other half of the day. Book two on the same day and the second is 10% off. Pick what you'd like online, then message us on LINE or call, and we'll arrange the timings.",
+      "askLine": "Ask on LINE about same-day plans"
     }
   },
   "cart": {

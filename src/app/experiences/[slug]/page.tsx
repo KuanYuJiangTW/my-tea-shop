@@ -8,6 +8,7 @@ import ExperienceCalendar from "./ExperienceCalendar";
 import ExperienceReviews from "./ExperienceReviews";
 import ExperienceGallery from "./ExperienceGallery";
 import SeasonBadge from "@/components/SeasonBadge";
+import RelatedExperiences from "./RelatedExperiences";
 import { getTranslations, getLocale } from "next-intl/server";
 import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 
@@ -256,6 +257,9 @@ export default async function ExperienceDetailPage({ params }: Props) {
           </div>
 
         </div>
+
+        {/* 同日加購：放在看完場次之後——這時客人已經決定要來了 */}
+        <RelatedExperiences currentSlug={slug} />
 
         {/* 評價區塊 */}
         <ExperienceReviews experienceTypeId={experience.id} />

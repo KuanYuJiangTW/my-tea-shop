@@ -290,6 +290,11 @@
       "notifyError": "登記失敗，請稍後再試",
       "notifyInvalidEmail": "請填寫正確的 Email",
       "badgeAriaLabel": "{name}：季節限定體驗"
+    },
+    "crossSell": {
+      "title": "同一天，再多留一點時間",
+      "intro": "上山一趟的車程是一樣的，第二個體驗只多花你半天裡的另一半。同一天預約兩個體驗，第二個 9 折——線上先挑好想要的，再用 LINE 或電話跟我們說一聲，我們幫你把時間排開。",
+      "askLine": "用 LINE 問同日安排"
     }
   },
   "cart": {
