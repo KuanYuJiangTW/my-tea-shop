@@ -5,6 +5,14 @@ import { ALL_EXPERIENCES_QUERY, EXPERIENCE_BY_SLUG_QUERY } from "@/sanity/querie
 import { ExperienceType, ExperienceSession } from "@/types";
 
 // Sanity 回傳的體驗內容型別
+export interface AdmissionTier {
+  name:           string;
+  nameEn?:        string;
+  price:          number;   // 0 代表免費
+  description?:   string;
+  descriptionEn?: string;
+}
+
 export interface ExperienceContent {
   slug:            string;
   name:            string;
@@ -19,6 +27,7 @@ export interface ExperienceContent {
   includesEn?:     string[];
   notes:           string[];
   notesEn?:        string[];
+  admissionTiers?:   AdmissionTier[];
   seoDescription?:   string;
   seoDescriptionEn?: string;
 }

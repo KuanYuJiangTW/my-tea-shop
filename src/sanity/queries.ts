@@ -13,6 +13,7 @@ export const ALL_EXPERIENCES_QUERY = `
     includesEn,
     notes,
     notesEn,
+    admissionTiers[]{ name, nameEn, price, description, descriptionEn },
     seoDescription,
     seoDescriptionEn
   }
@@ -47,6 +48,7 @@ export const EXPERIENCE_BY_SLUG_QUERY = `
     includesEn,
     notes,
     notesEn,
+    admissionTiers[]{ name, nameEn, price, description, descriptionEn },
     seoDescription,
     seoDescriptionEn
   }
