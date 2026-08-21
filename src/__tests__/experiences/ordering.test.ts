@@ -11,6 +11,7 @@ import {
   isPinned,
   nextWindow,
   seasonState,
+  sortByManualOrder,
   sortExperiences,
   taipeiToday,
 } from "@/lib/experience-ordering";
@@ -176,6 +177,24 @@ describe("sortExperiences", () => {
     const before = list.map(e => e.id);
     sortExperiences(list, today);
     expect(list.map(e => e.id)).toEqual(before);
+  });
+
+  // ── 手動順序必須跟前台順序分開（2026-08-21 的實際事故）─────
+  it("sortByManualOrder 忽略季節與釘選，只看 sort_order 與 id", () => {
+    const list = [
+      exp(6, { sortOrder: 100, windows: EGRET }),        // 季節中
+      exp(3, { sortOrder: 100, pinnedUntil: "2026-09-30" }), // 釘選中
+      exp(1, { sortOrder: 100 }),
+    ];
+    // 前台：釘選 → 季節 → 其他
+    expect(sortExperiences(list, today).map(e => e.id)).toEqual([3, 6, 1]);
+    // 後台的手動順序：三者的 sort_order 相同，所以只依 id
+    expect(sortByManualOrder(list).map(e => e.id)).toEqual([1, 3, 6]);
+  });
+
+  it("sortByManualOrder 認 sort_order，沒填的當預設值", () => {
+    const list = [exp(1, { sortOrder: 50 }), exp(2), exp(3, { sortOrder: 10 })];
+    expect(sortByManualOrder(list).map(e => e.id)).toEqual([3, 1, 2]);
   });
 
   // ── 這是本檔最重要的一條 ──────────────────────────────────
