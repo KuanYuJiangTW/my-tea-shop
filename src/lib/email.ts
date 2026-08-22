@@ -1607,3 +1607,50 @@ export async function sendAnomalyAlertEmail(data: {
     html,
   });
 }
+
+/**
+ * 「找不到適合的日期」的需求登記通知（客製開課請求 Phase 0）。
+ *
+ * 刻意做得很簡單：它的作用是讓業主當天就知道有人想來，而不是取代後台清單。
+ * 寄信失敗一律 best-effort，不影響已經落庫的登記。
+ */
+export async function sendExperienceInterestEmail(data: {
+  experienceName: string;
+  contactEmail?:  string;
+  contactLine?:   string;
+  preferredDate?: string;
+  headcount?:     number;
+  note?:          string;
+  source:         string;
+}) {
+  const row = (label: string, value?: string | number) =>
+    value === undefined || value === "" || value === null
+      ? ""
+      : `<tr><td style="padding:6px 10px;border:1px solid #ddd;background:#faf8f4;white-space:nowrap;">${label}</td>` +
+        `<td style="padding:6px 10px;border:1px solid #ddd;">${escapeHtml(String(value))}</td></tr>`;
+
+  const sourceLabel = data.source === "off-season" ? "季節外・開放時通知我" : "找不到適合的日期";
+
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW"><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:24px;font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F0E8;">
+  <h2 style="color:#3D4A42;margin:0 0 4px;">有人想來，但沒訂到</h2>
+  <p style="color:#7A7A72;font-size:13px;margin:0 0 16px;">${escapeHtml(sourceLabel)}</p>
+  <table style="border-collapse:collapse;font-size:14px;">
+    ${row("體驗", data.experienceName)}
+    ${row("希望日期", data.preferredDate ?? "（未指定）")}
+    ${row("人數", data.headcount)}
+    ${row("Email", data.contactEmail)}
+    ${row("LINE", data.contactLine)}
+    ${row("備註", data.note)}
+  </table>
+  <p style="margin-top:20px;font-size:12px;color:#999;">後台清單：/admin/experiences/interest</p>
+</body></html>`;
+
+  await getResend().emails.send({
+    from:    FROM,
+    to:      ADMIN,
+    subject: `【想來但沒訂到】${data.experienceName}${data.preferredDate ? `・${data.preferredDate}` : ""}`,
+    html,
+  });
+}

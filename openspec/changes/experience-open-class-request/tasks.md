@@ -10,6 +10,27 @@
 > **第 1 至 8 章是 Phase 1（可獨立上線）**，第 9 章是 Phase 2，第 10 章是上線試跑。
 > 沒做完第 6 章不要開始第 7 章——先確保私人場次不會外洩，再開始製造私人場次。
 
+## 0. Phase 0（已實作，2026-08-22）
+
+> 業主決定先做提案裡的輕量版：**只收訊號，不做審核工作流**。以下已上線，
+> 第 1–10 章（完整版）維持未開始。
+
+- [x] 0.1 `supabase/add_experience_interest.sql`：`experience_interest` 表（聯絡方式擇一的 CHECK、人數 1–50、source 白名單、同 email＋體驗＋日期的去重 unique index）、RLS deny-by-default
+      ✅ **刻意不叫 experience_requests**——那是完整版的表，語意不同（這裡是「有人想要」，那裡是「一筆待審的申請」）
+- [x] 0.2 `POST /api/experience-interest`：限流＋honeypot＋白名單＋service_role 寫入，整套沿用 `web-inquiry`
+      ✅ 重複登記回 200 而非錯誤——對客人來說「我登記過了」跟「登記成功」是同一件事
+- [x] 0.3 `sendExperienceInterestEmail()`：best-effort 通知業主，寄信失敗不影響已落庫的登記
+- [x] 0.4 前台 `InterestForm`：掛在**月曆正下方**（客人發現沒有合適日期的當下），摺疊式不搶月曆注意力；中英雙語
+- [x] 0.5 後台 `/admin/experiences/interest`：清單、標記處理過、**同體驗同日期的聚合提示**（散著看看不出成團機會）
+- [x] 0.6 `interest-api.test.ts` 12 條：honeypot 靜默丟棄、限流 429、聯絡方式擇一、日期與人數格式、source 灌入非法值收斂、重複登記回 200、寄信爆掉不影響落庫
+      ✅ **反向驗證做過**：移除 honeypot 檢查 → 該條轉紅（expected [ … ] to have a length of +0 but got 1），還原後 12 條全綠
+- [ ] 0.7 業主在 Supabase SQL editor 執行 `add_experience_interest.sql`（**未執行前前台送出會失敗**）
+- [ ] 0.8 執行後線上實跑一次：送出 → 後台看得到 → 業主收到通知信
+
+> **與 `experience-seasonal-ordering` 的關係**：該 change 的 3.4「季節外・開放時
+> 通知我」要用的就是這張表（`source = 'off-season'`），API 已經支援，只差前台
+> 卡片的 UI。
+
 ## 1. 資料層
 
 - [ ] 1.1 寫 `supabase/add_experience_requests.sql`：`experience_requests`（含 `request_no` unique、`status` CHECK 七種狀態、聯絡欄位、`token` unique、`token_expires_at`、`session_id`、`booking_id`、`admin_note`、`decline_reason`、`reviewed_at`、`reviewed_by`、`locale`、`user_id` 可為 null）
