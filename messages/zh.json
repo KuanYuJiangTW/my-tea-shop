@@ -308,6 +308,23 @@
     "guideLink": {
       "title": "第一次來？",
       "cta": "看完整攻略"
+    },
+    "interest": {
+      "title": "找不到適合的日期？",
+      "intro": "留下聯絡方式，我們安排新場次時第一時間通知你。也可以直接寫下你想來的日期。",
+      "cta": "留下聯絡方式",
+      "dateLabel": "想來的日期（選填）",
+      "headcountLabel": "大概幾個人（選填）",
+      "emailLabel": "Email",
+      "lineLabel": "LINE ID",
+      "noteLabel": "想說的話（選填）",
+      "submit": "送出",
+      "sending": "送出中…",
+      "needContact": "Email 或 LINE 至少留一個，我們才通知得到你",
+      "failed": "送出失敗，請稍後再試",
+      "doneTitle": "記下來了",
+      "doneNote": "我們安排到你想要的日期時會主動通知你。這不是預約，不會產生費用。",
+      "privacy": "只用來通知你場次消息，不會做其他用途。"
     }
   },
   "cart": {

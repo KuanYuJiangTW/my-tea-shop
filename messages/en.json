@@ -308,6 +308,23 @@
     "guideLink": {
       "title": "First time here?",
       "cta": "Read the full guide"
+    },
+    "interest": {
+      "title": "No date that works for you?",
+      "intro": "Leave us a way to reach you and we'll tell you first when we add sessions. You can also tell us the date you had in mind.",
+      "cta": "Leave your contact",
+      "dateLabel": "Date you'd like (optional)",
+      "headcountLabel": "Roughly how many people (optional)",
+      "emailLabel": "Email",
+      "lineLabel": "LINE ID",
+      "noteLabel": "Anything else (optional)",
+      "submit": "Send",
+      "sending": "Sending…",
+      "needContact": "Please leave an email or a LINE ID so we can reach you",
+      "failed": "Something went wrong. Please try again later.",
+      "doneTitle": "Got it",
+      "doneNote": "We'll get in touch when we schedule something around your date. This is not a booking and costs nothing.",
+      "privacy": "Used only to let you know about sessions — nothing else."
     }
   },
   "cart": {

@@ -42,6 +42,15 @@ const navGroups: NavGroup[] = [
         ),
       },
       {
+        href: "/admin/experiences/interest",
+        label: "想來但沒訂到",
+        icon: (
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9h-2V5h2v6zm0 4h-2v-2h2v2z" />
+          </svg>
+        ),
+      },
+      {
         href: "/admin/experiences/ordering",
         label: "排序與季節",
         icon: (
