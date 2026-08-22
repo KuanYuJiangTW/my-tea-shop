@@ -78,7 +78,7 @@
 ## 5. 客人端 UI
 
 - [ ] 5.1 `messages/zh.json`／`en.json` 新增 `experienceRequest` 命名空間（入口文案、表單標籤、錯誤訊息、狀態文字、a11y 標籤），兩份鍵齊備
-- [ ] 5.2 開課請求入口元件：顯示條件為 `accepts_requests = true`，內容含最低消費、名額數、回覆時效；`NEXT_PUBLIC_LINE_ADD_URL` 有設定時附 LINE 按鈕
+- [ ] 5.2 開課請求入口元件：顯示條件為 `accepts_requests = true`，內容含最低消費、名額數、回覆時效；`NEXT_PUBLIC_LINE_TEA_URL` 有設定時附 LINE 按鈕
 - [ ] 5.3 掛進 `src/app/experiences/[slug]/ExperienceCalendar.tsx` 的圖例與開課門檻提示之後；該月無場次時切換為主要 CTA 樣式
 - [ ] 5.4 申請表單（對話框或獨立頁）：不可申請的日期反灰不可選，送出前顯示「這一場的最低消費與名額數」
 - [ ] 5.5 成功畫面：顯示查詢編號與自助查詢連結，並提示已寄出確認信

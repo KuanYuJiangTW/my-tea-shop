@@ -473,8 +473,9 @@ SANITY_WEBHOOK_SECRET=     # Sanity Webhook verification
 # ── Google Analytics (optional) ──────────────
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 
-# ── LINE Official Account (optional, for AI chatbot handoff) ──
-NEXT_PUBLIC_LINE_OFFICIAL_URL=
+# ── LINE Official Accounts (optional; two separate accounts) ──
+NEXT_PUBLIC_LINE_TEA_URL=       # Mist Tea @976jhznk (AI chatbot handoff, experience enquiries)
+NEXT_PUBLIC_LINE_TERROIR_URL=   # Terroir Digital @580ariqa (/web-design quote page)
 
 # ── Cron Secret (Vercel Cron verification) ───
 CRON_SECRET=

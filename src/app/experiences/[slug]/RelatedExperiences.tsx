@@ -49,7 +49,7 @@ export default async function RelatedExperiences({ currentSlug, limit = 3 }: Pro
 
   if (others.length === 0) return null;
 
-  const lineUrl = process.env.NEXT_PUBLIC_LINE_ADD_URL;
+  const lineUrl = process.env.NEXT_PUBLIC_LINE_TEA_URL;
 
   return (
     <section className="mt-16 md:mt-20">

@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: 開課請求入口的顯示條件與內容
-體驗詳細頁 SHALL 在該體驗 `experience_types.accepts_requests = true` 時顯示開課請求入口；為 `false` 時不得顯示任何相關 UI。入口 SHALL 明示三件成交條件：該體驗的開團最低名額數與對應金額、可申請的期間與時段、回覆時效承諾。若 `NEXT_PUBLIC_LINE_ADD_URL` 已設定，入口 SHALL 同時提供「加 LINE 詢問」按鈕。
+體驗詳細頁 SHALL 在該體驗 `experience_types.accepts_requests = true` 時顯示開課請求入口；為 `false` 時不得顯示任何相關 UI。入口 SHALL 明示三件成交條件：該體驗的開團最低名額數與對應金額、可申請的期間與時段、回覆時效承諾。若 `NEXT_PUBLIC_LINE_TEA_URL` 已設定，入口 SHALL 同時提供「加 LINE 詢問」按鈕。
 
 #### Scenario: 體驗開放請求
 - **WHEN** 使用者瀏覽 `accepts_requests = true` 的體驗詳細頁
@@ -12,7 +12,7 @@
 - **THEN** 頁面不顯示開課請求入口、不顯示申請表單、不呼叫請求相關 API
 
 #### Scenario: 未設定 LINE 連結
-- **WHEN** `NEXT_PUBLIC_LINE_ADD_URL` 未設定
+- **WHEN** `NEXT_PUBLIC_LINE_TEA_URL` 未設定
 - **THEN** 入口只顯示線上申請按鈕，不顯示 LINE 按鈕
 
 ### Requirement: 申請表單欄位與前端驗證

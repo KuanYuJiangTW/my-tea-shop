@@ -43,7 +43,7 @@ API SHALL 套用 `@/lib/rate-limit` 限流，且表單 SHALL 含 honeypot 隱藏
 - **THEN** API 仍回 200，資料已在庫，錯誤進 log
 
 ### Requirement: 成功回饋與 LINE 導流
-提交成功後表單區 SHALL 顯示成功訊息；若 `NEXT_PUBLIC_LINE_ADD_URL` 已設定則同時顯示「加 LINE 立即聊」按鈕，未設定則顯示「一個工作天內回覆」。
+提交成功後表單區 SHALL 顯示成功訊息；若 `NEXT_PUBLIC_LINE_TERROIR_URL` 已設定則同時顯示「加 LINE 立即聊」按鈕，未設定則顯示「一個工作天內回覆」。
 
 #### Scenario: 成功後導 LINE
 - **WHEN** 提交成功且 LINE 連結已設定
