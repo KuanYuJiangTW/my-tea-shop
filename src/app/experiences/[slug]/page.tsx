@@ -228,9 +228,6 @@ export default async function ExperienceDetailPage({ params }: Props) {
               );
             })()}
 
-            {/* 相關攻略：讀完注意事項還在看的人，就是還在猶豫的人 */}
-            <GuideLink slug={slug} />
-
             {/* 相簿 */}
             {content.gallery && content.gallery.length > 0 && (
               <ExperienceGallery
@@ -262,6 +259,12 @@ export default async function ExperienceDetailPage({ params }: Props) {
               <h2 className="font-serif text-xl font-bold text-tea-text mb-6">{t("selectSession")}</h2>
               <ExperienceCalendar experience={experience} />
             </div>
+
+            {/* 相關攻略放月曆正下方：看完場次還沒按預約的人就是還在猶豫的人，
+                而攻略正好回答他在猶豫的事（幾點來、會不會白跑、停哪）。
+                刻意不放月曆上方——它是把人帶離本頁的連結，不該擋在預約前面。
+                原本放在左欄的注意事項之後，手機要捲 2.5 個螢幕才看得到。 */}
+            <GuideLink slug={slug} />
           </div>
 
         </div>
