@@ -6,10 +6,14 @@ import type { AdmissionTier } from "@/lib/experiences";
 /**
  * 同一個地點的多種參加方式與價格。
  *
- * 為什麼要有這一區：萬鷺朝鳳實際上有三層——免費停車自己看、入園 150 元含茶
- * 與點心、導覽 450 元——但在此之前**線上一層都查不到**，只有走到現場的人才
- * 知道。中間那層是最容易成交的：不必預約、決定成本低，而且把「站著看完就走」
- * 變成「坐下來喝過茶」，後續買茶與再訪的機率完全不同。
+ * 為什麼要有這一區：萬鷺朝鳳實際上有三層——免費停車自己看、入園賞鳥、導覽。
+ * 只寫最貴的那層會出事：2026-08-22 的 Google AI 模式把信淳茶居列在「需低消或
+ * 住宿」，只顯示導覽價，旁邊競品是「低消 200」與「自備小吃不加價」——看起來
+ * 最貴，而且像是不付錢進不去。事實上旁邊的免費觀景平台也是他們家的。
+ *
+ * 所以這一區的第一件事是**打掉「不付錢進不去」的印象**（標題就是「看鳥不用
+ * 錢」），第二件事才是把付費選項講成「要不要坐下來、要不要有人解說」。
+ * 最貴的那層加上推薦標記與視覺重量，讓選擇從「三選一比價」變成「要不要升級」。
  *
  * 內容全部來自 Sanity（`admissionTiers`），價格改了不用改程式。沒填就不顯示。
  */
@@ -41,12 +45,17 @@ export default async function AdmissionTiers({ tiers, bookablePrice }: Props) {
           return (
             <div
               key={`${tier.name}-${i}`}
-              className={`rounded-control p-4 border ${
+              className={`relative rounded-control p-4 border ${
                 isBookable
-                  ? "border-tea-green bg-tea-green-mist"
+                  ? "border-tea-green bg-tea-green-mist ring-2 ring-tea-green/40 shadow-sm"
                   : "border-tea-green-pale/60 bg-tea-cream-light"
               }`}
             >
+              {isBookable && (
+                <span className="absolute -top-2.5 right-3 bg-tea-green text-white text-caption font-medium px-2 py-0.5 rounded-pill">
+                  {t("recommended")}
+                </span>
+              )}
               <p className="text-label font-medium text-tea-text mb-1">{name}</p>
               <p className="text-xl font-bold text-tea-text mb-2">
                 {tier.price === 0 ? t("free") : `NT$ ${tier.price.toLocaleString()}`}
