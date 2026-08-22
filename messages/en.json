@@ -297,12 +297,13 @@
       "askLine": "Ask on LINE about same-day plans"
     },
     "admission": {
-      "title": "Three ways to visit",
-      "intro": "You don't have to book a tour to see the birds. Pick whichever suits you:",
+      "title": "Watching costs nothing",
+      "intro": "The choice is whether you want a seat and whether you want someone to explain it. You can see the birds from the car park — which is also ours.",
       "free": "Free",
       "perPerson": " / person",
       "bookableOnline": "Bookable online",
-      "onSiteNote": "Free viewing and garden admission need no booking — just turn up. Tour places are limited, so book a session in the calendar below."
+      "onSiteNote": "Free viewing and garden admission need no booking — just turn up. Tour places are limited, so book a session in the calendar below.",
+      "recommended": "Recommended"
     },
     "guideLink": {
       "title": "First time here?",
