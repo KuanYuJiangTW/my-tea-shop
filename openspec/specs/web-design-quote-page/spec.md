@@ -32,10 +32,10 @@ TBD - created by archiving change add-web-design-quote-page. Update Purpose afte
 - **THEN** 導向對應語系的報價頁
 
 ### Requirement: LINE 導流按鈕
-報價頁的 LINE 按鈕 SHALL 讀取 `NEXT_PUBLIC_LINE_ADD_URL`；未設定時 MUST 隱藏按鈕且不得出現壞連結。
+報價頁的 LINE 按鈕 SHALL 讀取 `NEXT_PUBLIC_LINE_TERROIR_URL`；未設定時 MUST 隱藏按鈕且不得出現壞連結。
 
 #### Scenario: 環境變數未設定
-- **WHEN** `NEXT_PUBLIC_LINE_ADD_URL` 為空
+- **WHEN** `NEXT_PUBLIC_LINE_TERROIR_URL` 為空
 - **THEN** 頁面與表單成功畫面皆不渲染 LINE 按鈕，改顯示「一個工作天內回覆」文案
 
 ### Requirement: 案例故事頁

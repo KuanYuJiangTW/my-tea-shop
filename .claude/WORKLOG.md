@@ -1100,3 +1100,26 @@ admin／studio 的中文 placeholder 與 title 刻意不動：內部工具，中
    `/experiences/cattle-egret-tour`（說明欄不可放網址，Google 政策）
 3. **待業主回答**：鐵皮屋招牌是「信淳茶居」還是「信淳茶葉」？地圖店名與網站
    JSON-LD 的 alternateName 目前是「茶居」，停車場說明寫「茶葉」，兩邊要統一
+
+### 2026-08-22｜LINE 環境變數改名＋體驗頁接錯帳號的修正（分支 fix/line-env-rename）
+- 起因：業主在設定霧抉茶 LINE OA 的自動回應，順著網站的 LINE 入口逐一對照時，
+  發現 `src/app/experiences/[slug]/RelatedExperiences.tsx` 的「用 LINE 問同日安排」
+  按鈕讀的是 `NEXT_PUBLIC_LINE_ADD_URL`＝**風土數位** `@580ariqa`。茶山體驗的客人
+  點下去會加到接案品牌的帳號，霧抉茶 `@976jhznk` 這條諮詢入口等於斷的。
+- 根因不是手滑，是變數命名：`OFFICIAL` 與 `ADD` 兩個名字都看不出屬於哪個品牌。
+  已改名為 `NEXT_PUBLIC_LINE_TEA_URL`（霧抉茶 @976jhznk）與
+  `NEXT_PUBLIC_LINE_TERROIR_URL`（風土數位 @580ariqa），註解一律寫上帳號 ID。
+- 連帶更新：`.env.example`、`.env.local`、README（中英）、
+  `openspec/specs/{web-design-quote-page,web-inquiry-form}`、
+  以及尚未實作的 `openspec/changes/experience-open-class-request`
+  （proposal 37 行、spec 4/15 行、tasks 5.2）——後者原本也寫著 ADD_URL，
+  是同一個坑的第二次發作，趁還沒實作先改掉。`openspec/changes/archive/` 不動（歷史紀錄）。
+- 驗證：測試 62 檔 826 測試全綠、tsc 零錯誤、lint 0 error（36 warnings 為既有債務）、build 成功。
+  首跑曾有 1 個 ecpay/cvs-availability 的 5 秒 timeout，單獨重跑與整包重跑都全綠，判定為併發 flake。
+
+**業主端待辦（阻擋合併，我做不到的部分）**
+- **Vercel 環境變數要先加新名字再合併**：Production／Preview 都要新增
+   `NEXT_PUBLIC_LINE_TEA_URL=https://lin.ee/ZTNpFA8` 與
+   `NEXT_PUBLIC_LINE_TERROIR_URL=https://line.me/R/ti/p/@580ariqa`。
+   `NEXT_PUBLIC_*` 是 build 時內嵌，舊名字留著不會報錯，但按鈕會**靜默消失**
+   （三處都是 `lineUrl && ...` 才渲染）。確認新站沒問題後再刪舊的兩個。

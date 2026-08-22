@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function WebDesignPage() {
   const locale = await getLocale();
   const t = await getTranslations("webDesign");
-  const lineUrl = process.env.NEXT_PUBLIC_LINE_ADD_URL;
+  const lineUrl = process.env.NEXT_PUBLIC_LINE_TERROIR_URL;
   const lp = (path: string) => (locale === "en" ? `/en${path}` : path);
 
   const heroChips = t.raw("hero.chips") as string[];

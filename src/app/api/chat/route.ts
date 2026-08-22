@@ -19,7 +19,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 // ── System Prompt ─────────────────────────────────────────────────────────────
 
-const LINE_URL = process.env.NEXT_PUBLIC_LINE_OFFICIAL_URL || "";
+const LINE_URL = process.env.NEXT_PUBLIC_LINE_TEA_URL || "";
 
 function buildSystemPrompt(knowledge: string, locale: string): string {
   if (locale === "en") {
