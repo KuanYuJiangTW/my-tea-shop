@@ -10,6 +10,7 @@ import ExperienceGallery from "./ExperienceGallery";
 import SeasonBadge from "@/components/SeasonBadge";
 import RelatedExperiences from "./RelatedExperiences";
 import AdmissionTiers from "./AdmissionTiers";
+import GuideLink from "./GuideLink";
 import { getTranslations, getLocale } from "next-intl/server";
 import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 
@@ -226,6 +227,9 @@ export default async function ExperienceDetailPage({ params }: Props) {
                 </div>
               );
             })()}
+
+            {/* 相關攻略：讀完注意事項還在看的人，就是還在猶豫的人 */}
+            <GuideLink slug={slug} />
 
             {/* 相簿 */}
             {content.gallery && content.gallery.length > 0 && (

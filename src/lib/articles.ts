@@ -1,5 +1,9 @@
 import { sanityFetch } from "@/sanity/client";
-import { ALL_ARTICLES_QUERY, ARTICLE_BY_SLUG_QUERY } from "@/sanity/queries";
+import {
+  ALL_ARTICLES_QUERY,
+  ARTICLE_BY_SLUG_QUERY,
+  ARTICLES_FOR_EXPERIENCE_QUERY,
+} from "@/sanity/queries";
 
 /**
  * 茶知識文章的讀取層。
@@ -53,6 +57,15 @@ export async function getArticle(slug: string): Promise<Article | null> {
     return (await sanityFetch<Article>(ARTICLE_BY_SLUG_QUERY, { slug })) ?? null;
   } catch {
     return null;
+  }
+}
+
+/** 某款體驗的相關文章。查不到或 Sanity 出問題時回空陣列，呼叫端不顯示任何東西 */
+export async function getArticlesForExperience(slug: string): Promise<ArticleSummary[]> {
+  try {
+    return (await sanityFetch<ArticleSummary[]>(ARTICLES_FOR_EXPERIENCE_QUERY, { slug })) ?? [];
+  } catch {
+    return [];
   }
 }
 
