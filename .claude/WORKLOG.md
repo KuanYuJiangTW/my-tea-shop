@@ -1123,3 +1123,15 @@ admin／studio 的中文 placeholder 與 title 刻意不動：內部工具，中
    `NEXT_PUBLIC_LINE_TERROIR_URL=https://line.me/R/ti/p/@580ariqa`。
    `NEXT_PUBLIC_*` 是 build 時內嵌，舊名字留著不會報錯，但按鈕會**靜默消失**
    （三處都是 `lineUrl && ...` 才渲染）。確認新站沒問題後再刪舊的兩個。
+
+**2026-08-23 收尾（已合併上線，commit 8f395d6／merge 0877aa5）**
+- 業主已在 Vercel 補上兩個新變數，merge 進 main 後自動部署完成
+- 生產環境實測（不是讀程式碼）：
+  - `/experiences/*` 的「用 LINE 問同日安排」→ `https://lin.ee/ZTNpFA8`，
+    `curl -L` 解出最終網址為 `line.me/R/ti/p/@976jhznk`＝霧抉茶 ✅
+  - `/web-design` 與 `/web-design/case` → `@580ariqa`＝風土數位 ✅
+- **仍待業主**：確認新版沒問題後，回 Vercel 刪掉舊的
+  `NEXT_PUBLIC_LINE_OFFICIAL_URL` 與 `NEXT_PUBLIC_LINE_ADD_URL`（留著無害，只是雜訊）
+- 教訓已寫入 `playbooks/lessons.md`（2026-08-22 條：環境變數名稱看不出品牌）
+- 下一件事：霧抉茶 `@976jhznk` 的自動回應設定。這個修正會讓體驗諮詢真的流進該帳號，
+  但它目前「聊天」是關的，訊息進來沒人接得到；建議的回應清單見本 session 對話
