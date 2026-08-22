@@ -303,6 +303,10 @@
       "perPerson": " / person",
       "bookableOnline": "Bookable online",
       "onSiteNote": "Free viewing and garden admission need no booking — just turn up. Tour places are limited, so book a session in the calendar below."
+    },
+    "guideLink": {
+      "title": "First time here?",
+      "cta": "Read the full guide"
     }
   },
   "cart": {

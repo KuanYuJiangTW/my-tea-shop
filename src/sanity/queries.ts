@@ -99,3 +99,17 @@ export const ARTICLE_BY_SLUG_QUERY = `
     }
   }
 `;
+
+// 某款體驗的相關文章（文章的 relatedExperiences 指到它）。
+// 反向查是刻意的：關聯只在文章那一邊維護一次，體驗這邊不必也記一份，
+// 兩邊各記一份遲早會不同步。
+export const ARTICLES_FOR_EXPERIENCE_QUERY = `
+  *[_type == "article" && count(relatedExperiences[@->slug.current == $slug]) > 0]
+    | order(publishedAt desc) {
+      "slug": slug.current,
+      title,
+      titleEn,
+      excerpt,
+      excerptEn
+    }
+`;
