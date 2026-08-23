@@ -24,7 +24,7 @@
 - [x] 0.5 後台 `/admin/experiences/interest`：清單、標記處理過、**同體驗同日期的聚合提示**（散著看看不出成團機會）
 - [x] 0.6 `interest-api.test.ts` 12 條：honeypot 靜默丟棄、限流 429、聯絡方式擇一、日期與人數格式、source 灌入非法值收斂、重複登記回 200、寄信爆掉不影響落庫
       ✅ **反向驗證做過**：移除 honeypot 檢查 → 該條轉紅（expected [ … ] to have a length of +0 but got 1），還原後 12 條全綠
-- [ ] 0.7 業主在 Supabase SQL editor 執行 `add_experience_interest.sql`（**未執行前前台送出會失敗**）
+- [x] 0.7 業主在 Supabase SQL editor 執行 `add_experience_interest.sql`（**未執行前前台送出會失敗**）
 - [ ] 0.8 執行後線上實跑一次：送出 → 後台看得到 → 業主收到通知信
 
 > **與 `experience-seasonal-ordering` 的關係**：該 change 的 3.4「季節外・開放時
@@ -212,4 +212,4 @@
 - [ ] 10.4 另跑一次婉拒流程與一次替代方案流程，確認信件內容與連結正確
 - [ ] 10.5 **先開啟茶藝體驗**的 `accepts_requests`，其餘維持 false；黃頭鷺與採茶等業主提供可申請期間後再開
 - [ ] 10.6 兩週後回收數據：申請量、核准率、成交率、每筆審核耗時，據此調整最低消費與前置天數，再逐款開啟
-- [ ] 10.7 把過程中踩到的坑寫進 `.claude/playbooks/lessons.md`，並更新 `.claude/WORKLOG.md`
+- [x] 10.7 把過程中踩到的坑寫進 `.claude/playbooks/lessons.md`，並更新 `.claude/WORKLOG.md`
