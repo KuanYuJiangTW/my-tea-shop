@@ -1098,8 +1098,8 @@ admin／studio 的中文 placeholder 與 title 刻意不動：內部工具，中
    `seoDescriptionEn` 目前是空的
 2. Google 商家「梅山太興村賞黃頭鷺景觀平台停車場」：貼新說明、網站欄位設成
    `/experiences/cattle-egret-tour`（說明欄不可放網址，Google 政策）
-3. **待業主回答**：鐵皮屋招牌是「信淳茶居」還是「信淳茶葉」？地圖店名與網站
-   JSON-LD 的 alternateName 目前是「茶居」，停車場說明寫「茶葉」，兩邊要統一
+3. ~~**待業主回答**：鐵皮屋招牌是「信淳茶居」還是「信淳茶葉」？~~ → 業主 8/23 拍板
+   **信淳茶居**，Google 商家停車場說明欄同日已改，地圖／網站 JSON-LD 三邊一致。已結案
 
 ### 2026-08-22｜LINE 環境變數改名＋體驗頁接錯帳號的修正（分支 fix/line-env-rename）
 - 起因：業主在設定霧抉茶 LINE OA 的自動回應，順著網站的 LINE 入口逐一對照時，
@@ -1140,8 +1140,8 @@ admin／studio 的中文 placeholder 與 title 刻意不動：內部工具，中
 - 原待辦（8/21 起掛著）：鐵皮屋招牌是「信淳茶居」還是「信淳茶葉」？地圖店名與
   網站 JSON-LD 的 alternateName 不一致。**業主 8/23 拍板：信淳茶居**
 - 程式碼端不用改：`src/app/page.tsx:49` 的 `alternateName` 本來就是「信淳茶居」
-- **仍待業主**：Google 商家「梅山太興村賞黃頭鷺景觀平台停車場」的說明欄寫成
-  「信淳茶葉」，要改成「信淳茶居」與網站對齊
+- ~~仍待業主：Google 商家停車場說明欄寫成「信淳茶葉」~~ → 業主 8/23 已改成
+  「信淳茶居」。地圖店名、停車場說明、`page.tsx:49` 的 alternateName 三處一致，本項結案
 - 順帶蒐集到的對外事實（給 LINE 自動回應用，全部有程式碼出處）：
   宅配 NT$150／超商 NT$60／滿 NT$1,000 免運（`shipping-constants.ts`）、
   海外滿 NT$2,500 免國際運費走 PayPal、出貨 2–3 個工作天、
