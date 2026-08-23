@@ -33,17 +33,28 @@
 
 ## 1. 資料層
 
-- [ ] 1.1 寫 `supabase/add_experience_requests.sql`：`experience_requests`（含 `request_no` unique、`status` CHECK 七種狀態、聯絡欄位、`token` unique、`token_expires_at`、`session_id`、`booking_id`、`admin_note`、`decline_reason`、`reviewed_at`、`reviewed_by`、`locale`、`user_id` 可為 null）
-- [ ] 1.2 同檔加 `experience_request_alternatives`（`request_id`、`alt_date`、`alt_start_time`、`existing_session_id` 可為 null、`sort_order`）
-- [ ] 1.3 同檔加 `experience_blackout_dates`（`blackout_date` unique、`reason`、`created_at`）
-- [ ] 1.4 同檔對 `experience_types` 增欄：`accepts_requests BOOLEAN NOT NULL DEFAULT FALSE`、`request_min_slots INTEGER`、`request_lead_days INTEGER NOT NULL DEFAULT 7`、`request_start_times TEXT[] NOT NULL DEFAULT '{10:00,14:00}'`（全部 `ADD COLUMN IF NOT EXISTS`）
-- [ ] 1.4b 同檔加 `experience_availability_windows`（`experience_type_id`、`start_date`、`end_date`、`note`、`created_at`；一款可多段）——**與 `experience-seasonal-ordering` 共用同一張表，誰先實作誰建表**；用 `CREATE TABLE IF NOT EXISTS`，若該 change 已上線則此步為 no-op
-- [ ] 1.5 同檔對 `experience_sessions` 增欄：`visibility TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public','private'))`、`created_from_request_id UUID`（既有場次自動為 `public`，行為不變）
-- [ ] 1.6 三張新表 `ENABLE ROW LEVEL SECURITY` 且**不建立任何 anon／authenticated policy**（比照 `supabase/add_web_inquiries.sql`）
-- [ ] 1.7 索引：`experience_requests(status, created_at DESC)`、`(experience_type_id, preferred_date, preferred_start_time)`、`token`
-- [ ] 1.8 填入 `request_min_slots`：**採茶 4／烤茶 4／茶藝 4／淺漬茶果酒 4／萬鷺朝鳳 3／紅茶製作 6**（業主 2026-08-21 確認成本後定案；茶藝 2 人只賺 20 元、紅茶是兩人帶，理由見 proposal 的淨貢獻表）；`accepts_requests` 全部維持 `false`
-- [ ] 1.8d 萬鷺朝鳳的 `request_start_times` 只填 `{14:00}`（鳥況 15:00–18:00，早上場看不到鳥）
-- [ ] 1.9 `src/types/index.ts` 補上 `ExperienceRequest`、`ExperienceRequestStatus`、`ExperienceRequestAlternative` 型別，並在 `ExperienceSession` 補 `visibility`
+- [x] 1.1 寫 `supabase/add_experience_requests.sql`：`experience_requests`（含 `request_no` unique、`status` CHECK 七種狀態、聯絡欄位、`token` unique、`token_expires_at`、`session_id`、`booking_id`、`admin_note`、`decline_reason`、`reviewed_at`、`reviewed_by`、`locale`、`user_id` 可為 null）
+      ✅ `supabase/add_experience_requests.sql`：7 種狀態的 CHECK、request_no／token unique、聯絡欄位、session_id／booking_id 外鍵（皆 ON DELETE SET NULL——預約被刪時請求該留著，它是「曾經有人申請過」的紀錄）
+- [x] 1.2 同檔加 `experience_request_alternatives`（`request_id`、`alt_date`、`alt_start_time`、`existing_session_id` 可為 null、`sort_order`）
+      ✅ 同檔 `experience_request_alternatives`；`existing_session_id` 有值代表「請客人加入這一場」而不是另開一場
+- [x] 1.3 同檔加 `experience_blackout_dates`（`blackout_date` unique、`reason`、`created_at`）
+      ✅ 同檔 `experience_blackout_dates`（日期 unique ＋ 原因）
+- [x] 1.4 同檔對 `experience_types` 增欄：`accepts_requests BOOLEAN NOT NULL DEFAULT FALSE`、`request_min_slots INTEGER`、`request_lead_days INTEGER NOT NULL DEFAULT 7`、`request_start_times TEXT[] NOT NULL DEFAULT '{10:00,14:00}'`（全部 `ADD COLUMN IF NOT EXISTS`）
+      ✅ 同檔 `experience_types` 增四欄，全部 `ADD COLUMN IF NOT EXISTS`；三欄有 COMMENT 寫明設計理由
+- [x] 1.4b 同檔加 `experience_availability_windows`（`experience_type_id`、`start_date`、`end_date`、`note`、`created_at`；一款可多段）——**與 `experience-seasonal-ordering` 共用同一張表，誰先實作誰建表**；用 `CREATE TABLE IF NOT EXISTS`，若該 change 已上線則此步為 no-op
+      ✅ `experience_availability_windows` 用 `CREATE TABLE IF NOT EXISTS`——`experience-seasonal-ordering` 已上線，執行時是 no-op
+- [x] 1.5 同檔對 `experience_sessions` 增欄：`visibility TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public','private'))`、`created_from_request_id UUID`（既有場次自動為 `public`，行為不變）
+      ✅ `experience_sessions` 增 `visibility`（CHECK public/private，預設 public 所以既有場次行為不變）與 `created_from_request_id`
+- [x] 1.6 三張新表 `ENABLE ROW LEVEL SECURITY` 且**不建立任何 anon／authenticated policy**（比照 `supabase/add_web_inquiries.sql`）
+      ✅ 四張表 `ENABLE ROW LEVEL SECURITY` 且不建 anon/authenticated policy；**例外寫進註解**：availability_windows 需要匿名讀（季節徽章），那條 policy 由 add_experience_ordering.sql 建立，本檔不重複也不移除
+- [x] 1.7 索引：`experience_requests(status, created_at DESC)`、`(experience_type_id, preferred_date, preferred_start_time)`、`token`
+      ✅ 四條索引：status＋created_at、聚合用的 (type,date,time)、token、alternatives 的 (request_id,sort_order)
+- [x] 1.8 填入 `request_min_slots`：**採茶 4／烤茶 4／茶藝 4／淺漬茶果酒 4／萬鷺朝鳳 3／紅茶製作 6**（業主 2026-08-21 確認成本後定案；茶藝 2 人只賺 20 元、紅茶是兩人帶，理由見 proposal 的淨貢獻表）；`accepts_requests` 全部維持 `false`
+      ✅ 檔末 UPDATE 填入名額：採茶／烤茶／茶藝／茶果酒 4、萬鷺朝鳳 3、紅茶製作 6；`accepts_requests` 全部維持 false（等同功能未上線）
+- [x] 1.8d 萬鷺朝鳳的 `request_start_times` 只填 `{14:00}`（鳥況 15:00–18:00，早上場看不到鳥）
+      ✅ 萬鷺朝鳳 `request_start_times = {14:00}`
+- [x] 1.9 `src/types/index.ts` 補上 `ExperienceRequest`、`ExperienceRequestStatus`、`ExperienceRequestAlternative` 型別，並在 `ExperienceSession` 補 `visibility`
+      ✅ `ExperienceRequest`／`ExperienceRequestStatus`／`ExperienceRequestAlternative`／`ExperienceBlackoutDate` 型別；`ExperienceSession` 補 `visibility`＋`SessionVisibility`；`ExperienceType` 補四個可申請性參數（全選填，SQL 沒跑時是 undefined）
 
 ## 2. 共用邏輯（`src/lib/experience-requests.ts`）
 

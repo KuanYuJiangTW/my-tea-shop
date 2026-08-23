@@ -231,6 +231,13 @@ export interface ExperienceType {
   requiresAdult:    boolean;
   isActive:         boolean;
 
+  // ── 客製開課請求的可申請性參數（experience-open-class-request）──
+  // 全部選填：SQL 還沒執行時是 undefined，功能等同未上線
+  acceptsRequests?:   boolean;
+  requestMinSlots?:   number | null;
+  requestLeadDays?:   number | null;
+  requestStartTimes?: string[];      // 每款自己的時段白名單，不是全站常數
+
   // ── 排序與季節（見 openspec/changes/experience-seasonal-ordering）──
   // 全部選填：SQL 還沒執行時它們會是 undefined，排序安全地退回 id 順序
   sortOrder?:       number | null;
@@ -248,9 +255,15 @@ export interface ExperienceSession {
   waitlistCount:       number;
   cancelReason?:       string;
   experienceType?:     ExperienceType;
+
+  // 核准開課請求時建立的場次先是 private（只有拿到專屬連結的人看得到），
+  // 申請人付款後若非包場才轉 public 開放併團。既有場次一律 public
+  visibility?:         SessionVisibility;
+  createdFromRequestId?: string;
 }
 
 export type SessionStatus = 'open' | 'full' | 'cancelled';
+export type SessionVisibility = 'public' | 'private';
 
 export type BookingStatus = 'pending_payment' | 'confirmed' | 'cancelled' | 'completed';
 
@@ -355,4 +368,77 @@ export interface ContactForm {
   email:   string;
   subject: ContactSubject | "";
   message: string;
+}
+
+// ─── 客製開課請求（openspec/changes/experience-open-class-request）───────────
+
+/**
+ * 狀態機（design.md D5）。`converted` 是終局——請求已變成一筆真實預約，
+ * `sessionId` 與 `bookingId` 都填上。統計漏斗（送出 → 核准 → 成交）直接查
+ * 這張表就有。
+ */
+export type ExperienceRequestStatus =
+  | 'pending'              // 待審
+  | 'approved'             // 已核准，等申請人用專屬連結完成付款
+  | 'alternative_offered'  // 業主提了替代方案，等申請人選
+  | 'declined'             // 婉拒
+  | 'expired'              // 連結逾期或替代方案逾期未回應
+  | 'withdrawn'            // 申請人自己撤回
+  | 'converted';           // 已成為真實預約
+
+export interface ExperienceRequest {
+  id:                 string;
+  requestNo:          string;   // 人可讀的查詢編號，可以在電話裡念
+  experienceTypeId:   number;
+  preferredDate:      string;   // YYYY-MM-DD
+  preferredStartTime: string;   // HH:MM
+  altDate?:           string;
+  altStartTime?:      string;
+  headcount:          number;
+  isPrivate:          boolean;
+
+  contactName:        string;
+  contactPhone:       string;
+  contactEmail:       string;
+  contactLine?:       string;
+  contactPreference?: string;
+  contactTime?:       string;
+  note?:              string;
+
+  userId?:            string;
+  locale:             string;
+  status:             ExperienceRequestStatus;
+
+  /** 自助查詢／撤回／選替代方案／預約共用。不可猜，且不會出現在客人端以外的地方 */
+  token:              string;
+  tokenExpiresAt?:    string;
+
+  sessionId?:         string;
+  bookingId?:         string;
+
+  /** 只有管理員看得到。MUST NOT 出現在客人端回應或信件 */
+  adminNote?:         string;
+  declineReason?:     string;
+  reviewedAt?:        string;
+  reviewedBy?:        string;
+  createdAt:          string;
+
+  experienceType?:    ExperienceType;
+}
+
+export interface ExperienceRequestAlternative {
+  id:                 string;
+  requestId:          string;
+  altDate:            string;
+  altStartTime:       string;
+  /** 有值代表「請客人加入這一場」，而不是為他另開一場 */
+  existingSessionId?: string;
+  sortOrder:          number;
+}
+
+/** 公休／黑名單日期。只擋新請求，不影響既有場次與預約 */
+export interface ExperienceBlackoutDate {
+  id:           string;
+  blackoutDate: string;
+  reason?:      string;
 }
