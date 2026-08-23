@@ -116,10 +116,14 @@
 
 ## 6. 場次可見性（做在核准功能之前）
 
-- [ ] 6.1 先寫**會紅的測試**：月份內含 1 個 `visibility = 'private'` 場次時，`GET /api/experience-sessions` 只回公開場次
-- [ ] 6.2 修改 `src/app/api/experience-sessions/route.ts` 加上 `.eq("visibility", "public")`，確認 6.1 由紅轉綠
-- [ ] 6.3 反向驗證：拿掉該過濾條件，確認 6.1 確實變紅（見 `reverse-verify` skill；務必先以 `git diff --stat` 證明突變真的改到檔案，`.claude/playbooks/lessons.md` 有無效對照組的前例）
-- [ ] 6.4 檢查其他讀取場次的路徑（後台場次頁、體驗列表頁、任何 sitemap／JSON-LD 產生器）是否需要一併過濾，並在測試中固定該決定
+- [x] 6.1 先寫**會紅的測試**：月份內含 1 個 `visibility = 'private'` 場次時，`GET /api/experience-sessions` 只回公開場次
+      ✅ `session-visibility.test.ts` 先寫先紅（3 條失敗：私人場次仍出現、查詢沒帶 visibility、非 42703 的錯誤沒有正確回 500）
+- [x] 6.2 修改 `src/app/api/experience-sessions/route.ts` 加上 `.eq("visibility", "public")`，確認 6.1 由紅轉綠
+      ✅ `/api/experience-sessions` 加 `.eq("visibility","public")`，5 條轉綠
+- [x] 6.3 反向驗證：拿掉該過濾條件，確認 6.1 確實變紅（見 `reverse-verify` skill；務必先以 `git diff --stat` 證明突變真的改到檔案，`.claude/playbooks/lessons.md` 有無效對照組的前例）
+      ✅ 反向驗證：拿掉那一行 → 3 條立刻轉紅（expected ['s1','s2','s3'] to deeply equal ['s1','s2']），還原後全綠
+- [x] 6.4 檢查其他讀取場次的路徑（後台場次頁、體驗列表頁、任何 sitemap／JSON-LD 產生器）是否需要一併過濾，並在測試中固定該決定
+      ✅ 逐一檢查 15 處讀 experience_sessions 的地方——**後台四處刻意不過濾**（管理員本來就該看到私人場次）、**`booking/[sessionId]` 刻意不過濾**（拿到專屬連結的人就是要能訂那一場）、cron 與候補走 session_id 直查不受影響。`lib/getSessionsForMonth` 目前沒有呼叫端，仍補上過濾避免將來有人接上就漏出去
 
 ## 7. 後台審核
 

@@ -199,10 +199,14 @@ export async function getSessionsForMonth(
   const lastDay   = new Date(year, month, 0).getDate();
   const endDate   = `${year}-${String(month).padStart(2, "0")}-${lastDay}`;
 
+  // 目前沒有呼叫端（公開月曆走 /api/experience-sessions），但先把 visibility
+  // 過濾補上——將來若有人接上這支，不該因為漏了一行就把私人場次公開出去。
+  // 過濾的權威版本與退路在 src/app/api/experience-sessions/route.ts
   const { data, error } = await supabase
     .from("experience_sessions")
     .select("*")
     .eq("experience_type_id", experienceTypeId)
+    .eq("visibility", "public")
     .gte("session_date", startDate)
     .lte("session_date", endDate)
     .order("session_date")
