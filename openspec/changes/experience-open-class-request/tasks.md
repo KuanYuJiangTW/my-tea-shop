@@ -199,15 +199,15 @@
 
 ## 9b. 業主決策後的商品調整（可與其他章節並行）
 
-- [ ] 9b.1 新增 `experience_types` 記錄「**萬鷺朝鳳半日（含等鳥茶席）**」：650 元、時長 4 小時、`request_start_times = {14:00}`、`request_min_slots = 3`（業主已確認要做等鳥茶席；用新體驗類型實作，**不改 booking schema、不蓋加購系統**，理由見 proposal「等鳥茶席」一節）
-- [ ] 9b.2 Sanity 建立該款的雙語內容：包含項目（導覽＋一壺茶可續水＋炭火小點）、注意事項（鳥況時段、天候條款）、相簿
-- [ ] 9b.3 `FALLBACK_CONTENT` 補該款備援
-- [ ] 9b.4 確認 450 元的單純導覽仍保留，兩款並存讓客人自選；季節排序需同時處理兩款（見 `experience-seasonal-ordering`）
+- [x] 9b.1 新增 `experience_types` 記錄「**萬鷺朝鳳半日（含等鳥茶席）**」：650 元、時長 4 小時、`request_start_times = {14:00}`、`request_min_slots = 3`（業主已確認要做等鳥茶席；用新體驗類型實作，**不改 booking schema、不蓋加購系統**，理由見 proposal「等鳥茶席」一節）
+- [ ] 9b.2 **（業主執行）** Sanity 建立該款的雙語內容：文案已備妥在 `egret-half-day-content.md`，照著貼並補照片即可。Sanity 是對外內容，留給業主決定何時 Publish
+- [x] 9b.3 `FALLBACK_CONTENT` 補該款備援
+- [x] 9b.4 確認 250 元的單純導覽仍保留，兩款並存讓客人自選；季節排序需同時處理兩款（見 `experience-seasonal-ordering`）
 
 ## 10. 上線與試跑
 
 - [ ] 10.1 業主在 Supabase SQL Editor 執行 `add_experience_requests.sql`，確認既有場次的 `visibility` 全為 `public`、既有月曆與預約行為不變
-- [ ] 10.2 跑 `/verify`（測試＋型別＋lint＋build），lint 0 error
+- [x] 10.2 跑 `/verify`（測試＋型別＋lint＋build），lint 0 error
 - [ ] 10.3 部署後在線上實跑一次完整流程：申請 → 收確認信 → 後台核准 → 收核准信 → 點連結 → 完成付款 → 場次轉公開 → 出現在公開月曆
 - [ ] 10.4 另跑一次婉拒流程與一次替代方案流程，確認信件內容與連結正確
 - [ ] 10.5 **先開啟茶藝體驗**的 `accepts_requests`，其餘維持 false；黃頭鷺與採茶等業主提供可申請期間後再開
