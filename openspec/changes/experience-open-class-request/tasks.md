@@ -172,11 +172,16 @@
 
 ## 8. 排程
 
-- [ ] 8.1 `/api/cron/experience-request-digest`：`CRON_SECRET` 驗證、彙整待審超過 24 小時者、無項目不寄信
-- [ ] 8.2 逾期回收：`approved` 超過 48 小時未建立預約 → 狀態 `expired`、回收無預約的場次；場次已有 `confirmed` 預約時只標請求不動場次
-- [ ] 8.3 `alternative_offered` 超過 7 天未回應 → `expired`
-- [ ] 8.4 `vercel.json` 加入新 cron（避開既有 01:00–04:00 的時段擁擠，建議 `0 5 * * *`）
-- [ ] 8.5 測試：未授權回 401、無項目不寄信、逾期回收的兩種分支
+- [x] 8.1 `/api/cron/experience-request-digest`：`CRON_SECRET` 驗證、彙整待審超過 24 小時者、無項目不寄信
+      ✅ `/api/cron/experience-request-digest`：`CRON_SECRET` 驗證、彙整待審超過 24 小時者、無項目時 `sendAdminRequestDigest` 自己 return 不寄信；資料表未建立回 503 並點名要跑哪支 SQL
+- [x] 8.2 逾期回收：`approved` 超過 48 小時未建立預約 → 狀態 `expired`、回收無預約的場次；場次已有 `confirmed` 預約時只標請求不動場次
+      ✅ 同一支處理核准逾期：48 小時未付款 → `expired`，**場次已有 confirmed 預約時只標請求、不回收場次**（那一場是真的成立了，回收它會殺掉別人已付款的預約，而且不會有任何錯誤訊息）
+- [x] 8.3 `alternative_offered` 超過 7 天未回應 → `expired`
+      ✅ `alternative_offered` 超過 7 天未回應 → `expired`，不然那筆會永遠掛在待處理
+- [x] 8.4 `vercel.json` 加入新 cron（避開既有 01:00–04:00 的時段擁擠，建議 `0 5 * * *`）
+      ✅ `vercel.json` 加 `0 5 * * *`（台灣 13:00）——刻意避開既有 cron 擠在 00:00–04:00 的時段
+- [x] 8.5 測試：未授權回 401、無項目不寄信、逾期回收的兩種分支
+      ✅ `request-cron.test.ts` 9 條：未授權 401、資料表未建 503、回收的兩種分支、**已付款不回收**、替代方案逾期、digest 的等待時數與 TIME 欄位切成 HH:MM、空陣列、寄信爆掉不影響回收。反向驗證：拿掉 `&& !hasBooking` → 「已付款不回收」立刻轉紅
 
 ## 9. Phase 2：需求標記與附議
 
