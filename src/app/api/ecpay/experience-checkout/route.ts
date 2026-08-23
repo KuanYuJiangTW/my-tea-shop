@@ -3,11 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { validateRedemption, deductPoints } from "@/lib/points";
+import { ECPAY_CHECKOUT_URL } from "@/lib/ecpay-env";
 
 const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
 const HASH_KEY  = process.env.ECPAY_HASH_KEY!;
 const HASH_IV   = process.env.ECPAY_HASH_IV!;
-const ECPAY_URL = "https://payment.ecpay.com.tw/Cashier/AioCheckout/index";
+const ECPAY_URL = ECPAY_CHECKOUT_URL;
 
 function phpUrlencode(input: string): string {
   const SAFE = /^[A-Za-z0-9\-_.]$/;
