@@ -152,6 +152,15 @@ CREATE INDEX IF NOT EXISTS idx_experience_requests_grouping
 CREATE INDEX IF NOT EXISTS idx_experience_requests_token
   ON experience_requests (token);
 
+-- 同一 Email 對同一體驗＋日期＋時段只能有一筆「還活著」的申請。
+-- 只擋 pending／approved／alternative_offered——已婉拒或撤回之後應該可以重新申請，
+-- 否則客人被拒一次就永遠不能再問同一天
+CREATE UNIQUE INDEX IF NOT EXISTS uq_experience_requests_active
+  ON experience_requests (
+    experience_type_id, lower(btrim(contact_email)), preferred_date, preferred_start_time
+  )
+  WHERE status IN ('pending', 'approved', 'alternative_offered');
+
 CREATE INDEX IF NOT EXISTS idx_request_alternatives_request
   ON experience_request_alternatives (request_id, sort_order);
 

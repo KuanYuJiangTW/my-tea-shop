@@ -1654,3 +1654,103 @@ export async function sendExperienceInterestEmail(data: {
     html,
   });
 }
+
+// ─── 客製開課請求（openspec/changes/experience-open-class-request）─────────────
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
+
+export interface RequestEmailData {
+  requestNo:          string;
+  token:              string;
+  experienceName:     string;
+  preferredDate:      string;
+  preferredStartTime: string;
+  headcount:          number;
+  slots:              number;
+  total:              number;
+  contactName:        string;
+  contactPhone:       string;
+  contactEmail:       string;
+  locale:             string;
+}
+
+const requestRow = (label: string, value: string | number) =>
+  `<tr><td style="padding:6px 10px;border:1px solid #ddd;background:#faf8f4;white-space:nowrap;">${label}</td>` +
+  `<td style="padding:6px 10px;border:1px solid #ddd;">${escapeHtml(String(value))}</td></tr>`;
+
+/**
+ * 申請確認信。
+ *
+ * 這封信要做三件事：給查詢編號、講清楚回覆時效、**明示應付金額**。第三件最
+ * 重要——成交條件在收到核准信之前就該說完，不要等到要付款才第一次看到數字。
+ */
+export async function sendRequestReceivedEmail(d: RequestEmailData) {
+  const isEn = d.locale === "en";
+  const lookupUrl = `${BASE_URL}${isEn ? "/en" : ""}/experiences/request/${d.token}`;
+
+  const html = isEn ? `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:24px;font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F0E8;">
+  <h2 style="color:#3D4A42;margin:0 0 6px;">We received your request</h2>
+  <p style="color:#5A5A52;font-size:14px;">Reference <strong>${escapeHtml(d.requestNo)}</strong> — we'll reply within two business days.</p>
+  <table style="border-collapse:collapse;font-size:14px;margin:16px 0;">
+    ${requestRow("Experience", d.experienceName)}
+    ${requestRow("Date", `${d.preferredDate} ${d.preferredStartTime}`)}
+    ${requestRow("People", d.headcount)}
+    ${requestRow("Places charged", d.slots)}
+    ${requestRow("Amount if we open this session", `NT$ ${d.total.toLocaleString()}`)}
+  </table>
+  <p style="font-size:13px;color:#5A5A52;">You are booking the places, not a per-person ticket — bring whoever you like, up to that number.</p>
+  <p style="font-size:13px;"><a href="${lookupUrl}" style="color:#5B7B5A;">Check or withdraw your request</a></p>
+  <p style="font-size:12px;color:#999;margin-top:20px;">This is a request, not a booking. Nothing is charged until we confirm and you complete payment.</p>
+</body></html>` : `<!DOCTYPE html>
+<html lang="zh-TW"><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:24px;font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F0E8;">
+  <h2 style="color:#3D4A42;margin:0 0 6px;">收到你的開課申請了</h2>
+  <p style="color:#5A5A52;font-size:14px;">查詢編號 <strong>${escapeHtml(d.requestNo)}</strong>——我們會在兩個工作天內回覆你。</p>
+  <table style="border-collapse:collapse;font-size:14px;margin:16px 0;">
+    ${requestRow("體驗", d.experienceName)}
+    ${requestRow("希望日期", `${d.preferredDate} ${d.preferredStartTime}`)}
+    ${requestRow("參加人數", `${d.headcount} 人`)}
+    ${requestRow("收費名額", `${d.slots} 個`)}
+    ${requestRow("開課的話應付金額", `NT$ ${d.total.toLocaleString()}`)}
+  </table>
+  <p style="font-size:13px;color:#5A5A52;">你買的是這個時段的名額，不是每人票——名額之內要帶幾個人由你決定。</p>
+  <p style="font-size:13px;"><a href="${lookupUrl}" style="color:#5B7B5A;">查詢或撤回這筆申請</a></p>
+  <p style="font-size:12px;color:#999;margin-top:20px;">這是申請不是預約，在我們確認並完成付款之前不會產生任何費用。</p>
+</body></html>`;
+
+  await getResend().emails.send({
+    from:    FROM,
+    to:      d.contactEmail,
+    subject: isEn ? `Request received — ${d.requestNo}` : `已收到開課申請 — ${d.requestNo}`,
+    html,
+  });
+}
+
+/** 業主端的新申請通知。時效感是重點——標題就把日期與人數放進去 */
+export async function sendAdminRequestNoticeEmail(d: RequestEmailData) {
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW"><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:24px;font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F0E8;">
+  <h2 style="color:#3D4A42;margin:0 0 6px;">有人申請開課</h2>
+  <p style="color:#7A7A72;font-size:13px;margin:0 0 16px;">編號 ${escapeHtml(d.requestNo)}</p>
+  <table style="border-collapse:collapse;font-size:14px;">
+    ${requestRow("體驗", d.experienceName)}
+    ${requestRow("希望日期", `${d.preferredDate} ${d.preferredStartTime}`)}
+    ${requestRow("人數／收費名額", `${d.headcount} 人／${d.slots} 個名額`)}
+    ${requestRow("預估金額", `NT$ ${d.total.toLocaleString()}`)}
+    ${requestRow("聯絡人", d.contactName)}
+    ${requestRow("電話", d.contactPhone)}
+    ${requestRow("Email", d.contactEmail)}
+  </table>
+  <p style="margin-top:20px;font-size:12px;color:#999;">後台審核：${BASE_URL}/admin/experiences/requests</p>
+</body></html>`;
+
+  await getResend().emails.send({
+    from:    FROM,
+    to:      ADMIN,
+    subject: `【開課申請】${d.experienceName}・${d.preferredDate} ${d.preferredStartTime}・${d.headcount} 人`,
+    html,
+  });
+}

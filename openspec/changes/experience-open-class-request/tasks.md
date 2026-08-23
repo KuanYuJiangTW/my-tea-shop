@@ -77,12 +77,17 @@
 
 ## 3. 客人端 API
 
-- [ ] 3.1 `POST /api/experience-requests`：白名單與長度驗證、`headcount` 1–50 整數、日期規則、rate limit（`@/lib/rate-limit`，每 IP 每日上限）、honeypot 靜默丟棄、service_role 寫入、回 `{ requestNo, token }`
-- [ ] 3.2 同一 Email 對同一體驗＋日期＋時段的重複提交回 409
-- [ ] 3.3 `GET /api/experience-requests/[token]`：回該筆請求的狀態與內容，**不得回其他請求的資料、不得回 `admin_note`**
-- [ ] 3.4 `DELETE /api/experience-requests/[token]`：`pending`／`alternative_offered` 可撤回，其餘回 409
-- [ ] 3.5 `POST /api/experience-requests/[token]/choose-alternative`：申請人選定替代方案，進入與核准相同的建場次流程
-- [ ] 3.6 測試：合法提交、未登入提交、人數非法、非白名單時段、公休日、日期過近、超過 90 天、限流 429、honeypot 回 200 但不寫庫、重複提交 409、token 查詢不外洩他人資料與內部備註
+- [x] 3.1 `POST /api/experience-requests`：白名單與長度驗證、`headcount` 1–50 整數、日期規則、rate limit（`@/lib/rate-limit`，每 IP 每日上限）、honeypot 靜默丟棄、service_role 寫入、回 `{ requestNo, token }`
+      ✅ `POST /api/experience-requests`：限流＋honeypot＋白名單＋日期規則＋service_role 寫入，回 `{requestNo, token, slots, total}`。**免登入可提交**，登入時才記 user_id
+- [x] 3.2 同一 Email 對同一體驗＋日期＋時段的重複提交回 409
+      ✅ DB partial unique index（`add_experience_requests.sql`）擋同一 Email＋體驗＋日期＋時段的重複，API 把 23505 轉成 409。**只擋還活著的狀態**——被婉拒或撤回後應該可以重新申請，否則客人被拒一次就永遠不能再問同一天
+- [x] 3.3 `GET /api/experience-requests/[token]`：回該筆請求的狀態與內容，**不得回其他請求的資料、不得回 `admin_note`**
+      ✅ `GET /api/experience-requests/[token]`：**白名單式 select**（不是 `select("*")` 再刪，漏刪就是外洩），回應不含 admin_note；金額查詢時重算而非讀快照，避免改價後兩個數字不一致
+- [x] 3.4 `DELETE /api/experience-requests/[token]`：`pending`／`alternative_offered` 可撤回，其餘回 409
+      ✅ `DELETE`：用 `canTransition(status,'withdrawn')` 判斷，已核准回 409（他可能已經付款了）
+- [ ] 3.5 （**移到第 7 章之後做**：它要走與核准相同的建場次流程，那支服務在 7.2 才存在）`POST /api/experience-requests/[token]/choose-alternative`：申請人選定替代方案，進入與核准相同的建場次流程
+- [x] 3.6 測試：合法提交、未登入提交、人數非法、非白名單時段、公休日、日期過近、超過 90 天、限流 429、honeypot 回 200 但不寫庫、重複提交 409、token 查詢不外洩他人資料與內部備註
+      ✅ `request-api.test.ts` 21 條：honeypot、限流、**accepts_requests=false 必須 409**（那是總開關，漏掉等於在業主還沒準備好時上線）、四種必填、Email 格式、人數範圍、聯絡偏好白名單、非該款時段、太趕／太遠／公休／季節外各自的 reason、成功回值與兩封信、重複 409、寄信爆掉不影響落庫、**查詢不外洩 admin_note**、撤回的四種終局狀態。反向驗證：移除總開關檢查 → 轉紅（expected 200 to be 409）
 
 ## 4. Email 樣板（`src/lib/email.ts`）
 
