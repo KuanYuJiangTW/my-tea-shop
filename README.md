@@ -475,6 +475,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 # ── LINE 官方帳號（可選）：兩個帳號分開，別接錯 ────
 NEXT_PUBLIC_LINE_TEA_URL=       # 霧抉茶 @976jhznk（AI 客服轉真人、茶山體驗詢問）
 NEXT_PUBLIC_LINE_TERROIR_URL=   # 風土數位 @580ariqa（/web-design 報價頁）
+NEXT_PUBLIC_LINE_TAG_ID=        # LINE Tag 廣告成效追蹤（可選，未設定即不載入）
 
 # ── Cron Secret（Vercel Cron 驗證用） ─────────
 CRON_SECRET=

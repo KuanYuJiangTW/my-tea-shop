@@ -7,11 +7,11 @@ const SUPABASE_HOST = "wrknatfejiexqlyywuzz.supabase.co";
 function buildCSP(nonce: string): string {
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com https://taiwantea.store`,
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com https://d.line-scdn.net https://taiwantea.store`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    `img-src 'self' data: blob: https://${SUPABASE_HOST}`,
+    `img-src 'self' data: blob: https://${SUPABASE_HOST} https://tr.line.me`,
     "font-src 'self' data: https://fonts.gstatic.com",
-    `connect-src 'self' https://${SUPABASE_HOST} https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://payment.ecpay.com.tw https://logistics.ecpay.com.tw https://cloudflareinsights.com`,
+    `connect-src 'self' https://${SUPABASE_HOST} https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://payment.ecpay.com.tw https://logistics.ecpay.com.tw https://cloudflareinsights.com https://tr.line.me`,
     "frame-src https://payment.ecpay.com.tw https://logistics.ecpay.com.tw",
     "frame-ancestors 'none'",
     "object-src 'none'",
