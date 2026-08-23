@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import LineTag from "@/components/LineTag";
 import SiteChrome from "@/components/SiteChrome";
 import ChatWidget from "@/components/ChatWidget";
 import { Geist, Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
@@ -99,6 +100,7 @@ export default async function RootLayout({
     >
       <body>
         <GoogleAnalytics nonce={nonce} />
+        <LineTag nonce={nonce} />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
             <CartProvider>

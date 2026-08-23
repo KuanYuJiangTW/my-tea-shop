@@ -476,6 +476,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 # ── LINE Official Accounts (optional; two separate accounts) ──
 NEXT_PUBLIC_LINE_TEA_URL=       # Mist Tea @976jhznk (AI chatbot handoff, experience enquiries)
 NEXT_PUBLIC_LINE_TERROIR_URL=   # Terroir Digital @580ariqa (/web-design quote page)
+NEXT_PUBLIC_LINE_TAG_ID=        # LINE Tag conversion tracking (optional; not loaded when unset)
 
 # ── Cron Secret (Vercel Cron verification) ───
 CRON_SECRET=
