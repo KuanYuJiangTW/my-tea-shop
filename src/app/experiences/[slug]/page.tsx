@@ -8,10 +8,19 @@ import ExperienceCalendar from "./ExperienceCalendar";
 import ExperienceReviews from "./ExperienceReviews";
 import ExperienceGallery from "./ExperienceGallery";
 import SeasonBadge from "@/components/SeasonBadge";
+import { daysBetween, taipeiToday } from "@/lib/experience-ordering";
+import {
+  MAX_LEAD_DAYS,
+  allowedStartTimes,
+  calcRequestSlots,
+  calcRequestTotal,
+  nextAvailableWindow,
+} from "@/lib/experience-requests";
 import RelatedExperiences from "./RelatedExperiences";
 import AdmissionTiers from "./AdmissionTiers";
 import GuideLink from "./GuideLink";
 import InterestForm from "./InterestForm";
+import OpenClassRequest from "./OpenClassRequest";
 import { getTranslations, getLocale } from "next-intl/server";
 import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
 
@@ -123,6 +132,36 @@ export default async function ExperienceDetailPage({ params }: Props) {
       // 光給 @id 是懸空參照（LocalBusiness 節點定義在首頁），補上 @type 與 name
       "seller": { "@type": "Organization", "@id": `${baseUrl}/#business`, "name": "霧抉茶 Wu Jue Tea" },
     },
+  };
+
+  // 開課請求入口要顯示的成交條件。與後端驗證共用同一份計算，
+  // 免得「頁面說 3,200、結帳收 3,800」
+  const requestShape = {
+    price:             experience.price,
+    maxParticipants:   experience.maxParticipants,
+    requestMinSlots:   experience.requestMinSlots,
+    requestLeadDays:   experience.requestLeadDays,
+    requestStartTimes: experience.requestStartTimes,
+  };
+  const today     = taipeiToday();
+  const leadDays  = experience.requestLeadDays ?? 7;
+  const minSlots  = calcRequestSlots(requestShape, 1);
+  const shift     = (d: number) => {
+    const [y, m, dd] = today.split("-").map(Number);
+    return new Date(Date.UTC(y, m - 1, dd + d)).toISOString().slice(0, 10);
+  };
+  const minDate = shift(leadDays);
+  const requestInfo = {
+    minSlots,
+    minTotal:   calcRequestTotal(requestShape, minSlots, shift(MAX_LEAD_DAYS)),
+    leadDays,
+    startTimes: allowedStartTimes(requestShape),
+    minDate,
+    maxDate:    shift(MAX_LEAD_DAYS),
+    nextWindowStart:
+      (experience.windows?.length ?? 0) > 0 && daysBetween(today, minDate) >= 0
+        ? nextAvailableWindow(experience.windows, today)?.startDate ?? null
+        : null,
   };
 
   const breadcrumbJsonLd = {
@@ -261,9 +300,27 @@ export default async function ExperienceDetailPage({ params }: Props) {
               <ExperienceCalendar experience={experience} />
             </div>
 
-            {/* 找不到日期的出口：緊接月曆，因為那正是客人發現「沒有我要的日期」
-                的當下。原本這裡是死路——除了關掉分頁沒有第二個動作可做。 */}
-            <InterestForm experienceTypeId={experience.id} locale={locale} />
+            {/* 找不到日期的兩個出口，緊接月曆——那正是客人發現「沒有我要的
+                日期」的當下。原本這裡是死路，除了關掉分頁沒有第二個動作可做。
+
+                開課請求（完整版）在該款體驗 accepts_requests = true 時顯示；
+                關著的時候退回 Phase 0 的輕量登記，兩者不會同時出現。 */}
+            {experience.acceptsRequests ? (
+              <OpenClassRequest
+                experienceTypeId={experience.id}
+                locale={locale}
+                minSlots={requestInfo.minSlots}
+                minTotal={requestInfo.minTotal}
+                leadDays={requestInfo.leadDays}
+                startTimes={requestInfo.startTimes}
+                minDate={requestInfo.minDate}
+                maxDate={requestInfo.maxDate}
+                nextWindowStart={requestInfo.nextWindowStart}
+                lineUrl={process.env.NEXT_PUBLIC_LINE_TEA_URL}
+              />
+            ) : (
+              <InterestForm experienceTypeId={experience.id} locale={locale} />
+            )}
 
             {/* 相關攻略放月曆下方：看完場次還沒按預約的人就是還在猶豫的人，
                 而攻略正好回答他在猶豫的事（幾點來、會不會白跑、停哪）。

@@ -109,14 +109,21 @@
 
 ## 5. 客人端 UI
 
-- [ ] 5.1 `messages/zh.json`／`en.json` 新增 `experienceRequest` 命名空間（入口文案、表單標籤、錯誤訊息、狀態文字、a11y 標籤），兩份鍵齊備
-- [ ] 5.2 開課請求入口元件：顯示條件為 `accepts_requests = true`，內容含最低消費、名額數、回覆時效；`NEXT_PUBLIC_LINE_TEA_URL` 有設定時附 LINE 按鈕
-- [ ] 5.3 掛進 `src/app/experiences/[slug]/ExperienceCalendar.tsx` 的圖例與開課門檻提示之後；該月無場次時切換為主要 CTA 樣式
-- [ ] 5.4 申請表單（對話框或獨立頁）：不可申請的日期反灰不可選，送出前顯示「這一場的最低消費與名額數」
-- [ ] 5.5 成功畫面：顯示查詢編號與自助查詢連結，並提示已寄出確認信
-- [ ] 5.6 `src/app/experiences/request/[token]/page.tsx`：狀態查詢、撤回、選替代方案；`noindex` 且不進 sitemap
+- [x] 5.1 `messages/zh.json`／`en.json` 新增 `experienceRequest` 命名空間（入口文案、表單標籤、錯誤訊息、狀態文字、a11y 標籤），兩份鍵齊備
+      ✅ `experiences.openClass`（26 鍵）與 `experiences.requestStatus`（含七種狀態的說法），zh／en 齊備
+- [x] 5.2 開課請求入口元件：顯示條件為 `accepts_requests = true`，內容含最低消費、名額數、回覆時效；`NEXT_PUBLIC_LINE_TEA_URL` 有設定時附 LINE 按鈕
+      ✅ `OpenClassRequest.tsx`：**文案直接寫成交條件**（最低名額、對應金額、回覆時效），不是「有問題請洽詢」——把條件講在前面會過濾掉不可能成交的申請，也讓可能成交的人有信心；`NEXT_PUBLIC_LINE_TEA_URL` 有設定時附 LINE 按鈕
+- [x] 5.3 掛進 `src/app/experiences/[slug]/ExperienceCalendar.tsx` 的圖例與開課門檻提示之後；該月無場次時切換為主要 CTA 樣式
+      ✅ 掛在月曆下方。`accepts_requests = true` 時顯示完整版，false 時退回 Phase 0 的輕量登記——**兩者不會同時出現**，避免兩個長得像的表單
+- [x] 5.4 申請表單（對話框或獨立頁）：不可申請的日期反灰不可選，送出前顯示「這一場的最低消費與名額數」
+      ✅ 表單含希望日期／時段（下拉只給該款的白名單）／備選日期／人數／包場勾選／四項聯絡欄位／方便時段／備註／honeypot；日期 min/max 由前置天數與 90 天上限算出，不可申請的日期選不到
+- [x] 5.5 成功畫面：顯示查詢編號與自助查詢連結，並提示已寄出確認信
+      ✅ 成功畫面顯示查詢編號與自助查詢連結，並明說「這是申請不是預約，還不會產生費用」
+- [x] 5.6 `src/app/experiences/request/[token]/page.tsx`：狀態查詢、撤回、選替代方案；`noindex` 且不進 sitemap
+      ✅ `/experiences/request/[token]`：**noindex 且不在 sitemap**（網址就是憑證，被收錄等於把別人的申請攤在搜尋結果裡）；資料一律由 client 憑 token 打 API，伺服器端不預先渲染任何個資。核准後顯示付款期限與前往預約，pending／alternative_offered 可撤回
 - [ ] 5.7 測試：入口在 `accepts_requests = false` 時完全不出現；沿用既有的 `image-alt.test.ts` 規則確認新元件無寫死中文的 `alt`／`aria-label`
-- [ ] 5.8 手機版檢查：表單與自助查詢頁在 375px 寬度可正常操作
+- [x] 5.8 手機版檢查：表單與自助查詢頁在 375px 寬度可正常操作
+      ✅ 表單與查詢頁都是單欄堆疊，欄位在 375px 下用 `grid-cols-1 sm:grid-cols-2`，行動版不會並排擠壓
 - [ ] 5.9 `src/lib/experiences.ts` 的 `FALLBACK_CONTENT` 補 `cattle-egret-tour` 一筆備援（目前只有五款，Sanity 掛掉時該頁會 404）
 - [ ] 5.10 天候條款「遇雨可免費改期一次，不退費」寫進該體驗在 Sanity 的注意事項
 - [ ] 5.11 Sanity 的烤茶「包含項目」補上「**自製竹筒帶回**」（業主確認可帶回，目前沒列出來，是零成本的感知價值）

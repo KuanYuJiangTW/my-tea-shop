@@ -122,6 +122,10 @@ function mapRow(row: Record<string, unknown>): ExperienceType {
     minParticipants: row.min_participants as number,
     requiresAdult:   row.requires_adult as boolean,
     isActive:        row.is_active as boolean,
+    acceptsRequests:   (row.accepts_requests as boolean | undefined) ?? false,
+    requestMinSlots:   (row.request_min_slots as number | null) ?? null,
+    requestLeadDays:   (row.request_lead_days as number | null) ?? null,
+    requestStartTimes: (row.request_start_times as string[] | undefined) ?? undefined,
     sortOrder:       (row.sort_order as number | null) ?? null,
     pinnedUntil:     (row.pinned_until as string | null) ?? null,
     windows:         windowRows.map(w => ({
