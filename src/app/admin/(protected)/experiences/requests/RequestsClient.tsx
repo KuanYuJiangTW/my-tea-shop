@@ -91,15 +91,22 @@ export default function RequestsClient() {
     reload();
   }
 
+  /** 整組核准：只建一個場次，每筆各自拿到 token 與核准信 */
   async function approveGroup(g: Group) {
-    // 一次核准整組時，只有第一筆會建場次，其餘會撞到衝突檢查——那是對的：
-    // 一個時段只該有一個場次。其餘幾筆要用「請客人加入既有場次」處理。
-    if (await act(g.ids[0], "/approve")) {
-      setMsg({
-        type: "ok",
-        text: `已為 ${g.date} ${g.time} 開課。同組其他 ${g.ids.length - 1} 筆請用「提替代方案」指向這個場次，請他們加入`,
-      });
-    }
+    setBusy(true); setMsg(null);
+    const res = await fetch("/api/admin/experience-requests/approve-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: g.ids }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) setMsg({ type: "err", text: data.error ?? "整組核准失敗" });
+    else setMsg({
+      type: "ok",
+      text: `已為 ${g.date} ${g.time} 開一場，${data.approved} 筆申請都收到專屬連結了` +
+            (data.failed?.length ? `（${data.failed.length} 筆沒處理成功）` : ""),
+    });
     reload();
   }
 

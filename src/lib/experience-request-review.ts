@@ -250,3 +250,85 @@ export async function convertRequestOnPayment(sessionId: string | null | undefin
     console.error("[request-review] convertRequestOnPayment failed:", err);
   }
 }
+
+/**
+ * 整組核准：同一體驗、同一日期、同一時段的多筆請求**只建一個場次**，
+ * 但每一筆各自拿到自己的 token 與核准信。
+ *
+ * 這是這個功能最直接的獲利點——三筆各 2、3、2 人的請求擠在同一天，散著看
+ * 是三筆待審，聚起來是一場滿團。若讓業主一筆一筆按，第二筆就會撞上衝突
+ * 檢查，然後他得自己想辦法把人湊到同一場。
+ *
+ * 第一筆走完整的 approveRequest（含衝突檢查與建場次），其餘幾筆直接掛到
+ * 同一個 session_id。
+ */
+export async function approveGroup(requestIds: string[]): Promise<{
+  ok: boolean; sessionId?: string; approved: number; failed: { id: string; code: string }[];
+}> {
+  if (requestIds.length === 0) return { ok: false, approved: 0, failed: [] };
+
+  const first = await approveRequest(requestIds[0]);
+  if (!first.ok) {
+    return { ok: false, approved: 0, failed: [{ id: requestIds[0], code: first.code }] };
+  }
+
+  const failed: { id: string; code: string }[] = [];
+  let approved = 1;
+
+  for (const id of requestIds.slice(1)) {
+    const { data } = await supabase
+      .from("experience_requests")
+      .select(REQUEST_FIELDS)
+      .eq("id", id)
+      .single();
+
+    const req = data as unknown as RequestRow | null;
+    if (!req) { failed.push({ id, code: "not-found" }); continue; }
+    if (!canTransition(req.status, "approved")) { failed.push({ id, code: "bad-status" }); continue; }
+
+    const token     = generateRequestToken();
+    const expiresAt = new Date(Date.now() + TOKEN_TTL_HOURS * 3600_000).toISOString();
+
+    const { error } = await supabase
+      .from("experience_requests")
+      .update({
+        status:           "approved",
+        session_id:       first.sessionId,
+        token,
+        token_expires_at: expiresAt,
+        reviewed_at:      new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    if (error) { failed.push({ id, code: "db" }); continue; }
+    approved += 1;
+
+    const type  = req.experience_types;
+    const shape = {
+      price:           type?.price ?? 0,
+      maxParticipants: type?.max_participants ?? 20,
+      requestMinSlots: type?.request_min_slots ?? null,
+    };
+    // 併團時每一筆只付自己的人數，不必各自扛最低名額——最低名額是「開一場」
+    // 的門檻，這一場已經因為第一筆而開成了
+    const slots = Math.min(req.headcount, shape.maxParticipants);
+    const total = calcRequestTotal(shape, slots, req.preferred_date);
+
+    try {
+      await sendRequestApprovedEmail({
+        requestNo: req.request_no, token,
+        experienceName: type?.name ?? "",
+        preferredDate: req.preferred_date, preferredStartTime: req.preferred_start_time,
+        headcount: req.headcount, slots, total,
+        contactName: req.contact_name, contactPhone: req.contact_phone,
+        contactEmail: req.contact_email, locale: req.locale,
+        sessionDate: req.preferred_date, sessionTime: req.preferred_start_time,
+        expiresAt: expiresAt.slice(0, 16).replace("T", " "),
+      });
+    } catch (err) {
+      console.error("[request-review] group approve email failed:", err);
+    }
+  }
+
+  return { ok: true, sessionId: first.sessionId, approved, failed };
+}

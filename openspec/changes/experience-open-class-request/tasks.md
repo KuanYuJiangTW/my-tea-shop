@@ -121,13 +121,18 @@
       ✅ 成功畫面顯示查詢編號與自助查詢連結，並明說「這是申請不是預約，還不會產生費用」
 - [x] 5.6 `src/app/experiences/request/[token]/page.tsx`：狀態查詢、撤回、選替代方案；`noindex` 且不進 sitemap
       ✅ `/experiences/request/[token]`：**noindex 且不在 sitemap**（網址就是憑證，被收錄等於把別人的申請攤在搜尋結果裡）；資料一律由 client 憑 token 打 API，伺服器端不預先渲染任何個資。核准後顯示付款期限與前往預約，pending／alternative_offered 可撤回
-- [ ] 5.7 測試：入口在 `accepts_requests = false` 時完全不出現；沿用既有的 `image-alt.test.ts` 規則確認新元件無寫死中文的 `alt`／`aria-label`
+- [x] 5.7 測試：入口在 `accepts_requests = false` 時完全不出現；沿用既有的 `image-alt.test.ts` 規則確認新元件無寫死中文的 `alt`／`aria-label`
+      ✅ `request-ui-gating.test.ts` 5 條靜態掃描：入口被 `acceptsRequests` 包住、關著時退回 Phase 0 的輕量登記（同一個三元運算，不會同時出現也不會同時消失）、查詢頁有 noindex 且不在 sitemap、**客人端 select 是白名單式且沒有 admin_note**（也擋 `select("*")`——那樣新增欄位就會自動外洩）。中文 alt／aria-label 由既有的 `image-alt.test.ts` 覆蓋（它本來就掃 src/app）
 - [x] 5.8 手機版檢查：表單與自助查詢頁在 375px 寬度可正常操作
       ✅ 表單與查詢頁都是單欄堆疊，欄位在 375px 下用 `grid-cols-1 sm:grid-cols-2`，行動版不會並排擠壓
-- [ ] 5.9 `src/lib/experiences.ts` 的 `FALLBACK_CONTENT` 補 `cattle-egret-tour` 一筆備援（目前只有五款，Sanity 掛掉時該頁會 404）
-- [ ] 5.10 天候條款「遇雨可免費改期一次，不退費」寫進該體驗在 Sanity 的注意事項
-- [ ] 5.11 Sanity 的烤茶「包含項目」補上「**自製竹筒帶回**」（業主確認可帶回，目前沒列出來，是零成本的感知價值）
-- [ ] 5.12 萬鷺朝鳳的頁面與月曆標示「**鳥況最佳時段 15:00–18:00**」，做期待管理也做轉換
+- [x] 5.9 `src/lib/experiences.ts` 的 `FALLBACK_CONTENT` 補 `cattle-egret-tour` 一筆備援（目前只有五款，Sanity 掛掉時該頁會 404）
+      ✅ `FALLBACK_CONTENT` 補 `cattle-egret-tour`——沒有這一筆，Sanity 掛掉時該頁會直接 404（`getExperienceContent` 回 null → `notFound()`）。順手把 tea-wine 的 300ml 改成業主確認的 350ml
+- [x] 5.10 天候條款「遇雨可免費改期一次，不退費」寫進該體驗在 Sanity 的注意事項
+      ✅ 天候條款「遇雨可免費改期一次，不退費」已寫進 Sanity 的注意事項（中英各 9 條），放在時段那條之後
+- [x] 5.11 Sanity 的烤茶「包含項目」補上「**自製竹筒帶回**」（業主確認可帶回，目前沒列出來，是零成本的感知價值）
+      ✅ 烤茶的「包含項目」已含「手作竹筒帶回」（2026-08-22 隨中英對齊一起補上）
+- [x] 5.12 萬鷺朝鳳的頁面與月曆標示「**鳥況最佳時段 15:00–18:00**」，做期待管理也做轉換
+      ✅ 鳥況時段寫在三個地方：注意事項第 4 條、三種參加方式的導覽描述（在月曆**上方**，行動版會先看到）、以及攻略文章的第 2 段
 
 ## 6. 場次可見性（做在核准功能之前）
 
@@ -146,7 +151,8 @@
       ✅ `GET /api/admin/experience-requests?status=`：清單＋依「體驗×日期×時段」聚合（筆數、合計人數、合計預估營收、該組的 id 清單）。只列多筆擠在一起的，單獨一筆不必特別點出來
 - [x] 7.2 `POST /api/admin/experience-requests/[id]/approve`：衝突檢查 → 建場次（`private`、`created_from_request_id`）→ 產生 48 小時 token → 狀態 `approved` → 寄核准信 → 寫 `admin_audit_log`
       ✅ `approveRequest()` 服務層：衝突檢查 → 建 private 場次（帶 `created_from_request_id`）→ **換一把新 token** 帶 48 小時期限 → 寄核准信 → 狀態 approved。抽成服務是因為三個入口共用（後台核准、整組核准、客人選替代方案），三份實作遲早長歪
-- [ ] 7.3 整組核准：同一時段的多筆請求只建一個場次，每筆各自取得 token 與核准信
+- [x] 7.3 整組核准：同一時段的多筆請求只建一個場次，每筆各自取得 token 與核准信
+      ✅ `approveGroup()` ＋ `/api/admin/experience-requests/approve-group`：同一時段的多筆**只建一個場次**，其餘幾筆掛到同一個 session_id，每筆各自拿 token 與核准信。併團的人只付自己的人數——最低名額是「開一場」的門檻，這一場已經因為第一筆而開成了。後台的「為這個時段開課」改走這支（原本一筆一筆按，第二筆就會撞衝突檢查）
 - [x] 7.4 `POST .../[id]/decline`：原因＋自訂訊息、狀態 `declined`、婉拒信附最近 3 個可預約場次、寫稽核
       ✅ `POST .../decline`：狀態檢查、寫 decline_reason，並**多查一次未來 60 天的公開場次**附進婉拒信
 - [x] 7.5 `POST .../[id]/alternatives`：1–3 組候選寫入 `experience_request_alternatives`、狀態 `alternative_offered`、寄信、寫稽核
