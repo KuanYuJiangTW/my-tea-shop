@@ -58,14 +58,22 @@
 
 ## 2. 共用邏輯（`src/lib/experience-requests.ts`）
 
-- [ ] 2.1 `calcRequestSlots(type, headcount)`：`max(request_min_slots, headcount)`，上限 `max_participants`
-- [ ] 2.2 `calcRequestTotal(type, slots, date, today)`：`slots × price`，距今 7–13 天 ×1.2 並四捨五入至百位（**不做平日折扣**，理由見 design.md D3）
-- [ ] 2.3 `isRequestableDate(date, { leadDays, blackoutDates, windows, today })`：前置天數、90 天上限、公休日、可申請期間（**有 window 即白名單制，無 window 不限期間**），全部以台灣時間的當日 00:00 為基準
-- [ ] 2.3b `nextAvailableWindow(windows, today)`：回傳最近一段可申請期間，供前台顯示「最近的可採期是 ⋯」
-- [ ] 2.4 時段白名單取自 `experience_types.request_start_times`（**不得寫成全站常數**，理由見 design.md D12）；`CONTACT_PREFERENCE_WHITELIST` 維持常數
-- [ ] 2.5 `generateRequestToken()`（32 bytes crypto random → base64url）與 `generateRequestNo()`（人可讀，如 `R2608-0001`）
-- [ ] 2.6 `canTransition(from, to)`：實作 design.md D5 的狀態機，非法轉換回 false
-- [ ] 2.7 單元測試覆蓋 2.1–2.3b、2.6：單人申請仍收最低名額、申請人數超過最低名額、急件加價、名額上限、邊界日（剛好第 7 天／第 90 天）、落在／落在期間外、無 window 不受季節限制、所有 window 過期、每一種非法狀態轉換
+- [x] 2.1 `calcRequestSlots(type, headcount)`：`max(request_min_slots, headcount)`，上限 `max_participants`
+      ✅ `calcRequestSlots(type, headcount)`：`min(max(minSlots, headcount), maxParticipants)`；未設定退回預設 4
+- [x] 2.2 `calcRequestTotal(type, slots, date, today)`：`slots × price`，距今 7–13 天 ×1.2 並四捨五入至百位（**不做平日折扣**，理由見 design.md D3）
+      ✅ `calcRequestTotal(type, slots, date, today)`：距今 ≤13 天 ×1.2 四捨五入至百位。**沒有平日折扣**，測試釘住「平日與假日同價」
+- [x] 2.3 `isRequestableDate(date, { leadDays, blackoutDates, windows, today })`：前置天數、90 天上限、公休日、可申請期間（**有 window 即白名單制，無 window 不限期間**），全部以台灣時間的當日 00:00 為基準
+      ✅ `isRequestableDate()` 回 `{ok, reason}`（too-soon／too-far／blackout／out-of-season），reason 讓前台能講出為什麼不能選
+- [x] 2.3b `nextAvailableWindow(windows, today)`：回傳最近一段可申請期間，供前台顯示「最近的可採期是 ⋯」
+      ✅ `nextAvailableWindow()`：只回還沒開始的那一段，已在期間內時回 null
+- [x] 2.4 時段白名單取自 `experience_types.request_start_times`（**不得寫成全站常數**，理由見 design.md D12）；`CONTACT_PREFERENCE_WHITELIST` 維持常數
+      ✅ `allowedStartTimes(type)` 取自該體驗的 `requestStartTimes`，空值退回 10:00／14:00；`CONTACT_PREFERENCE_WHITELIST` 為常數
+- [x] 2.5 `generateRequestToken()`（32 bytes crypto random → base64url）與 `generateRequestNo()`（人可讀，如 `R2608-0001`）
+      ✅ `generateRequestToken()`（32 bytes base64url）與 `generateRequestNo()`（`R2608-7K3Q`）。**編號刻意不是流水號**——流水號要計數器、併發會搶號；年月＋4 碼隨機配 DB unique 就夠，字母表去掉 0/O/1/I 避免電話裡念錯
+- [x] 2.6 `canTransition(from, to)`：實作 design.md D5 的狀態機，非法轉換回 false
+      ✅ `canTransition()` 依 design.md D5；另加 `isTerminal()` 讓後台知道哪些狀態只能看不能操作
+- [x] 2.7 單元測試覆蓋 2.1–2.3b、2.6：單人申請仍收最低名額、申請人數超過最低名額、急件加價、名額上限、邊界日（剛好第 7 天／第 90 天）、落在／落在期間外、無 window 不受季節限制、所有 window 過期、每一種非法狀態轉換
+      ✅ `request-logic.test.ts` 34 條，含業主定案名額（茶藝 4／紅茶 6／萬鷺 3）、第 7 與第 90 天邊界、第 13／14 天的加價分界、多段期間空窗、所有期間過期、萬鷺只有 14:00、台灣時間跨月的編號、每個狀態不能轉到自己、終局狀態不能轉出。**反向驗證做過**：預設名額改 4→2 → 轉紅（expected 2 to be 4），還原後 34 條全綠
 
 ## 3. 客人端 API
 
