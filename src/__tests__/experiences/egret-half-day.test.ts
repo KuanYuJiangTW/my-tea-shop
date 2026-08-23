@@ -1,57 +1,50 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 
 /**
- * 萬鷺朝鳳半日（等鳥茶席）是**新增一款**，不是取代 450 元的單純導覽。
+ * 650 元的「萬鷺朝鳳半日・等鳥茶席」**決定不上架**（2026-08-23）。
  *
- * 這裡守的是「兩款並存」與「備援內容存在」兩件事。備援不是可有可無的：
- * `getExperienceContent()` 查不到內容就回 null，詳細頁直接 notFound()——
- * Sanity 沒建內容或掛掉時，這一款會是 404 而不是降級顯示。
+ * 它沒有多賣任何東西：核心內容在 450 元導覽上用現場加購就拿得到，而且
+ * 3 人時反而便宜 150 元。資料庫裡那一筆留著當紀錄，`is_active = FALSE`。
+ *
+ * 這個檔案守的是**「不要被誤上架」**——這種錯誤不會有錯誤訊息，只會讓
+ * 前台多出一個沒有內容、沒有場次、比隔壁貴的商品。原本這裡守的是相反的
+ * 事（守住它存在），那份斷言連同上架指南一起撤掉了。
  */
 
-const read = (p: string) => readFileSync(join(process.cwd(), p), "utf8");
+const root = (p: string) => join(process.cwd(), p);
+const read = (p: string) => readFileSync(root(p), "utf8");
 
-describe("備援內容", () => {
-  const src = read("src/lib/experiences.ts");
-
-  it("新款有備援，Sanity 沒內容時不會 404", () => {
-    expect(src).toContain('"egret-half-day": {');
+describe("不得被誤上架", () => {
+  it("SQL 裡沒有任何把 is_active 設成 TRUE 的語句", () => {
+    const sql = read("supabase/add_egret_half_day.sql");
+    // 連註解掉的都不留——註解裡的指令是最容易被複製貼上的那種
+    expect(sql).not.toMatch(/is_active\s*=\s*TRUE/i);
   });
 
-  it("450 元的單純導覽仍在，兩款並存", () => {
-    expect(src).toContain('"cattle-egret-tour": {');
+  it("SQL 建立時就是關著的", () => {
+    expect(read("supabase/add_egret_half_day.sql")).toMatch(/FALSE,\s*FALSE,\s*100\)/);
   });
 
-  it("備援有 tagline、includes、notes 三項——缺一項頁面就開天窗", () => {
-    const block = src.slice(src.indexOf('"egret-half-day": {'));
-    const body  = block.slice(0, block.indexOf("\n  },"));
-    for (const k of ["tagline:", "coverImage:", "includes:", "notes:"]) {
-      expect(body).toContain(k);
-    }
+  it("SQL 開頭講清楚為什麼不上架，而不是只寫「已停用」", () => {
+    const sql = read("supabase/add_egret_half_day.sql");
+    expect(sql).toContain("決定不上架");
+    expect(sql).toContain("1,800");   // 那個算式要留著，不然下次又會有人想做
+    expect(sql).toContain("1,950");
+  });
+
+  it("上架指南已經移除——那是最可能被照做的東西", () => {
+    expect(existsSync(root("openspec/changes/experience-open-class-request/egret-half-day-content.md"))).toBe(false);
   });
 });
 
-describe("上架 SQL", () => {
-  const sql = read("supabase/add_egret_half_day.sql");
-
-  it("以 is_active = FALSE 建立——內容沒進 Sanity 之前不該出現在前台", () => {
-    expect(sql).toMatch(/FALSE,\s*FALSE,\s*100\)/);
-    // 開啟的那一行必須是註解狀態
-    expect(sql).toMatch(/--\s*UPDATE experience_types SET is_active = TRUE/);
+describe("前台不留殘跡", () => {
+  it("FALLBACK_CONTENT 不再有這一款", () => {
+    expect(read("src/lib/experiences.ts")).not.toContain("egret-half-day");
   });
 
-  it("時段只有 14:00——上午開這一款等於賣一個看不到鳥的下午", () => {
-    expect(sql).toContain("ARRAY['14:00']");
-  });
-
-  it("開課參數包在欄位存在檢查裡，先跑本檔也不會爆", () => {
-    expect(sql).toContain("information_schema.columns");
-    expect(sql).toContain("column_name = 'accepts_requests'");
-  });
-
-  it("不動既有的 cattle-egret-tour（那是還在賣的商品）", () => {
-    expect(sql).not.toMatch(/UPDATE experience_types[\s\S]{0,200}slug = 'cattle-egret-tour'/);
-    expect(sql).not.toMatch(/DELETE FROM experience_types/);
+  it("450 元的導覽仍在，那才是實際在賣的", () => {
+    expect(read("src/lib/experiences.ts")).toContain('"cattle-egret-tour": {');
   });
 });
