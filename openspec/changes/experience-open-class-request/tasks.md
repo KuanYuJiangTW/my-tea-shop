@@ -91,13 +91,20 @@
 
 ## 4. Email 樣板（`src/lib/email.ts`）
 
-- [ ] 4.1 `sendRequestReceivedEmail()`：申請確認信（查詢編號、自助查詢連結、最低消費與名額數、回覆時效）
-- [ ] 4.2 `sendRequestApprovedEmail()`：核准信（專屬預約連結、48 小時期限、場次日期時段、應付金額）
-- [ ] 4.3 `sendRequestAlternativeEmail()`：替代方案信（1–3 組選項，每組一鍵選擇連結）
-- [ ] 4.4 `sendRequestDeclinedEmail()`：婉拒信（原因、自訂訊息、附最近 3 個可預約場次或聯絡方式）
-- [ ] 4.5 `sendAdminRequestDigest()`：業主待審彙整信（沿用 `sendAdminPendingRefundDigest` 的版型）
-- [ ] 4.6 五封信皆依 `locale` 產出 zh／en 兩版；寄信失敗一律 best-effort（不影響 API 回應，錯誤進 log）
-- [ ] 4.7 測試：locale 決定語言、寄信例外不影響 API 回應
+- [x] 4.1 `sendRequestReceivedEmail()`：申請確認信（查詢編號、自助查詢連結、最低消費與名額數、回覆時效）
+      ✅ `sendRequestReceivedEmail()`：查詢編號、自助查詢連結、**應付金額**（成交條件不能等到要付款才第一次出現）、買斷名額制的一句說明、「這是申請不是預約」
+- [x] 4.2 `sendRequestApprovedEmail()`：核准信（專屬預約連結、48 小時期限、場次日期時段、應付金額）
+      ✅ `sendRequestApprovedEmail()`：付款按鈕、48 小時期限、金額，並講明逾期會釋出——那個日期在他付款前一直被佔著，期限不是刁難
+- [x] 4.3 `sendRequestAlternativeEmail()`：替代方案信（1–3 組選項，每組一鍵選擇連結）
+      ✅ `sendRequestAlternativeEmail()`：每個候選都是可點的連結（`?choose=<id>`），客人不必回信打字；指向既有場次的選項會標明
+- [x] 4.4 `sendRequestDeclinedEmail()`：婉拒信（原因、自訂訊息、附最近 3 個可預約場次或聯絡方式）
+      ✅ `sendRequestDeclinedEmail()`：**一定附最近可預約場次**——被婉拒但看到「這幾場還有位子」的客人，回頭率跟只收到「很抱歉」的差很多；沒有場次時改邀請另約
+- [x] 4.5 `sendAdminRequestDigest()`：業主待審彙整信（沿用 `sendAdminPendingRefundDigest` 的版型）
+      ✅ `sendAdminRequestDigest()`：列出編號、體驗、日期、人數、已等幾小時（超過 48 小時變色），**無項目時不寄**
+- [x] 4.6 五封信皆依 `locale` 產出 zh／en 兩版；寄信失敗一律 best-effort（不影響 API 回應，錯誤進 log）
+      ✅ 五封信都依 `locale` 產出 zh／en，共用 `requestShell()` 版型；呼叫端一律 try/catch，寄信失敗只 log 不影響已落庫的資料
+- [x] 4.7 測試：locale 決定語言、寄信例外不影響 API 回應
+      ✅ `request-emails.test.ts` 11 條：確認信的編號與金額、locale 切換、查詢連結的 /en 前綴、核准信的按鈕與期限、替代方案的一鍵連結、婉拒信有無場次的兩種寫法、digest 空陣列不寄、**客人填的內容不會變成 HTML 標籤**
 
 ## 5. 客人端 UI
 
