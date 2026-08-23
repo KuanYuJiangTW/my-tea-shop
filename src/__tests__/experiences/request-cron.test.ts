@@ -17,6 +17,8 @@ const state = {
   approved:     [] as Row[],
   alternatives: [] as Row[],
   pending:      [] as Row[],
+  /** 第 4 段「成團訊號」用的：所有還開著的申請（走 .in(status, […])） */
+  openPending:  [] as Row[],
   confirmedBookings: 0,
   tableMissing: false,
   updates: [] as { table: string; patch: Row }[],
@@ -30,13 +32,15 @@ vi.mock("@/lib/email", () => ({
 
 vi.mock("@/lib/supabase", () => {
   const chain = (table: string) => {
-    const st = { filters: {} as Record<string, unknown> };
+    const st = { filters: {} as Record<string, unknown>, usedIn: false };
     const c: Record<string, unknown> = {};
     const settle = () => {
       if (state.tableMissing && table === "experience_requests") {
         return Promise.resolve({ data: null, error: { code: "42P01", message: "missing" } });
       }
       if (table === "experience_requests") {
+        // .in("status", […]) 走的是「成團訊號」那段查詢
+        if (st.usedIn) return Promise.resolve({ data: state.openPending, error: null });
         const s = st.filters.status;
         if (s === "approved")            return Promise.resolve({ data: state.approved, error: null });
         if (s === "alternative_offered") return Promise.resolve({ data: state.alternatives, error: null });
@@ -50,6 +54,7 @@ vi.mock("@/lib/supabase", () => {
     };
     c.select = () => c;
     c.eq = (col: string, v: unknown) => { st.filters[col] = v; return c; };
+    c.in = () => { st.usedIn = true; return c; };
     c.lt = () => c;
     c.order = () => c;
     c.update = (patch: Row) => {
@@ -76,6 +81,7 @@ beforeEach(() => {
   state.approved = [];
   state.alternatives = [];
   state.pending = [];
+  state.openPending = [];
   state.confirmedBookings = 0;
   state.tableMissing = false;
   state.updates = [];
@@ -178,5 +184,50 @@ describe("待審彙整", () => {
     expect(res.status).toBe(200);
     expect((await res.json()).reclaimedSessions).toBe(1);
     spy.mockRestore(); err.mockRestore();
+  });
+});
+
+describe("成團訊號", () => {
+  const r = (people: number, extra: Record<string, unknown> = {}) => ({
+    experience_type_id: 6, preferred_date: "2026-09-20", preferred_start_time: "14:00:00",
+    headcount: people, experience_types: { name: "茶藝體驗", request_min_slots: 4 }, ...extra,
+  });
+
+  it("同時段累計達門檻且不只一筆 → 排在信件最前面，標成 ★ 可開課", async () => {
+    state.openPending = [r(2), r(2)];
+    const { GET } = await import("@/app/api/cron/experience-request-digest/route");
+    const j = await (await GET(req())).json();
+
+    expect(j.readyToOpen).toBe(1);
+    const first = (digests[0] as { requestNo: string; headcount: number }[])[0];
+    expect(first.requestNo).toBe("★ 可開課");
+    expect(first.headcount).toBe(4);          // 兩筆加總，不是單筆
+  });
+
+  it("只有一筆就達門檻 → 不算訊號（那筆本來就能直接核准，不需要提醒）", async () => {
+    state.openPending = [r(6)];
+    const { GET } = await import("@/app/api/cron/experience-request-digest/route");
+    expect((await (await GET(req())).json()).readyToOpen).toBe(0);
+  });
+
+  it("累計未達門檻 → 不算訊號", async () => {
+    state.openPending = [r(1), r(2)];
+    const { GET } = await import("@/app/api/cron/experience-request-digest/route");
+    expect((await (await GET(req())).json()).readyToOpen).toBe(0);
+  });
+
+  it("不同時段不合併——14:00 三人 + 10:00 三人不等於成團", async () => {
+    state.openPending = [r(3), r(3, { preferred_start_time: "10:00:00" })];
+    const { GET } = await import("@/app/api/cron/experience-request-digest/route");
+    expect((await (await GET(req())).json()).readyToOpen).toBe(0);
+  });
+
+  it("門檻用該款自己的 request_min_slots，不是寫死的 4", async () => {
+    state.openPending = [
+      r(2, { experience_types: { name: "萬鷺朝鳳導覽", request_min_slots: 3 } }),
+      r(1, { experience_types: { name: "萬鷺朝鳳導覽", request_min_slots: 3 } }),
+    ];
+    const { GET } = await import("@/app/api/cron/experience-request-digest/route");
+    expect((await (await GET(req())).json()).readyToOpen).toBe(1);
   });
 });

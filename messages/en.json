@@ -1410,7 +1410,9 @@
       "cancelled": "Cancelled"
     },
     "minParticipantsNotice": "Min. {min} participants required.",
-    "cancelNotice": "If enrollment is insufficient, the session will be cancelled 3 days before with a full refund."
+    "cancelNotice": "If enrollment is insufficient, the session will be cancelled 3 days before with a full refund.",
+    "demandNote": "{count} people already want a {time} session on this day",
+    "demandJoin": "+1 — me too"
   },
   "orderResult": {
     "bookingSuccess": "Booking Confirmed!",

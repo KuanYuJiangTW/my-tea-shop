@@ -103,8 +103,43 @@ export async function GET(req: NextRequest) {
     waitingHours:   Math.floor((now - Date.parse(r.created_at as string)) / 3600_000),
   }));
 
+  // ── 4. 成團訊號：同時段累計已達該款的開團門檻 ────────────────────────
+  //
+  // 這是把「一筆一筆看」變成「系統告訴你哪天已經成團了」。散著看是三筆待審，
+  // 聚起來是一場滿團——而業主不會每天自己去做這個加總。
+  const { data: openPending } = await supabase
+    .from("experience_requests")
+    .select("experience_type_id, preferred_date, preferred_start_time, headcount, experience_types(name, request_min_slots)")
+    .in("status", ["pending", "alternative_offered"]);
+
+  const groups = new Map<string, { name: string; date: string; time: string; people: number; count: number; minSlots: number }>();
+  for (const r of openPending ?? []) {
+    const t = r.experience_types as unknown as { name?: string; request_min_slots?: number | null } | null;
+    const time = String(r.preferred_start_time).slice(0, 5);
+    const key  = `${r.experience_type_id}|${r.preferred_date}|${time}`;
+    const g = groups.get(key) ?? {
+      name: t?.name ?? "", date: r.preferred_date as string, time,
+      people: 0, count: 0, minSlots: t?.request_min_slots ?? 4,
+    };
+    g.people += (r.headcount as number) ?? 0;
+    g.count  += 1;
+    groups.set(key, g);
+  }
+  const readyToOpen = [...groups.values()].filter(g => g.count > 1 && g.people >= g.minSlots);
+
   try {
-    await sendAdminRequestDigest(items);   // 空陣列時這支自己會 return
+    // 成團的那幾組排在最前面——那是業主看這封信最該先處理的東西
+    await sendAdminRequestDigest([
+      ...readyToOpen.map(g => ({
+        requestNo:      "★ 可開課",
+        experienceName: g.name,
+        date:           g.date,
+        time:           g.time,
+        headcount:      g.people,
+        waitingHours:   0,
+      })),
+      ...items,
+    ]);
   } catch (err) {
     console.error("[request-digest] sendAdminRequestDigest failed:", err);
   }
@@ -115,6 +150,7 @@ export async function GET(req: NextRequest) {
     reclaimedSessions,
     expiredAlternatives: staleAlternatives?.length ?? 0,
     digestItems: items.length,
+    readyToOpen: readyToOpen.length,
     approvalTtlHours: APPROVAL_TTL_HOURS,
   });
 }

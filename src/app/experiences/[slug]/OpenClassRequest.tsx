@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CalendarPlus, CheckCircle } from "lucide-react";
 
@@ -35,12 +36,26 @@ export default function OpenClassRequest({
   startTimes, minDate, maxDate, nextWindowStart, lineUrl, emphasis = false,
 }: Props) {
   const t = useTranslations("experiences.openClass");
-  const [open, setOpen] = useState(false);
+
+  /**
+   * 月曆的「＋1 我也想這天」會帶 `?requestDate=&requestTime=` 過來——那就是
+   * 附議：不用重填日期，只要留聯絡方式。
+   *
+   * 用 `useSearchParams()` 在 render 期間取值，而不是在 effect 裡 setState。
+   * 後者會踩到 `react-hooks/set-state-in-effect`（本專案已有多次前例），
+   * 而且伺服器與客戶端會渲染出不同的初始值。
+   */
+  const params      = useSearchParams();
+  const prefillDate = params.get("requestDate") ?? "";
+  const prefillTime = params.get("requestTime") ?? "";
+
+  const [open, setOpen] = useState(prefillDate !== "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ no: string; token: string } | null>(null);
   const [f, setF] = useState({
-    preferredDate: "", preferredStartTime: startTimes[0] ?? "14:00",
+    preferredDate: prefillDate,
+    preferredStartTime: startTimes.includes(prefillTime) ? prefillTime : (startTimes[0] ?? "14:00"),
     altDate: "", headcount: String(minSlots), isPrivate: false,
     contactName: "", contactPhone: "", contactEmail: "", contactLine: "",
     contactTime: "", note: "", website: "",
@@ -106,7 +121,7 @@ export default function OpenClassRequest({
   }
 
   return (
-    <div className={`rounded-2xl p-5 border ${
+    <div id="open-class-request" className={`rounded-2xl p-5 border ${
       emphasis ? "bg-tea-green-mist border-tea-green" : "bg-tea-cream border-tea-green-pale"
     }`}>
       <div className="flex items-start gap-3">

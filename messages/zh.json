@@ -1410,7 +1410,9 @@
       "cancelled": "取消"
     },
     "minParticipantsNotice": "每場需滿 {min} 人 才開課。",
-    "cancelNotice": "人數不足時，活動前 3 天會通知取消並全額退款。"
+    "cancelNotice": "人數不足時，活動前 3 天會通知取消並全額退款。",
+    "demandNote": "已有 {count} 人想在這天 {time} 開課",
+    "demandJoin": "＋1 我也想這天"
   },
   "orderResult": {
     "bookingSuccess": "預約成功！",

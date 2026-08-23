@@ -35,6 +35,12 @@ export default function ExperienceCalendar({ experience }: Props) {
    * ——那會觸發連鎖 render（`react-hooks/set-state-in-effect`）。順帶修掉一個
    * 潛在的競態：原本沒有取消機制，快速切換月份時慢的回應可能覆蓋掉新的月份資料。
    */
+  /**
+   * 「已有 N 人想在這天開課」的需求標記。只有聚合數字，沒有個資。
+   * 抓不到就當沒有——這是附加訊號，不該讓月曆壞掉。
+   */
+  const [demand, setDemand] = useState<{ date: string; startTime: string; headcount: number; requestCount: number }[]>([]);
+
   const [fetched, setFetched] = useState<{ key: string; sessions: ExperienceSession[] }>({
     key: "",
     sessions: [],
@@ -60,6 +66,15 @@ export default function ExperienceCalendar({ experience }: Props) {
     return () => { cancelled = true; };
   }, [experience.slug, year, month]);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/experience-requests/demand?slug=${experience.slug}&year=${year}&month=${month}`)
+      .then(r => r.json())
+      .then(d => { if (!cancelled) setDemand(Array.isArray(d) ? d : []); })
+      .catch(() => { if (!cancelled) setDemand([]); });
+    return () => { cancelled = true; };
+  }, [experience.slug, year, month]);
+
   const firstDay    = new Date(year, month - 1, 1).getDay();
   const daysInMonth = new Date(year, month, 0).getDate();
 
@@ -74,9 +89,17 @@ export default function ExperienceCalendar({ experience }: Props) {
     else setMonth(m => m + 1);
   };
 
+  const dateStrOf = (day: number) =>
+    `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
   const getDateSessions = (day: number) => {
-    const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const dateStr = dateStrOf(day);
     return sessions.filter(s => s.sessionDate === dateStr);
+  };
+
+  const getDateDemand = (day: number) => {
+    const dateStr = dateStrOf(day);
+    return demand.filter(d => d.date === dateStr);
   };
 
   const isPast = (day: number) => {
@@ -92,6 +115,8 @@ export default function ExperienceCalendar({ experience }: Props) {
 
   // 選中日期的場次清單
   const selectedSessions = selectedDay !== null ? getDateSessions(selectedDay) : [];
+  const selectedDemand   = selectedDay !== null ? getDateDemand(selectedDay) : [];
+  const selectedDateStr  = selectedDay !== null ? dateStrOf(selectedDay) : "";
 
   return (
     <div>
@@ -141,13 +166,14 @@ export default function ExperienceCalendar({ experience }: Props) {
             const daySessions = getDateSessions(day);
             const past        = isPast(day);
             const hasSessions = daySessions.length > 0;
+            const dayDemand   = getDateDemand(day);
             const isSelected  = selectedDay === day;
             const dots        = daySessions.slice(0, 3);
 
             return (
               <div
                 key={day}
-                onClick={() => handleDayClick(day, hasSessions, past)}
+                onClick={() => handleDayClick(day, hasSessions || dayDemand.length > 0, past)}
                 className={`
                   min-h-[44px] sm:min-h-[52px] rounded-inline p-1 flex flex-col items-center border transition-colors duration-base ease-standard
                   ${past
@@ -156,7 +182,11 @@ export default function ExperienceCalendar({ experience }: Props) {
                       ? isSelected
                         ? "border-tea-green bg-tea-green-mist/60 ring-2 ring-tea-green cursor-pointer"
                         : "border-tea-green-pale bg-tea-green-mist/30 cursor-pointer hover:bg-tea-green-mist/50"
-                      : "border-transparent cursor-default"
+                      : dayDemand.length > 0
+                        ? isSelected
+                          ? "border-amber-400 bg-amber-50 ring-2 ring-amber-400 cursor-pointer"
+                          : "border-amber-200 bg-amber-50/50 cursor-pointer hover:bg-amber-50"
+                        : "border-transparent cursor-default"
                   }
                 `}
               >
@@ -166,6 +196,14 @@ export default function ExperienceCalendar({ experience }: Props) {
                 }`}>
                   {day}
                 </span>
+
+                {/* 需求標記：空心圓，與既有的三色實心圓點明顯不同 */}
+                {!past && !hasSessions && dayDemand.length > 0 && (
+                  <span
+                    className="mt-1.5 w-1.5 h-1.5 rounded-pill border border-amber-500"
+                    aria-hidden="true"
+                  />
+                )}
 
                 {/* 圓點 */}
                 {!past && hasSessions && (
@@ -190,6 +228,21 @@ export default function ExperienceCalendar({ experience }: Props) {
           <h4 className="text-label font-semibold text-tea-text mb-3">
             {t("sessionListTitle", { month, day: selectedDay })}
           </h4>
+          {/* 已有人想在這天開課——需求可見化本身就會吸引附議 */}
+          {selectedDemand.length > 0 && (
+            <div className="mb-3 rounded-control bg-amber-50 border border-amber-200 px-4 py-3">
+              {selectedDemand.map((d, i) => (
+                <p key={i} className="text-caption text-amber-900">
+                  {t("demandNote", { time: d.startTime, count: d.headcount })}
+                </p>
+              ))}
+              <a
+                href={`?requestDate=${selectedDateStr}&requestTime=${selectedDemand[0].startTime}#open-class-request`}
+                className="inline-block mt-2 text-caption font-medium text-tea-green underline"
+              >{t("demandJoin")}</a>
+            </div>
+          )}
+
           <div className="space-y-2">
             {selectedSessions.map(s => {
               const open = s.status === "open";
