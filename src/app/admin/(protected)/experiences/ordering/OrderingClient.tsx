@@ -20,12 +20,20 @@ interface Row extends Sortable {
   sortOrder: number | null;
   pinnedUntil: string | null;
   windows: Win[];
+  acceptsRequests: boolean;
+  requestMinSlots: number | null;
+  requestLeadDays: number | null;
+  requestStartTimes: string[];
 }
 
 interface ApiWindow { id: string; start_date: string; end_date: string; note: string | null }
 interface ApiRow {
   id: number; slug: string; name: string; price: number;
   sort_order: number | null; pinned_until: string | null;
+  accepts_requests?: boolean;
+  request_min_slots?: number | null;
+  request_lead_days?: number | null;
+  request_start_times?: string[];
   experience_availability_windows: ApiWindow[];
 }
 type ApiResult = { today: string; types: ApiRow[] } | { error: string };
@@ -40,6 +48,10 @@ function toRow(t: ApiRow): Row {
   return {
     id: t.id, slug: t.slug, name: t.name, price: t.price,
     sortOrder: t.sort_order, pinnedUntil: t.pinned_until,
+    acceptsRequests: t.accepts_requests ?? false,
+    requestMinSlots: t.request_min_slots ?? null,
+    requestLeadDays: t.request_lead_days ?? null,
+    requestStartTimes: t.request_start_times ?? [],
     windows: t.experience_availability_windows.map(w => ({
       id: w.id, startDate: w.start_date, endDate: w.end_date, note: w.note ?? undefined,
     })),
@@ -271,6 +283,73 @@ export default function OrderingClient() {
                         ><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
                     ))}
+                </div>
+
+                {/* 開課請求的可申請性參數。accepts_requests 是總開關——
+                    關著的時候前台連入口都不會出現，逐款開啟就是上線節奏 */}
+                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-tea-text-light border-t border-tea-green-pale/50 pt-3">
+                  <label className="inline-flex items-center gap-1.5">
+                    <input
+                      type="checkbox"
+                      checked={r.acceptsRequests}
+                      disabled={busy}
+                      onChange={async e => {
+                        const ok = await send("PATCH", { requestParams: { id: r.id, acceptsRequests: e.target.checked } });
+                        if (ok) setMsg({ type: "ok", text: e.target.checked ? "已開放客製開課申請" : "已關閉客製開課申請" });
+                        refresh();
+                      }}
+                    />
+                    開放客製開課申請
+                  </label>
+                  <label className="inline-flex items-center gap-1.5">
+                    開團最低名額
+                    <input
+                      type="number" min={1} max={50} defaultValue={r.requestMinSlots ?? 4}
+                      aria-label={`${r.name} 的開團最低名額`}
+                      onBlur={async e => {
+                        const v = Number(e.target.value);
+                        if (!Number.isInteger(v) || v === r.requestMinSlots) return;
+                        if (await send("PATCH", { requestParams: { id: r.id, requestMinSlots: v } })) {
+                          setMsg({ type: "ok", text: `${r.name} 的開團最低名額改為 ${v}` });
+                        }
+                        refresh();
+                      }}
+                      className="w-16 border border-tea-green-pale rounded px-2 py-1"
+                    />
+                  </label>
+                  <label className="inline-flex items-center gap-1.5">
+                    最短前置天數
+                    <input
+                      type="number" min={0} max={90} defaultValue={r.requestLeadDays ?? 7}
+                      aria-label={`${r.name} 的最短前置天數`}
+                      onBlur={async e => {
+                        const v = Number(e.target.value);
+                        if (!Number.isInteger(v) || v === r.requestLeadDays) return;
+                        if (await send("PATCH", { requestParams: { id: r.id, requestLeadDays: v } })) {
+                          setMsg({ type: "ok", text: `${r.name} 的前置天數改為 ${v} 天` });
+                        }
+                        refresh();
+                      }}
+                      className="w-16 border border-tea-green-pale rounded px-2 py-1"
+                    />
+                  </label>
+                  <label className="inline-flex items-center gap-1.5">
+                    可申請時段
+                    <input
+                      type="text" defaultValue={r.requestStartTimes.join(",")}
+                      placeholder="10:00,14:00"
+                      aria-label={`${r.name} 的可申請時段`}
+                      onBlur={async e => {
+                        const times = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+                        if (times.join(",") === r.requestStartTimes.join(",")) return;
+                        if (await send("PATCH", { requestParams: { id: r.id, requestStartTimes: times } })) {
+                          setMsg({ type: "ok", text: `${r.name} 的可申請時段改為 ${times.join("、")}` });
+                        }
+                        refresh();
+                      }}
+                      className="w-28 border border-tea-green-pale rounded px-2 py-1"
+                    />
+                  </label>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2 items-center">

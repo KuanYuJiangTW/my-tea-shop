@@ -87,10 +87,10 @@ export const experienceSchema = defineType({
     }),
     defineField({
       name:        "admissionTiers",
-      title:       "入園／參加方式與價格",
+      title:       "參加方式與價格",
       type:        "array",
       description:
-        "同一個地點可能有好幾種參加方式（只是來看／入園坐著看／參加導覽）。" +
+        "同一個地點可能有好幾種參加方式（只是來看／買個茶位坐著看／參加導覽）。" +
         "填了才會在頁面上出現價格比較區；不填就完全不顯示。價格改了這裡就好，不用改程式。",
       of: [
         defineArrayMember({

@@ -298,11 +298,11 @@
     },
     "admission": {
       "title": "看鳥不用錢",
-      "intro": "要不要坐下來、要不要有人解說，才是選擇。停車場那邊就看得到鳥，而那也是我們家的。",
+      "intro": "要不要坐下來、要不要有人解說，才是選擇。停車場那邊就看得到鳥，而那也是我們家的——有車位、有洗手間、視野沒有電線橫過。",
       "free": "免費",
       "perPerson": "／人",
       "bookableOnline": "線上可預約",
-      "onSiteNote": "免費賞鳥與入園賞鳥都是現場即可，不用預約；導覽場次有限，請先在下方月曆預約。",
+      "onSiteNote": "免費賞鳥與看鳥茶位都是現場即可，不用預約；導覽場次有限，請先在下方月曆預約。",
       "recommended": "推薦"
     },
     "guideLink": {
@@ -325,6 +325,63 @@
       "doneTitle": "記下來了",
       "doneNote": "我們安排到你想要的日期時會主動通知你。這不是預約，不會產生費用。",
       "privacy": "只用來通知你場次消息，不會做其他用途。"
+    },
+    "openClass": {
+      "title": "想要的日期沒有場次？",
+      "intro": "告訴我們日期，達開團最低名額就為你開一場。{days} 天前提出，我們兩個工作天內回覆。",
+      "slotsNote": "這款體驗開一場最少 {slots} 個名額（NT$ {total}）。你買的是名額，不是每人票——名額之內要帶幾個人由你決定。",
+      "emptyMonthTitle": "這個月還沒有場次",
+      "cta": "申請開課",
+      "askLine": "或用 LINE 直接問",
+      "dateLabel": "希望日期",
+      "timeLabel": "希望時段",
+      "altDateLabel": "備選日期（選填）",
+      "headcountLabel": "參加人數",
+      "privateLabel": "希望包場，不與其他客人併團",
+      "nameLabel": "聯絡人姓名",
+      "phoneLabel": "電話",
+      "emailLabel": "Email",
+      "lineLabel": "LINE ID（選填）",
+      "contactTimeLabel": "方便聯絡的時段（選填）",
+      "noteLabel": "備註（素食、慶生、無障礙需求⋯）",
+      "submit": "送出申請",
+      "sending": "送出中…",
+      "required": "請填寫姓名、電話與 Email",
+      "failed": "送出失敗，請稍後再試",
+      "doneTitle": "收到了，編號 {no}",
+      "doneNote": "我們會在兩個工作天內回覆你，也寄了一封確認信。這是申請不是預約，還不會產生費用。",
+      "doneLink": "查詢這筆申請",
+      "seasonNote": "這款體驗目前不在開放季節，最近的開放期間是 {date} 起。",
+      "closed": "這款體驗目前不開放客製開課申請。"
+    },
+    "requestStatus": {
+      "label": "開課申請",
+      "loading": "查詢中…",
+      "statusTitle": "目前狀態：{status}",
+      "experience": "體驗",
+      "date": "希望日期",
+      "people": "人數",
+      "amount": "應付金額",
+      "peopleValue": "{headcount} 人（收 {slots} 個名額）",
+      "invalidTitle": "這個連結無效",
+      "invalidNote": "可能是網址複製不完整，或這筆申請已經被移除。請用信裡的連結再試一次。",
+      "approvedNote": "已經為你開課了，請在 {expires} 前完成付款——逾期這個日期會釋出。",
+      "payCta": "前往完成預約",
+      "withdraw": "撤回這筆申請",
+      "withdrawConfirm": "撤回後我們就不會為這個日期排課了，確定嗎？",
+      "withdrawDone": "已撤回，謝謝你告訴我們。",
+      "withdrawFailed": "撤回失敗，請直接聯絡我們。",
+      "help": "有問題嗎？",
+      "contact": "聯絡我們",
+      "status": {
+        "pending": "等我們回覆",
+        "approved": "已核准，待付款",
+        "alternative_offered": "我們提了其他日期",
+        "declined": "這次沒能開課",
+        "expired": "已逾期",
+        "withdrawn": "已撤回",
+        "converted": "已完成預約"
+      }
     }
   },
   "cart": {
@@ -1353,7 +1410,9 @@
       "cancelled": "取消"
     },
     "minParticipantsNotice": "每場需滿 {min} 人 才開課。",
-    "cancelNotice": "人數不足時，活動前 3 天會通知取消並全額退款。"
+    "cancelNotice": "人數不足時，活動前 3 天會通知取消並全額退款。",
+    "demandNote": "已有 {count} 人想在這天 {time} 開課",
+    "demandJoin": "＋1 我也想這天"
   },
   "orderResult": {
     "bookingSuccess": "預約成功！",

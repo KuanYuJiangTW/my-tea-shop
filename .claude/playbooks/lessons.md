@@ -239,7 +239,7 @@
 - 情境：用 Node 腳本改 `src/types/index.ts`。搜尋字串是多行 template literal（
  換行），檔案實際是 CRLF，`s.includes(find)` 直接 false
 - 代價：一次 MISS 中止。不嚴重，但若腳本沒有「找不到就 exit(1)」的保護，就會變成靜默 no-op——寫了一堆 edit、一個都沒生效、還以為成功了
-- 規則：**用 Node 改既有檔案前，先正規化行尾**：讀進來 `split("
+- 規則：**用 Node 改既有檔案前，先正規化行尾**：讀進來 `split("
 ").join("
 ")`、比對替換、寫回時依原檔還原。搜尋字串一律用 LF，並且**找不到就 throw／exit(1)，不可以靜默跳過**。（本 session 的 `$SCRATCH/edit.mjs` 就是這支 helper）
 - 去處：暫存於此（與 2026-08-18「node -e 引號被吃掉」同源：本環境改檔的失敗多半是靜默的）
@@ -255,6 +255,18 @@
 - 代價：**線上錯了不知道多久，而且完全無聲**——按鈕正常顯示、連結正常跳轉，只是跳到錯的地方；是業主在設定 LINE 自動回應、順著入口一個個對照時才發現。更糟的是 `openspec/changes/experience-open-class-request` 還沒實作的規格也已經寫上 `ADD_URL`，同一個坑正要發作第二次
 - 規則：**同一個 repo 有多個同類外部帳號時，變數名一律用「品牌／用途」而不是 official／add 這種相對詞**（本次改為 `NEXT_PUBLIC_LINE_TEA_URL`／`NEXT_PUBLIC_LINE_TERROIR_URL`），註解直接寫上帳號 ID。改名時 `openspec/specs/` 與**未實作的** `openspec/changes/` 要一起改，`archive/` 不動。另外 `NEXT_PUBLIC_*` 是 build 時內嵌：改名後若 Vercel 沒補新變數，按鈕會**靜默消失**（`url && <a>` 才渲染），所以順序是「先加新的 → 部署驗證 → 才刪舊的」
 - 去處：暫存於此（與 JUDG-2 同源：外連目的地要有線上證據。驗法是 curl 生產網址抓出 href，短網址再用 `curl -L -o /dev/null -w %{url_effective}` 解出真正的帳號，不能只看程式碼讀了哪個變數）
+
+## 2026-08-23 route 加一個 filter 方法，手刻的 Supabase chain mock 一次紅 7 條、訊息卻不指向原因
+- 情境：cron route 新增一段查詢用了 `.in("status", [...])`。該檔的測試自己手刻 chain mock，只定義了 `select/eq/lt/order/update/delete`——沒有 `in`。同一個資料夾裡另一支測試的 mock 有 `in`，所以是「有些檔會過、有些不會」
+- 代價：9 條變成 7 failed | 2 passed，而且**每一條的錯誤都長得像業務邏輯壞掉**（回傳 undefined、欄位對不上），沒有一條說「mock 少一個方法」。tsc 全綠，因為 mock 是 `Record<string, unknown>`，型別根本不管
+- 規則：**手刻 chain mock 時，未定義的方法要明確炸開並指名自己**——加一層 Proxy 兜底，認得的回 `this`，不認得的 `throw new Error("mock chain 缺 ." + prop + "()")`。同一批測試共用同一個 mock 工廠，不要每個檔各刻一份（本 repo 的 `request-cron` 與 `request-demand` 就是各刻一份才出現落差）。改 route 的查詢鏈之後，跑的是**全部**測試而不是新加的那幾條
+- 去處：暫存於此（與 JUDG-8 同源：綠燈與紅燈都要問「它到底在測什麼」）
+
+## 2026-08-23 兩支 SQL 有執行順序相依時，用 information_schema 檢查解掉，而不是寫在註解裡
+- 情境：新增體驗類型的 `add_egret_half_day.sql` 要設 `accepts_requests`／`request_start_times`，但那些欄位是另一支 `add_experience_requests.sql` 才建的。業主是在 Supabase SQL Editor 手動貼上執行的，沒有 migration 工具管順序
+- 代價：這次沒出事，但「檔頭註解寫『請先跑另一支』」在人工流程裡等於沒有保護——貼錯順序就是 `42703 column does not exist`，而且是整段 rollback，前面成功的 INSERT 也一起沒了
+- 規則：**手動執行的 SQL 之間有欄位相依時，把相依那段包進 `DO $ IF EXISTS (SELECT 1 FROM information_schema.columns …) THEN … END $`**，讓兩支檔任何順序都能跑。這跟前台程式碼用 `42703`／`42P01` 兩段式 fallback 是同一件事的兩端：**這個 repo 的 code 與 schema 一定會有一段時間不同步，兩邊都要能單獨活著**
+- 去處：暫存於此
 
 ## 已歸檔（2026-08-06 精簡 18 條；2026-08-15 再精簡 2 條）
 

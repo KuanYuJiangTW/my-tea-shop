@@ -1654,3 +1654,255 @@ export async function sendExperienceInterestEmail(data: {
     html,
   });
 }
+
+// ─── 客製開課請求（openspec/changes/experience-open-class-request）─────────────
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
+
+export interface RequestEmailData {
+  requestNo:          string;
+  token:              string;
+  experienceName:     string;
+  preferredDate:      string;
+  preferredStartTime: string;
+  headcount:          number;
+  slots:              number;
+  total:              number;
+  contactName:        string;
+  contactPhone:       string;
+  contactEmail:       string;
+  locale:             string;
+}
+
+const requestRow = (label: string, value: string | number) =>
+  `<tr><td style="padding:6px 10px;border:1px solid #ddd;background:#faf8f4;white-space:nowrap;">${label}</td>` +
+  `<td style="padding:6px 10px;border:1px solid #ddd;">${escapeHtml(String(value))}</td></tr>`;
+
+/**
+ * 申請確認信。
+ *
+ * 這封信要做三件事：給查詢編號、講清楚回覆時效、**明示應付金額**。第三件最
+ * 重要——成交條件在收到核准信之前就該說完，不要等到要付款才第一次看到數字。
+ */
+export async function sendRequestReceivedEmail(d: RequestEmailData) {
+  const isEn = d.locale === "en";
+  const lookupUrl = `${BASE_URL}${isEn ? "/en" : ""}/experiences/request/${d.token}`;
+
+  const html = isEn ? `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:24px;font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F0E8;">
+  <h2 style="color:#3D4A42;margin:0 0 6px;">We received your request</h2>
+  <p style="color:#5A5A52;font-size:14px;">Reference <strong>${escapeHtml(d.requestNo)}</strong> — we'll reply within two business days.</p>
+  <table style="border-collapse:collapse;font-size:14px;margin:16px 0;">
+    ${requestRow("Experience", d.experienceName)}
+    ${requestRow("Date", `${d.preferredDate} ${d.preferredStartTime}`)}
+    ${requestRow("People", d.headcount)}
+    ${requestRow("Places charged", d.slots)}
+    ${requestRow("Amount if we open this session", `NT$ ${d.total.toLocaleString()}`)}
+  </table>
+  <p style="font-size:13px;color:#5A5A52;">You are booking the places, not a per-person ticket — bring whoever you like, up to that number.</p>
+  <p style="font-size:13px;"><a href="${lookupUrl}" style="color:#5B7B5A;">Check or withdraw your request</a></p>
+  <p style="font-size:12px;color:#999;margin-top:20px;">This is a request, not a booking. Nothing is charged until we confirm and you complete payment.</p>
+</body></html>` : `<!DOCTYPE html>
+<html lang="zh-TW"><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:24px;font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F0E8;">
+  <h2 style="color:#3D4A42;margin:0 0 6px;">收到你的開課申請了</h2>
+  <p style="color:#5A5A52;font-size:14px;">查詢編號 <strong>${escapeHtml(d.requestNo)}</strong>——我們會在兩個工作天內回覆你。</p>
+  <table style="border-collapse:collapse;font-size:14px;margin:16px 0;">
+    ${requestRow("體驗", d.experienceName)}
+    ${requestRow("希望日期", `${d.preferredDate} ${d.preferredStartTime}`)}
+    ${requestRow("參加人數", `${d.headcount} 人`)}
+    ${requestRow("收費名額", `${d.slots} 個`)}
+    ${requestRow("開課的話應付金額", `NT$ ${d.total.toLocaleString()}`)}
+  </table>
+  <p style="font-size:13px;color:#5A5A52;">你買的是這個時段的名額，不是每人票——名額之內要帶幾個人由你決定。</p>
+  <p style="font-size:13px;"><a href="${lookupUrl}" style="color:#5B7B5A;">查詢或撤回這筆申請</a></p>
+  <p style="font-size:12px;color:#999;margin-top:20px;">這是申請不是預約，在我們確認並完成付款之前不會產生任何費用。</p>
+</body></html>`;
+
+  await getResend().emails.send({
+    from:    FROM,
+    to:      d.contactEmail,
+    subject: isEn ? `Request received — ${d.requestNo}` : `已收到開課申請 — ${d.requestNo}`,
+    html,
+  });
+}
+
+/** 業主端的新申請通知。時效感是重點——標題就把日期與人數放進去 */
+export async function sendAdminRequestNoticeEmail(d: RequestEmailData) {
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW"><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:24px;font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F0E8;">
+  <h2 style="color:#3D4A42;margin:0 0 6px;">有人申請開課</h2>
+  <p style="color:#7A7A72;font-size:13px;margin:0 0 16px;">編號 ${escapeHtml(d.requestNo)}</p>
+  <table style="border-collapse:collapse;font-size:14px;">
+    ${requestRow("體驗", d.experienceName)}
+    ${requestRow("希望日期", `${d.preferredDate} ${d.preferredStartTime}`)}
+    ${requestRow("人數／收費名額", `${d.headcount} 人／${d.slots} 個名額`)}
+    ${requestRow("預估金額", `NT$ ${d.total.toLocaleString()}`)}
+    ${requestRow("聯絡人", d.contactName)}
+    ${requestRow("電話", d.contactPhone)}
+    ${requestRow("Email", d.contactEmail)}
+  </table>
+  <p style="margin-top:20px;font-size:12px;color:#999;">後台審核：${BASE_URL}/admin/experiences/requests</p>
+</body></html>`;
+
+  await getResend().emails.send({
+    from:    FROM,
+    to:      ADMIN,
+    subject: `【開課申請】${d.experienceName}・${d.preferredDate} ${d.preferredStartTime}・${d.headcount} 人`,
+    html,
+  });
+}
+
+/** 信件外框：中英共用，避免每封信各寫一次版型 */
+function requestShell(title: string, lead: string, body: string, footer: string, lang = "zh-TW") {
+  return `<!DOCTYPE html>
+<html lang="${lang}"><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:24px;font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F0E8;">
+  <h2 style="color:#3D4A42;margin:0 0 6px;">${title}</h2>
+  <p style="color:#5A5A52;font-size:14px;margin:0 0 16px;">${lead}</p>
+  ${body}
+  <p style="font-size:12px;color:#999;margin-top:20px;">${footer}</p>
+</body></html>`;
+}
+
+/**
+ * 核准通知：**這封信的唯一任務是讓他去付款**。
+ *
+ * 所以連結要顯眼、期限要講死。48 小時不是刁難——那個日期時段在他付款前
+ * 一直被佔著，逾時要放回去給別人（design.md D1）。
+ */
+export async function sendRequestApprovedEmail(d: RequestEmailData & {
+  sessionDate: string; sessionTime: string; expiresAt: string;
+}) {
+  const isEn = d.locale === "en";
+  const url  = `${BASE_URL}${isEn ? "/en" : ""}/experiences/request/${d.token}`;
+  const btn  = `<p style="margin:20px 0;"><a href="${url}" style="display:inline-block;background:#5B7B5A;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">${isEn ? "Complete your booking" : "前往完成預約"}</a></p>`;
+
+  const table = `<table style="border-collapse:collapse;font-size:14px;">
+    ${requestRow(isEn ? "Experience" : "體驗", d.experienceName)}
+    ${requestRow(isEn ? "Date" : "日期", `${d.sessionDate} ${d.sessionTime}`)}
+    ${requestRow(isEn ? "Places" : "名額", d.slots)}
+    ${requestRow(isEn ? "Amount" : "應付金額", `NT$ ${d.total.toLocaleString()}`)}
+  </table>`;
+
+  const html = isEn
+    ? requestShell("We've opened this session for you",
+        `Reference ${escapeHtml(d.requestNo)}. Your link is valid until <strong>${escapeHtml(d.expiresAt)}</strong>.`,
+        table + btn,
+        "If payment is not completed by then, the date is released and the session is withdrawn.", "en")
+    : requestShell("已經為你開課了",
+        `編號 ${escapeHtml(d.requestNo)}。專屬連結在 <strong>${escapeHtml(d.expiresAt)}</strong> 前有效。`,
+        table + btn,
+        "逾期未完成付款，這個日期會釋出、場次取消——在你付款之前它一直被保留著，所以期限不是刁難。");
+
+  await getResend().emails.send({
+    from: FROM, to: d.contactEmail,
+    subject: isEn ? `Session opened — ${d.requestNo}` : `已為你開課，請完成付款 — ${d.requestNo}`,
+    html,
+  });
+}
+
+/** 替代方案：一鍵選，不要讓客人回信打字 */
+export async function sendRequestAlternativeEmail(d: RequestEmailData & {
+  alternatives: { id: string; date: string; time: string; isExistingSession: boolean }[];
+}) {
+  const isEn = d.locale === "en";
+  const base = `${BASE_URL}${isEn ? "/en" : ""}/experiences/request/${d.token}`;
+
+  const options = d.alternatives.map(a => `
+    <p style="margin:8px 0;">
+      <a href="${base}?choose=${encodeURIComponent(a.id)}" style="display:inline-block;background:#fff;border:1px solid #5B7B5A;color:#3D4A42;padding:10px 18px;border-radius:8px;text-decoration:none;">
+        ${escapeHtml(a.date)} ${escapeHtml(a.time)}${a.isExistingSession ? (isEn ? " — join an existing session" : "（加入既有場次）") : ""}
+      </a>
+    </p>`).join("");
+
+  const html = isEn
+    ? requestShell("That date doesn't work, but these do",
+        `Reference ${escapeHtml(d.requestNo)} for ${escapeHtml(d.experienceName)}. Pick whichever suits you:`,
+        options, "Choosing an option confirms the session — we'll email you the payment link straight away.", "en")
+    : requestShell("那天不行，但這幾天可以",
+        `編號 ${escapeHtml(d.requestNo)}・${escapeHtml(d.experienceName)}。挑一個適合你的：`,
+        options, "選了就等於確認開課，我們會立刻寄付款連結給你。");
+
+  await getResend().emails.send({
+    from: FROM, to: d.contactEmail,
+    subject: isEn ? `Alternative dates — ${d.requestNo}` : `這幾天可以開課 — ${d.requestNo}`,
+    html,
+  });
+}
+
+/**
+ * 婉拒。
+ *
+ * **一定要附上最近可預約的場次**——不讓人空手離開。一個被婉拒但看到「可是
+ * 這幾場還有位子」的客人，跟一個只收到「很抱歉」的客人，回頭率差很多。
+ */
+export async function sendRequestDeclinedEmail(d: RequestEmailData & {
+  reason?: string;
+  upcoming: { date: string; time: string; slug: string }[];
+}) {
+  const isEn = d.locale === "en";
+  const list = d.upcoming.length > 0
+    ? `<p style="font-size:14px;color:#3D4A42;margin-top:16px;">${isEn ? "These sessions still have places:" : "這幾場還有位子："}</p>` +
+      d.upcoming.map(u => `<p style="margin:6px 0;"><a href="${BASE_URL}${isEn ? "/en" : ""}/experiences/${u.slug}" style="color:#5B7B5A;">${escapeHtml(u.date)} ${escapeHtml(u.time)}</a></p>`).join("")
+    : `<p style="font-size:14px;color:#5A5A52;margin-top:16px;">${isEn ? "Get in touch and we'll find another date together." : "再跟我們聯絡，我們一起找別的時間。"}</p>`;
+
+  const reason = d.reason
+    ? `<p style="font-size:14px;color:#5A5A52;">${escapeHtml(d.reason)}</p>`
+    : "";
+
+  const html = isEn
+    ? requestShell("We can't open that date", `Reference ${escapeHtml(d.requestNo)} — sorry about this.`, reason + list, "Thanks for asking — it genuinely helps us plan.", "en")
+    : requestShell("這一天沒辦法開課", `編號 ${escapeHtml(d.requestNo)}，很抱歉。`, reason + list, "還是謝謝你問我們——知道有人想來，對我們排課很有幫助。");
+
+  await getResend().emails.send({
+    from: FROM, to: d.contactEmail,
+    subject: isEn ? `About your request — ${d.requestNo}` : `關於你的開課申請 — ${d.requestNo}`,
+    html,
+  });
+}
+
+/**
+ * 業主端的待審彙整。
+ *
+ * 沒有這封信，這個功能會在忙起來的那週死掉——不是因為做壞了，是因為沒人
+ * 記得去看後台。**無項目時不寄**：每天一封「今天沒事」的信，兩週後就沒人看了。
+ */
+export async function sendAdminRequestDigest(items: {
+  requestNo: string; experienceName: string; date: string; time: string;
+  headcount: number; waitingHours: number;
+}[]) {
+  if (items.length === 0) return;
+
+  const rows = items.map(i =>
+    `<tr>
+      <td style="padding:6px 10px;border:1px solid #ddd;">${escapeHtml(i.requestNo)}</td>
+      <td style="padding:6px 10px;border:1px solid #ddd;">${escapeHtml(i.experienceName)}</td>
+      <td style="padding:6px 10px;border:1px solid #ddd;">${escapeHtml(i.date)} ${escapeHtml(i.time)}</td>
+      <td style="padding:6px 10px;border:1px solid #ddd;">${i.headcount} 人</td>
+      <td style="padding:6px 10px;border:1px solid #ddd;color:${i.waitingHours >= 48 ? "#C2410C" : "#5A5A52"};">已等 ${i.waitingHours} 小時</td>
+    </tr>`).join("");
+
+  const html = requestShell(
+    `有 ${items.length} 筆開課申請還沒回覆`,
+    "客人收到的承諾是「兩個工作天內回覆」。",
+    `<table style="border-collapse:collapse;font-size:13px;">
+      <tr style="background:#faf8f4;">
+        <th style="padding:8px;border:1px solid #ddd;">編號</th>
+        <th style="padding:8px;border:1px solid #ddd;">體驗</th>
+        <th style="padding:8px;border:1px solid #ddd;">希望日期</th>
+        <th style="padding:8px;border:1px solid #ddd;">人數</th>
+        <th style="padding:8px;border:1px solid #ddd;">等待</th>
+      </tr>${rows}
+    </table>`,
+    `後台審核：${BASE_URL}/admin/experiences/requests`,
+  );
+
+  await getResend().emails.send({
+    from: FROM, to: ADMIN,
+    subject: `【待回覆】${items.length} 筆開課申請`,
+    html,
+  });
+}

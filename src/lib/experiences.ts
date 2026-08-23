@@ -61,8 +61,36 @@ const FALLBACK_CONTENT: Record<string, Omit<ExperienceContent, "slug" | "name" |
   "tea-wine": {
     tagline:    "將茶元素融入傳統浸漬果酒工藝，調配出獨一無二的淺漬茶果酒，帶走一瓶親手製作的茶香美酒。",
     coverImage: "/images/gallery/farm.jpeg",
-    includes:   ["所有釀造材料", "調配工具", "成品一瓶帶回（約 300ml）", "試飲時間"],
+    includes:   ["所有釀造材料", "調配工具", "成品一瓶帶回（約 350ml）", "試飲時間"],
     notes:      ["本體驗含酒精，限 18 歲以上參加", "孕婦及對酒精過敏者請勿報名"],
+  },
+  // Sanity 掛掉時的備援。沒有這一筆，該頁會直接 404——
+  // getExperienceContent 查不到內容就回 null，詳細頁 notFound()
+  "cattle-egret-tour": {
+    tagline:    "秋季限定・萬鷺朝鳳的推廣就是從我家門口開始的——停車、洗手間、茶席、賞鳥都在同一個地方。",
+    coverImage: "/images/gallery/picking2.jpg",
+    // 「現場有洗手間」「7 個車位」「視野無電線」三項是刻意寫進包含項目而不是
+    // 只寫在注意事項裡：Google AI 模式（2026-08-23）把隔壁免費平台的
+    // 「車位僅 5 個、無洗手間、可能拍到電線」寫得清清楚楚，我們這三張牌
+    // 卻一張都沒被寫出來。AI 抓包含項目的權重高於注意事項
+    includes:   [
+      "專業在地嚮導全程帶領（約 90 分鐘）",
+      "萬鷺朝鳳生態解說手冊一份",
+      "看鳥茶位：遮蔭座位，坐到鳥群散去",
+      "手工山泉愛玉乙份",
+      "冷泡高山茶一罐",
+      "停車免費（7 個車位，現場有洗手間）",
+      "茶山步道清潔費",
+    ],
+    notes:      [
+      "集合地點：信淳茶居（本身就是停車場，7 個車位），車子可以開到門口，適合推嬰兒車與長輩",
+      "現場有洗手間與遮蔭座位——賞鳥要待上兩三個小時，這是帶長輩與小孩的人最需要知道的一件事",
+      "觀景視野沒有電線橫過，長焦取景不必閃避",
+      "本活動限定期間：8 月 22 日至 10 月 11 日（依鷺鳥族群實際抵達狀況可能微調）",
+      "導覽下午 2 點開始，請準時抵達。黃頭鷺從下午 2 點左右陸續出現，3 點到傍晚 6 點最壯觀",
+      "遇雨可免費改期一次，不退費",
+      "請勿使用空拍機追逐鳥群，以保護野生動物棲息環境",
+    ],
   },
 };
 
@@ -122,6 +150,10 @@ function mapRow(row: Record<string, unknown>): ExperienceType {
     minParticipants: row.min_participants as number,
     requiresAdult:   row.requires_adult as boolean,
     isActive:        row.is_active as boolean,
+    acceptsRequests:   (row.accepts_requests as boolean | undefined) ?? false,
+    requestMinSlots:   (row.request_min_slots as number | null) ?? null,
+    requestLeadDays:   (row.request_lead_days as number | null) ?? null,
+    requestStartTimes: (row.request_start_times as string[] | undefined) ?? undefined,
     sortOrder:       (row.sort_order as number | null) ?? null,
     pinnedUntil:     (row.pinned_until as string | null) ?? null,
     windows:         windowRows.map(w => ({
@@ -199,10 +231,14 @@ export async function getSessionsForMonth(
   const lastDay   = new Date(year, month, 0).getDate();
   const endDate   = `${year}-${String(month).padStart(2, "0")}-${lastDay}`;
 
+  // 目前沒有呼叫端（公開月曆走 /api/experience-sessions），但先把 visibility
+  // 過濾補上——將來若有人接上這支，不該因為漏了一行就把私人場次公開出去。
+  // 過濾的權威版本與退路在 src/app/api/experience-sessions/route.ts
   const { data, error } = await supabase
     .from("experience_sessions")
     .select("*")
     .eq("experience_type_id", experienceTypeId)
+    .eq("visibility", "public")
     .gte("session_date", startDate)
     .lte("session_date", endDate)
     .order("session_date")

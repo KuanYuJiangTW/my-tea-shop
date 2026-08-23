@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { NextRequest } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { convertRequestOnPayment } from "@/lib/experience-request-review";
 import { sendOrderEmails, sendBookingEmails, type EmailOrderData, type BookingEmailData } from "@/lib/email";
 import { decrementOrderItems } from "@/lib/order-bundles";
 
@@ -98,6 +99,10 @@ export async function POST(req: NextRequest) {
           participantsFillUrl: `${base}/account/bookings/${booking.id}/participants`,
         };
         await sendBookingEmails(emailData);
+
+        // 若這筆預約來自客製開課請求：請求轉 converted，非包場的場次轉公開
+        // 開放併團。整支包在自己的 try/catch 內，**不會影響下面的 1|OK**
+        await convertRequestOnPayment(booking.session_id, booking.id);
       }
 
       return new Response("1|OK", { headers: { "Content-Type": "text/plain" } });
