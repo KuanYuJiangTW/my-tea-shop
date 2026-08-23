@@ -1148,3 +1148,28 @@ admin／studio 的中文 placeholder 與 title 刻意不動：內部工具，中
   貨到付款支援 7-11／全家／萊爾富但 **OK 超商不支援**（`lib/cvs.ts`）、
   註冊送 NT$50 購物金（滿 350 可用、30 天）、點數 1 點折 NT$1、
   梅山市區上山車程 50–60 分鐘（業主提供）
+
+### 2026-08-23｜LINE 官方帳號建置完成（@976jhznk）＋ LINE Tag 上線
+**已完成（業主端）**：Default 兜底訊息、5 則數字選單回覆（1 買茶／2 體驗預約／
+3 賞鳥導覽／4 交通地址／5 同日兩個體驗）、3 則補漏（6 取消改期／7 查訂單／
+8 營業時間與聯絡）、圖文選單 v1（賞鳥季，8/23–10/11）與 v2（平常，10/12–2027/12/31）。
+選單 D／F 用「文字」動作送出 `交通地址`／`聯絡我們`，靠關鍵字回應接——LINE 的關鍵字
+是**完全一致**比對，文字欄只能填單一關鍵字，填「4 交通地址」這種組合會全部落空。
+v2 的選茶指南連 `/alishan-tea`，**不是 `/tea-guide`**（後者只有 `[slug]`、沒有索引頁，會 404）。
+
+**已完成（程式碼，commit fceb1f3／merge faebbac，已上線）**：
+- `src/components/LineTag.tsx`：沿用 GoogleAnalytics 的模式，讀 `NEXT_PUBLIC_LINE_TAG_ID`，
+  未設定就不渲染。`customerType` 必須是 `'account'`（官方帳號型標籤），`'lap'` 是
+  LINE Ads Platform 用的——填錯不報錯、pv 照送，但 LINE 端不認資料
+- `src/proxy.ts` CSP 白名單加 `d.line-scdn.net`（script-src）與 `tr.line.me`（img/connect）
+- 隱私權政策 zh／en 第四節具名揭露 Google Analytics 與 LINE Tag，更新日期改 2026-08-23
+- 生產環境實測（瀏覽器）：tagId、customerType=account、lt.js、tr.line.me 信標各 1 次，無 console 錯誤
+
+**刻意沒做：訂單完成頁的轉換代碼 `_lt('send','cv',...)`**。理由：(1) 帳號目前 2 位好友、
+沒跑 LINE 廣告，現在裝只會得到永遠是 0 的數字；(2) `ResultClient.tsx` 有三條獨立的成功
+判定（綠界 `RtnCode==="1"`／Stripe `stripe=success`／PayPal 要等 `/api/paypal/capture` 回來），
+LINE 給的靜態寫法會在 PayPal capture 前就報轉換；(3) 金額不在該頁的 URL 參數裡，
+重新整理還會重複計數。**觸發條件**：開始投 LINE 廣告、或好友數到數百人、或要驗證
+漸進式訊息成效。屆時作法：抽 `trackLineConversion(tradeNo, amount)`，三條路徑各自在
+確定成功後呼叫，用交易編號寫 localStorage 冪等鎖，預約（`B` 開頭）與商品訂單分開標記，
+測試訂單實跑驗證只送一筆。送金額給第三方前，隱私權政策要再補明確一句。
