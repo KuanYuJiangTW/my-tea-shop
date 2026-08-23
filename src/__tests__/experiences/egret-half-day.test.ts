@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 /**
- * 萬鷺朝鳳半日（等鳥茶席）是**新增一款**，不是取代 250 元的單純導覽。
+ * 萬鷺朝鳳半日（等鳥茶席）是**新增一款**，不是取代 450 元的單純導覽。
  *
  * 這裡守的是「兩款並存」與「備援內容存在」兩件事。備援不是可有可無的：
  * `getExperienceContent()` 查不到內容就回 null，詳細頁直接 notFound()——
@@ -19,7 +19,7 @@ describe("備援內容", () => {
     expect(src).toContain('"egret-half-day": {');
   });
 
-  it("250 元的單純導覽仍在，兩款並存", () => {
+  it("450 元的單純導覽仍在，兩款並存", () => {
     expect(src).toContain('"cattle-egret-tour": {');
   });
 

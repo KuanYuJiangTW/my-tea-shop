@@ -206,7 +206,7 @@
 
 ## 10. 上線與試跑
 
-- [ ] 10.1 業主在 Supabase SQL Editor 執行 `add_experience_requests.sql`，確認既有場次的 `visibility` 全為 `public`、既有月曆與預約行為不變
+- [x] 10.1 業主在 Supabase SQL Editor 執行 `add_experience_requests.sql`，確認既有場次的 `visibility` 全為 `public`、既有月曆與預約行為不變
 - [x] 10.2 跑 `/verify`（測試＋型別＋lint＋build），lint 0 error
 - [ ] 10.3 部署後在線上實跑一次完整流程：申請 → 收確認信 → 後台核准 → 收核准信 → 點連結 → 完成付款 → 場次轉公開 → 出現在公開月曆
 - [ ] 10.4 另跑一次婉拒流程與一次替代方案流程，確認信件內容與連結正確
