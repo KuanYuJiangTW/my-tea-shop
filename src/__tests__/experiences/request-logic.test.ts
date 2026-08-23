@@ -71,26 +71,34 @@ describe("calcRequestSlots — 買斷名額制", () => {
   });
 });
 
-describe("calcRequestTotal — 急件加價，沒有平日折扣", () => {
-  it("14 天以上照原價", () => {
-    expect(calcRequestTotal(茶藝, 4, plus(14), TODAY)).toBe(3200);
-    expect(calcRequestTotal(茶藝, 4, plus(90), TODAY)).toBe(3200);
+describe("calcRequestTotal — 只看名額，不看日期", () => {
+  it("金額 = 名額 × 單價", () => {
+    expect(calcRequestTotal(茶藝, 4)).toBe(3200);
+    expect(calcRequestTotal(茶藝, 6)).toBe(4800);
+    expect(calcRequestTotal(採茶, 4)).toBe(1800);
   });
 
-  it("距今 13 天以內加價 20% 並四捨五入至百位", () => {
-    expect(calcRequestTotal(茶藝, 4, plus(13), TODAY)).toBe(3800);   // 3200×1.2=3840
-    expect(calcRequestTotal(採茶, 4, plus(7), TODAY)).toBe(2200);    // 1800×1.2=2160
+  /**
+   * 這一條是本次改動的重點。曾經做過「距今 7–13 天 ×1.2」的急件加價，
+   * 2026-08-24 拿掉（理由寫在 calcRequestTotal 的註解裡）。
+   *
+   * 拿掉之後最容易復發的方式，是有人看到函式「沒用到日期」覺得怪，
+   * 又把日期參數與時間邏輯加回來。所以這裡直接鎖死行為：**同樣的名額，
+   * 不管哪一天，金額都必須一樣**——包含以前會加價的 7–13 天區間。
+   */
+  it("同樣名額，任何日期都同價——不得再有急件加價", () => {
+    const 每一天 = [7, 8, 13, 14, 15, 30, 90].map(() => calcRequestTotal(茶藝, 4));
+    expect(new Set(每一天).size).toBe(1);
+    expect(每一天[0]).toBe(3200);
   });
 
-  it("第 14 天是分界（加價與否只差一天）", () => {
-    expect(calcRequestTotal(採茶, 4, plus(13), TODAY)).toBe(2200);
-    expect(calcRequestTotal(採茶, 4, plus(14), TODAY)).toBe(1800);
+  it("函式簽章只吃名額與單價，沒有日期參數", () => {
+    // 多傳參數在 TS 會編譯失敗；這裡守的是執行期的形狀
+    expect(calcRequestTotal.length).toBe(2);
   });
 
   it("平日與假日同價——刻意不做平日折扣", () => {
-    // 2026-09-16 是週三、2026-09-19 是週六，兩天都在非急件區間
-    expect(calcRequestTotal(茶藝, 4, "2026-09-16", TODAY))
-      .toBe(calcRequestTotal(茶藝, 4, "2026-09-19", TODAY));
+    expect(calcRequestTotal(茶藝, 4)).toBe(calcRequestTotal(茶藝, 4));
   });
 });
 

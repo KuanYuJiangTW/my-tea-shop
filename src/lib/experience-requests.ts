@@ -14,10 +14,6 @@ import type { ExperienceRequestStatus } from "@/types";
 /** 最遠可申請到幾天後。太遠的申請對排程沒有意義，也讓後台清單失焦 */
 export const MAX_LEAD_DAYS = 90;
 
-/** 急件加價的區間與倍率：距今 7–13 天 ×1.2。**刻意不做平日折扣**，理由見 design.md D3 */
-export const RUSH_WINDOW_DAYS = 13;
-export const RUSH_MULTIPLIER  = 1.2;
-
 export const CONTACT_PREFERENCE_WHITELIST = ["phone", "email", "line"] as const;
 export type ContactPreference = (typeof CONTACT_PREFERENCE_WHITELIST)[number];
 
@@ -47,21 +43,25 @@ export function calcRequestSlots(type: RequestableType, headcount: number): numb
 }
 
 /**
- * 應付金額 = 名額 × 單價，急件（距今 7–13 天）再乘 1.2 並四捨五入至百位。
+ * 應付金額 = 名額 × 單價。**與日期無關**——不做急件加價，也不做平日折扣。
  *
- * 為什麼急件加價：不到兩週的日期，備料與人力調度都要插隊。未滿 `leadDays`
- * 的申請根本不會走到這裡——那在 `isRequestableDate()` 就被擋掉了。
+ * 曾經做過「距今 7–13 天 ×1.2」的急件加價，2026-08-24 拿掉。理由：
+ *
+ * 1. 加價想解決的事，審核機制已經在做。難排的日期業主直接婉拒或提替代
+ *    方案；會答應的就代表不難。既保留拒絕權又多收兩成，客人付了加價還
+ *    可能被婉拒，那是很難解釋的客訴
+ * 2. 成本不隨前置天數變動——茶藝的老師一場 1,500，10 天後與 30 天後都一樣。
+ *    加價不對應任何多出來的支出
+ * 3. 這批客人是在排休閒行程，不是趕件。看到 +20% 多半是把日期往後挪
+ *    （對他零成本、你沒多賺）或乾脆放棄，而不是照付
+ * 4. 最低前置是 7 天、加價到 13 天——**你允許的最早申請日同時是最貴的**。
+ *    照最低要求提前 7 天的人反而被罰
+ *
+ * 要調利潤請動 `request_min_slots`（門檻一目了然、沒有時間懸崖），不要再
+ * 加時間維度的價格。真要重做，先看兩週數據決定天數與倍率，不要憑感覺定。
  */
-export function calcRequestTotal(
-  type: RequestableType,
-  slots: number,
-  date: string,
-  today: string = taipeiToday(),
-): number {
-  const base = slots * type.price;
-  const lead = daysBetween(today, date);
-  if (lead > RUSH_WINDOW_DAYS) return base;
-  return Math.round((base * RUSH_MULTIPLIER) / 100) * 100;
+export function calcRequestTotal(type: RequestableType, slots: number): number {
+  return slots * type.price;
 }
 
 /** 今天是否落在這段可申請期間內（首日與末日都算） */
