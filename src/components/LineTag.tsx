@@ -22,6 +22,10 @@ const TAG_ID = process.env.NEXT_PUBLIC_LINE_TAG_ID;
  * CSP：基準碼會動態插入 <script src="https://d.line-scdn.net/...">，成效再回報到
  * tr.line.me。這兩個網域已加進 `src/proxy.ts` 的 buildCSP()；漏了會被靜默擋掉
  * （console 有 CSP 錯誤，但畫面完全正常），所以改 CSP 時別把它們刪了。
+ *
+ * customerType 是 'account' 不是 'lap'：'lap' 是 LINE Ads Platform 廣告帳號的標籤，
+ * 我們這個是官方帳號（@976jhznk）後台「資料管理 → 追蹤（LINE Tag）」發的帳號型標籤。
+ * 填錯不會報錯、pv 照送，但 LINE 那邊不會認這批資料——以後台複製出來的基準程式碼為準。
  */
 export default function LineTag({ nonce }: { nonce?: string }) {
   const pathname = usePathname();
@@ -49,7 +53,7 @@ export default function LineTag({ nonce }: { nonce?: string }) {
           s.src=o||'https://d.line-scdn.net/n/line_tag/public/release/v1/lt.js';
           var t=d.getElementsByTagName('script')[0];t.parentNode.insertBefore(s,t);
         })(window, document);
-        _lt('init', { customerType: 'lap', tagId: '${TAG_ID}' });
+        _lt('init', { customerType: 'account', tagId: '${TAG_ID}' });
         _lt('send', 'pv', ['${TAG_ID}']);
       `}
     </Script>
