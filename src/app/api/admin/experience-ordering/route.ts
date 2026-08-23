@@ -32,6 +32,7 @@ export const GET = withAdminAuth(async () => {
   const { data, error } = await supabase
     .from("experience_types")
     .select("id, slug, name, name_en, price, is_active, sort_order, pinned_until, " +
+            "accepts_requests, request_min_slots, request_lead_days, request_start_times, " +
             "experience_availability_windows(id, start_date, end_date, note)")
     .order("id");
 
@@ -63,6 +64,44 @@ export const PATCH = withAdminAuth(async (req: NextRequest) => {
         : NextResponse.json({ error: error.message }, { status: 500 });
     }
     return NextResponse.json({ ok: true, count: ids.length });
+  }
+
+  // 1b) 開課請求的可申請性參數。accepts_requests 是總開關——false 時前台
+  //     連入口都不會出現，所以逐款開啟就是這個功能的上線節奏
+  if ("requestParams" in body) {
+    const { id, acceptsRequests, requestMinSlots, requestLeadDays, requestStartTimes } = body.requestParams ?? {};
+    if (!Number.isInteger(id)) {
+      return NextResponse.json({ error: "缺少體驗 id" }, { status: 400 });
+    }
+    const patch: Record<string, unknown> = {};
+    if (typeof acceptsRequests === "boolean") patch.accepts_requests = acceptsRequests;
+    if (requestMinSlots !== undefined) {
+      if (!Number.isInteger(requestMinSlots) || requestMinSlots < 1 || requestMinSlots > 50) {
+        return NextResponse.json({ error: "開團最低名額要是 1 到 50 的整數" }, { status: 400 });
+      }
+      patch.request_min_slots = requestMinSlots;
+    }
+    if (requestLeadDays !== undefined) {
+      if (!Number.isInteger(requestLeadDays) || requestLeadDays < 0 || requestLeadDays > 90) {
+        return NextResponse.json({ error: "最短前置天數要是 0 到 90 的整數" }, { status: 400 });
+      }
+      patch.request_lead_days = requestLeadDays;
+    }
+    if (requestStartTimes !== undefined) {
+      if (!Array.isArray(requestStartTimes) || requestStartTimes.length === 0 ||
+          !requestStartTimes.every((t: unknown) => typeof t === "string" && /^d{2}:d{2}$/.test(t))) {
+        return NextResponse.json({ error: "時段格式不正確（例如 14:00），且至少要有一個" }, { status: 400 });
+      }
+      patch.request_start_times = requestStartTimes;
+    }
+    if (Object.keys(patch).length === 0) {
+      return NextResponse.json({ error: "沒有要更新的欄位" }, { status: 400 });
+    }
+
+    const { error } = await supabase.from("experience_types").update(patch).eq("id", id);
+    if (error) return isNotMigrated(error.code) ? NOT_MIGRATED
+      : NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true });
   }
 
   // 2) 釘選：到期日必填且不得早於今天。
