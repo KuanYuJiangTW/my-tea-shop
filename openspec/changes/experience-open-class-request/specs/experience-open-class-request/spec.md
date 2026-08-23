@@ -62,7 +62,7 @@
 - **THEN** 該體驗沒有任何可申請日期，前台入口顯示「目前非開放季節」而非可填寫的表單
 
 ### Requirement: 開團最低名額數與應付金額
-系統 SHALL 以 `experience_types.request_min_slots` 作為該體驗客製開課的最低名額數，最低消費為 `request_min_slots × price`，且 `request_min_slots` MUST NOT 大於 `max_participants`。距今 7 至 13 天的急件 SHALL 將最低消費乘以 1.2 並四捨五入至百位。申請人取得的名額數即為 `request_min_slots`（申請人數較多時取申請人數），名額由申請人自行安排，MUST NOT 因實際到場人數少於名額而退費。前端顯示與後端驗證 SHALL 使用同一份計算，不得各自實作。
+系統 SHALL 以 `experience_types.request_min_slots` 作為該體驗客製開課的最低名額數，最低消費為 `request_min_slots × price`，且 `request_min_slots` MUST NOT 大於 `max_participants`。應付金額 SHALL NOT 隨申請日期變動——不做急件加價，也不做平日折扣（理由見 design.md D13）。申請人取得的名額數即為 `request_min_slots`（申請人數較多時取申請人數），名額由申請人自行安排，MUST NOT 因實際到場人數少於名額而退費。前端顯示與後端驗證 SHALL 使用同一份計算，不得各自實作。
 
 #### Scenario: 一般申請
 - **WHEN** 採茶的 `request_min_slots = 2`、`price = 450`、申請日距今 14 天以上
@@ -76,9 +76,9 @@
 - **WHEN** 5 人申請採茶，而 `request_min_slots = 2`
 - **THEN** 應付金額為 5 × 450 = 2,250 元，名額數為 5
 
-#### Scenario: 急件加價
-- **WHEN** 申請日距今 10 天，最低消費原為 1,600 元
-- **THEN** 最低消費為 1,900 元
+#### Scenario: 日期不影響金額
+- **WHEN** 同樣 4 個名額的申請，一筆距今 7 天、一筆距今 60 天
+- **THEN** 兩筆的應付金額相同
 
 #### Scenario: 最低名額數超過場次上限
 - **WHEN** 設定的 `request_min_slots` 大於 `max_participants`

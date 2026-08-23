@@ -153,7 +153,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
   const minDate = shift(leadDays);
   const requestInfo = {
     minSlots,
-    minTotal:   calcRequestTotal(requestShape, minSlots, shift(MAX_LEAD_DAYS)),
+    minTotal:   calcRequestTotal(requestShape, minSlots),
     leadDays,
     startTimes: allowedStartTimes(requestShape),
     minDate,

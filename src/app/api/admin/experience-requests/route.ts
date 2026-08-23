@@ -66,7 +66,7 @@ export const GET = withAdminAuth(async (req: NextRequest) => {
     return {
       ...r,
       slots,
-      total: calcRequestTotal(shape, slots, r.preferred_date),
+      total: calcRequestTotal(shape, slots),
     };
   });
 

@@ -144,7 +144,7 @@ export async function approveRequest(
     requestMinSlots: type?.request_min_slots ?? null,
   };
   const slots = calcRequestSlots(shape, req.headcount);
-  const total = calcRequestTotal(shape, slots, date);
+  const total = calcRequestTotal(shape, slots);
 
   try {
     await sendRequestApprovedEmail({
@@ -312,7 +312,7 @@ export async function approveGroup(requestIds: string[]): Promise<{
     // 併團時每一筆只付自己的人數，不必各自扛最低名額——最低名額是「開一場」
     // 的門檻，這一場已經因為第一筆而開成了
     const slots = Math.min(req.headcount, shape.maxParticipants);
-    const total = calcRequestTotal(shape, slots, req.preferred_date);
+    const total = calcRequestTotal(shape, slots);
 
     try {
       await sendRequestApprovedEmail({

@@ -211,7 +211,7 @@ describe("成功與重複", () => {
     expect(j.requestNo).toBe("R2608-AAAA");
     expect(j.token).toBe("tok-123");
     expect(j.slots).toBe(4);            // 申請 3 人，最低名額 4
-    expect(j.total).toBe(3200);         // 4 × 800，非急件
+    expect(j.total).toBe(3200);         // 4 × 800
     expect(mails).toEqual(["received", "admin"]);
     expect(inserted[0].status).toBeUndefined();   // 交給 DB 預設 pending
   });

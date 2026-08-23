@@ -78,11 +78,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     experience: type ? { slug: type.slug, name: type.name, nameEn: type.name_en } : null,
     slots,
     total: type && slots
-      ? calcRequestTotal(
-          { price: type.price, maxParticipants: type.max_participants },
-          slots,
-          row.preferred_date as string,
-        )
+      ? calcRequestTotal({ price: type.price, maxParticipants: type.max_participants }, slots)
       : null,
   });
 }

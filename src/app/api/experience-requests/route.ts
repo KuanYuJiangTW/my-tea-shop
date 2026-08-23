@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
   } catch { /* 未登入，維持 null */ }
 
   const slots = calcRequestSlots(shape, headcount);
-  const total = calcRequestTotal(shape, slots, preferredDate);
+  const total = calcRequestTotal(shape, slots);
 
   const { data: created, error } = await supabase
     .from("experience_requests")
