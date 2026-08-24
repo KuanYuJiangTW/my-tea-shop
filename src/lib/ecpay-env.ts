@@ -88,3 +88,29 @@ export const ECPAY_HASH_KEY = ECPAY_STAGE
 export const ECPAY_HASH_IV = ECPAY_STAGE
   ? (process.env.ECPAY_STAGE_HASH_IV ?? STAGE_HASH_IV)
   : process.env.ECPAY_HASH_IV!;
+
+// ── 回調網址 ────────────────────────────────────────────────────────────
+/**
+ * 綠界要把付款結果回報到哪個網域。
+ *
+ * **踩過的坑（2026-08-24）**：`NEXT_PUBLIC_BASE_URL` 是正式站網址，而且在
+ * Vercel 上設成 All Environments。Preview 照用的話，綠界會把回調送到**正式站**——
+ * 正式站用正式金鑰驗簽，而那筆回調是用測試金鑰簽的，於是 CheckMacValue 失敗、
+ * 回調被拒。付款在綠界那邊成功了，我們這邊卻什麼都沒發生。
+ *
+ * 症狀非常難認：預約停在 pending_payment、沒有錯誤、日誌在另一個環境裡。
+ *
+ * 解法不是再加一個環境變數——Preview 網址每次部署都會變，設死沒用。測試模式
+ * 一律用「這個請求實際打進來的網域」，自動跟著部署走。
+ *
+ * 正式站行為完全不變：仍然優先用 NEXT_PUBLIC_BASE_URL。
+ */
+export function ecpayCallbackBase(req: {
+  headers: { get(name: string): string | null };
+  nextUrl: { host: string };
+}): string {
+  const fromRequest =
+    `${req.headers.get("x-forwarded-proto") ?? "https"}://` +
+    `${req.headers.get("x-forwarded-host") ?? req.nextUrl.host}`;
+  return ECPAY_STAGE ? fromRequest : (process.env.NEXT_PUBLIC_BASE_URL ?? fromRequest);
+}

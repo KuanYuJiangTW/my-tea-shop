@@ -153,3 +153,48 @@ describe("憑證：正式與測試用不同的變數名，不可能互相汙染"
     err.mockRestore();
   });
 });
+
+describe("回調網址：正式站行為必須與改動前完全相同", () => {
+  const req = (host: string, proto = "https") => ({
+    headers: { get: (n: string) => (n === "x-forwarded-host" ? host : n === "x-forwarded-proto" ? proto : null) },
+    nextUrl: { host },
+  });
+
+  /**
+   * 改動前，兩支結帳路由組 base 的寫法是：
+   *   process.env.NEXT_PUBLIC_BASE_URL ?? `${proto}://${forwardedHost ?? nextUrl.host}`
+   * 這裡逐條確認正式模式下的結果與那個算式一模一樣。
+   */
+  it("正式模式：有 NEXT_PUBLIC_BASE_URL 就用它（跟以前一樣）", async () => {
+    process.env.NEXT_PUBLIC_BASE_URL = "https://taiwantea.store";
+    const m = await load();
+    expect(m.ecpayCallbackBase(req("somewhere-else.vercel.app"))).toBe("https://taiwantea.store");
+  });
+
+  it("正式模式：沒設就退回請求網域（跟以前一樣）", async () => {
+    delete process.env.NEXT_PUBLIC_BASE_URL;
+    const m = await load();
+    expect(m.ecpayCallbackBase(req("example.com"))).toBe("https://example.com");
+  });
+
+  // ── 這次踩的坑 ────────────────────────────────────────────
+  it("測試模式：改用請求網域，否則回調會被送到正式站", async () => {
+    process.env.NEXT_PUBLIC_BASE_URL = "https://taiwantea.store";
+    process.env.ECPAY_MODE = "stage";
+    process.env.VERCEL_ENV = "preview";
+    const m = await load();
+    const base = m.ecpayCallbackBase(req("my-tea-shop-abc123.vercel.app"));
+    expect(base).toBe("https://my-tea-shop-abc123.vercel.app");
+    expect(base).not.toContain("taiwantea.store");
+  });
+
+  it("production 即使設了 stage，回調仍指向正式站網址", async () => {
+    process.env.NEXT_PUBLIC_BASE_URL = "https://taiwantea.store";
+    process.env.ECPAY_MODE = "stage";
+    process.env.VERCEL_ENV = "production";
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const m = await load();
+    expect(m.ecpayCallbackBase(req("anything.vercel.app"))).toBe("https://taiwantea.store");
+    err.mockRestore();
+  });
+});
