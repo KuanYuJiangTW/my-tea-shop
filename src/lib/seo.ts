@@ -80,3 +80,133 @@ export async function openGraphFor(
 export function jsonLdString(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }
+
+// ── FAQPage：把攻略文裡的問答小標升級成結構化資料 ─────────────────────────
+
+export interface QaSection {
+  heading:    string;
+  paragraphs: string[];
+}
+
+/** 小標是不是一個問句。全形「？」與半形「?」都算，允許結尾有空白 */
+function isQuestionHeading(heading: string): boolean {
+  return /[？?]\s*$/.test(heading.trim());
+}
+
+/**
+ * 從文章小標產生 FAQPage 結構化資料。
+ *
+ * **判斷規則只有一條：小標以問號結尾。** 不看關鍵字、不猜語意——
+ * 規則要能被寫文章的人預測，否則「為什麼這段沒進 FAQ」會變成每次都要來翻程式碼。
+ * 反過來也成立：想把某一段排除在 FAQ 之外，把小標的問號拿掉就好，
+ * 不必改程式（`萬鷺朝鳳完整攻略` 的「想親眼看看？」就是這種——它是行動呼籲，
+ * 不是問答，Google 的 FAQPage 政策要的是真的在回答問題）。
+ *
+ * 段落全空的小標會被跳過：宣告一個沒有答案的 Question 會被判定為無效標記，
+ * 連帶讓整組 FAQPage 失效，比不宣告更糟。
+ *
+ * 呼叫端負責先挑好語言（`pick`／`pickList`），這裡不碰 i18n——
+ * 中英兩頁各自輸出自己語言的 FAQPage，混語言會讓 Google 兩邊都不採用。
+ */
+export function faqPageJsonLd(sections: QaSection[], pageUrl: string) {
+  const questions = sections
+    .filter(s => isQuestionHeading(s.heading))
+    .map(s => ({ heading: s.heading.trim(), text: s.paragraphs.join("\n").trim() }))
+    .filter(q => q.text.length > 0);
+
+  if (questions.length === 0) return null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${pageUrl}#faq`,
+    "mainEntity": questions.map(q => ({
+      "@type": "Question",
+      "name": q.heading,
+      "acceptedAnswer": { "@type": "Answer", "text": q.text },
+    })),
+  };
+}
+
+// ── Event：季節限定體驗才有的「這件事什麼時候發生」 ──────────────────────
+
+interface SeasonalEventInput {
+  name:        string;
+  description: string;
+  image:       string;
+  url:         string;
+  /** YYYY-MM-DD，含當天 */
+  startDate:   string;
+  endDate:     string;
+  /** HH:MM，每天的出發時間。空陣列代表沒有固定時段，就不輸出 eventSchedule */
+  startTimes:  string[];
+  price:       number;
+  baseUrl:     string;
+}
+
+/**
+ * 季節限定體驗的 Event 結構化資料。
+ *
+ * **只有設了季節區間的體驗才該有這個。** 全年供應的茶藝體驗不是 Event，
+ * 是 Product——把不會結束的東西宣告成 Event，Google 會拿不到「何時發生」
+ * 這個 Event 存在的唯一理由。呼叫端用 `hasSeason()` 判斷，不要在這裡猜。
+ *
+ * 與同一頁的 Product 節點並存是有意的：對想買的人它是商品（價格、評價），
+ * 對想安排行程的人它是活動（日期、地點）。兩種搜尋意圖各有各的富摘要，
+ * 而 `offers` 兩邊給同一個價格與網址，不會出現互相矛盾的說法。
+ *
+ * 時間一律標 +08:00：伺服器可能在任何時區，用不帶時區的字串等於讓 Google
+ * 自己猜，而猜錯的後果是活動時間整個位移。
+ */
+export function seasonalEventJsonLd(input: SeasonalEventInput) {
+  const { name, description, image, url, startDate, endDate, startTimes, price, baseUrl } = input;
+  const firstTime = startTimes[0];
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": name,
+    "description": description,
+    "image": image,
+    "url": url,
+    // 帶時段的話連時間一起給，Google 才排得出「下午 2 點」這種資訊
+    "startDate": firstTime ? `${startDate}T${firstTime}:00+08:00` : startDate,
+    "endDate":   firstTime ? `${endDate}T${firstTime}:00+08:00`   : endDate,
+    "eventStatus": "https://schema.org/EventScheduled",
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    // 季節限定體驗是「期間內每天重複」，不是一次性活動。Schedule 是 schema.org
+    // 表達重複活動的正解，startDate/endDate 則留給不支援 Schedule 的消費端當退路
+    ...(firstTime ? {
+      "eventSchedule": {
+        "@type": "Schedule",
+        "startDate": startDate,
+        "endDate": endDate,
+        "startTime": firstTime,
+        "repeatFrequency": "P1D",
+        "scheduleTimezone": "Asia/Taipei",
+      },
+    } : {}),
+    "location": {
+      "@type": "Place",
+      "name": "信淳茶居",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "太興村8鄰溪頭19號之2",
+        "addressLocality": "梅山鄉",
+        "addressRegion": "嘉義縣",
+        "postalCode": "603",
+        "addressCountry": "TW",
+      },
+      "geo": { "@type": "GeoCoordinates", "latitude": 23.5537537, "longitude": 120.6324229 },
+    },
+    "organizer": { "@type": "Organization", "@id": `${baseUrl}/#business`, "name": "霧抉茶 Wu Jue Tea", "url": baseUrl },
+    "offers": {
+      "@type": "Offer",
+      "price": price,
+      "priceCurrency": "TWD",
+      "url": url,
+      "availability": "https://schema.org/InStock",
+      "validFrom": startDate,
+    },
+  };
+}

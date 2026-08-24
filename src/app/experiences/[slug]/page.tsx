@@ -8,7 +8,7 @@ import ExperienceCalendar from "./ExperienceCalendar";
 import ExperienceReviews from "./ExperienceReviews";
 import ExperienceGallery from "./ExperienceGallery";
 import SeasonBadge from "@/components/SeasonBadge";
-import { daysBetween, taipeiToday } from "@/lib/experience-ordering";
+import { currentWindow, daysBetween, nextWindow, taipeiToday } from "@/lib/experience-ordering";
 import {
   MAX_LEAD_DAYS,
   allowedStartTimes,
@@ -22,7 +22,7 @@ import GuideLink from "./GuideLink";
 import InterestForm from "./InterestForm";
 import OpenClassRequest from "./OpenClassRequest";
 import { getTranslations, getLocale } from "next-intl/server";
-import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
+import { langAlternates, openGraphFor, jsonLdString, seasonalEventJsonLd } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -164,6 +164,25 @@ export default async function ExperienceDetailPage({ params }: Props) {
         : null,
   };
 
+  // 季節限定體驗才輸出 Event。挑「正在進行的那一季」，沒有就挑「下一季」——
+  // **兩者都沒有時不輸出**：季節已經結束還宣告 Event，Google 會拿它去顯示一個
+  // 過期的活動，比沒有結構化資料更傷。全年供應的體驗（windows 為空）本來就
+  // 不是 Event，走不到這裡
+  const eventWindow = currentWindow(experience.windows, today) ?? nextWindow(experience.windows, today);
+  const eventJsonLd = eventWindow
+    ? seasonalEventJsonLd({
+        name:        ldName,
+        description: ldDesc,
+        image:       ldImage,
+        url:         `${baseUrl}${pagePath}`,
+        startDate:   eventWindow.startDate,
+        endDate:     eventWindow.endDate,
+        startTimes:  requestInfo.startTimes,
+        price:       experience.price,
+        baseUrl,
+      })
+    : null;
+
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -184,6 +203,12 @@ export default async function ExperienceDetailPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbJsonLd) }}
       />
+      {eventJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdString(eventJsonLd) }}
+        />
+      )}
       {/* Hero */}
       <div className="relative h-64 md:h-96 overflow-hidden">
         <Image src={imgSrc} alt={ldName} fill priority className="object-cover" />
