@@ -58,3 +58,33 @@ export const ECPAY_CHECKOUT_URL = `https://${ECPAY_HOST}/Cashier/AioCheckout/ind
 export const ECPAY_CSP_HOSTS = ECPAY_STAGE
   ? "https://payment-stage.ecpay.com.tw https://payment.ecpay.com.tw"
   : "https://payment.ecpay.com.tw";
+
+// ── 憑證 ────────────────────────────────────────────────────────────────
+//
+// 為什麼測試值用**不同的變數名**、而不是在 Vercel 把同名變數依環境分開：
+// 現有的 ECPAY_MERCHANT_ID／HASH_KEY／HASH_IV 都設成 All Environments，要分開
+// 就得去編輯這三個**正在收錢**的變數。手滑把 Production 取消掉，真實客人就
+// 付不了錢，而且要到有人抱怨才會發現。測試環境的方便不值得用那個風險換。
+//
+// 這裡的做法是：正式站讀原本那三個、完全不動；測試模式讀另一組名字。
+// 兩者不可能互相影響，因為連變數名都不一樣。
+//
+// 測試預設值是綠界**公開共布的共用測試帳號**（https://developers.ecpay.com.tw/?p=2856），
+// 不是機密——任何人都能用同一組。寫成預設值是為了讓 Preview 只需要設
+// ECPAY_MODE=stage 一個變數就能動，少設一個就是少一個出錯的地方。
+// 綠界哪天換掉的話，用 ECPAY_STAGE_* 覆寫即可。
+const STAGE_MERCHANT_ID = "3002607";
+const STAGE_HASH_KEY    = "pwFHCqoQZGmho4w6";
+const STAGE_HASH_IV     = "EkRm7iFT261dpevs";
+
+export const ECPAY_MERCHANT_ID = ECPAY_STAGE
+  ? (process.env.ECPAY_STAGE_MERCHANT_ID ?? STAGE_MERCHANT_ID)
+  : process.env.ECPAY_MERCHANT_ID!;
+
+export const ECPAY_HASH_KEY = ECPAY_STAGE
+  ? (process.env.ECPAY_STAGE_HASH_KEY ?? STAGE_HASH_KEY)
+  : process.env.ECPAY_HASH_KEY!;
+
+export const ECPAY_HASH_IV = ECPAY_STAGE
+  ? (process.env.ECPAY_STAGE_HASH_IV ?? STAGE_HASH_IV)
+  : process.env.ECPAY_HASH_IV!;

@@ -99,3 +99,57 @@ describe("CSP 必須跟著切，否則表單會被瀏覽器擋掉", () => {
     }
   });
 });
+
+describe("憑證：正式與測試用不同的變數名，不可能互相汙染", () => {
+  const LIVE = { m: "LIVE-MERCHANT", k: "LIVE-KEY", v: "LIVE-IV" };
+  const setLive = () => {
+    process.env.ECPAY_MERCHANT_ID = LIVE.m;
+    process.env.ECPAY_HASH_KEY    = LIVE.k;
+    process.env.ECPAY_HASH_IV     = LIVE.v;
+  };
+
+  it("正式模式讀原本那三個變數", async () => {
+    setLive();
+    const m = await load();
+    expect(m.ECPAY_MERCHANT_ID).toBe(LIVE.m);
+    expect(m.ECPAY_HASH_KEY).toBe(LIVE.k);
+    expect(m.ECPAY_HASH_IV).toBe(LIVE.v);
+  });
+
+  // ── 這條是本段的重點 ──────────────────────────────────────
+  it("**測試模式絕不使用正式憑證**——即使正式的三個都設著", async () => {
+    setLive();
+    process.env.ECPAY_MODE = "stage";
+    process.env.VERCEL_ENV = "preview";
+    const m = await load();
+    expect(m.ECPAY_MERCHANT_ID).not.toBe(LIVE.m);
+    expect(m.ECPAY_HASH_KEY).not.toBe(LIVE.k);
+    expect(m.ECPAY_HASH_IV).not.toBe(LIVE.v);
+  });
+
+  it("測試模式什麼都不設也能動——用綠界公告的共用測試帳號", async () => {
+    process.env.ECPAY_MODE = "stage";
+    const m = await load();
+    expect(m.ECPAY_MERCHANT_ID).toBe("3002607");
+    expect(m.ECPAY_HASH_KEY).toBe("pwFHCqoQZGmho4w6");
+    expect(m.ECPAY_HASH_IV).toBe("EkRm7iFT261dpevs");
+  });
+
+  it("測試值可以用 ECPAY_STAGE_* 覆寫（綠界哪天換掉時）", async () => {
+    process.env.ECPAY_MODE = "stage";
+    process.env.ECPAY_STAGE_MERCHANT_ID = "9999999";
+    const m = await load();
+    expect(m.ECPAY_MERCHANT_ID).toBe("9999999");
+  });
+
+  it("production 用的一定是正式憑證，設了 stage 也一樣", async () => {
+    setLive();
+    process.env.ECPAY_MODE = "stage";
+    process.env.VERCEL_ENV = "production";
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const m = await load();
+    expect(m.ECPAY_MERCHANT_ID).toBe(LIVE.m);
+    expect(m.ECPAY_HASH_KEY).toBe(LIVE.k);
+    err.mockRestore();
+  });
+});
