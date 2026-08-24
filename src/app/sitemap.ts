@@ -11,6 +11,9 @@ const STATIC_PAGES: Array<{ path: string; changeFrequency: ChangeFrequency; prio
   { path: "/products",      changeFrequency: "weekly",  priority: 0.9 },
   { path: "/experiences",   changeFrequency: "weekly",  priority: 0.85 },
   { path: "/alishan-tea",   changeFrequency: "monthly", priority: 0.75 },
+  // 列表頁本身也要收錄：底下的文章一直都在 sitemap 裡，但少了列表頁，
+  // 爬蟲就沒有一個能一次看到全部文章的入口，新文章只能等連結被發現
+  { path: "/tea-guide",     changeFrequency: "weekly",  priority: 0.7 },
   { path: "/process",       changeFrequency: "monthly", priority: 0.7 },
   { path: "/about",         changeFrequency: "monthly", priority: 0.7 },
   { path: "/faq",           changeFrequency: "monthly", priority: 0.6 },

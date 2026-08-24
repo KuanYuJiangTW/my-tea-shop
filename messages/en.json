@@ -122,6 +122,11 @@
       "tagline": "Step into the Alishan Meishan tea gardens and feel a leaf's story with your own hands",
       "viewAllCount": "View all {count} experiences"
     },
+    "seasonal": {
+      "label": "Seasonal — happening now",
+      "guideBtn": "Read the guide: when and where",
+      "bookBtn": "See dates and book"
+    },
     "brandStory": {
       "sectionLabel": "Brand Story",
       "title": "From a Single Leaf\nto a Perfect Cup",

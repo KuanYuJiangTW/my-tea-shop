@@ -122,6 +122,11 @@
       "tagline": "走入阿里山梅山茶園，用雙手感受一片葉子的故事",
       "viewAllCount": "查看全部 {count} 個體驗"
     },
+    "seasonal": {
+      "label": "季節限定・現正登場",
+      "guideBtn": "先看攻略：幾點來、在哪看",
+      "bookBtn": "看場次與預約"
+    },
     "brandStory": {
       "sectionLabel": "Brand Story",
       "title": "從一片葉子\n到一杯好茶",
