@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { getArticle, getArticles, pick, pickList } from "@/lib/articles";
-import { jsonLdString, langAlternates, openGraphFor } from "@/lib/seo";
+import { faqPageJsonLd, jsonLdString, langAlternates, openGraphFor } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -87,6 +87,18 @@ export default async function ArticlePage({ params }: Props) {
     ],
   };
 
+  // 小標與段落先挑好語言，JSON-LD 與畫面共用同一份——兩邊各自 pick 一次的話，
+  // 只要哪天挑法改了就會出現「頁面顯示中文、結構化資料是英文」
+  const localizedSections = article.sections.map(s => ({
+    heading:    pick(s.heading, s.headingEn, isEn),
+    paragraphs: pickList(s.paragraphs, s.paragraphsEn, isEn),
+  }));
+
+  // 問句小標 → FAQPage。攻略型文章的小標本來就是讀者的問句（「什麼時候來最好？」），
+  // 宣告出來 Google 才有機會把問答直接展開在搜尋結果裡。沒有問句小標就回 null，
+  // 一般敘事型文章不會被硬套上 FAQ 標記
+  const faqJsonLd = faqPageJsonLd(localizedSections, `${baseUrl}${pagePath}`);
+
   const published = new Intl.DateTimeFormat(isEn ? "en-US" : "zh-TW", {
     year: "numeric", month: isEn ? "long" : "numeric", day: "numeric",
   }).format(new Date(article.updatedAt ?? article.publishedAt));
@@ -95,6 +107,9 @@ export default async function ArticlePage({ params }: Props) {
     <div className="min-h-screen bg-tea-cream-light">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(articleJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbJsonLd) }} />
+      {faqJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(faqJsonLd) }} />
+      )}
 
       <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">{t("label")}</p>
@@ -111,13 +126,13 @@ export default async function ArticlePage({ params }: Props) {
         )}
 
         <div className="space-y-10">
-          {article.sections.map((section, i) => (
+          {localizedSections.map((section, i) => (
             <section key={`${section.heading}-${i}`}>
               <h2 className="font-serif text-xl md:text-2xl font-bold text-tea-text mb-4">
-                {pick(section.heading, section.headingEn, isEn)}
+                {section.heading}
               </h2>
               <div className="space-y-4">
-                {pickList(section.paragraphs, section.paragraphsEn, isEn).map((p, j) => (
+                {section.paragraphs.map((p, j) => (
                   <p key={j} className="text-body text-tea-text-light leading-relaxed">{p}</p>
                 ))}
               </div>
