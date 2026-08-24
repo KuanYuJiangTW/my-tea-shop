@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { ECPAY_STAGE } from "@/lib/ecpay-env";
 
 const RL_KEY = (ip: string) => `bookings:${ip}`; // 20 req/min per IP
 
@@ -99,6 +100,10 @@ export async function POST(req: NextRequest) {
       dietary_notes:       dietaryNotes ?? null,
       adult_confirmed:     adultConfirmed ?? false,
       participants_due_at: participantsDueAt.toISOString(),
+      // 只有測試模式才帶這個欄位。正式站永遠不提它——這樣即使
+      // add_experience_bookings_is_test.sql 還沒跑，真實結帳也不可能因為
+      // 「欄位不存在」而失敗。付款路徑上不接受這種風險
+      ...(ECPAY_STAGE ? { is_test: true } : {}),
     })
     .select()
     .single();
