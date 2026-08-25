@@ -1395,3 +1395,34 @@ Publish，已由這次實測取代。
 **注意：FAQPage／Event／首頁條帶還沒部署。** 程式碼在 `feat/egret-season-seo`
 分支上，尚未併入 main，所以線上 FAQ Question 數目前是 0——
 Sanity 內容已經到位，等分支上線才會一起生效。
+
+---
+
+## 2026-08-25 綠界測試模式驗完了，8/24 那節的「還沒做」作廢
+
+業主用**測試信用卡實際結帳成功**，`feat/ecpay-stage-mode` 已合併 main（`52020f6`）。
+8/24 記的「`ECPAY_URL` 寫死正式端點、沒有測試模式開關」與整段暫緩理由**已不成立**，
+以這節為準。
+
+**正式站的防護是程式層而不是設定層**（`src/lib/ecpay-env.ts`）：
+
+```ts
+export const ECPAY_STAGE = process.env.ECPAY_MODE === "stage" && !isVercelProduction;
+```
+
+`VERCEL_ENV === "production"` 時就算誤設 `ECPAY_MODE=stage` 也會被忽略，
+並在 production log 印一行 error 讓設錯的人知道。這件事重要的原因是
+8/24 寫下的那個風險——「賞鳥季真實客人會付不了錢」——**已經不可能發生**，
+不是靠記得別設錯，是靠設錯了也沒用。
+
+### 要記得清的測試資料
+
+`R2608-E59D`（業主測試）、`R2608-RHCJ`（Claude 測試），加上這次測試信用卡
+產生的那筆。訂單有 `is_test` 可以篩，`experience_bookings` 也已補上同名欄位
+（`eb6ded0`），所以測試資料不會混進營收數字——但後台列表看得到，該清還是要清。
+
+### SEO 分支狀態
+
+`seo/egret-season` 已 rebase 到含 ecpay 的最新 main，無衝突，重跑
+986 測試全過。PR 尚未開：
+https://github.com/KuanYuJiangTW/my-tea-shop/compare/main...seo/egret-season?expand=1
