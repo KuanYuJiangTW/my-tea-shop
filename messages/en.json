@@ -334,7 +334,7 @@
     "openClass": {
       "title": "No session on the date you want?",
       "intro": "Tell us the date. If it reaches the minimum for a session, we'll open one. Ask at least {days} days ahead and we'll reply within two business days.",
-      "slotsNote": "A session of this experience takes at least {slots} places (NT$ {total}). That price covers 1–{slots} people; beyond {slots}, each extra person adds NT$ {price}.",
+      "slotsNote": "Opening a session just for you takes at least {slots} places (NT$ {total}). That price covers 1–{slots} people; beyond {slots}, each extra person adds NT$ {price}.",
       "estimate": "{people} people = {slots} places — NT$ {total} if we open the session",
       "overCapacity": "A session takes at most {max} people. For a bigger group, talk to us on LINE and we will see about splitting it in two.",
       "emptyMonthTitle": "No sessions this month",
@@ -1416,7 +1416,7 @@
       "full": "Full",
       "cancelled": "Cancelled"
     },
-    "minParticipantsNotice": "Min. {min} participants required.",
+    "minParticipantsNotice": "Sessions on this calendar need at least {min} guests to run.",
     "cancelNotice": "If enrollment is insufficient, the session will be cancelled 3 days before with a full refund.",
     "demandNote": "{count} people already want a {time} session on this day",
     "demandJoin": "+1 — me too"
