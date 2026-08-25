@@ -31,7 +31,7 @@ const TODAY = "2026-08-22";
 // 業主定案的六款參數
 const 茶藝: RequestableType = { price: 800, maxParticipants: 20, requestMinSlots: 4 };
 const 採茶: RequestableType = { price: 450, maxParticipants: 20, requestMinSlots: 4 };
-const 萬鷺: RequestableType = { price: 250, maxParticipants: 20, requestMinSlots: 3, requestStartTimes: ["14:00"] };
+const 萬鷺: RequestableType = { price: 450, maxParticipants: 20, requestMinSlots: 3, requestStartTimes: ["14:00"] };
 const 紅茶: RequestableType = { price: 800, maxParticipants: 20, requestMinSlots: 6 };
 
 const EGRET_WINDOW: AvailabilityWindow[] = [{ startDate: "2026-08-22", endDate: "2026-10-11" }];
@@ -58,6 +58,21 @@ describe("calcRequestSlots — 買斷名額制", () => {
 
   it("不得超過場次上限", () => {
     expect(calcRequestSlots(採茶, 50)).toBe(20);
+  });
+
+  /**
+   * 這一條釘的是**文案講的話**，不只是函式。
+   *
+   * 頁面上原本寫「你買的是名額，不是每人票——名額之內要帶幾個人由你決定」，
+   * 業主讀完的第一個反應是「會不會被誤會成 1,350 可以帶超過 3 個人？」。
+   * 會——因為那句話只講了門檻，沒講門檻之上是照人頭加的。下面兩行就是
+   * 客人實際會付的錢，文案改成什麼樣子都必須跟它一致。
+   */
+  it("萬鷺朝鳳：1,350 是 1～3 人的價，第 4 人起每人再加 450", () => {
+    expect(calcRequestTotal(萬鷺, calcRequestSlots(萬鷺, 1))).toBe(1350);
+    expect(calcRequestTotal(萬鷺, calcRequestSlots(萬鷺, 3))).toBe(1350);
+    expect(calcRequestTotal(萬鷺, calcRequestSlots(萬鷺, 4))).toBe(1800);
+    expect(calcRequestTotal(萬鷺, calcRequestSlots(萬鷺, 5))).toBe(2250);
   });
 
   it("沒設定 request_min_slots 時退回預設 4", () => {

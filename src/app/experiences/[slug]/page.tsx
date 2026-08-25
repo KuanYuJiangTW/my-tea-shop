@@ -154,6 +154,9 @@ export default async function ExperienceDetailPage({ params }: Props) {
   const requestInfo = {
     minSlots,
     minTotal:   calcRequestTotal(requestShape, minSlots),
+    // 超過最低名額之後照人頭加，所以單價與人數上限也要讓前台算得出來
+    unitPrice:  requestShape.price,
+    maxPeople:  requestShape.maxParticipants,
     leadDays,
     startTimes: allowedStartTimes(requestShape),
     minDate,
@@ -336,6 +339,8 @@ export default async function ExperienceDetailPage({ params }: Props) {
                 locale={locale}
                 minSlots={requestInfo.minSlots}
                 minTotal={requestInfo.minTotal}
+                unitPrice={requestInfo.unitPrice}
+                maxParticipants={requestInfo.maxPeople}
                 leadDays={requestInfo.leadDays}
                 startTimes={requestInfo.startTimes}
                 minDate={requestInfo.minDate}

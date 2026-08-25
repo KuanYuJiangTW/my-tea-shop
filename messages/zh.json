@@ -334,7 +334,9 @@
     "openClass": {
       "title": "想要的日期沒有場次？",
       "intro": "告訴我們日期，達開團最低名額就為你開一場。{days} 天前提出，我們兩個工作天內回覆。",
-      "slotsNote": "這款體驗開一場最少 {slots} 個名額（NT$ {total}）。你買的是名額，不是每人票——名額之內要帶幾個人由你決定。",
+      "slotsNote": "這款體驗開一場最少 {slots} 個名額（NT$ {total}）。1～{slots} 人都是這個價；超過 {slots} 人之後，每多 1 人加收 NT$ {price}。",
+      "estimate": "{people} 人 ＝ 收 {slots} 個名額，開課的話應付 NT$ {total}",
+      "overCapacity": "一場最多 {max} 人。人數再多請用 LINE 跟我們談，看能不能拆成兩場。",
       "emptyMonthTitle": "這個月還沒有場次",
       "cta": "申請開課",
       "askLine": "或用 LINE 直接問",

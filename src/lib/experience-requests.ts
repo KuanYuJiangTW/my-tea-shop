@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 
 import { daysBetween, taipeiToday, type AvailabilityWindow } from "@/lib/experience-ordering";
+import type { RequestableType } from "@/lib/experience-request-pricing";
 import type { ExperienceRequestStatus } from "@/types";
 
 /**
@@ -17,52 +18,20 @@ export const MAX_LEAD_DAYS = 90;
 export const CONTACT_PREFERENCE_WHITELIST = ["phone", "email", "line"] as const;
 export type ContactPreference = (typeof CONTACT_PREFERENCE_WHITELIST)[number];
 
-/** 計算用的體驗參數。刻意只要求用得到的欄位，方便測試不必造整個 ExperienceType */
-export interface RequestableType {
-  price:              number;
-  maxParticipants:    number;
-  requestMinSlots?:   number | null;
-  requestLeadDays?:   number | null;
-  requestStartTimes?: string[];
-}
+/**
+ * 計價（名額數與金額）抽到 `experience-request-pricing.ts`——前台的 client
+ * component 也要用同一份計算做即時試算，而本檔匯入了 `node:crypto`，不適合
+ * 整包進瀏覽器 bundle。這裡 re-export，既有呼叫端的 import 不必更動。
+ */
+export {
+  DEFAULT_MIN_SLOTS,
+  calcRequestSlots,
+  calcRequestTotal,
+} from "@/lib/experience-request-pricing";
+export type { RequestableType } from "@/lib/experience-request-pricing";
 
-/** `request_min_slots` 沒設定時的預設，與 SQL 的語意一致（沒填＝比照最低成團人數 4） */
-const DEFAULT_MIN_SLOTS = 4;
 /** `request_lead_days` 的預設，與 SQL 的 DEFAULT 7 一致 */
 const DEFAULT_LEAD_DAYS = 7;
-
-/**
- * 這一場要收幾個名額。
- *
- * 客人付的是「開一場的最低名額」，換到的是該時段的這些位子——愛帶幾個人由他
- * 決定（design.md D3 的買斷名額制）。申請人數超過最低名額時就照實際人數算。
- */
-export function calcRequestSlots(type: RequestableType, headcount: number): number {
-  const min = type.requestMinSlots ?? DEFAULT_MIN_SLOTS;
-  return Math.min(Math.max(min, headcount), type.maxParticipants);
-}
-
-/**
- * 應付金額 = 名額 × 單價。**與日期無關**——不做急件加價，也不做平日折扣。
- *
- * 曾經做過「距今 7–13 天 ×1.2」的急件加價，2026-08-24 拿掉。理由：
- *
- * 1. 加價想解決的事，審核機制已經在做。難排的日期業主直接婉拒或提替代
- *    方案；會答應的就代表不難。既保留拒絕權又多收兩成，客人付了加價還
- *    可能被婉拒，那是很難解釋的客訴
- * 2. 成本不隨前置天數變動——茶藝的老師一場 1,500，10 天後與 30 天後都一樣。
- *    加價不對應任何多出來的支出
- * 3. 這批客人是在排休閒行程，不是趕件。看到 +20% 多半是把日期往後挪
- *    （對他零成本、你沒多賺）或乾脆放棄，而不是照付
- * 4. 最低前置是 7 天、加價到 13 天——**你允許的最早申請日同時是最貴的**。
- *    照最低要求提前 7 天的人反而被罰
- *
- * 要調利潤請動 `request_min_slots`（門檻一目了然、沒有時間懸崖），不要再
- * 加時間維度的價格。真要重做，先看兩週數據決定天數與倍率，不要憑感覺定。
- */
-export function calcRequestTotal(type: RequestableType, slots: number): number {
-  return slots * type.price;
-}
 
 /** 今天是否落在這段可申請期間內（首日與末日都算） */
 function withinWindow(w: AvailabilityWindow, date: string): boolean {

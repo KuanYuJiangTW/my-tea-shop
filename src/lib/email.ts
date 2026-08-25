@@ -1700,7 +1700,7 @@ export async function sendRequestReceivedEmail(d: RequestEmailData) {
     ${requestRow("Places charged", d.slots)}
     ${requestRow("Amount if we open this session", `NT$ ${d.total.toLocaleString()}`)}
   </table>
-  <p style="font-size:13px;color:#5A5A52;">You are booking the places, not a per-person ticket — bring whoever you like, up to that number.</p>
+  <p style="font-size:13px;color:#5A5A52;">The amount is charged per place: fewer people than the session minimum still pay the minimum, and each person above it adds one more place.</p>
   <p style="font-size:13px;"><a href="${lookupUrl}" style="color:#5B7B5A;">Check or withdraw your request</a></p>
   <p style="font-size:12px;color:#999;margin-top:20px;">This is a request, not a booking. Nothing is charged until we confirm and you complete payment.</p>
 </body></html>` : `<!DOCTYPE html>
@@ -1715,7 +1715,7 @@ export async function sendRequestReceivedEmail(d: RequestEmailData) {
     ${requestRow("收費名額", `${d.slots} 個`)}
     ${requestRow("開課的話應付金額", `NT$ ${d.total.toLocaleString()}`)}
   </table>
-  <p style="font-size:13px;color:#5A5A52;">你買的是這個時段的名額，不是每人票——名額之內要帶幾個人由你決定。</p>
+  <p style="font-size:13px;color:#5A5A52;">金額是按上表的名額數算的：人數少於開團最低名額仍收最低名額，超過的部分每多 1 人多收 1 個名額。</p>
   <p style="font-size:13px;"><a href="${lookupUrl}" style="color:#5B7B5A;">查詢或撤回這筆申請</a></p>
   <p style="font-size:12px;color:#999;margin-top:20px;">這是申請不是預約，在我們確認並完成付款之前不會產生任何費用。</p>
 </body></html>`;
