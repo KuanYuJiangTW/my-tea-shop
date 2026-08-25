@@ -2035,6 +2035,13 @@
     "breadcrumb": "Tea Guide",
     "publishedOn": "Published {date}",
     "updatedOn": "Updated {date}",
+    "pageTitle": "Tea Notes",
+    "pageTagline": "How this mountain looks from the inside — seasons, craft, and what to know before you visit.",
+    "empty": "Articles are on the way.",
+    "meta": {
+      "title": "Tea Notes",
+      "description": "First-hand notes from the Alishan Meishan tea region: the Ten Thousand Egrets viewing guide, high-mountain tea origins and how the tea is made — written by the farming family who lives in Taixing."
+    },
     "ctaTitle": "Want to see it for yourself?",
     "ctaIntro": "Everything in this guide happens on our own tea farm — you can book online."
   }
