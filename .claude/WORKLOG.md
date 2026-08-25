@@ -1367,3 +1367,31 @@ Phase 0（輕量登記）已在 main 上線。這一輪做的是完整版第 1�
 - **沒碰體驗頁標題**（`萬鷺朝鳳・茶山導覽`）：那是給導覽意圖的，字面正確。
   資訊型查詢該由攻略文接，兩頁搶同一組字反而互相稀釋。
 - **首頁條帶沒做 `upcoming` 狀態**：季節還沒開始就掛在首頁，會變成一則常設廣告。
+
+### 2026-08-25 補記：Sanity 已由 Claude 透過 API 改完
+
+業主自己先改了**標題（中英）與摘要（中英）**，四欄都已是新版。
+Claude 接手改完剩下五項，備份在 scratchpad 的 `sanity-backup-2026-08-25.json`
+（含改動前的完整兩份文件與 `_rev`）：
+
+| 文件 | 改動 |
+|---|---|
+| `article-cattle-egret-viewing-guide` | 第 4 段 `headingEn` 改成問句、`keywords` 14→17、`keywordsEn` 7→9、新增第 10 段（`_key: s7`）、`updatedAt` 更新 |
+| 體驗 `41af4b37-…` | `seoDescription`／`seoDescriptionEn` 補年份、出發時間、450 元與「導覽結束可繼續留」 |
+
+新增的第 10 段小標是「**需要預約嗎？可以直接開上來嗎？**」，不是原稿的
+「今天就想上來？」——問號結尾會被 FAQPage 自動收走，而廣告口吻的問句
+被 Google 判成濫用 FAQ 標記的風險高。改成真問答之後，中英文小標各有
+**6 個**會進 FAQ（原本中 5 英 4）。
+
+Mutation 用 `ifRevisionID` 樂觀鎖：業主可能正開著 Studio，_rev 不符時
+整批失敗而不是靜默覆蓋。
+
+**更正 8/23 的推測：webhook 沒有壞。** 那天記的是「filter 疑似沒含 `article`，
+改文章最長要等一小時」——今天 API 改完後線上 meta、新段落、英文小標
+**全部立即生效**（攻略文與體驗頁都是）。舊的推測會讓人白等一小時或多按
+Publish，已由這次實測取代。
+
+**注意：FAQPage／Event／首頁條帶還沒部署。** 程式碼在 `feat/egret-season-seo`
+分支上，尚未併入 main，所以線上 FAQ Question 數目前是 0——
+Sanity 內容已經到位，等分支上線才會一起生效。
