@@ -64,6 +64,7 @@ const FALLBACK_CONTENT: Record<string, Omit<ExperienceContent, "slug" | "name" |
       "製茶材料全程提供",
       "茶農全程示範與講解",
       "你做的那批由我們烘乾後寄出（約 30g）",
+      "現場品飲與風味解說",
     ],
     notes:      [
       "這一場做的是揉捻與靜置發酵；採摘與日光萎凋在你抵達前完成，烘乾也由我們處理",
