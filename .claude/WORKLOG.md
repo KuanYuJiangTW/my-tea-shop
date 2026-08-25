@@ -1426,3 +1426,40 @@ export const ECPAY_STAGE = process.env.ECPAY_MODE === "stage" && !isVercelProduc
 `seo/egret-season` 已 rebase 到含 ecpay 的最新 main，無衝突，重跑
 986 測試全過。PR 尚未開：
 https://github.com/KuanYuJiangTW/my-tea-shop/compare/main...seo/egret-season?expand=1
+
+---
+
+## 2026-08-25 賞鳥季 SEO 全部上線，5 個網址已送出建立索引
+
+程式（PR #9）與 `/tea-guide` 修正（PR #10）都已合併部署。正式站實測：
+攻略文中英各 **6 個** FAQ Question、萬鷺朝鳳體驗頁 **1 個** Event（含每日 14:00
+的 Schedule）、茶藝體驗 **0 個** Event、首頁季節條帶顯示中、sitemap 收錄
+`/tea-guide`、新段落「需要預約嗎？可以直接開上來嗎？」已在線。
+
+Search Console 已送出建立索引（配額當日用 6 次，含被拒那 1 次）：
+
+| # | 網址 | 結果 |
+|---|---|---|
+| 1 | `/tea-guide/cattle-egret-viewing-guide` | 已加入優先檢索佇列 |
+| 2 | `/experiences/cattle-egret-tour` | 同上 |
+| 3 | `/en/tea-guide/cattle-egret-viewing-guide` | 同上 |
+| 4 | `/` | 同上 |
+| 5 | `/tea-guide` | 第一次遭拒（當時 404），修好後重送成功 |
+
+### `/tea-guide` 那次遭拒是真的抓到東西
+
+送索引被擋（「系統偵測到該網址存在編制索引問題」）→ curl 一看是 **404**。
+`src/app/tea-guide/` 底下從來只有 `[slug]/`，沒有列表頁，而**每篇文章的
+BreadcrumbList JSON-LD 第二層一直指向它**——長期對 Google 宣告一個不存在的
+網址，且不報錯。986 個測試、tsc、lint、build、`next start` 實跑全綠，
+**沒有一種驗證會去問「這個路徑有頁面嗎」**。教訓已寫進 lessons.md。
+
+補頁而非移除 sitemap 條目：麵包屑已經宣告它存在，移除只是把問題藏回去。
+
+### 接下來看什麼（不用急，給 Google 幾天）
+
+- **強化項目 → 常見問題**：現在是空的，索引後應該出現 12 筆（中英各 6）
+- **強化項目 → 活動**：應該出現 1 筆（萬鷺朝鳳導覽）
+- 提交當下體驗頁的強化項目只有「產品摘要、商家資訊、導覽標記」，**沒有活動**——
+  那是抓取前的舊快照，可當作對照基準
+- 成效報表看「太興村 萬鷺朝鳳」（先前 13 曝光 0 點擊）的 CTR 有沒有動
