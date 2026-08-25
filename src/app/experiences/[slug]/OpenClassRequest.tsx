@@ -202,12 +202,15 @@ export default function OpenClassRequest({
                 </label>
               </div>
 
-              {/* 金額跟著人數走，不能等確認信才出現——它是成交條件的一部分 */}
-              <p className="text-body text-tea-text">
-                {t("estimate", { people, slots: estSlots, total: estTotal.toLocaleString() })}
-              </p>
-              {overCapacity && (
-                <p className="text-caption text-amber-700">{t("overCapacity", { max: maxParticipants })}</p>
+              {/* 金額跟著人數走，不能等確認信才出現——它是成交條件的一部分。
+                  超過上限時不報價：那個數字對應不到任何一場開得成的課，
+                  講出來只會讓人以為 25 個人付 9,000 就能來。 */}
+              {overCapacity ? (
+                <p className="text-body text-amber-700">{t("overCapacity", { max: maxParticipants })}</p>
+              ) : (
+                <p className="text-body text-tea-text">
+                  {t("estimate", { people, slots: estSlots, total: estTotal.toLocaleString() })}
+                </p>
               )}
 
               <label className="flex items-center gap-2 text-caption text-tea-text-light">
