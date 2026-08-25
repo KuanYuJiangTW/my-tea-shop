@@ -268,6 +268,13 @@
 - 規則：**手動執行的 SQL 之間有欄位相依時，把相依那段包進 `DO $ IF EXISTS (SELECT 1 FROM information_schema.columns …) THEN … END $`**，讓兩支檔任何順序都能跑。這跟前台程式碼用 `42703`／`42P01` 兩段式 fallback 是同一件事的兩端：**這個 repo 的 code 與 schema 一定會有一段時間不同步，兩邊都要能單獨活著**
 - 去處：暫存於此
 
+## 2026-08-25 我把一個 404 加進 sitemap，因為「子路由存在」被我當成「父路由存在」
+
+- 情境：改 SEO 時把 `/tea-guide` 加進 sitemap 的 STATIC_PAGES。依據是 `src/app/tea-guide/[slug]/page.tsx` 存在，而且**每篇文章的 BreadcrumbList JSON-LD 第二層早就指向 `/tea-guide`**——兩個訊號都讓我確信那頁在。實際上 `src/app/tea-guide/` 底下只有 `[slug]/`，沒有 `page.tsx`，那個網址一直回 404
+- 代價：`npx tsc`、`npm run lint`、`npm run build`、986 個測試全綠，`next start` 實跑也驗過了——**四種驗證沒有一種會去問「這個路徑有頁面嗎」**。一路到 Search Console 送出建立索引才被擋下來（「系統偵測到該網址存在編制索引問題」）。麵包屑指向 404 更是早就存在、從來沒人發現，因為它不報錯，只是讓 Google 收到一組指向死路的結構化資料
+- 規則：**往 sitemap（或任何對外宣告的網址清單）加一條之前，先 `curl -I` 那個網址看狀態碼**，不要從「子路由存在」「別的地方連過去了」推論父路由存在——後者恰恰是「有人以為它在」的證據，不是「它在」的證據。已加 `src/__tests__/seo/sitemap-routes-exist.test.ts` 把這條釘住：sitemap 的每個靜態路徑都必須有對應的 `page.tsx`，並單獨釘住麵包屑指向的 `/tea-guide`
+- 去處：暫存於此。若再出現第二次「對外宣告的資源實際不存在」，升格為 judgment.md 的正式規則（宣告任何對外網址前先驗證它會回 200）
+
 ## 已歸檔（2026-08-06 精簡 18 條；2026-08-15 再精簡 2 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
