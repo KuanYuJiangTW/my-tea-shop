@@ -17,6 +17,31 @@ async function getStats() {
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
   const sixMonthsAgoStr = sixMonthsAgo.toISOString();
 
+/** PostgREST：欄位不存在 */
+const UNDEFINED_COLUMN = "42703";
+
+/**
+ * 跑一個排除測試預約的查詢，但**欄位還沒建立時要能活下來**。
+ *
+ * `is_test` 由 supabase/add_experience_bookings_is_test.sql 建立。程式先部署、
+ * SQL 後跑是常態，而 PostgREST 遇到不存在的欄位是讓**整個查詢**失敗（42703），
+ * 不是忽略它——直接加 .eq("is_test", false) 的話，SQL 還沒跑的那段時間裡
+ * 儀表板的營收會整塊不見。專案在商品排序上踩過同一個坑。
+ *
+ * 所以：先試帶過濾的版本，撞到 42703 就退回不過濾並印警告。
+ */
+async function excludingTestBookings<T>(
+  build: (excludeTest: boolean) => PromiseLike<{ data: T | null; error: { code?: string } | null }>,
+) {
+  const withFilter = await build(true);
+  if (withFilter.error?.code !== UNDEFINED_COLUMN) return withFilter;
+  console.warn(
+    "[dashboard] is_test 欄位尚未建立，體驗營收暫時不排除測試預約。" +
+    "請執行 supabase/add_experience_bookings_is_test.sql",
+  );
+  return await build(false);
+}
+
   const [
     todayOrdersRes,
     todayExpRes,
@@ -71,11 +96,14 @@ async function getStats() {
       .eq("payment_status", "paid"),
 
     // 本月體驗收款金額（confirmed = 已付款）
-    supabase
-      .from("experience_bookings")
-      .select("total_price")
-      .in("status", ["confirmed", "completed"])
-      .gte("created_at", monthStart),
+    excludingTestBookings<{ total_price: number }[]>(excludeTest => {
+      const q = supabase
+        .from("experience_bookings")
+        .select("total_price")
+        .in("status", ["confirmed", "completed"])
+        .gte("created_at", monthStart);
+      return excludeTest ? q.eq("is_test", false) : q;
+    }),
 
     // 待出貨訂單
     supabase
@@ -105,11 +133,14 @@ async function getStats() {
       .gte("created_at", sixMonthsAgoStr),
 
     // 近 6 個月體驗預約（for 圖表，改用 completed）
-    supabase
-      .from("experience_bookings")
-      .select("total_price, created_at")
-      .eq("status", "completed")
-      .gte("created_at", `${sixMonthsAgo.getFullYear()}-${String(sixMonthsAgo.getMonth() + 1).padStart(2, "0")}-01`),
+    excludingTestBookings<{ total_price: number; created_at: string }[]>(excludeTest => {
+      const q = supabase
+        .from("experience_bookings")
+        .select("total_price, created_at")
+        .eq("status", "completed")
+        .gte("created_at", `${sixMonthsAgo.getFullYear()}-${String(sixMonthsAgo.getMonth() + 1).padStart(2, "0")}-01`);
+      return excludeTest ? q.eq("is_test", false) : q;
+    }),
 
     // 本月折價券消耗
     supabase

@@ -4,9 +4,11 @@ import { supabase } from "@/lib/supabase";
 import { convertRequestOnPayment } from "@/lib/experience-request-review";
 import { sendOrderEmails, sendBookingEmails, type EmailOrderData, type BookingEmailData } from "@/lib/email";
 import { decrementOrderItems } from "@/lib/order-bundles";
+import { ECPAY_HASH_KEY, ECPAY_HASH_IV } from "@/lib/ecpay-env";
 
-const HASH_KEY = process.env.ECPAY_HASH_KEY!;
-const HASH_IV  = process.env.ECPAY_HASH_IV!;
+const HASH_KEY = ECPAY_HASH_KEY;
+const HASH_IV = ECPAY_HASH_IV;
+
 
 function phpUrlencode(input: string): string {
   const SAFE = /^[A-Za-z0-9\-_.]$/;

@@ -3,11 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { validateRedemption, deductPoints } from "@/lib/points";
+import {ECPAY_CHECKOUT_URL , ECPAY_MERCHANT_ID, ECPAY_HASH_KEY, ECPAY_HASH_IV, ecpayCallbackBase } from "@/lib/ecpay-env";
 
-const MERCHANT  = process.env.ECPAY_MERCHANT_ID!;
-const HASH_KEY  = process.env.ECPAY_HASH_KEY!;
-const HASH_IV   = process.env.ECPAY_HASH_IV!;
-const ECPAY_URL = "https://payment.ecpay.com.tw/Cashier/AioCheckout/index";
+const MERCHANT = ECPAY_MERCHANT_ID;
+const HASH_KEY = ECPAY_HASH_KEY;
+const HASH_IV = ECPAY_HASH_IV;
+
+const ECPAY_URL = ECPAY_CHECKOUT_URL;
 
 function phpUrlencode(input: string): string {
   const SAFE = /^[A-Za-z0-9\-_.]$/;
@@ -97,8 +99,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const base = process.env.NEXT_PUBLIC_BASE_URL ??
-    `${req.headers.get("x-forwarded-proto") ?? "https"}://${req.headers.get("x-forwarded-host") ?? req.nextUrl.host}`;
+  const base = ecpayCallbackBase(req);
 
   const pad  = (n: number) => String(n).padStart(2, "0");
   const now  = new Date();

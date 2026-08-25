@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPendingToken } from "@/lib/admin-pending";
+import { ECPAY_CSP_HOSTS } from "@/lib/ecpay-env";
 
 const SUPABASE_HOST = "wrknatfejiexqlyywuzz.supabase.co";
 
@@ -11,12 +12,12 @@ function buildCSP(nonce: string): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     `img-src 'self' data: blob: https://${SUPABASE_HOST} https://tr.line.me`,
     "font-src 'self' data: https://fonts.gstatic.com",
-    `connect-src 'self' https://${SUPABASE_HOST} https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://payment.ecpay.com.tw https://logistics.ecpay.com.tw https://cloudflareinsights.com https://tr.line.me`,
-    "frame-src https://payment.ecpay.com.tw https://logistics.ecpay.com.tw",
+    `connect-src 'self' https://${SUPABASE_HOST} https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com ${ECPAY_CSP_HOSTS} https://logistics.ecpay.com.tw https://cloudflareinsights.com https://tr.line.me`,
+    `frame-src ${ECPAY_CSP_HOSTS} https://logistics.ecpay.com.tw`,
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self' https://payment.ecpay.com.tw https://logistics.ecpay.com.tw",
+    `form-action 'self' ${ECPAY_CSP_HOSTS} https://logistics.ecpay.com.tw`,
   ].join("; ");
 }
 
