@@ -894,7 +894,7 @@ lint 0 error（36 warning 是既有債務）、build 成功。
   byte-identical，才用 Node 程式化插入，diff 是純新增（226 insertions / 4 deletions，
   那 4 個 deletion 是結尾大括號多了逗號）。
 - **英文文案一律逐句譯自中文版，不新增任何中文版沒有的事實宣稱**（產地、年數、品項、
-  電話都照原文；依 lessons.md 2026-07-30 那條）。`title.template` 英文版用
+  電話都照原文；依 lessons.md 2026-07-30 那條，已升格為 JUDG-11）。`title.template` 英文版用
   `%s | Wu Jue Tea`、`og:locale` 用 `en_US`。
 
 ### 途中發現並修掉的兩件事（都不是這次改動造成的）

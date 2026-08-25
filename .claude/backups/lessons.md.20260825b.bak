@@ -16,22 +16,11 @@
 - 規則：修掉「驗證恆為通過」這類 bug 時，**當下就把同一條路徑上其他從未被真正執行過的邏輯全部檢查一遍**（時間窗／容差／長度限制／錯誤分支），並主動告知使用者「這個修正可能讓既有的隱藏問題浮現」＋提供復原手段（如何從資料庫停用該機制、如何清限流）。不要等使用者回報才查
 - 去處：暫存於此
 
-## 2026-07-28 這個專案不能跑 npm audit fix（會降級 Next.js）
-- 情境：處理資安報告 L-1「42 個相依套件漏洞」。`npm audit` 對 next 建議的修補是 `next@9.3.3 (MAJOR)`——那是**降級**，npm 找不到向前路徑時會這樣寫。`--force` 照做等於毀掉整個專案。不加 force 的 `npm audit fix` 則會改動 328 個套件（sanity 跳 12 個 minor、react 也動），修掉的漏洞數是 0（42 → 42）
-- 代價：無（dry-run 先看才發現），但若直接執行會是正式站級別的事故
-- 規則：對本專案的相依套件漏洞，一律先 `npm audit fix --dry-run` 看變更規模與修補後剩餘數量，再決定要不要跑；**永遠不要用 `--force`**。追 high/critical 時要先用 `npm explain <pkg>` 判斷它在建置期還是執行期——本專案 18 個 high/critical 中 17 個在 `@sanity/cli` 工具鏈或 PostCSS/Tailwind（建置期），唯一有執行期路徑的是 `sharp`（Next 的 optionalDependencies 卡在 `^0.34.5`，修補版 0.35.0 升不上去，屬上游問題）
-- 去處：暫存於此
-
 ## 2026-07-29 用自己的錯誤假設寫測試，等於沒測——Sanity 時間戳是毫秒不是秒
 - 情境：實作 sanity-webhook 的 HMAC 驗證時，照 Stripe 的慣例假設時間戳單位是「秒」，寫了 `Number(ts) * 1000`。但 Sanity 送的是毫秒（`Date.now()`），乘完變成公元五萬年，一律判定「簽章已過期」回 401。10 條測試全過卻沒抓到——因為我的測試也用 `Math.floor(NOW/1000)` 產生秒格式的時間戳，用同一個錯誤假設去驗證錯誤的程式碼
 - 代價：小江在 Sanity 後台正確填好 Secret 後，webhook 全部 401，快取更新停擺；他來回測了兩次才從 log 找出原因
 - 規則：驗證第三方 webhook／簽章時，**測試資料必須來自該服務的實際請求，不能自己憑格式慣例產生**。做法：先讓一筆真實請求打進來，從 log 或 request dump 取出實際的標頭原文，再據以寫測試。若無法取得真實樣本，至少要在程式碼中同時容納常見的兩種單位（秒／毫秒），並各寫一條測試
 - 去處：暫存於此（與「安全修正需退回舊碼驗證測試會紅」互補：那條保證測試有效，這條保證測試的前提正確）
-
-## 2026-07-29 攔截型 hook 會誤擋「提到該指令」的正常操作
-- 情境：寫了 PreToolUse hook 攔截危險指令，寫完當下就擋住了自己——(1) 說明這個 hook 的 commit 訊息裡提到了目標字串，被擋；(2) 修好後，hook 的測試腳本因為含有測試用的字面片段，又被擋一次
-- 代價：兩次來回；若沒察覺而放著，未來每次要在文件或 commit 訊息提到該指令都會卡住，最後一定有人直接把 hook 關掉——比沒有 hook 更糟
-- 規則：寫比對指令內容的 hook 時，先剝掉「不會被執行」的區段再比對——依序移除 heredoc 內容、單引號字串、雙引號字串（順序不可換，heredoc 內文常含引號）。測試案例必須含「提到但未執行」的反例，且測試檔本身要用字串拼接避免自我觸發（見 `.claude/hooks/guard-commands.test.js`）。判準：hook 改完要能通過「用它自己的說明文字當 commit 訊息」這一關
 
 ## 2026-07-30 eslint-config-next 帶進的 react-hooks 規則抓到 tsc 抓不到的 bug
 - 情境：lint 修好後首次全 repo 掃描，65 個問題裡有 1 個落在本次新寫的 `ProcessContent.tsx`：`react-hooks/set-state-in-effect`——我用 effect 去「修正」切換茶款後失效的 `activeStep`，在 effect body 直接 setState
@@ -185,9 +174,119 @@
 - 規則：**把某欄位改成「依語系取 `xxxEn`」之前，先查該欄位在寫入端是不是被加工過**（grep 該欄位名在 `addToCart`／snapshot 組裝處的賦值，看右手邊是不是模板字串）。加工過就代表 `xxxEn` 與它不對等，要嘛在顯示層補回加工，要嘛在寫入端一起合成
 - 去處：暫存於此。與「SELECT 少一個欄位」同屬「兩個欄位看起來平行、實際不對等」，但那組是查詢面、這組是寫入面
 
-## 已歸檔（2026-08-06 精簡，共 18 條）
+## 2026-08-12 Browser pane 不合成畫面、rAF 不執行——「畫面沒動」不能推論程式壞了
+- 情境：修 `NumberTicker` 的初始值（SSR 原本吐出 `<span>0</span>+ 年製茶經驗`）。改完在 Browser pane 用 JS 捲到統計區、讀 span 文字，數字一直停在 0
+- 代價：判定「`useInView` 沒觸發、三個 effect 互相等待太脆弱」，把一支**本來就正常**的元件從 `motion` 的 `useInView + useSpring` 重寫成自持 `IntersectionObserver` + rAF 並 commit，業主要原本 spring 的手感（過阻尼的長尾巴）又整支改回來——兩個多餘的 commit。真正原因是 pane 的 `document.visibilityState === "hidden"`，rAF 一秒 0 次回呼，任何動畫都不會前進
+- 規則：**用 Browser pane 驗任何動畫前先跑探針**——`let n=0; requestAnimationFrame(()=>n++)` 等 1 秒讀 `n`，或直接讀 `document.visibilityState`。`n === 0` 或狀態是 `hidden` 時**不得用「畫面沒動」推論程式有問題**；改驗靜態產物（SSR HTML、computed style、class 名、DOM 文字的非動畫分支），動畫本身交給使用者目視並在完成報告裡標明「未驗」
+- 去處：暫存於此。與 `diagnosis.md` 的「失焦」模式同源（環境限制被誤讀成程式缺陷），若再出現第二次應併入該檔的環境事實速查表
+
+## 2026-08-15 `.claude/launch.json` 用 `set VAR=1 && ` 傳環境變數，值會多一個尾空白
+- 情境：要量「商品卡加星等列會不會破壞 632px」，但 `product_reviews` 表還沒建（DDL 要業主執行），所以在讀取層加一個 `process.env.MEASURE_REVIEWS === "1"` 的假資料開關，並在 launch.json 的 `runtimeArgs` 用 `cmd /c "set NODE_OPTIONS=... && set MEASURE_REVIEWS=1 && npm run dev"` 傳進去
+- 代價：dev server 起來後假資料沒生效，log 仍是真實查詢的「表不存在」。原因是 **cmd 的 `set FOO=1 && ` 會把 `&&` 前的空白一起吃進值**，實際值是 `"1 "`，嚴格比較永遠 false。多花一輪重啟才發現
+- 規則：**launch.json 經 `cmd /c set` 傳的環境變數，讀取端一律 `?.trim()` 再比較**（或把該 `set` 放在整串命令最後、緊接 `&&` 前不留空白）。同理適用於任何 `set A=1 && set B=2 && cmd` 的串接
+- 去處：暫存於此。屬一次性環境事實，若沒有第二次出現，下次精簡時壓成一行歸檔
+
+## 2026-08-15 開了 RLS 卻只給 SELECT 政策，等於建了一張業主自己動不了的表
+- 情境：品飲組的 `product_bundles` 建表時開 RLS，只寫了「公開讀取 `is_active = true`」的 SELECT 政策——刻意的，寫入只該由伺服器端的 service role 進行。上線後請業主把商品打開，他回報「品飲組卡片我開不了」
+- 代價：他在 Supabase 的 Table Editor 點 `is_active` 那個勾，被 RLS 擋掉且沒有明確錯誤；來回一次才查出原因。等於我交付了一張**只能用 SQL 維護的表卻沒附任何介面**，而上下架是他每週都會做的事
+- 規則：**新建一張開了 RLS 的表時，先問「業主要用什麼點它」**。若該表有任何需要人工切換的欄位（上下架、顯示與否、審核狀態），三選一：(a) 同時做後台入口，(b) 加對應的寫入政策，(c) 在 SQL 檔頂端明寫「本表只能由 SQL 或 API 維護」並在 WORKLOG 記一筆待辦。**不要讓「安全的預設」變成「沒人維護得動」**
+- 去處：暫存於此。與 2026-08-01「SELECT 少一個欄位」同屬「權限／欄位的預設值悄悄改變了行為」，但那組是讀取面、這組是寫入面
+
+## 2026-08-17 `/en` 是 middleware rewrite 不是路由段——三處 `pathname` 判斷同時被繞過
+- 情境：業主轉來 Google Search Console 的「網頁未編入索引」通知，查 SEO 時發現根因是 `/en/*` 由 `src/proxy.ts` 內部 rewrite 到無前綴路徑，**沒有 `[locale]` 路由段**。凡是拿 `pathname` 做判斷的邏輯都得自己處理 `/en`，而三處都忘了：(a) 後台守衛 `pathname.startsWith("/admin/")` 對 `/en/admin/...` 不成立 → 未登入可讀後台營收；(b) `langAlternates` 的 `canonical: path` 讓每個英文頁宣告中文頁為正式版本 → 英文頁全被排除索引；(c) `robots.txt` 的 Disallow 清單沒有 `/en` 版本 → `/en/cart` 反而可抓取
+- 代價：(a) 是線上安全漏洞，存在期間不明；(b) 讓 16 個英文網址的 SEO 長期歸零，且要等 Google 重新抓取才會恢復。三個都是同一個心智模型缺口造成的，卻分別在三次不同的開發中埋下
+- 規則：**改動或新增任何讀 `request.nextUrl.pathname`／依路徑做分支的邏輯前，先確認它有沒有處理 `/en` 前綴**。判斷路由身分一律用 rewrite 後的路徑（`proxy.ts` 的 `routePath`）；面向外部的 URL（canonical、og:url、轉址目的地）一律用帶當前語言前綴的路徑。新增這類邏輯時，測試一律 zh／en 成對寫（見 `src/__tests__/admin/proxy-locale-guard.test.ts` 與 `src/__tests__/seo/canonical.test.ts` 的寫法）
+- 去處：暫存於此。與 2026-08-08「兩兩比對否定序列設計」不同類；這條屬「同一個隱含前提在多處各壞一次」，若再出現第二個 locale 就升格為 playbook 規則
+
+## 2026-08-17 用猜的函式名 grep 授權守衛，差點回報「23 條 admin 路由全裸奔」
+- 情境：確認 `/en/admin` 繞過後，要判斷 API 層是否也失守。我用一串**憑印象猜的**守衛名（`requireAdmin|validate_admin_session|admin_session|getAdminSession|assertAdmin`）grep `src/app/api/admin`，25 條中有 23 條沒命中，看起來像整層裸奔。實際的守衛叫 `withAdminAuth`，不在我的猜測清單裡——那 23 條全都有防護
+- 代價：只差一步就把「後台 API 全面失守」寫進回報。真要送出去，業主會以為金流與訂單資料已外洩。實際只多花一次 `Read` 就翻案
+- 規則：**要斷言「某目錄的路由缺少守衛」之前，先 Read 其中任一個檔，確認該專案實際使用的守衛識別字，再用那個字去 grep**。不得用猜測的名稱清單推導「不存在」；grep 命中 0 次先當成「我 pattern 寫錯」，不是「程式碼缺這東西」
+- 去處：暫存於此。與 JUDG-8「對照組要有鑑別力」同源——這次的無效測試是 pattern 本身沒有鑑別力
+
+## 2026-08-17 `git push` 成功不等於已部署——Vercel 漏接一次 webhook，安全修正在線上多躺了 15 分鐘
+- 情境：把後台守衛繞過的修正合併上 main、push 成功，正要回報「已上線」。因為修的是線上安全漏洞，順手實測 production——`/en/admin/dashboard` 仍回 200。等了 15 分鐘還是舊版。查 header 確認不是快取（`x-vercel-cache: MISS`、`age: 0`、`cf-cache-status: DYNAMIC`），業主給的 Vercel 截圖顯示 Production 標記還掛在前一個 commit，部署清單裡**根本沒有**那筆合併。推一個空 commit 重新觸發才上線；下一個 commit 又恢復正常，所以是單次 webhook 漏接
+- 代價：15 分鐘。但差一點就把「已修好」寫進回報——若當時收工，業主會以為漏洞已關，而 `/en/admin/dashboard` 的營收資料還是全網可讀
+- 規則：**修正若要靠部署才生效（尤其安全修正），push 完必須實測 production 才能宣告完成**。做法：挑一個「改動前後回應明確不同」的端點輪詢（本例是守衛的 307 vs 200，比 HTML 內容可靠），並確認回應不是快取（看 `x-vercel-cache`、`age`、`cf-cache-status`）。逾時未生效時，先看部署清單有沒有那筆 commit——**沒有那筆**代表沒被觸發（推空 commit 重試），**有那筆但失敗**才是建置問題，兩者處置完全不同
+- 去處：暫存於此（JUDG-2「完成要有證據」在部署面的具體化：`git push` 的輸出不是上線的證據）
+
+## 2026-08-17 Next 的 metadata 是淺層合併——子頁宣告 openGraph，父層那組就整個消失
+- 情境：把英文頁 metadata 雙語化時，順手給首頁與 FAQ 補上 `openGraph: { url: canonical }`。用 production build 驗輸出才發現：**全站的 `og:type`／`og:locale`／`og:site_name` 都不存在**。Next 的 metadata 各個 key 是整體取代而非深層合併，所以有設 `openGraph` 的 9 個頁面從一開始就沒有這三個欄位；沒設的首頁與 FAQ 本來靠繼承留著，被我這一補反而弄掉了。同一個機制還害到 `og:image:alt`——頁面沒明確帶 `images` 時會退回 file convention，而 `app/opengraph-image.tsx` 的 `export const alt` 是模組層常數、寫死中文，英文頁的 alt 就是中文
+- 代價：只花一次驗證就抓到，但差別在於「有沒有去看實際輸出」。若只看 tsc／測試／build 全綠就收工，會把兩頁的 og 弄壞還以為是改善
+- 規則：**Next metadata 的巢狀欄位（`openGraph`、`twitter`、`robots`、`icons`）一旦要在子頁宣告，就必須把該物件需要的欄位全部寫齊，不能指望繼承父層的其他鍵**。做法是抽一個 `openGraphFor()` 之類的工廠函式集中組裝，所有頁面一律呼叫它，不要各自手寫物件字面值。驗證時**不要只比對你改動的那個欄位**——把 `og:*` 全部 dump 出來數，消失的欄位不會有人報錯
+- 去處：暫存於此（與 2026-08-01「SELECT 少一個欄位」同源：都是「你沒寫的那部分被靜默換成別的行為」）
+
+## 2026-08-18 用 `node -e` 做反向驗證的突變，引號被 PowerShell 吃掉——檔案沒改，全綠是假的
+- 情境：要反向驗證兩條新測試（圖片 alt 不得寫死中文、sitemap 必須有 x-default）。用 `node -e "...s.split('alt={t(\"heroImageAlt\")}')..."` 想把修正暫時退回。PowerShell 把內層的 `\"` 處理掉，Node 收到的是壞掉的字面值，直接 `SyntaxError: Invalid string escape`。但**錯誤訊息混在輸出裡沒被我當成阻斷**，緊接著跑的測試理所當然全綠——我差點把「測試有鑑別力」寫進回報，而實際上檔案一個字都沒變
+- 代價：一次假的反向驗證。真正的代價在於它會**反向證明**：若我就此收工，得到的結論是「測試通過所以修正有效」，但同樣的綠燈在測試完全無效時也會出現
+- 規則：**反向驗證的突變步驟，必須用「檔案真的變了」的獨立證據收尾，不能只看測試紅綠**。做法：突變後立刻 `git diff --stat <檔案>`，確認有 `1 insertion(+), 1 deletion(-)` 這種輸出才往下跑測試；突變腳本本身也要在找不到目標字串時 `throw`（不要靜默 no-op）。另外**不要用 `node -e` 帶巢狀引號**——寫進 scratchpad 的 `.js` 檔再 `node <檔案>`，這在本環境是唯一可靠的方式
+- 去處：暫存於此（JUDG-8「對照組要有鑑別力」的第四個案例——前三個是壞掉的 CLI、空殼 python、型別誤用；這個是壞掉的突變指令）
+
+## 2026-08-21 拿 supabase/*.sql 當線上現況，對業主斷言「這款體驗不存在」——它不但存在還排了 20 場
+- 情境：規劃體驗開課請求時要盤點體驗類型。讀了 `supabase/booking_schema.sql` 看到五筆 INSERT，就對業主說「黃頭鷺導覽不在 `experience_types`、不能預約，網站在對外說謊」。業主直接丟出可以開的預約頁 URL。查線上 DB 才發現 `cattle-egret-tour`「萬鷺朝鳳・茶山導覽」是 id 6，早就上線、有 20 筆場次（8/22–10/11），是六款裡場次第三多的主力
+- 代價：對業主講了一個很有份量的錯誤結論（「你的網站承諾了做不到的事」），還照著它寫了一整節提案與四條任務，全部要重寫。錯的方向特別糟：**憑一份靜態檔案指控線上系統有問題**
+- 規則：**本專案的 `supabase/*.sql` 是一次性建置腳本，不是 migration 紀錄，不反映線上 schema 與資料。**任何關於「線上有沒有這筆資料／這個欄位」的判斷，一律查線上：讀 `.env.local` 取 `NEXT_PUBLIC_SUPABASE_URL` 與 `SUPABASE_SERVICE_ROLE_KEY`，用 Node 打 PostgREST（`/rest/v1/<table>?select=*`）。SQL 檔只能拿來看「當初打算建成什麼樣」
+- 去處：暫存於此（與 JUDG-2「完成要有證據」同源：斷言線上狀態就要有線上證據，讀本地檔案不算）
+
+## 2026-08-21 反向驗證用 `git checkout --` 還原，把同一個檔案未 commit 的工作一起洗掉
+- 情境：反向驗證 products.ts 的退路測試。第一次突變不小心造成語法錯誤，想重來，就下了 `git checkout -- src/lib/products.ts`。但那個檔的改動**還沒 commit**——HEAD 是上一個 docs commit，於是整支 `getProducts`／`getFeaturedProducts` 的退路實作瞬間回到原始狀態
+- 代價：重寫整個檔案的兩個函式。真正的風險是它**沒有任何錯誤訊息**——checkout 成功了，只是把你要的東西也還原掉了；如果當下沒去看檔案內容，會以為只還原了突變
+- 規則：**突變前先 `cp <檔案> $SCRATCH/<檔名>.orig`，還原時 `cp` 回來，永遠不要用 `git checkout --` 還原突變**——除非該檔的工作已經 commit。還原後用 `diff <備份> <檔案>` 確認為空，再跑測試確認轉綠
+- 去處：暫存於此（與同日「supabase/*.sql 不是線上現況」同屬「用錯誤的來源當基準」；也補上 `reverse-verify` skill 沒寫的那一半——它教怎麼突變，沒教怎麼安全還原）
+
+## 2026-08-21 這個 repo 的既有 .ts／.json 是 CRLF，用 
+ 字面值比對會靜默 MISS
+- 情境：用 Node 腳本改 `src/types/index.ts`。搜尋字串是多行 template literal（
+ 換行），檔案實際是 CRLF，`s.includes(find)` 直接 false
+- 代價：一次 MISS 中止。不嚴重，但若腳本沒有「找不到就 exit(1)」的保護，就會變成靜默 no-op——寫了一堆 edit、一個都沒生效、還以為成功了
+- 規則：**用 Node 改既有檔案前，先正規化行尾**：讀進來 `split("
+").join("
+")`、比對替換、寫回時依原檔還原。搜尋字串一律用 LF，並且**找不到就 throw／exit(1)，不可以靜默跳過**。（本 session 的 `$SCRATCH/edit.mjs` 就是這支 helper）
+- 去處：暫存於此（與 2026-08-18「node -e 引號被吃掉」同源：本環境改檔的失敗多半是靜默的）
+
+## 2026-08-21 後台「重排」以顯示順序為基準重新編號，把自動規則固化成手動設定
+- 情境：體驗排序的前台規則是「釘選 → 季節 → sort_order → id」，後台清單也照這個規則顯示（想讓業主看到實際結果）。重排功能是「把當下看到的順序整份重新編號成 (順位+1)×10」。業主為了測試按了一下移動——那一刻萬鷺朝鳳因為季節排第一，於是 **季節造成的第一名被寫成 sort_order=10**，自動排序悄悄變成手動，季節結束也不會退回
+- 代價：只有測試按鈕就中招，而且**沒有任何錯誤訊息**——畫面看起來完全正常，是後來查排序輸入才發現 sort_order 不再是預設值。若沒發現，10/11 賞鳥季結束後首張會一直掛著一個訂不到的活動
+- 規則：**當排序（或任何設定）由「自動規則 ＋ 手動基準」疊出來時，編輯介面必須編輯手動基準本身，不能編輯疊加後的結果**。做法：後台分兩區顯示——「實際結果」唯讀，「手動順序」才是可編輯的那份；重新編號一律以手動基準排序後的清單為輸入。同理適用於任何「預設值 ＋ 覆寫」的設定畫面
+- 去處：暫存於此（與 JUDG-6「收緊權限前先查誰在用」同類：改動之前要先分清楚你動到的是哪一層）
+
+## 2026-08-22 環境變數名稱看不出品牌，茶山體驗的客人被導到接案帳號的 LINE
+- 情境：一個 repo 服務兩個 LINE 官方帳號——霧抉茶 `@976jhznk`（買茶、體驗）與風土數位 `@580ariqa`（接案報價）。變數叫 `NEXT_PUBLIC_LINE_OFFICIAL_URL` 與 `NEXT_PUBLIC_LINE_ADD_URL`，兩個名字都看不出屬於誰。體驗詳細頁的「用 LINE 問同日安排」寫成 `ADD_URL`，於是想問茶山體驗的客人加到了接案品牌的帳號
+- 代價：**線上錯了不知道多久，而且完全無聲**——按鈕正常顯示、連結正常跳轉，只是跳到錯的地方；是業主在設定 LINE 自動回應、順著入口一個個對照時才發現。更糟的是 `openspec/changes/experience-open-class-request` 還沒實作的規格也已經寫上 `ADD_URL`，同一個坑正要發作第二次
+- 規則：**同一個 repo 有多個同類外部帳號時，變數名一律用「品牌／用途」而不是 official／add 這種相對詞**（本次改為 `NEXT_PUBLIC_LINE_TEA_URL`／`NEXT_PUBLIC_LINE_TERROIR_URL`），註解直接寫上帳號 ID。改名時 `openspec/specs/` 與**未實作的** `openspec/changes/` 要一起改，`archive/` 不動。另外 `NEXT_PUBLIC_*` 是 build 時內嵌：改名後若 Vercel 沒補新變數，按鈕會**靜默消失**（`url && <a>` 才渲染），所以順序是「先加新的 → 部署驗證 → 才刪舊的」
+- 去處：暫存於此（與 JUDG-2 同源：外連目的地要有線上證據。驗法是 curl 生產網址抓出 href，短網址再用 `curl -L -o /dev/null -w %{url_effective}` 解出真正的帳號，不能只看程式碼讀了哪個變數）
+
+## 2026-08-23 route 加一個 filter 方法，手刻的 Supabase chain mock 一次紅 7 條、訊息卻不指向原因
+- 情境：cron route 新增一段查詢用了 `.in("status", [...])`。該檔的測試自己手刻 chain mock，只定義了 `select/eq/lt/order/update/delete`——沒有 `in`。同一個資料夾裡另一支測試的 mock 有 `in`，所以是「有些檔會過、有些不會」
+- 代價：9 條變成 7 failed | 2 passed，而且**每一條的錯誤都長得像業務邏輯壞掉**（回傳 undefined、欄位對不上），沒有一條說「mock 少一個方法」。tsc 全綠，因為 mock 是 `Record<string, unknown>`，型別根本不管
+- 規則：**手刻 chain mock 時，未定義的方法要明確炸開並指名自己**——加一層 Proxy 兜底，認得的回 `this`，不認得的 `throw new Error("mock chain 缺 ." + prop + "()")`。同一批測試共用同一個 mock 工廠，不要每個檔各刻一份（本 repo 的 `request-cron` 與 `request-demand` 就是各刻一份才出現落差）。改 route 的查詢鏈之後，跑的是**全部**測試而不是新加的那幾條
+- 去處：暫存於此（與 JUDG-8 同源：綠燈與紅燈都要問「它到底在測什麼」）
+
+## 2026-08-23 兩支 SQL 有執行順序相依時，用 information_schema 檢查解掉，而不是寫在註解裡
+- 情境：新增體驗類型的 `add_egret_half_day.sql` 要設 `accepts_requests`／`request_start_times`，但那些欄位是另一支 `add_experience_requests.sql` 才建的。業主是在 Supabase SQL Editor 手動貼上執行的，沒有 migration 工具管順序
+- 代價：這次沒出事，但「檔頭註解寫『請先跑另一支』」在人工流程裡等於沒有保護——貼錯順序就是 `42703 column does not exist`，而且是整段 rollback，前面成功的 INSERT 也一起沒了
+- 規則：**手動執行的 SQL 之間有欄位相依時，把相依那段包進 `DO $ IF EXISTS (SELECT 1 FROM information_schema.columns …) THEN … END $`**，讓兩支檔任何順序都能跑。這跟前台程式碼用 `42703`／`42P01` 兩段式 fallback 是同一件事的兩端：**這個 repo 的 code 與 schema 一定會有一段時間不同步，兩邊都要能單獨活著**
+- 去處：暫存於此
+
+## 2026-08-25 我把一個 404 加進 sitemap，因為「子路由存在」被我當成「父路由存在」
+
+- 情境：改 SEO 時把 `/tea-guide` 加進 sitemap 的 STATIC_PAGES。依據是 `src/app/tea-guide/[slug]/page.tsx` 存在，而且**每篇文章的 BreadcrumbList JSON-LD 第二層早就指向 `/tea-guide`**——兩個訊號都讓我確信那頁在。實際上 `src/app/tea-guide/` 底下只有 `[slug]/`，沒有 `page.tsx`，那個網址一直回 404
+- 代價：`npx tsc`、`npm run lint`、`npm run build`、986 個測試全綠，`next start` 實跑也驗過了——**四種驗證沒有一種會去問「這個路徑有頁面嗎」**。一路到 Search Console 送出建立索引才被擋下來（「系統偵測到該網址存在編制索引問題」）。麵包屑指向 404 更是早就存在、從來沒人發現，因為它不報錯，只是讓 Google 收到一組指向死路的結構化資料
+- 規則：**往 sitemap（或任何對外宣告的網址清單）加一條之前，先 `curl -I` 那個網址看狀態碼**，不要從「子路由存在」「別的地方連過去了」推論父路由存在——後者恰恰是「有人以為它在」的證據，不是「它在」的證據。已加 `src/__tests__/seo/sitemap-routes-exist.test.ts` 把這條釘住：sitemap 的每個靜態路徑都必須有對應的 `page.tsx`，並單獨釘住麵包屑指向的 `/tea-guide`
+- 去處：暫存於此。若再出現第二次「對外宣告的資源實際不存在」，升格為 judgment.md 的正式規則（宣告任何對外網址前先驗證它會回 200）
+
+## 2026-08-25 同一天犯兩次「拿 supabase/*.sql 當線上現況」——而 8/21 已經有一條一模一樣的教訓
+- 情境：改開課請求文案時要給業主一張「六款各自的最低金額」表。我讀 `adjust_experience_pricing.sql`（紅茶 800→1,000、門檻 4→6）與 `add_egret_half_day.sql`（650 半日）就直接寫進表裡。實際上前者只跑了第 1 段（萬鷺 250→450），紅茶線上仍是 **800／門檻 4**；後者 8/23 已決定不上架（tasks.md 9b.1「已建立但關閉」）。業主兩項都當場糾正
+- 代價：業主要花力氣糾正兩個錯數字，其中一個還是他自己否決過的方案。技術內容是對的，卻因為附帶那張表失去可信度。8/21 那條教訓把做法寫得很清楚，我開工前沒讀
+- 規則：**要對業主陳述任何線上數字（價格、成團門檻、有沒有這款、哪幾款開著某功能）之前先取線上證據，不得引用 `supabase/*.sql`**。優先序：(1) 讀 `.env.local` 打 PostgREST（見 2026-08-21 同名條目）；(2) 該路徑被權限擋掉時，用 Browser 開 `https://taiwantea.store/experiences/<slug>` 讀渲染後的數字，或在該站 origin 內 `fetch()` 各頁比對——**公開頁面是線上狀態的投影，同樣算線上證據**。另外：CLAUDE.md 路由表列的 lessons.md 是**開工前**讀，不是踩到坑才讀
+- 去處：暫存於此。與 2026-08-21 同名條目重複，MAINT-4 的「重複主題升格」條件已成立，建議升格為 judgment.md 正式規則（本 session 未自行升格：改 playbook 規則要走 MAINT-3，其中的 checker read-back 需使用者授權）
+
+## 已歸檔（2026-08-06 精簡 18 條；2026-08-15 再精簡 2 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
+
+- **這個專案不能跑 npm audit fix（會降級 Next.js）** — 已由 `.claude/hooks/guard-commands.js` 自動攔截，CLAUDE.md 也已註明「不必記」。仍有效的原則：相依套件漏洞一律先 `--dry-run`，**永不用 `--force`**
+- **攔截型 hook 會誤擋「提到該指令」的正常操作** — 規則已落進 `.claude/hooks/guard-commands.js` 與其測試檔（比對前先剝掉 heredoc、單引號、雙引號，順序不可換）。寫新的攔截型 hook 時去讀那支測試
 
 - **.gitignore 整包忽略 .claude/，制度檔差點推不上去** — 新增要提交的 `.claude/` 子項前先跑 `git check-ignore -v`；`.gitignore` 已改白名單制
 - **CLAUDE.md 的 @路徑 會在開場整檔載入** — `CLAUDE.md` 的路由表用純文字路徑，不用 `@`——`@` 會 eager load（深度 4 層）
