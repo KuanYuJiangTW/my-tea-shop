@@ -67,3 +67,32 @@ describe("llms.txt 的紅茶製作（AI 搜尋讀的就是這一行）", () => {
     expect(line()).not.toContain("成品帶回");
   });
 });
+
+describe("adjust_experience_pricing.sql 的第 2 段（1,000 元／6 人）", () => {
+  /**
+   * 業主 2026-08-25 決定不採用，維持 800／4。
+   *
+   * 這個檔案的檔頭寫著「整檔貼上跑。可重複執行（冪等）」——留著可執行的
+   * UPDATE，哪天有人照著說明整檔跑一次，紅茶就會在沒人決定的情況下被改價。
+   * 它已經害我把 1,000／6 當成線上現況跟業主報過一次（lessons.md 2026-08-25）。
+   */
+  const sql = () => read("supabase/adjust_experience_pricing.sql");
+
+  /** 去掉註解行之後、真正會被執行到的 SQL */
+  const executable = () =>
+    sql().split(/\r?\n/).filter(l => !l.trim().startsWith("--")).join("\n");
+
+  it("那段 UPDATE 不會被執行到", () => {
+    expect(executable()).not.toContain("price = 1000");
+    expect(executable()).not.toContain("min_participants = 6");
+  });
+
+  it("標明未採用，而且理由留著——刪掉理由下次會有人重新提一次", () => {
+    expect(sql()).toContain("未採用");
+    expect(sql()).toContain("390／人時");
+  });
+
+  it("檔末的驗證表跟著改成 800，不然跑完會對不上", () => {
+    expect(sql()).toContain("紅茶製作            800");
+  });
+});
