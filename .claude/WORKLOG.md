@@ -1310,3 +1310,119 @@ Phase 0（輕量登記）已在 main 上線。這一輪做的是完整版第 1�
 暫緩的理由：`convertRequestOnPayment` 整段包在 try/catch 永不 throw，最壞情況是
 「請求沒轉 converted、場次沒轉公開」，後台看得到、可人工補，**不影響金流本身**
 （綠界照樣收到 `1|OK`）。等第一筆真實付款走完再看即可。
+
+---
+
+## 2026-08-25 賞鳥季 SEO：程式面已上，文案面待業主執行
+
+**起因**：Search Console 28 天（7/26–8/22）——曝光 367、點擊 18、CTR 4.9%、
+平均排序 10.3。萬鷺朝鳳相關 7 個查詢合計**曝光 28、點擊 1**，其中
+「太興村 萬鷺朝鳳」13 曝光 0 點擊。曝光曲線 8/17 後從個位數衝到每天 45–60，
+季節流量確實進來了。
+
+**診斷**：平均排序 10.3 表示曝光落在第 8–15 名，那個位置 CTR 本來就 2–3%，
+**13 曝光 0 點擊是統計上的正常結果，不是文案寫壞**。所以要同時做兩件事：
+推排名（結構化資料＋站外提及）與改標題字面（今天就能做）。
+
+完整盤點（含逐字文案）：https://claude.ai/code/artifact/155e3558-9969-4703-8938-b603ddc03165
+
+### 已完成並 push（`feat/egret-season-seo`，b9cc4ab + ebd5dd1）
+
+| 改動 | 檔案 |
+|---|---|
+| `faqPageJsonLd()`／`seasonalEventJsonLd()` | `src/lib/seo.ts` |
+| 攻略文輸出 FAQPage | `src/app/tea-guide/[slug]/page.tsx` |
+| 季節體驗輸出 Event | `src/app/experiences/[slug]/page.tsx` |
+| 首頁季節限定條帶 | `src/app/page.tsx`、`messages/{zh,en}.json` |
+| sitemap 補 `/tea-guide` 列表頁 | `src/app/sitemap.ts` |
+| 10 個單元測試 | `src/__tests__/seo/faq-event-jsonld.test.ts` |
+
+驗證：986 測試全過、tsc 0 錯、lint 0 error、build 成功；`next start` 實跑確認
+攻略文 5 個 Question、萬鷺朝鳳有 Event、茶藝體驗沒有 Event、手機 375px 無溢出。
+
+**FAQPage 的判斷規則只有一條：小標以問號結尾。** 想把某段排除就拿掉問號，
+不必改程式。這條規則有一個立即可用的副作用——見下方英文小標那項。
+
+### 待業主執行（都在 Sanity／站外，程式改不到）
+
+1. **寫信給攻略文作者**（回報最高，且不必等任何程式）。方格子、背包客棧、
+   好好玩 FUNIT、承錠旅行日記的觀賞地點名單是「大地茶席、巧雲小棧、朝夕茶廠、
+   太興山莊、草本傳奇、泰興巖、阿村師的家」——**信淳茶居一個都沒進**。
+   AI 搜尋回答「萬鷺朝鳳在哪看」抓的就是這些頁。更刺的是方格子那篇講洗手間
+   時寫的是「走 10 分鐘到鷺露茶居，付費 20 元」。
+2. **攻略文標題改成**：`2026 萬鷺朝鳳｜梅山太興村賞鳥攻略：幾點來、在哪看、停車與洗手間`
+   （補進實測曝光最高的「2026」「太興村」，加上全網沒人寫在標題的「洗手間」）
+3. **摘要與結尾 CTA 改寫**、**體驗頁 `seoDescription`**：逐字稿在上方連結第 4 節。
+   結尾 CTA 的重點是把「線上預約」換成「**不用預約，直接開進來**」——
+   讀完攻略的人八成不買 450 導覽，現在的文案等於把他們推去隔壁免費平台。
+4. **英文攻略文的小標 `Where to watch, where to park, and what it costs` 是陳述句**，
+   所以英文頁只有 4 個 FAQ、中文有 5 個。改成問句（`Where do you watch, where do
+   you park, and what does it cost?`）就會自動補上，不必改程式。
+5. **改完 Sanity 記得去 `/studio` 按 Publish**——webhook filter 疑似沒含 `article`，
+   不 Publish 最長要等一小時（2026-08-23 已實測）。
+6. FAQ 頁（Sanity）可補三條：帶長輩／推車來方便嗎、下雨怎麼辦、幾點到最好。
+
+### 沒做的事與理由
+
+- **沒碰體驗頁標題**（`萬鷺朝鳳・茶山導覽`）：那是給導覽意圖的，字面正確。
+  資訊型查詢該由攻略文接，兩頁搶同一組字反而互相稀釋。
+- **首頁條帶沒做 `upcoming` 狀態**：季節還沒開始就掛在首頁，會變成一則常設廣告。
+
+### 2026-08-25 補記：Sanity 已由 Claude 透過 API 改完
+
+業主自己先改了**標題（中英）與摘要（中英）**，四欄都已是新版。
+Claude 接手改完剩下五項，備份在 scratchpad 的 `sanity-backup-2026-08-25.json`
+（含改動前的完整兩份文件與 `_rev`）：
+
+| 文件 | 改動 |
+|---|---|
+| `article-cattle-egret-viewing-guide` | 第 4 段 `headingEn` 改成問句、`keywords` 14→17、`keywordsEn` 7→9、新增第 10 段（`_key: s7`）、`updatedAt` 更新 |
+| 體驗 `41af4b37-…` | `seoDescription`／`seoDescriptionEn` 補年份、出發時間、450 元與「導覽結束可繼續留」 |
+
+新增的第 10 段小標是「**需要預約嗎？可以直接開上來嗎？**」，不是原稿的
+「今天就想上來？」——問號結尾會被 FAQPage 自動收走，而廣告口吻的問句
+被 Google 判成濫用 FAQ 標記的風險高。改成真問答之後，中英文小標各有
+**6 個**會進 FAQ（原本中 5 英 4）。
+
+Mutation 用 `ifRevisionID` 樂觀鎖：業主可能正開著 Studio，_rev 不符時
+整批失敗而不是靜默覆蓋。
+
+**更正 8/23 的推測：webhook 沒有壞。** 那天記的是「filter 疑似沒含 `article`，
+改文章最長要等一小時」——今天 API 改完後線上 meta、新段落、英文小標
+**全部立即生效**（攻略文與體驗頁都是）。舊的推測會讓人白等一小時或多按
+Publish，已由這次實測取代。
+
+**注意：FAQPage／Event／首頁條帶還沒部署。** 程式碼在 `feat/egret-season-seo`
+分支上，尚未併入 main，所以線上 FAQ Question 數目前是 0——
+Sanity 內容已經到位，等分支上線才會一起生效。
+
+---
+
+## 2026-08-25 綠界測試模式驗完了，8/24 那節的「還沒做」作廢
+
+業主用**測試信用卡實際結帳成功**，`feat/ecpay-stage-mode` 已合併 main（`52020f6`）。
+8/24 記的「`ECPAY_URL` 寫死正式端點、沒有測試模式開關」與整段暫緩理由**已不成立**，
+以這節為準。
+
+**正式站的防護是程式層而不是設定層**（`src/lib/ecpay-env.ts`）：
+
+```ts
+export const ECPAY_STAGE = process.env.ECPAY_MODE === "stage" && !isVercelProduction;
+```
+
+`VERCEL_ENV === "production"` 時就算誤設 `ECPAY_MODE=stage` 也會被忽略，
+並在 production log 印一行 error 讓設錯的人知道。這件事重要的原因是
+8/24 寫下的那個風險——「賞鳥季真實客人會付不了錢」——**已經不可能發生**，
+不是靠記得別設錯，是靠設錯了也沒用。
+
+### 要記得清的測試資料
+
+`R2608-E59D`（業主測試）、`R2608-RHCJ`（Claude 測試），加上這次測試信用卡
+產生的那筆。訂單有 `is_test` 可以篩，`experience_bookings` 也已補上同名欄位
+（`eb6ded0`），所以測試資料不會混進營收數字——但後台列表看得到，該清還是要清。
+
+### SEO 分支狀態
+
+`seo/egret-season` 已 rebase 到含 ecpay 的最新 main，無衝突，重跑
+986 測試全過。PR 尚未開：
+https://github.com/KuanYuJiangTW/my-tea-shop/compare/main...seo/egret-season?expand=1

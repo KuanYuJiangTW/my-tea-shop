@@ -7,6 +7,8 @@ import BrandStats from "./BrandStats";
 import TrustRow from "@/components/TrustRow";
 import { getFeaturedProducts } from "@/lib/products";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
+import { getArticlesForExperience } from "@/lib/articles";
+import { currentWindow, taipeiToday } from "@/lib/experience-ordering";
 import SeasonBadge from "@/components/SeasonBadge";
 import { getTranslations, getLocale } from "next-intl/server";
 import { langAlternates, openGraphFor, jsonLdString } from "@/lib/seo";
@@ -38,6 +40,20 @@ export default async function HomePage() {
   const isEn = locale === "en";
   const lp = (path: string) => isEn ? `/en${path}` : path;
   const contentMap = Object.fromEntries(contents.map(c => [c.slug, c]));
+
+  // ── 季節限定條帶 ─────────────────────────────────────────────────────
+  // 首頁是全站權重最高的一頁，而季節限定體驗每年只有幾十天可賣——把它擺在
+  // 首屏下方，同時解決兩件事：從「阿里山高山茶」搜進來的人不知道現在有鳥可看，
+  // 以及攻略文除了體驗頁之外沒有任何站內連結指向它。
+  //
+  // 只在**正在季節中**時顯示：`upcoming`（還沒開始）放首頁會變成一則常設廣告，
+  // 而條帶的說服力全部來自「現在就在發生」。季節一過自動消失，不必記得撤掉。
+  const seasonalExp = experiences.find(e => currentWindow(e.windows, taipeiToday()) !== null);
+  // 攻略文從關聯查，不寫死 slug——換一款季節體驗時這一段不用改
+  const seasonalGuide = seasonalExp
+    ? (await getArticlesForExperience(seasonalExp.slug))[0] ?? null
+    : null;
+  const seasonalContent = seasonalExp ? contentMap[seasonalExp.slug] : undefined;
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
@@ -161,6 +177,55 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 季節限定條帶 —— 只在季節中出現，見上方 seasonalExp 的說明 */}
+      {seasonalExp && (
+        <section className="bg-tea-green-mist border-y border-tea-green-pale">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
+              <div className="flex-1 min-w-0">
+                <p className="text-tea-green-ink text-xs tracking-[0.25em] uppercase mb-3 font-medium">
+                  {t("seasonal.label")}
+                </p>
+                {/* 名稱與倒數徽章並排：稀缺性要跟商品名一起被讀到才有作用 */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-2">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold text-tea-text">
+                    {isEn ? seasonalExp.nameEn : seasonalExp.name}
+                  </h2>
+                  <SeasonBadge
+                    windows={seasonalExp.windows}
+                    name={isEn ? seasonalExp.nameEn : seasonalExp.name}
+                  />
+                </div>
+                {seasonalContent && (
+                  <p className="text-body text-tea-text-muted max-w-2xl">
+                    {isEn ? (seasonalContent.taglineEn || seasonalContent.tagline) : seasonalContent.tagline}
+                  </p>
+                )}
+              </div>
+
+              {/* 攻略在前、預約在後：從搜尋進來的人多數還在「今天值不值得上山」
+                  的階段，先給答案再給價目，順序反過來會把人推走 */}
+              <div className="flex flex-wrap gap-3 shrink-0">
+                {seasonalGuide && (
+                  <Link
+                    href={lp(`/tea-guide/${seasonalGuide.slug}`)}
+                    className="border-2 border-tea-green-ink text-tea-green-ink hover:bg-tea-green-ink hover:text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard"
+                  >
+                    {t("seasonal.guideBtn")}
+                  </Link>
+                )}
+                <Link
+                  href={lp(`/experiences/${seasonalExp.slug}`)}
+                  className="bg-tea-green-ink hover:bg-tea-green-dark text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
+                >
+                  {t("seasonal.bookBtn")}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 品茶哲學 */}
       {/* 慢段：品茶哲學是敘事不是商品，留白讓它慢下來。
