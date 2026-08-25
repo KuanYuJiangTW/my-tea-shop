@@ -334,7 +334,9 @@
     "openClass": {
       "title": "No session on the date you want?",
       "intro": "Tell us the date. If it reaches the minimum for a session, we'll open one. Ask at least {days} days ahead and we'll reply within two business days.",
-      "slotsNote": "A session of this experience takes at least {slots} places (NT$ {total}). You're booking the places, not per-person tickets — bring whoever you like up to that number.",
+      "slotsNote": "A session of this experience takes at least {slots} places (NT$ {total}). That price covers 1–{slots} people; beyond {slots}, each extra person adds NT$ {price}.",
+      "estimate": "{people} people = {slots} places — NT$ {total} if we open the session",
+      "overCapacity": "A session takes at most {max} people. For a bigger group, talk to us on LINE and we will see about splitting it in two.",
       "emptyMonthTitle": "No sessions this month",
       "cta": "Request a session",
       "askLine": "Or just ask us on LINE",

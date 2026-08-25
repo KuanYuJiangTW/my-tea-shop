@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CalendarPlus, CheckCircle } from "lucide-react";
 
+import { calcRequestSlots, calcRequestTotal } from "@/lib/experience-request-pricing";
+
 /**
  * 客製開課請求的前台入口與表單。
  *
@@ -19,6 +21,10 @@ interface Props {
   /** 開團最低名額與對應金額——成交條件要在送出前就看得到 */
   minSlots: number;
   minTotal: number;
+  /** 單價：超過最低名額之後每多一個人加收的金額 */
+  unitPrice: number;
+  /** 一場的人數上限，超過就不是加價能解決的事 */
+  maxParticipants: number;
   leadDays: number;
   startTimes: string[];
   /** 最早可申請日（YYYY-MM-DD），前置天數已算進去 */
@@ -32,7 +38,7 @@ interface Props {
 }
 
 export default function OpenClassRequest({
-  experienceTypeId, locale, minSlots, minTotal, leadDays,
+  experienceTypeId, locale, minSlots, minTotal, unitPrice, maxParticipants, leadDays,
   startTimes, minDate, maxDate, nextWindowStart, lineUrl, emphasis = false,
 }: Props) {
   const t = useTranslations("experiences.openClass");
@@ -60,6 +66,21 @@ export default function OpenClassRequest({
     contactName: "", contactPhone: "", contactEmail: "", contactLine: "",
     contactTime: "", note: "", website: "",
   });
+
+  /**
+   * 人數一改，「收幾個名額、要付多少」就跟著改——用的是與後端同一份計算
+   * (`calcRequestSlots` / `calcRequestTotal`)，不是前端自己再乘一次。
+   *
+   * 2026-08-25 補上。原本只講最低名額與最低金額，填 6 人的客人會以為還是
+   * 那個數字，直到收到確認信才發現多收——價格意外是最不該讓客人自己發現
+   * 的事，何況這裡本來就有現成的計算可以用。
+   */
+  const shape        = { price: unitPrice, maxParticipants, requestMinSlots: minSlots };
+  const typed        = Number.parseInt(f.headcount, 10);
+  const people       = Number.isFinite(typed) && typed > 0 ? typed : minSlots;
+  const estSlots     = calcRequestSlots(shape, people);
+  const estTotal     = calcRequestTotal(shape, estSlots);
+  const overCapacity = people > maxParticipants;
 
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setF({ ...f, [k]: e.target.type === "checkbox" ? (e.target as HTMLInputElement).checked : e.target.value });
@@ -133,7 +154,7 @@ export default function OpenClassRequest({
           <p className="text-caption text-tea-text-light mt-1">{t("intro", { days: leadDays })}</p>
           {/* 成交條件用內文級距，不是附註——依設計原則 2「交易時刻，清晰壓倒氣氛」 */}
           <p className="text-body text-tea-text mt-2">
-            {t("slotsNote", { slots: minSlots, total: minTotal.toLocaleString() })}
+            {t("slotsNote", { slots: minSlots, total: minTotal.toLocaleString(), price: unitPrice.toLocaleString() })}
           </p>
           {nextWindowStart && (
             <p className="text-caption text-amber-700 mt-2">{t("seasonNote", { date: nextWindowStart })}</p>
@@ -180,6 +201,14 @@ export default function OpenClassRequest({
                     value={f.headcount} onChange={set("headcount")} className={`${field} mt-1`} />
                 </label>
               </div>
+
+              {/* 金額跟著人數走，不能等確認信才出現——它是成交條件的一部分 */}
+              <p className="text-body text-tea-text">
+                {t("estimate", { people, slots: estSlots, total: estTotal.toLocaleString() })}
+              </p>
+              {overCapacity && (
+                <p className="text-caption text-amber-700">{t("overCapacity", { max: maxParticipants })}</p>
+              )}
 
               <label className="flex items-center gap-2 text-caption text-tea-text-light">
                 <input type="checkbox" checked={f.isPrivate} onChange={set("isPrivate")} />
