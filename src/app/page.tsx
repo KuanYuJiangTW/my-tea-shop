@@ -136,6 +136,13 @@ export default async function HomePage() {
               wilting4 @55% → avg 5.23 / 最差 3.16   ← 比現況差一截
               wilting4 @65% → avg 5.90 / 最差 3.88   ← 與 picking2 現況等值
             共用一組 alpha 會讓文字在輪替時忽清忽糊，比穩定的偏暗更難受。
+
+            2026-08-26 第二張改用**未裁切原檔** `20260427_103350`（業主要看完整構圖），
+            遮罩維持 65%。同一把尺重量三者（量測框與上表不同，只能組內比）：
+              picking2 @55% 最差 3.55　wilting4（舊裁切）@65% 最差 3.75
+              20260427_103350 @65% 最差 3.69　← 與舊裁切差 0.06，不必改 alpha
+            原檔是 4:3，比舊裁切的 3:2 更方——object-cover 在寬螢幕上反而**多切掉**
+            垂直方向約 17%（舊裁切約 8%）。要真的「不裁切」得改版面，不是換檔案。
             另記：picking2 @65% 量到 4.58，會跨過正文 AA 4.5——但加深左側是
             2026-08-13 業主看實物後否決過的方向（commit 2eb3abf），未經他再
             確認不要動。
@@ -158,7 +165,7 @@ export default async function HomePage() {
               mask: "bg-gradient-to-r from-tea-text/55 to-tea-text/55 md:from-50% md:to-tea-text/20",
             },
             {
-              src: "/images/gallery/wilting4.jpg",
+              src: "/images/gallery/20260427_103350.jpg",
               alt: t("heroImageAlt2"),
               mask: "bg-gradient-to-r from-tea-text/65 to-tea-text/65 md:from-50% md:to-tea-text/20",
             },
