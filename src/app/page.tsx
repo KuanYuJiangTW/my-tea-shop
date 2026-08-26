@@ -208,15 +208,32 @@ export default async function HomePage() {
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-6 leading-none">
+            {/* 手機的展示字級刻意比桌機收斂一階（2026-08-26）。
+                量了三家日本高級飯店的手機版 computed style 之後訂的：
+                  HOTEL THE MITSUI KYOTO 最大標題 24px、內文 16px/1.8、首屏 3 個文字節點
+                  星のや HOSHINOYA          18px、14px/1.75、5 個
+                  パレスホテル東京           25px、14px/1.43、12 個
+                  本站（改前）              **48px**、16px/1.8、9 個
+                48px 是那三家最大標題的兩倍，是唯一真正超標的地方——所以只收展示字。
+
+                **內文 16px/1.8 不動**：跟京都三井完全相同，已經是對的。
+                另外兩家的 14px 是日文排版慣例（漢字＋假名在 14px 仍清楚），
+                繁中長句照搬會傷閱讀，而本店客層年齡偏長。
+                CTA 也不動——那是轉換入口，縮小是反向操作。 */}
+            <h1 className="font-serif text-4xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-6 leading-none">
               {t("hero.title")}
             </h1>
             <div className="w-16 h-0.5 bg-tea-green-pale mb-7" />
-            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
+            <p className="text-tea-cream font-serif text-lg sm:text-xl md:text-3xl mb-4">
               {t("hero.tagline")}
             </p>
             <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg">
               {t("hero.description")}
+              {/* 第二句手機不顯示。首屏「東西的數量」比字級更決定擁擠感——
+                  那三家的首屏文字節點是 3／5／12，我們是 9。這一句收掉之後
+                  敘述從三行變兩行，CTA 往上帶，也跟底部的輪播鍵拉開距離。
+                  用 hidden 而不是不渲染：內容仍在 DOM 裡，爬蟲讀得到。 */}
+              <span className="hidden sm:inline"> {t("hero.descriptionMore")}</span>
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
