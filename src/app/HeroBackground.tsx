@@ -18,6 +18,25 @@ export type HeroSlide = {
 export type HeroLabels = { prev: string; next: string };
 
 /**
+ * 控制項**自帶深底**，不跟照片借對比——照片會換，借來的對比隨時會消失。
+ *
+ * 實測（按鈕落在遮罩最淡處，該處僅約 26%）：米白邊框對背景的對比
+ *   picking2（暗樹叢） 5.96 ✅　　wilting4（亮水泥地） 1.64 ❌　純白照片 1.13 ❌
+ * 也就是說沒有底的話，按鈕在第二張上是**隱形的**（實機截圖確認看不到）。
+ * 疊一層 tea-text 之後：
+ *   α=0.45 → wilting4 3.11 ✅ 但純白 2.00 ❌
+ *   α=0.65 → wilting4 4.33 ✅ 純白 3.16 ✅  ← 採用
+ * 取 0.65 是為了讓「未來再加任何一張照片」都不必重驗這件事。
+ * 門檻用 WCAG 1.4.11 非文字對比的 3.0（按鈕邊框與圖示都算 UI 元件）。
+ */
+const CONTROL_CLASS =
+  "flex h-11 w-11 items-center justify-center rounded-full bg-tea-text/65 " +
+  "border-2 border-tea-cream/70 text-tea-cream " +
+  "transition-colors duration-base ease-standard hover:bg-tea-cream hover:text-tea-text " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tea-cream " +
+  "focus-visible:ring-offset-2 focus-visible:ring-offset-tea-text";
+
+/**
  * 每張的停留時間。8 秒是刻意偏長的：底圖換得快會變成干擾，
  * 而文案與 CTA 全程不動，本來就沒有「要讓人看完第二則訊息」的壓力。
  */
@@ -132,7 +151,7 @@ export default function HeroBackground({
             type="button"
             onClick={() => go(-1)}
             aria-label={labels.prev}
-            className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-tea-cream/70 text-tea-cream transition-colors duration-base ease-standard hover:bg-tea-cream hover:text-tea-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tea-cream focus-visible:ring-offset-2 focus-visible:ring-offset-tea-text"
+            className={CONTROL_CLASS}
           >
             <ChevronLeft className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -140,7 +159,7 @@ export default function HeroBackground({
             type="button"
             onClick={() => go(1)}
             aria-label={labels.next}
-            className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-tea-cream/70 text-tea-cream transition-colors duration-base ease-standard hover:bg-tea-cream hover:text-tea-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tea-cream focus-visible:ring-offset-2 focus-visible:ring-offset-tea-text"
+            className={CONTROL_CLASS}
           >
             <ChevronRight className="h-5 w-5" aria-hidden="true" />
           </button>
