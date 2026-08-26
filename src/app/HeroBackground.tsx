@@ -50,7 +50,7 @@ const GROUP_CLASS =
   "bottom-[calc(var(--hero-chrome,101px)+2rem)] md:bottom-[calc(var(--hero-chrome,101px)+2.5rem)]";
 
 const BUTTON_CLASS =
-  "flex h-10 w-10 items-center justify-center rounded-full " +
+  "flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full " +
   "border border-tea-cream/80 text-tea-cream " +
   // 外圈那 1px 深色是「雙描邊」的另一半——圓環壓在亮天空上時靠它撐住邊界
   "shadow-[0_0_0_1px_rgba(61,74,66,0.55),0_2px_10px_rgba(61,74,66,0.5)] " +
@@ -62,11 +62,18 @@ const BUTTON_CLASS =
   "focus-visible:ring-offset-2 focus-visible:ring-offset-tea-text";
 
 /**
- * 每張的停留時間。3800ms 是**實測 hoshinoresorts.com/ch/ 得到的**：
- * 用 MutationObserver 盯它的 `.controls__count__in`（`01/03` 那顆計數器）記錄
- * 11 次切換，間隔 3811–3828ms，平均 3820ms。原本這裡是 8000ms。
+ * 每張的停留時間。演進：8000ms → 3800ms → 5000ms。
+ *
+ * 3800ms 是**實測 hoshinoresorts.com/ch/ 得到的**：用 MutationObserver 盯它的
+ * `.controls__count__in`（`01/03` 那顆計數器）記錄 11 次切換，間隔 3811–3828ms。
+ * 但那站的 hero 只有 logo 與一行 SINCE 1914，照片本身就是全部內容；
+ * 我們的 hero 疊了 h1、tagline、三行敘述與兩顆 CTA，讀完要更久——
+ * 業主看實機後要求放慢，改 5000ms。
+ *
+ * 注意實際「靜止時間」是 HOLD_MS - FADE_MS：3800 時只有 2600ms，
+ * 5000 時是 3800ms（多 46%）。調這個值時要連 FADE_MS 一起想。
  */
-const HOLD_MS = 3800;
+const HOLD_MS = 5000;
 /** 交叉淡入時長。低於約 600ms 會被讀成「閃了一下」，反而變成干擾 */
 const FADE_MS = 1200;
 
@@ -223,14 +230,14 @@ export default function HeroBackground({
             aria-label={labels.prev}
             className={BUTTON_CLASS}
           >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            <ChevronLeft className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden="true" />
           </button>
 
           {/* 計數器對螢幕閱讀器沒有增益——目前這張的 alt 已經在唸了，
               再報一次「01/03」只是噪音，所以整顆藏起來 */}
           <span
             aria-hidden="true"
-            className="px-2 text-label tabular-nums tracking-[0.15em] text-tea-cream drop-shadow-[0_1px_3px_rgba(61,74,66,0.9)]"
+            className="px-1.5 md:px-2 text-caption md:text-label tabular-nums tracking-[0.15em] text-tea-cream drop-shadow-[0_1px_3px_rgba(61,74,66,0.9)]"
           >
             {pad(index + 1)}/{pad(slides.length)}
           </span>
@@ -241,7 +248,7 @@ export default function HeroBackground({
             aria-label={labels.next}
             className={BUTTON_CLASS}
           >
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden="true" />
           </button>
         </div>
       )}
