@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Mountain, Flame, Sprout, Clock, Users } from "lucide-react";
+import HeroBackground from "./HeroBackground";
 import FeaturedSection from "./FeaturedSection";
 import BrandStats from "./BrandStats";
 import TrustRow from "@/components/TrustRow";
@@ -121,29 +122,48 @@ export default async function HomePage() {
           主 CTA 底邊在 y=689，而 iOS Safari 的實際可視高約 650px——CTA 會被切掉。
           svh 用的是「工具列展開時」的高度，桌機與 vh 等值 */}
       <section className="relative min-h-[100svh] flex items-center overflow-hidden">
-        <Image
-          src="/images/gallery/picking2.jpg"
-          alt={t("heroImageAlt")}
-          fill
-          priority
-          className="object-cover"
-        />
-        {/* 方向性漸層取代全幅均勻遮罩。設計原則 1「產地即證據，介面是茶席」：
-            採茶實景是這個品牌的信任資產，均勻壓 55% 會把它變成背景紋理。
+        {/* 背景不是輪播，是**交叉淡入**：文案與 CTA 完全不動，只換底圖。
+            傳統 hero carousel 每張帶各自的標題與 CTA，訊息互相稀釋才傷轉換；
+            這裡照片不承載訊息（訊息在 h1 與 CTA），所以那組問題不成立。
+            節奏、延後載入與 prefers-reduced-motion 的取捨見 HeroBackground.tsx。
 
-            **左半維持 55%**，也就是改版前的那個程度；只有右半從 55% 漸淡到 20%，
-            把照片露出來。初版把左側加深到 80%，業主看實物後覺得太重，退回原深度。
+            設計原則 1「產地即證據，介面是茶席」：實景是這個品牌的信任資產，
+            均勻壓深會把它變成背景紋理，所以只有左半壓住、右半漸淡到 20% 露出照片。
 
-            手法是給第一個色階一個**位置**（`md:from-50%`）：漸層在第一個色階的位置
-            之前會維持該色，所以 0–50% 是平的 55%、50–100% 才降到 20%。
-            **不要改用 `via-*` 寫三色階**——`via` 產生的 `--tw-gradient-stops` 會被
-            斷點上的 `to-*` 覆寫掉，實測 computed 只剩兩個色階、變成整條線性下降，
-            文字區右緣（43%）會掉到約 40%，比改版前還淡。
+            **每張配自己的遮罩，不共用**。實測（1440×900 裁切下，文字區對
+            tea-cream-light 的對比，取最亮 5% 區域——文字最可能糊掉的地方）：
+              picking2 @55% → avg 6.43 / 最差 3.87   ← 維持不動
+              wilting4 @55% → avg 5.23 / 最差 3.16   ← 比現況差一截
+              wilting4 @65% → avg 5.90 / 最差 3.88   ← 與 picking2 現況等值
+            共用一組 alpha 會讓文字在輪替時忽清忽糊，比穩定的偏暗更難受。
+            另記：picking2 @65% 量到 4.58，會跨過正文 AA 4.5——但加深左側是
+            2026-08-13 業主看實物後否決過的方向（commit 2eb3abf），未經他再
+            確認不要動。
 
-            **手機刻意不做漸層**：`from`／`to` 同為 55% 且沒有位置，等同原本的均勻遮罩。
+            漸層寫法：給第一個色階一個**位置**（`md:from-50%`），漸層在該位置
+            之前維持該色，所以 0–50% 是平的、50–100% 才降到 20%。
+            **不要改用 `via-*` 寫三色階**——`via` 產生的 `--tw-gradient-stops`
+            會被斷點上的 `to-*` 覆寫掉，實測 computed 只剩兩個色階、變成整條
+            線性下降，文字區右緣（43%）會掉到約 40%，比改版前還淡。
+
+            **手機刻意不做漸層**：`from`／`to` 同值且沒有位置，等同均勻遮罩。
             手機文字區幾乎滿版，拉開左右落差會讓文字右緣壓在亮處；
             落差只在 md 以上才有意義，因為那裡文字只佔 max-w-2xl。 */}
-        <div className="absolute inset-0 bg-gradient-to-r from-tea-text/55 to-tea-text/55 md:from-50% md:to-tea-text/20" />
+        <HeroBackground
+          labels={{ prev: tc("a11y.prevPhoto"), next: tc("a11y.nextPhoto") }}
+          slides={[
+            {
+              src: "/images/gallery/picking2.jpg",
+              alt: t("heroImageAlt"),
+              mask: "bg-gradient-to-r from-tea-text/55 to-tea-text/55 md:from-50% md:to-tea-text/20",
+            },
+            {
+              src: "/images/gallery/wilting4.jpg",
+              alt: t("heroImageAlt2"),
+              mask: "bg-gradient-to-r from-tea-text/65 to-tea-text/65 md:from-50% md:to-tea-text/20",
+            },
+          ]}
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
           <div className="max-w-2xl">
