@@ -18,19 +18,27 @@ export type HeroSlide = {
 export type HeroLabels = { prev: string; next: string };
 
 /**
- * 控制項**自帶深底**，不跟照片借對比——照片會換，借來的對比隨時會消失。
+ * 圓圈**底是透明的**、hover 才填成米白（2026-08-26 業主指定，對齊
+ * hoshinoresorts.com/ch/ 的作法）。
  *
- * 2026-08-26 控制項搬到右下／下方置中之後重量（三張照片，米白邊框對背景）：
- *   無底：picking2 1.39 ❌　wilting4 1.63 ❌　tea-ceremony 3.78 ✅
- *   α=0.65：4.00／4.33／6.23 全過 3.0，但**計數器是文字**，門檻是 4.5，picking2 只有 4.00
- *   α=0.75：4.87／5.17／6.74 ← 採用，文字與圖示同時過關，且留有加第四張照片的餘裕
+ * 這與「不要跟照片借對比」直接衝突，數字要留著：右下角實測三張照片，
+ * 米白邊框對背景的對比是 **picking2 1.39 ❌／wilting4 1.67 ❌／tea-ceremony 2.64 ❌**
+ * ——2026-08-26 之前正是因為按鈕在第二張上實機看不見才加的深底。
+ * 底部漸層也救不動：帶高 260px、底邊壓到 0.65，picking2 仍只有 2.95。
  *
- * 整組共用**一顆藥丸底**而不是每顆按鈕各自一個：中間夾著計數器，
- * 分開套底會變成「深—淺—深」三塊，比一條連續的底更吵。
- * 門檻：按鈕與圖示用 WCAG 1.4.11 的 3.0，計數器文字用 1.4.3 的 4.5。
+ * 解法是**雙描邊**：米白圓環外面再加一圈 1px 的 tea-text 陰影（0.55）。
+ * 圓圈本身仍然透明、照片照樣透出來，但 1.4.11 看的是「元件邊界與相鄰色」的對比，
+ * 而圓環與它自己那圈深色描邊的對比**不受背景影響**——實測（同樣取最差像素）：
+ *   picking2 3.31 ✅　wilting4 3.70 ✅　tea-ceremony 4.78 ✅
+ * 換句話說按鈕的可辨識性從「看照片臉色」變成「自己保證」，
+ * 這正是原本加深底要解決的問題，只是改用不遮住照片的方式解。
+ *
+ * **剩下的缺口是計數器**：它是文字，門檻 4.5，透明底下沒有任何底色能保證，
+ * 目前只靠 drop-shadow（參考站也是這樣）。真要讓它數值合格得加回深底
+ * （實測 α=0.75 → 4.87／5.17／6.74）。業主已知悉。
  */
 const GROUP_CLASS =
-  "absolute z-20 flex items-center gap-1 rounded-pill bg-tea-text/75 px-1.5 py-1.5 " +
+  "absolute z-20 flex items-center gap-1 " +
   // 手機置中、桌機靠右——與 hoshinoresorts.com/ch/ 的擺法一致。
   //
   // 桌機的右邊距是 6.5rem 而不是版面的 lg:px-8，因為**「茶葉小幫手」的浮動鈕
@@ -43,8 +51,13 @@ const GROUP_CLASS =
 
 const BUTTON_CLASS =
   "flex h-10 w-10 items-center justify-center rounded-full " +
-  "border border-tea-cream/70 text-tea-cream " +
-  "transition-colors duration-base ease-standard hover:bg-tea-cream hover:text-tea-text " +
+  "border border-tea-cream/80 text-tea-cream " +
+  // 外圈那 1px 深色是「雙描邊」的另一半——圓環壓在亮天空上時靠它撐住邊界
+  "shadow-[0_0_0_1px_rgba(61,74,66,0.55),0_2px_10px_rgba(61,74,66,0.5)] " +
+  "[&>svg]:drop-shadow-[0_1px_2px_rgba(61,74,66,0.85)] " +
+  "transition-colors duration-base ease-standard " +
+  // hover 填成米白、箭頭轉深色——參考站就是這個行為
+  "hover:bg-tea-cream hover:text-tea-text " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tea-cream " +
   "focus-visible:ring-offset-2 focus-visible:ring-offset-tea-text";
 
@@ -217,7 +230,7 @@ export default function HeroBackground({
               再報一次「01/03」只是噪音，所以整顆藏起來 */}
           <span
             aria-hidden="true"
-            className="px-2 text-label tabular-nums tracking-[0.15em] text-tea-cream"
+            className="px-2 text-label tabular-nums tracking-[0.15em] text-tea-cream drop-shadow-[0_1px_3px_rgba(61,74,66,0.9)]"
           >
             {pad(index + 1)}/{pad(slides.length)}
           </span>
