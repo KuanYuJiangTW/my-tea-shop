@@ -96,6 +96,7 @@ describe("公開頁面的圖片 alt 不得寫死中文", () => {
     // 守的仍是同一件事：這兩張的 alt 必須來自翻譯鍵，不得寫死
     expect(home).toContain('alt: t("heroImageAlt")');
     expect(home).toContain('alt: t("heroImageAlt2")');
+    expect(home).toContain('alt: t("heroImageAlt3")');
     expect(home).toContain('alt={t("craftImageAlt")}');
 
     const card = readFileSync(join(SRC, "components", "ProductCard.tsx"), "utf8");
@@ -114,6 +115,7 @@ describe("alt 用的翻譯鍵 zh／en 都存在", () => {
     ["products", "zoomLabel"],
     ["home", "heroImageAlt"],
     ["home", "heroImageAlt2"],
+    ["home", "heroImageAlt3"],
     ["home", "craftImageAlt"],
   ];
 

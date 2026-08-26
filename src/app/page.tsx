@@ -155,6 +155,20 @@ export default async function HomePage() {
             原因是這張的文字區**同時**有米白帆布與深色茶菁：改用深字
             （tea-text）在無遮罩下量到 1.08，一樣不合格。沒有任何單一文字色
             能同時活過這兩種底，遮罩在這裡是必要條件，不是裝飾。
+
+            2026-08-26 加入第三張 `tea-ceremony`（業主自辦活動的宣傳照）。
+            輪播因此成為一條敘事線：採茶（產地）→ 曬青（製程）→ 茶席（品飲），
+            第三張同時是茶藝體驗預約的入口視覺。三件事值得記住：
+              **已水平鏡像**（`sharp().flop()`）。原圖的手與壺在左半，正好被
+                遮罩壓住，而遮罩最淡的右側只剩白瓷杯——精華被壓掉、露出配角。
+                鏡像後主體落在右側亮區，暖光才活得下來。改動這張前先想清楚
+                「主體在哪一半」，那是它能不能用的關鍵，不是構圖偏好。
+              **遮罩取 60% 不是 65%**：@60% 最差5% 3.55，正好等於 picking2
+                現況的 3.55；@65% 是 3.93。這張的價值在暖光，而遮罩是冷灰綠，
+                壓越重越濁——在「與其他兩張同一可讀性水準」的前提下取最淡的一檔。
+              **只有 2000x1332**（業主無原檔）。Next 不會放大，桌機 1440 CSS px
+                在 DPR 2 下拿不到 2880，焦平面會略軟。三張裡唯一撐不住 retina
+                的一張，日後拿得到原檔應該換掉。
             另記：picking2 @65% 量到 4.58，會跨過正文 AA 4.5——但加深左側是
             2026-08-13 業主看實物後否決過的方向（commit 2eb3abf），未經他再
             確認不要動。
@@ -180,6 +194,11 @@ export default async function HomePage() {
               src: "/images/gallery/wilting4.jpg",
               alt: t("heroImageAlt2"),
               mask: "bg-gradient-to-r from-tea-text/65 to-tea-text/65 md:from-50% md:to-tea-text/20",
+            },
+            {
+              src: "/images/gallery/tea-ceremony.jpg",
+              alt: t("heroImageAlt3"),
+              mask: "bg-gradient-to-r from-tea-text/60 to-tea-text/60 md:from-50% md:to-tea-text/20",
             },
           ]}
         />
