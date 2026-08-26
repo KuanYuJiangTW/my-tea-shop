@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type HeroSlide = {
   src: string;
@@ -20,30 +20,40 @@ export type HeroLabels = { prev: string; next: string };
 /**
  * 控制項**自帶深底**，不跟照片借對比——照片會換，借來的對比隨時會消失。
  *
- * 實測（按鈕落在遮罩最淡處，該處僅約 26%）：米白邊框對背景的對比
- *   picking2（暗樹叢） 5.96 ✅　　wilting4（亮水泥地） 1.64 ❌　純白照片 1.13 ❌
- * （2026-08-26 第二張換過原檔、也試過重裁，按鈕區在三種取景下重量：
- *   無底 1.32／1.31／1.29 全部 ❌，α=0.45 只到 2.68 ❌，α=0.65 → 3.91 ✅。
- *   換照片、換裁切都沒讓這件事變好，正好印證「不能跟照片借對比」。）
- * 也就是說沒有底的話，按鈕在第二張上是**隱形的**（實機截圖確認看不到）。
- * 疊一層 tea-text 之後：
- *   α=0.45 → wilting4 3.11 ✅ 但純白 2.00 ❌
- *   α=0.65 → wilting4 4.33 ✅ 純白 3.16 ✅  ← 採用
- * 取 0.65 是為了讓「未來再加任何一張照片」都不必重驗這件事。
- * 門檻用 WCAG 1.4.11 非文字對比的 3.0（按鈕邊框與圖示都算 UI 元件）。
+ * 2026-08-26 控制項搬到右下／下方置中之後重量（三張照片，米白邊框對背景）：
+ *   無底：picking2 1.39 ❌　wilting4 1.63 ❌　tea-ceremony 3.78 ✅
+ *   α=0.65：4.00／4.33／6.23 全過 3.0，但**計數器是文字**，門檻是 4.5，picking2 只有 4.00
+ *   α=0.75：4.87／5.17／6.74 ← 採用，文字與圖示同時過關，且留有加第四張照片的餘裕
+ *
+ * 整組共用**一顆藥丸底**而不是每顆按鈕各自一個：中間夾著計數器，
+ * 分開套底會變成「深—淺—深」三塊，比一條連續的底更吵。
+ * 門檻：按鈕與圖示用 WCAG 1.4.11 的 3.0，計數器文字用 1.4.3 的 4.5。
  */
-const CONTROL_CLASS =
-  "flex h-11 w-11 items-center justify-center rounded-full bg-tea-text/65 " +
-  "border-2 border-tea-cream/70 text-tea-cream " +
+const GROUP_CLASS =
+  "absolute z-20 flex items-center gap-1 rounded-pill bg-tea-text/75 px-1.5 py-1.5 " +
+  // 手機置中、桌機靠右——與 hoshinoresorts.com/ch/ 的擺法一致。
+  //
+  // 桌機的右邊距是 6.5rem 而不是版面的 lg:px-8，因為**「茶葉小幫手」的浮動鈕
+  // 就釘在那裡**：它是 `position: fixed`，實測 1440×900 佔右側 31–87px、
+  // 底部 24–80px，跟 `right-8 bottom-10` 的控制項正面重疊，會蓋掉「下一張」。
+  // 104px 讓整組停在浮動鈕左邊，留 17px 間隙。手機是置中，不會撞到。
+  "left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-[6.5rem] " +
+  // 距離量的是**視窗底**不是 section 底，理由見 --hero-chrome 的說明
+  "bottom-[calc(var(--hero-chrome,101px)+2rem)] md:bottom-[calc(var(--hero-chrome,101px)+2.5rem)]";
+
+const BUTTON_CLASS =
+  "flex h-10 w-10 items-center justify-center rounded-full " +
+  "border border-tea-cream/70 text-tea-cream " +
   "transition-colors duration-base ease-standard hover:bg-tea-cream hover:text-tea-text " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tea-cream " +
   "focus-visible:ring-offset-2 focus-visible:ring-offset-tea-text";
 
 /**
- * 每張的停留時間。8 秒是刻意偏長的：底圖換得快會變成干擾，
- * 而文案與 CTA 全程不動，本來就沒有「要讓人看完第二則訊息」的壓力。
+ * 每張的停留時間。3800ms 是**實測 hoshinoresorts.com/ch/ 得到的**：
+ * 用 MutationObserver 盯它的 `.controls__count__in`（`01/03` 那顆計數器）記錄
+ * 11 次切換，間隔 3811–3828ms，平均 3820ms。原本這裡是 8000ms。
  */
-const HOLD_MS = 8000;
+const HOLD_MS = 3800;
 /** 交叉淡入時長。低於約 600ms 會被讀成「閃了一下」，反而變成干擾 */
 const FADE_MS = 1200;
 
@@ -58,11 +68,21 @@ export default function HeroBackground({
   // 第一張以外的圖延後掛載。hero 是 LCP 元素，開場就併發抓多張大圖會互相搶頻寬，
   // 等於用「輪播」把自己的 LCP 拖慢——先讓第一張畫完，其餘等瀏覽器閒下來
   const [loadRest, setLoadRest] = useState(false);
-  // 使用者一旦自己按過左右，自動輪播就**永久停止**。
-  // 沒有這個，他剛挑的那張會在幾秒後被系統換掉——那是在跟使用者搶方向盤。
-  // 這同時是本元件對 WCAG 2.2.2（超過 5 秒的自動移動內容必須可暫停）的交代：
-  // 控制項本身就是停止鍵，不必再多一顆語意重複的暫停鈕。
-  const [autoPlay, setAutoPlay] = useState(true);
+  /**
+   * **按過左右不會停止自動輪播**（2026-08-26 依業主指定，對齊 hoshinoresorts.com）。
+   * 舊版是「按過就永久停」，那同時也是本元件對 WCAG 2.2.2（超過 5 秒的自動移動
+   * 內容必須可暫停）的交代。改成會繼續輪播之後，暫停機制只剩**鍵盤 focus**：
+   * tab 到箭頭就停，才不會邊操作邊被系統換掉。
+   *
+   * **刻意不做 hover 暫停**：滑鼠點完箭頭游標會停在按鈕上，hover 暫停等於
+   * 「點一下就不動了」，那正是這次要改掉的行為。同理 focus 也只認 `:focus-visible`。
+   *
+   * 注意：這比「一顆明確的暫停鈕」弱，鍵盤以外的使用者沒有暫停手段。
+   * 真要完全符合 2.2.2 的字面要求應該加一顆播放／暫停鈕；目前的取捨是
+   * 外觀與行為對齊業主指定的參考站優先，另有 prefers-reduced-motion 全停兜底。
+   */
+  const [paused, setPaused] = useState(false);
+  const controlsRef = useRef<HTMLDivElement>(null);
 
   const multi = slides.length > 1;
 
@@ -78,34 +98,61 @@ export default function HeroBackground({
     };
   }, [multi]);
 
+  /**
+   * 控制項錨的是**視窗底**，不是 section 底。
+   *
+   * hero 是 `min-h-[100svh]`，但它從 y=101 才開始（公告條 36＋sticky header 65），
+   * 所以 section 底邊永遠落在摺線下方**恰好 101px**——直接寫 `bottom-8` 實測會把
+   * 整組推到看不見的地方（2026-08-26 之前正是為了這個才把控制項放在 section 頂端）。
+   *
+   * 這裡量 section 距文件頂端的距離，寫進 `--hero-chrome`，CSS 再加上要的間距。
+   * **不用 state**：`setState` 在 effect 裡會踩到 `react-hooks/set-state-in-effect`
+   * （全 repo 唯一那條 lint error 的成因，見 AnnouncementBar 的註解），
+   * 直接寫 CSS 變數沒有這個問題，也少一次 render。
+   * 觀察 `document.body` 是為了接住**公告條被關掉**（body 高度變了）與視窗縮放；
+   * 沒有 JS 時 fallback 101px 就是最常見的情況，SSR 首屏不會跳。
+   */
+  useEffect(() => {
+    const node = controlsRef.current;
+    const section = node?.closest("section");
+    if (!node || !section) return;
+    const apply = () => {
+      const top = Math.max(0, Math.round(section.getBoundingClientRect().top + window.scrollY));
+      node.style.setProperty("--hero-chrome", `${top}px`);
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(document.body);
+    return () => ro.disconnect();
+  }, [multi]);
+
   useEffect(() => {
     // **計時器必須等後續圖掛載後才開始**：若 index 先跳到 1 而那張還沒進 DOM，
     // 第 0 張已經被設成 opacity 0、第 1 張又不存在，首屏會整片變黑
-    if (!loadRest || !multi || !autoPlay) return;
+    if (!loadRest || !multi || paused) return;
 
     // prefers-reduced-motion 的使用者連自動淡入都不該有；他仍然可以按左右自己看
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     let timer: number | undefined;
     const sync = () => {
-      window.clearInterval(timer);
+      window.clearTimeout(timer);
       if (mq.matches) return;
-      timer = window.setInterval(
-        () => setIndex((i) => (i + 1) % slides.length),
-        HOLD_MS,
-      );
+      // 用 setTimeout 而不是 setInterval，且 effect 依賴 index：
+      // 手動按左右之後計時器會**重新開始**，新的那張才拿得到完整的停留時間。
+      // setInterval 會讓它在剩下的殘秒就被換掉。
+      timer = window.setTimeout(() => setIndex((i) => (i + 1) % slides.length), HOLD_MS);
     };
     sync();
     mq.addEventListener("change", sync);
 
     return () => {
-      window.clearInterval(timer);
+      window.clearTimeout(timer);
       mq.removeEventListener("change", sync);
     };
-  }, [loadRest, multi, autoPlay, slides.length]);
+  }, [loadRest, multi, paused, index, slides.length]);
 
   const go = useCallback(
     (step: number) => {
-      setAutoPlay(false);
       // 使用者可能在 idle callback 之前就按了左右，那時第 2 張還沒掛載。
       // 這裡補一次，否則會按了沒反應
       setLoadRest(true);
@@ -114,6 +161,8 @@ export default function HeroBackground({
     [slides.length],
   );
 
+  const pad = (n: number) => String(n).padStart(2, "0");
+
   return (
     <>
       {slides.map((slide, i) => {
@@ -121,7 +170,7 @@ export default function HeroBackground({
         const visible = i === index;
         return (
           // 遮罩跟照片包在同一層一起淡入淡出。若把遮罩留在外面當共用底，
-          // 兩張照片就只能共用一組 alpha——見 HeroSlide.mask 的說明
+          // 各張照片就只能共用一組 alpha——見 HeroSlide.mask 的說明
           <div
             key={slide.src}
             className="absolute inset-0 transition-opacity ease-in-out motion-reduce:transition-none"
@@ -142,29 +191,44 @@ export default function HeroBackground({
       })}
 
       {multi && (
-        // **錨在 section 頂端，不是底端**。這個 hero 是 `min-h-[100svh]`，但它
-        // 從 y≈101 才開始（sticky header 65px＋其上的條帶），所以 section 最下面
-        // 約 101px 永遠落在摺線之下——`bottom-6` 實測在 375×812 會把按鈕放到
-        // y=845，整組看不到。從頂端量則與視窗高度、內容高度都無關。
-        //
-        // 靠右也是刻意的：文字區是 max-w-2xl 靠左，左側與正中都會壓到 tagline
-        // 與內文；右側同時是遮罩最淡、照片露最多的地方，按鈕不會蓋掉重點
-        <div className="absolute top-6 md:top-8 right-4 sm:right-6 lg:right-8 z-20 flex gap-2">
+        <div
+          ref={controlsRef}
+          className={GROUP_CLASS}
+          // **只認鍵盤 focus，不認滑鼠**：滑鼠點完箭頭游標會停在按鈕上，
+          // 若把 hover 或一般 focus 當成暫停，等於「點一下就不動了」——
+          // 那正是這次要改掉的舊行為。`:focus-visible` 只在鍵盤操作時成立。
+          onFocus={(e) => {
+            if (e.target instanceof HTMLElement && e.target.matches(":focus-visible")) {
+              setPaused(true);
+            }
+          }}
+          onBlur={() => setPaused(false)}
+        >
           <button
             type="button"
             onClick={() => go(-1)}
             aria-label={labels.prev}
-            className={CONTROL_CLASS}
+            className={BUTTON_CLASS}
           >
-            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           </button>
+
+          {/* 計數器對螢幕閱讀器沒有增益——目前這張的 alt 已經在唸了，
+              再報一次「01/03」只是噪音，所以整顆藏起來 */}
+          <span
+            aria-hidden="true"
+            className="px-2 text-label tabular-nums tracking-[0.15em] text-tea-cream"
+          >
+            {pad(index + 1)}/{pad(slides.length)}
+          </span>
+
           <button
             type="button"
             onClick={() => go(1)}
             aria-label={labels.next}
-            className={CONTROL_CLASS}
+            className={BUTTON_CLASS}
           >
-            <ChevronRight className="h-5 w-5" aria-hidden="true" />
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       )}
