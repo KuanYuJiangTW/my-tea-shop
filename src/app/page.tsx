@@ -205,17 +205,34 @@ export default async function HomePage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
           <div className="max-w-2xl">
-            <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
+            {/* ── 手機版的文案結構與節奏（2026-08-27，sm 以上一律不動）──
+                產地從敘述搬進 tagline：「源自台灣高山，嘉義阿里山梅山山區」。
+                原本 tagline 只講「源自台灣高山」而產地埋在敘述第一句，等於
+                **最該被一眼看到的地理資訊排在第四順位**。搬上來之後敘述也從
+                三行縮成兩行，是一石二鳥。
+
+                橫槓手機隱藏、sm 以上保留：置中之外的三條橫向元素（eyebrow、
+                h1、橫槓）在窄螢幕上會疊成「三段式招牌」，而它的功能（把 h1 和
+                tagline 切開）已經由加大的 h1 下距接手。
+
+                垂直節奏 24/54/12/40 → **12/28/8/32**（總高少 38%）。
+                不是等比縮小，是照**語意分組**排的：
+                  eyebrow → h1     12px  同一個品牌鎖定塊，要黏在一起
+                  h1 → tagline     28px  跨層，這裡是唯一該留白的地方
+                  tagline → 敘述    8px   同一段訊息的標題與內文
+                  敘述 → CTA        32px  從「讀」切到「做」，最大的一刀
+                原本 24/24 讓前兩段一樣寬，分組資訊等於沒傳達出去。 */}
+            <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-3 sm:mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-6 leading-none">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-7 sm:mb-6 leading-none">
               {t("hero.title")}
             </h1>
-            <div className="w-16 h-0.5 bg-tea-green-pale mb-7" />
-            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
+            <div className="hidden sm:block w-16 h-0.5 bg-tea-green-pale mb-7" />
+            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-2 sm:mb-3">
               {t("hero.tagline")}
             </p>
-            <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg">
+            <p className="text-tea-cream text-body md:text-body-lg mb-8 sm:mb-10 max-w-lg">
               {t("hero.description")}
             </p>
             {/* CTA 手機收小一階：px-8 py-3.5／16px → px-6 py-3／14px。

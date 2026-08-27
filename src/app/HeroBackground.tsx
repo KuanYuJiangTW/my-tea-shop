@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { DISMISS_EVENT } from "@/components/AnnouncementBar";
 
 export type HeroSlide = {
   src: string;
@@ -38,7 +39,7 @@ export type HeroLabels = { prev: string; next: string };
  * （實測 α=0.75 → 4.87／5.17／6.74）。業主已知悉。
  */
 const GROUP_CLASS =
-  "absolute z-20 flex items-center gap-1 " +
+  "absolute z-20 flex items-center gap-0.5 md:gap-1 " +
   // 手機置中、桌機靠右——與 hoshinoresorts.com/ch/ 的擺法一致。
   //
   // 桌機的右邊距是 6.5rem 而不是版面的 lg:px-8，因為**「茶葉小幫手」的浮動鈕
@@ -47,10 +48,10 @@ const GROUP_CLASS =
   // 104px 讓整組停在浮動鈕左邊，留 17px 間隙。手機是置中，不會撞到。
   "left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-[6.5rem] " +
   // 距離量的是**視窗底**不是 section 底，理由見 --hero-chrome 的說明
-  "bottom-[calc(var(--hero-chrome,101px)+2rem)] md:bottom-[calc(var(--hero-chrome,101px)+2.5rem)]";
+  "bottom-[calc(var(--hero-chrome,101px)+1rem)] md:bottom-[calc(var(--hero-chrome,101px)+2.5rem)]";
 
 const BUTTON_CLASS =
-  "flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full " +
+  "flex h-7 w-7 md:h-10 md:w-10 items-center justify-center rounded-full " +
   "border border-tea-cream/80 text-tea-cream " +
   // 外圈那 1px 深色是「雙描邊」的另一半——圓環壓在亮天空上時靠它撐住邊界
   "shadow-[0_0_0_1px_rgba(61,74,66,0.55),0_2px_10px_rgba(61,74,66,0.5)] " +
@@ -129,7 +130,18 @@ export default function HeroBackground({
    * **不用 state**：`setState` 在 effect 裡會踩到 `react-hooks/set-state-in-effect`
    * （全 repo 唯一那條 lint error 的成因，見 AnnouncementBar 的註解），
    * 直接寫 CSS 變數沒有這個問題，也少一次 render。
-   * 觀察 `document.body` 是為了接住**公告條被關掉**（body 高度變了）與視窗縮放；
+   * **三個觸發來源，缺一不可**：
+   *   ResizeObserver(document.body)  一般的版面變動
+   *   window resize                  轉向、瀏覽器工具列收合
+   *   公告條的 dismiss 事件           2026-08-27 補的，見下
+   *
+   * 為什麼不能只靠 ResizeObserver：它的回呼是在**繪製步驟**裡送達的。
+   * 公告條被關掉時 section 頂端從 101 變 65，若那一刻回呼沒送到，變數會停在
+   * 101px，控制項就比預期高 36px——業主回報的「輪播鍵太靠上面」正是這個，
+   * 2026-08-27 在 Browser pane 實測重現：sectionTop 已變 65、--hero-chrome
+   * 仍是 101px、控制項距視窗底 52px（預期 16px）。
+   * 直接聽 dismiss 事件是同步的，不吃繪製步驟。
+   *
    * 沒有 JS 時 fallback 101px 就是最常見的情況，SSR 首屏不會跳。
    */
   useEffect(() => {
@@ -141,9 +153,24 @@ export default function HeroBackground({
       node.style.setProperty("--hero-chrome", `${top}px`);
     };
     apply();
+    // dismiss 事件是**同步**派發的，此刻公告條還沒被 React 移除，
+    // 直接量會量到舊版面（實測：仍是 101px）。丟進 macrotask 等 re-render 完成再量。
+    // 不用 requestAnimationFrame——它綁在繪製步驟上，分頁沒在合成畫面時不會執行。
+    let deferred: number | undefined;
+    const applyLater = () => {
+      window.clearTimeout(deferred);
+      deferred = window.setTimeout(apply, 0);
+    };
     const ro = new ResizeObserver(apply);
     ro.observe(document.body);
-    return () => ro.disconnect();
+    window.addEventListener("resize", apply);
+    window.addEventListener(DISMISS_EVENT, applyLater);
+    return () => {
+      ro.disconnect();
+      window.clearTimeout(deferred);
+      window.removeEventListener("resize", apply);
+      window.removeEventListener(DISMISS_EVENT, applyLater);
+    };
   }, [multi]);
 
   useEffect(() => {
@@ -230,14 +257,14 @@ export default function HeroBackground({
             aria-label={labels.prev}
             className={BUTTON_CLASS}
           >
-            <ChevronLeft className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden="true" />
+            <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" aria-hidden="true" />
           </button>
 
           {/* 計數器對螢幕閱讀器沒有增益——目前這張的 alt 已經在唸了，
               再報一次「01/03」只是噪音，所以整顆藏起來 */}
           <span
             aria-hidden="true"
-            className="px-1.5 md:px-2 text-caption md:text-label tabular-nums tracking-[0.15em] text-tea-cream drop-shadow-[0_1px_3px_rgba(61,74,66,0.9)]"
+            className="px-1 md:px-2 text-caption md:text-label tabular-nums tracking-[0.15em] text-tea-cream drop-shadow-[0_1px_3px_rgba(61,74,66,0.9)]"
           >
             {pad(index + 1)}/{pad(slides.length)}
           </span>
@@ -248,7 +275,7 @@ export default function HeroBackground({
             aria-label={labels.next}
             className={BUTTON_CLASS}
           >
-            <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden="true" />
+            <ChevronRight className="h-3 w-3 md:h-4 md:w-4" aria-hidden="true" />
           </button>
         </div>
       )}
