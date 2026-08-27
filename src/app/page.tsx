@@ -216,14 +216,19 @@ export default async function HomePage() {
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-6 leading-none">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-8 sm:mb-6 leading-none">
               {t("hero.title")}
             </h1>
-            <div className="w-16 h-0.5 bg-tea-green-pale mb-7 mx-auto sm:mx-0" />
-            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
+            {/* 分隔線**手機不顯示**（2026-08-27 業主指定）。置中版面裡它變成第三條
+                置中的橫向元素，跟 eyebrow、h1 疊成「三段式招牌」，反而讓上半部更擠。
+                sm 以上保留：那裡靠左，它的作用是把 h1 與 tagline 切開、給視線一個起點。
+                拿掉之後 h1 的下距要自己補（mb-6 → mb-8），否則 48px 的標題
+                直接貼著 20px 的 tagline，會讀成同一塊。 */}
+            <div className="hidden sm:block w-16 h-0.5 bg-tea-green-pale mb-7 mx-auto sm:mx-0" />
+            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-4 sm:mb-3">
               {t("hero.tagline")}
             </p>
-            <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg mx-auto sm:mx-0">
+            <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg mx-auto sm:mx-0 text-balance sm:text-wrap">
               {t("hero.description")}
             </p>
             {/* CTA 手機收小一階：px-8 py-3.5 → px-6 py-3、字級 16 → 14px。
