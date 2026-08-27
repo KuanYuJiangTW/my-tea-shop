@@ -173,6 +173,12 @@
 - 規則：**手動執行的 SQL 之間有欄位相依時，把相依那段包進 `DO $ IF EXISTS (SELECT 1 FROM information_schema.columns …) THEN … END $`**，讓兩支檔任何順序都能跑。這跟前台程式碼用 `42703`／`42P01` 兩段式 fallback 是同一件事的兩端：**這個 repo 的 code 與 schema 一定會有一段時間不同步，兩邊都要能單獨活著**
 - 去處：暫存於此
 
+## 2026-08-26 `git add -A` 把前一個 session 遺留的未追蹤檔一起提交了
+- 情境：hero 第二張重裁完，要一次提交「圖檔＋兩支 tsx」，圖檔動過 `mv`，就省事直接下 `git add -A`
+- 代價：工作區裡還躺著前一個 session 留下的 `wilting4-full.jpg`（2560x1920、1.38MB、沒有任何程式碼引用），被一起掃進 commit 並 push 上去，得再開一個 commit 移掉。這種檔案不會讓任何測試變紅，也不在 code review 的注意力範圍——是使用者看 commit 訊息才發現的
+- 規則：**commit 時列明確路徑（`git add <path1> <path2>`）；真要用 `git add -A`／`git add .`，先跑 `git status -s` 把清單看完再下手**。跨 session 接手的分支，預設「工作區有我沒放的東西」
+- 去處：暫存於此
+
 ## 已歸檔（2026-08-06 精簡 18 條；2026-08-15 再精簡 2 條；2026-08-25 再精簡 17 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。

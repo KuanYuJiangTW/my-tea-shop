@@ -92,7 +92,11 @@ describe("公開頁面的圖片 alt 不得寫死中文", () => {
 
   it("已知該用翻譯鍵的三處確實改掉了（防止測試被繞過）", () => {
     const home = readFileSync(join(SRC, "app", "page.tsx"), "utf8");
-    expect(home).toContain('alt={t("heroImageAlt")}');
+    // hero 改成 HeroBackground 的 slides 陣列後，alt 從 JSX 屬性變成物件屬性；
+    // 守的仍是同一件事：這兩張的 alt 必須來自翻譯鍵，不得寫死
+    expect(home).toContain('alt: t("heroImageAlt")');
+    expect(home).toContain('alt: t("heroImageAlt2")');
+    expect(home).toContain('alt: t("heroImageAlt3")');
     expect(home).toContain('alt={t("craftImageAlt")}');
 
     const card = readFileSync(join(SRC, "components", "ProductCard.tsx"), "utf8");
@@ -110,6 +114,8 @@ describe("alt 用的翻譯鍵 zh／en 都存在", () => {
     ["products", "imageAltSecond"],
     ["products", "zoomLabel"],
     ["home", "heroImageAlt"],
+    ["home", "heroImageAlt2"],
+    ["home", "heroImageAlt3"],
     ["home", "craftImageAlt"],
   ];
 

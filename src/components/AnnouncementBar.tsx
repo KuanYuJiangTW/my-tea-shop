@@ -20,7 +20,9 @@ const DISMISS_DAYS = 7;
 const DISMISS_KEY = "wj-announcement-dismissed-until";
 
 /** 關閉狀態改用 external store：`dismiss()` 寫完 localStorage 後派事件通知訂閱者 */
-const DISMISS_EVENT = "wj-announcement-dismissed";
+// 匯出給 HeroBackground：它的 --hero-chrome 需要在這條被關掉的當下重算，
+// 不能只靠 ResizeObserver（見該檔說明）
+export const DISMISS_EVENT = "wj-announcement-dismissed";
 
 function subscribeDismissed(onChange: () => void) {
   window.addEventListener(DISMISS_EVENT, onChange);

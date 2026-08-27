@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Mountain, Flame, Sprout, Clock, Users } from "lucide-react";
+import HeroBackground from "./HeroBackground";
 import FeaturedSection from "./FeaturedSection";
 import BrandStats from "./BrandStats";
 import TrustRow from "@/components/TrustRow";
@@ -120,56 +121,134 @@ export default async function HomePage() {
       {/* 100svh 不是 100vh：手機瀏覽器的 100vh 不扣工具列，實測 375×812 時
           主 CTA 底邊在 y=689，而 iOS Safari 的實際可視高約 650px——CTA 會被切掉。
           svh 用的是「工具列展開時」的高度，桌機與 vh 等值 */}
-      <section className="relative min-h-[100svh] flex items-center overflow-hidden">
-        <Image
-          src="/images/gallery/picking2.jpg"
-          alt={t("heroImageAlt")}
-          fill
-          priority
-          className="object-cover"
-        />
-        {/* 方向性漸層取代全幅均勻遮罩。設計原則 1「產地即證據，介面是茶席」：
-            採茶實景是這個品牌的信任資產，均勻壓 55% 會把它變成背景紋理。
+      <section className="relative min-h-[100svh] flex items-center overflow-hidden touch-pan-y">
+        {/* 背景不是輪播，是**交叉淡入**：文案與 CTA 完全不動，只換底圖。
+            傳統 hero carousel 每張帶各自的標題與 CTA，訊息互相稀釋才傷轉換；
+            這裡照片不承載訊息（訊息在 h1 與 CTA），所以那組問題不成立。
+            節奏、延後載入與 prefers-reduced-motion 的取捨見 HeroBackground.tsx。
 
-            **左半維持 55%**，也就是改版前的那個程度；只有右半從 55% 漸淡到 20%，
-            把照片露出來。初版把左側加深到 80%，業主看實物後覺得太重，退回原深度。
+            設計原則 1「產地即證據，介面是茶席」：實景是這個品牌的信任資產，
+            均勻壓深會把它變成背景紋理，所以只有左半壓住、右半漸淡到 20% 露出照片。
 
-            手法是給第一個色階一個**位置**（`md:from-50%`）：漸層在第一個色階的位置
-            之前會維持該色，所以 0–50% 是平的 55%、50–100% 才降到 20%。
-            **不要改用 `via-*` 寫三色階**——`via` 產生的 `--tw-gradient-stops` 會被
-            斷點上的 `to-*` 覆寫掉，實測 computed 只剩兩個色階、變成整條線性下降，
-            文字區右緣（43%）會掉到約 40%，比改版前還淡。
+            **每張配自己的遮罩，不共用**。實測（1440×900 裁切下，文字區對
+            tea-cream-light 的對比，取最亮 5% 區域——文字最可能糊掉的地方）：
+              picking2 @55% → avg 6.43 / 最差 3.87   ← 維持不動
+              wilting4 @55% → avg 5.23 / 最差 3.16   ← 比現況差一截
+              wilting4 @65% → avg 5.90 / 最差 3.88   ← 與 picking2 現況等值
+            共用一組 alpha 會讓文字在輪替時忽清忽糊，比穩定的偏暗更難受。
 
-            **手機刻意不做漸層**：`from`／`to` 同為 55% 且沒有位置，等同原本的均勻遮罩。
+            2026-08-26 第二張的取景繞了一圈，最後**維持這一版 2560x1732**。
+            試過的兩個方向都由業主看實機後否決：
+              未裁切原檔 `20260427_103350`（4:3）→ 頂部那條深色遮陽網會跟公告條、
+                sticky header 疊成三層壓在頂端，白色轎車又正好落在遮罩最淡的右側
+              重裁 `left0 top1000 3200x2000`（16:10）→ 上述兩者都切掉了，但業主
+                比較過實機畫面後仍選這一版
+            結論寫在這裡是為了**擋住下一次「換完整檔案比較好」的直覺**：滿版 hero
+            由 object-cover 決定可視範圍，4:3 原檔在 1440×900 反而多切垂直方向
+            （16.7% vs 本版 8.3%）。要真的少裁切得改版面，不是換檔案。
+
+            **遮罩不能拿掉**（2026-08-26 實測，量測框與上表不同，只能組內比）：
+              @0%  最差5% 1.17 / 單點 1.00　← 文字直接消失
+              @40% 最差5% 2.26
+              @65% 最差5% 3.75　← 採用
+              手機（均勻遮罩）@0% 最差5% 1.17、@65% 3.76
+            原因是這張的文字區**同時**有米白帆布與深色茶菁：改用深字
+            （tea-text）在無遮罩下量到 1.08，一樣不合格。沒有任何單一文字色
+            能同時活過這兩種底，遮罩在這裡是必要條件，不是裝飾。
+
+            2026-08-26 加入第三張 `tea-ceremony`（業主自辦活動的宣傳照）。
+            輪播因此成為一條敘事線：採茶（產地）→ 曬青（製程）→ 茶席（品飲），
+            第三張同時是茶藝體驗預約的入口視覺。三件事值得記住：
+              **已水平鏡像**（`sharp().flop()`）。原圖的手與壺在左半，正好被
+                遮罩壓住，而遮罩最淡的右側只剩白瓷杯——精華被壓掉、露出配角。
+                鏡像後主體落在右側亮區，暖光才活得下來。改動這張前先想清楚
+                「主體在哪一半」，那是它能不能用的關鍵，不是構圖偏好。
+              **遮罩取 60% 不是 65%**：@60% 最差5% 3.55，正好等於 picking2
+                現況的 3.55；@65% 是 3.93。這張的價值在暖光，而遮罩是冷灰綠，
+                壓越重越濁——在「與其他兩張同一可讀性水準」的前提下取最淡的一檔。
+              **只有 2000x1332**（業主無原檔）。Next 不會放大，桌機 1440 CSS px
+                在 DPR 2 下拿不到 2880，焦平面會略軟。三張裡唯一撐不住 retina
+                的一張，日後拿得到原檔應該換掉。
+            另記：picking2 @65% 量到 4.58，會跨過正文 AA 4.5——但加深左側是
+            2026-08-13 業主看實物後否決過的方向（commit 2eb3abf），未經他再
+            確認不要動。
+
+            漸層寫法：給第一個色階一個**位置**（`md:from-50%`），漸層在該位置
+            之前維持該色，所以 0–50% 是平的、50–100% 才降到 20%。
+            **不要改用 `via-*` 寫三色階**——`via` 產生的 `--tw-gradient-stops`
+            會被斷點上的 `to-*` 覆寫掉，實測 computed 只剩兩個色階、變成整條
+            線性下降，文字區右緣（43%）會掉到約 40%，比改版前還淡。
+
+            **手機刻意不做漸層**：`from`／`to` 同值且沒有位置，等同均勻遮罩。
             手機文字區幾乎滿版，拉開左右落差會讓文字右緣壓在亮處；
             落差只在 md 以上才有意義，因為那裡文字只佔 max-w-2xl。 */}
-        <div className="absolute inset-0 bg-gradient-to-r from-tea-text/55 to-tea-text/55 md:from-50% md:to-tea-text/20" />
+        <HeroBackground
+          labels={{ prev: tc("a11y.prevPhoto"), next: tc("a11y.nextPhoto") }}
+          slides={[
+            {
+              src: "/images/gallery/picking2.jpg",
+              alt: t("heroImageAlt"),
+              mask: "bg-gradient-to-r from-tea-text/55 to-tea-text/55 md:from-50% md:to-tea-text/20",
+            },
+            {
+              src: "/images/gallery/wilting4.jpg",
+              alt: t("heroImageAlt2"),
+              mask: "bg-gradient-to-r from-tea-text/65 to-tea-text/65 md:from-50% md:to-tea-text/20",
+            },
+            {
+              src: "/images/gallery/tea-ceremony.jpg",
+              alt: t("heroImageAlt3"),
+              mask: "bg-gradient-to-r from-tea-text/60 to-tea-text/60 md:from-50% md:to-tea-text/20",
+            },
+          ]}
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
           <div className="max-w-2xl">
-            <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
+            {/* ── 手機版的文案結構與節奏（2026-08-27，sm 以上一律不動）──
+                產地從敘述搬進 tagline：「源自台灣高山，嘉義阿里山梅山山區」。
+                原本 tagline 只講「源自台灣高山」而產地埋在敘述第一句，等於
+                **最該被一眼看到的地理資訊排在第四順位**。搬上來之後敘述也從
+                三行縮成兩行，是一石二鳥。
+
+                橫槓手機隱藏、sm 以上保留：置中之外的三條橫向元素（eyebrow、
+                h1、橫槓）在窄螢幕上會疊成「三段式招牌」，而它的功能（把 h1 和
+                tagline 切開）已經由加大的 h1 下距接手。
+
+                垂直節奏 24/54/12/40 → **12/28/8/32**（總高少 38%）。
+                不是等比縮小，是照**語意分組**排的：
+                  eyebrow → h1     12px  同一個品牌鎖定塊，要黏在一起
+                  h1 → tagline     28px  跨層，這裡是唯一該留白的地方
+                  tagline → 敘述    8px   同一段訊息的標題與內文
+                  敘述 → CTA        32px  從「讀」切到「做」，最大的一刀
+                原本 24/24 讓前兩段一樣寬，分組資訊等於沒傳達出去。 */}
+            <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-3 sm:mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-6 leading-none">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-7 sm:mb-6 leading-none">
               {t("hero.title")}
             </h1>
-            <div className="w-16 h-0.5 bg-tea-green-pale mb-7" />
-            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
+            <div className="hidden sm:block w-16 h-0.5 bg-tea-green-pale mb-7" />
+            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-2 sm:mb-3">
               {t("hero.tagline")}
             </p>
-            <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg">
+            <p className="text-tea-cream text-body md:text-body-lg mb-8 sm:mb-10 max-w-lg">
               {t("hero.description")}
             </p>
+            {/* CTA 手機收小一階：px-8 py-3.5／16px → px-6 py-3／14px。
+                高度仍有 50px，過 WCAG 2.5.8 的 44px 觸控標準——這是能縮的下限，
+                再小就要犧牲點擊面積，而這兩顆是首頁唯一的轉換入口。
+                sm 以上維持原尺寸（2026-08-27 業主：其它版型都 ok，只改手機）。 */}
             <div className="flex flex-wrap gap-4">
               <Link
                 href={lp("/products")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
+                className="bg-tea-green hover:bg-tea-green-dark text-white px-6 py-3 text-label sm:px-8 sm:py-3.5 sm:text-base rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
               >
                 {t("hero.exploreBtn")}
               </Link>
               <Link
                 href={lp("/about")}
-                className="border-2 border-tea-cream/70 text-tea-cream hover:bg-tea-cream hover:text-tea-text px-8 py-3.5 rounded-pill font-medium transition-colors"
+                className="border-2 border-tea-cream/70 text-tea-cream hover:bg-tea-cream hover:text-tea-text px-6 py-3 text-label sm:px-8 sm:py-3.5 sm:text-base rounded-pill font-medium transition-colors"
               >
                 {t("hero.storyBtn")}
               </Link>
