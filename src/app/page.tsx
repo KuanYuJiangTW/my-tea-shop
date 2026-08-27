@@ -203,38 +203,26 @@ export default async function HomePage() {
           ]}
         />
 
-        <div className="max-w-7xl mx-auto px-9 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
-          {/* **手機置中、sm 以上維持靠左**（2026-08-27 業主指定）。
-              置中在參考站裡是主流：星野集團的手機 hero（`SINCE 1914`）就是
-              `text-align: center`。但置中只有在**元素少**的時候成立——
-              它那屏只有 logo 與一行字，我們有六樣東西，所以每一項的置中
-              都要自己來（分隔線 `mx-auto`、CTA 列 `justify-center`、
-              敘述的 `max-w-lg` 也要 `mx-auto`），少一個就會歪。
-              桌機維持靠左：那裡文案只佔 max-w-2xl，置中會在右半留下一塊
-              尷尬的空白，而右半正好是遮罩最淡、要露照片的地方。 */}
-          <div className="max-w-2xl text-center sm:text-left">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section md:py-section-lg relative z-10 w-full">
+          <div className="max-w-2xl">
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-8 sm:mb-6 leading-none">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-6 leading-none">
               {t("hero.title")}
             </h1>
-            {/* 分隔線**手機不顯示**（2026-08-27 業主指定）。置中版面裡它變成第三條
-                置中的橫向元素，跟 eyebrow、h1 疊成「三段式招牌」，反而讓上半部更擠。
-                sm 以上保留：那裡靠左，它的作用是把 h1 與 tagline 切開、給視線一個起點。
-                拿掉之後 h1 的下距要自己補（mb-6 → mb-8），否則 48px 的標題
-                直接貼著 20px 的 tagline，會讀成同一塊。 */}
-            <div className="hidden sm:block w-16 h-0.5 bg-tea-green-pale mb-7 mx-auto sm:mx-0" />
-            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-4 sm:mb-3">
+            <div className="w-16 h-0.5 bg-tea-green-pale mb-7" />
+            <p className="text-tea-cream font-serif text-xl md:text-3xl mb-3">
               {t("hero.tagline")}
             </p>
-            <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg mx-auto sm:mx-0 text-balance sm:text-wrap">
+            <p className="text-tea-cream text-body md:text-body-lg mb-10 max-w-lg">
               {t("hero.description")}
             </p>
-            {/* CTA 手機收小一階：px-8 py-3.5 → px-6 py-3、字級 16 → 14px。
-                高度仍有 45px，過 WCAG 2.5.8 的 44px 觸控標準——這是能縮的下限，
-                再小就要犧牲點擊面積，而這兩顆是首頁唯一的轉換入口。 */}
-            <div className="flex flex-wrap gap-3 sm:gap-4 justify-center sm:justify-start">
+            {/* CTA 手機收小一階：px-8 py-3.5／16px → px-6 py-3／14px。
+                高度仍有 50px，過 WCAG 2.5.8 的 44px 觸控標準——這是能縮的下限，
+                再小就要犧牲點擊面積，而這兩顆是首頁唯一的轉換入口。
+                sm 以上維持原尺寸（2026-08-27 業主：其它版型都 ok，只改手機）。 */}
+            <div className="flex flex-wrap gap-4">
               <Link
                 href={lp("/products")}
                 className="bg-tea-green hover:bg-tea-green-dark text-white px-6 py-3 text-label sm:px-8 sm:py-3.5 sm:text-base rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"

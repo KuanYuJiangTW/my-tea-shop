@@ -18,39 +18,6 @@ export type HeroSlide = {
 export type HeroLabels = { prev: string; next: string };
 
 /**
- * 桌機（md 以上）的整組：右下角，箭頭夾著計數器。
- *
- * 右邊距是 6.5rem 而不是版面的 lg:px-8，因為**「茶葉小幫手」的浮動鈕就釘在
- * 那裡**：它是 `position: fixed`，實測 1440×900 佔右側 31–87px、底部 24–80px，
- * 跟 `right-8 bottom-10` 的控制項正面重疊，會蓋掉「下一張」。
- * 6.5rem 讓整組停在浮動鈕左邊，留 32px 間隙。
- */
-const GROUP_CLASS =
-  "absolute z-20 items-center gap-1 right-[6.5rem] " +
-  // 距離量的是**視窗底**不是 section 底，理由見 --hero-chrome 的說明
-  "bottom-[calc(var(--hero-chrome,101px)+2.5rem)]";
-
-/**
- * 手機（md 以下）的兩側箭頭：**沒有圓框、沒有底**，只有箭頭本體。
- * 命中區 36×48（過 WCAG 2.5.8 的 24×24），視覺上只有 20px 的箭頭
- * ——パレスホテル東京 是 18×40，同一個量級。
- */
-const SIDE_BUTTON_CLASS =
-  "md:hidden absolute top-1/2 -translate-y-1/2 z-20 " +
-  "flex h-12 w-9 items-center justify-center text-tea-cream " +
-  // 緊貼筆畫的深色描邊，作用與桌機圓環的雙描邊相同：邊界不跟照片借對比
-  "[&>svg]:drop-shadow-[0_0_2px_rgba(61,74,66,0.95)] " +
-  "transition-opacity duration-base ease-standard active:opacity-60 " +
-  "focus-visible:outline-none focus-visible:rounded-full focus-visible:ring-2 focus-visible:ring-tea-cream";
-
-/** 手機的計數器：箭頭移到兩側之後它落單了，改放下方置中（星野的位置） */
-const MOBILE_COUNTER_CLASS =
-  "md:hidden absolute z-20 left-1/2 -translate-x-1/2 " +
-  "bottom-[calc(var(--hero-chrome,101px)+2rem)] " +
-  "text-caption tabular-nums tracking-[0.15em] text-tea-cream " +
-  "drop-shadow-[0_1px_3px_rgba(61,74,66,0.9)]";
-
-/**
  * 圓圈**底是透明的**、hover 才填成米白（2026-08-26 業主指定，對齊
  * hoshinoresorts.com/ch/ 的作法）。
  *
@@ -70,8 +37,20 @@ const MOBILE_COUNTER_CLASS =
  * 目前只靠 drop-shadow（參考站也是這樣）。真要讓它數值合格得加回深底
  * （實測 α=0.75 → 4.87／5.17／6.74）。業主已知悉。
  */
+const GROUP_CLASS =
+  "absolute z-20 flex items-center gap-1 " +
+  // 手機置中、桌機靠右——與 hoshinoresorts.com/ch/ 的擺法一致。
+  //
+  // 桌機的右邊距是 6.5rem 而不是版面的 lg:px-8，因為**「茶葉小幫手」的浮動鈕
+  // 就釘在那裡**：它是 `position: fixed`，實測 1440×900 佔右側 31–87px、
+  // 底部 24–80px，跟 `right-8 bottom-10` 的控制項正面重疊，會蓋掉「下一張」。
+  // 104px 讓整組停在浮動鈕左邊，留 17px 間隙。手機是置中，不會撞到。
+  "left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-[6.5rem] " +
+  // 距離量的是**視窗底**不是 section 底，理由見 --hero-chrome 的說明
+  "bottom-[calc(var(--hero-chrome,101px)+2rem)] md:bottom-[calc(var(--hero-chrome,101px)+2.5rem)]";
+
 const BUTTON_CLASS =
-  "flex h-10 w-10 items-center justify-center rounded-full " +
+  "flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full " +
   "border border-tea-cream/80 text-tea-cream " +
   // 外圈那 1px 深色是「雙描邊」的另一半——圓環壓在亮天空上時靠它撐住邊界
   "shadow-[0_0_0_1px_rgba(61,74,66,0.55),0_2px_10px_rgba(61,74,66,0.5)] " +
@@ -204,17 +183,6 @@ export default function HeroBackground({
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
-  /**
-   * **只認鍵盤 focus，不認滑鼠**：滑鼠點完箭頭游標會停在按鈕上，
-   * 若把 hover 或一般 focus 當成暫停，等於「點一下就不動了」——
-   * 那正是 2026-08-26 改掉的舊行為。`:focus-visible` 只在鍵盤操作時成立。
-   */
-  const pauseOnKeyboard = (e: React.FocusEvent) => {
-    if (e.target instanceof HTMLElement && e.target.matches(":focus-visible")) {
-      setPaused(true);
-    }
-  };
-
   return (
     <>
       {slides.map((slide, i) => {
@@ -245,78 +213,43 @@ export default function HeroBackground({
       {multi && (
         <div
           ref={controlsRef}
-          /* display:contents——這層只用來掛 --hero-chrome 與 focus 事件，
-             不能佔 section（flex items-center）的版面。變數照樣往下繼承，
-             絕對定位的子元素照樣以 section 為定位基準。 */
-          className="contents"
-          onFocus={pauseOnKeyboard}
+          className={GROUP_CLASS}
+          // **只認鍵盤 focus，不認滑鼠**：滑鼠點完箭頭游標會停在按鈕上，
+          // 若把 hover 或一般 focus 當成暫停，等於「點一下就不動了」——
+          // 那正是這次要改掉的舊行為。`:focus-visible` 只在鍵盤操作時成立。
+          onFocus={(e) => {
+            if (e.target instanceof HTMLElement && e.target.matches(":focus-visible")) {
+              setPaused(true);
+            }
+          }}
           onBlur={() => setPaused(false)}
         >
-          {/* ── 手機：箭頭貼兩側，計數器單獨留在下方置中 ──
-              業主指定，參考 パレスホテル東京：它手機版就是把箭頭放兩側，
-              而且是**光禿禿的箭頭**（實測 18×40、距邊 12px，沒有圓框、沒有底）。
-              星野集團則是底部置中的圓環組，京都三井乾脆沒有手動控制——
-              三家做法都不同，所以這題沒有「日式標準答案」，是取捨。
-
-              **側邊箭頭的成立條件是「小而不搶」**：這裡刻意不套圓環與陰影底，
-              只留箭頭本體加一圈緊貼的深色 drop-shadow 當描邊。放大成圓框
-              會變成兩顆懸在照片中央的 UI，那正是 Palace 避開的東西。
-
-              對比實測（手機均勻遮罩下，箭頭區最差像素對米白）：
-                picking2 左 3.73 ✅ 右 3.25 ✅
-                wilting4 左 3.23 ✅ 右 3.18 ✅
-                tea-ceremony 左 **2.80 ❌** 右 3.55 ✅
-              第三張左側差 0.2 沒過，靠 drop-shadow 的深色描邊補——與桌機
-              圓環的雙描邊是同一招，只是描在箭頭本身而不是圓框上。 */}
           <button
             type="button"
             onClick={() => go(-1)}
             aria-label={labels.prev}
-            className={`${SIDE_BUTTON_CLASS} left-0`}
+            className={BUTTON_CLASS}
           >
-            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+            <ChevronLeft className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden="true" />
           </button>
+
+          {/* 計數器對螢幕閱讀器沒有增益——目前這張的 alt 已經在唸了，
+              再報一次「01/03」只是噪音，所以整顆藏起來 */}
+          <span
+            aria-hidden="true"
+            className="px-1.5 md:px-2 text-caption md:text-label tabular-nums tracking-[0.15em] text-tea-cream drop-shadow-[0_1px_3px_rgba(61,74,66,0.9)]"
+          >
+            {pad(index + 1)}/{pad(slides.length)}
+          </span>
+
           <button
             type="button"
             onClick={() => go(1)}
             aria-label={labels.next}
-            className={`${SIDE_BUTTON_CLASS} right-0`}
+            className={BUTTON_CLASS}
           >
-            <ChevronRight className="h-5 w-5" aria-hidden="true" />
+            <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden="true" />
           </button>
-          <span aria-hidden="true" className={MOBILE_COUNTER_CLASS}>
-            {pad(index + 1)}/{pad(slides.length)}
-          </span>
-
-          {/* ── 桌機：右下角整組，維持原樣 ── */}
-          <div className={`${GROUP_CLASS} hidden md:flex`}>
-            <button
-              type="button"
-              onClick={() => go(-1)}
-              aria-label={labels.prev}
-              className={BUTTON_CLASS}
-            >
-              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            </button>
-
-            {/* 計數器對螢幕閱讀器沒有增益——目前這張的 alt 已經在唸了，
-                再報一次「01/03」只是噪音，所以整顆藏起來 */}
-            <span
-              aria-hidden="true"
-              className="px-2 text-label tabular-nums tracking-[0.15em] text-tea-cream drop-shadow-[0_1px_3px_rgba(61,74,66,0.9)]"
-            >
-              {pad(index + 1)}/{pad(slides.length)}
-            </span>
-
-            <button
-              type="button"
-              onClick={() => go(1)}
-              aria-label={labels.next}
-              className={BUTTON_CLASS}
-            >
-              <ChevronRight className="h-4 w-4" aria-hidden="true" />
-            </button>
-          </div>
         </div>
       )}
     </>
