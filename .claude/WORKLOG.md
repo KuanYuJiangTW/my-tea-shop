@@ -1661,8 +1661,8 @@ JUDG-8 加第 4 判準「監控與健康檢查本身也要能變紅」、JUDG-2 
   (a) 新舊規則無矛盾；(b) 檔內路徑與工具名實際存在；(c) 無「弱模型會誤讀」的模糊句。
   產物路徑：`.claude/playbooks/judgment.md`、`.claude/playbooks/lessons.md`、
   `.claude/skills/reverse-verify/SKILL.md`。
-  原文備份在 `.claude/backups/{judgment.md,lessons.md,reverse-verify-SKILL.md}*.20260827*.bak`，
-  可拿來對照 diff。自查已抓到並修掉五項（兩個斷指標、判準數量、過時的次數說法、歸檔區標題），
+  精簡前的原文用 `git show 8bc2a4a^:<檔案路徑>` 取出對照（`8bc2a4a` 是精簡那個 commit，
+  其父 commit 即精簡前狀態）；三個 .bak 備份已於事後刪除，改用 git 歷史。自查已抓到並修掉五項（兩個斷指標、判準數量、過時的次數說法、歸檔區標題），
   checker 要找的是這五項以外的漏網。
 - `WORKLOG.md:897` 有一個指向已歸檔條目的指標，是 2026-08-25 那次精簡造成的。
   WORKLOG 是歷史紀錄不宜回頭改寫，刻意未動——**checker 若報這條，是預期內，不算 FAIL**。
