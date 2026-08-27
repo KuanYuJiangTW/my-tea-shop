@@ -5,9 +5,58 @@ import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 export const maxDuration = 30;
 
+// Groq 會下架舊模型：`llama-3.3-70b-versatile` 於 2026-08 前後移除，打回 404
+// model_not_found，被下面的 catch 吞成 503，前台只看得到「服務暫時無法使用」。
+// 因此改用環境變數覆寫——下次再被下架，可直接在 Vercel 改變數，不必重新部署。
+const CHAT_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+
 // 健康檢查端點
+//
+// 這裡刻意真的打一次 Groq 的模型清單，而不是回硬編的 { ok: true }：
+// 模型被下架時（見 CHAT_MODEL 註解），舊版健康檢查照樣回綠燈，故障只能靠客人回報。
+// /v1/models 不消耗 token，成本可忽略。
 export async function GET() {
-  return NextResponse.json({ ok: true, provider: "groq" });
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json(
+      { ok: false, provider: "groq", model: CHAT_MODEL, error: "GROQ_API_KEY not configured" },
+      { status: 503 }
+    );
+  }
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.error(`[chat] 健康檢查：Groq /v1/models 回 ${res.status}`);
+      return NextResponse.json(
+        { ok: false, provider: "groq", model: CHAT_MODEL, error: `models endpoint returned ${res.status}` },
+        { status: 503 }
+      );
+    }
+
+    const body = (await res.json()) as { data?: { id?: string }[] };
+    const modelAvailable = (body.data ?? []).some((m) => m.id === CHAT_MODEL);
+
+    if (!modelAvailable) {
+      console.error(`[chat] 健康檢查：模型 ${CHAT_MODEL} 不在 Groq 可用清單，可能已下架`);
+      return NextResponse.json(
+        { ok: false, provider: "groq", model: CHAT_MODEL, error: "model_not_available" },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json({ ok: true, provider: "groq", model: CHAT_MODEL });
+  } catch (err) {
+    console.error("[chat] 健康檢查失敗：", err);
+    return NextResponse.json(
+      { ok: false, provider: "groq", model: CHAT_MODEL, error: "health check failed" },
+      { status: 503 }
+    );
+  }
 }
 
 // ── 速率限制（持久化）──────────────────────────────────────────────────────────
@@ -30,6 +79,7 @@ Rules:
 - If you're not sure or the question is outside your scope, politely say you don't know and suggest contacting us via LINE.
 - When suggesting LINE contact, always include this exact format: [LINE_CONTACT](${LINE_URL})
 - Keep responses concise and friendly (under 200 words).
+- Reply in PLAIN TEXT only. Do NOT use markdown headings, tables, asterisk bullets, or bold syntax — the chat widget renders text literally, so those symbols show up as-is.
 - You are a tea expert. Share brewing tips, flavor profiles, and pairing suggestions when relevant.
 - Do NOT handle order inquiries, returns, refunds, or account issues.
 - Always respond in English.
@@ -44,6 +94,7 @@ ${knowledge}`;
 - 如果不確定或問題超出範圍，請禮貌地說不知道，並建議客人透過 LINE 聯繫我們。
 - 當建議聯繫 LINE 時，務必使用此格式：[LINE_CONTACT](${LINE_URL})
 - 回覆簡潔友善，控制在 200 字以內。
+- 一律用純文字回覆，不要用 markdown 標題、表格、星號項目符號或粗體語法——聊天視窗是純文字渲染，這些符號會原樣顯示給客人看。
 - 你是茶葉專家，可以分享泡茶技巧、風味描述、搭配建議。
 - 不處理訂單查詢、退換貨、退款、帳號等問題。
 - 一律使用繁體中文回覆。
@@ -127,7 +178,7 @@ export async function POST(req: NextRequest) {
     ];
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: CHAT_MODEL,
       messages: groqMessages,
       stream: true,
       max_tokens: 1024,
