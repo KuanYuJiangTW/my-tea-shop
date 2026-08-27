@@ -1595,7 +1595,7 @@ tagline→敘述 8px（同一段訊息）、敘述→CTA 32px（從「讀」切�
 
 ### 還沒做的
 
-- ~~未開 PR、未併 main（業主沒開口）~~ → **已於 PR #12（`a9a2728`）併入 main**（2026-08-27 補記）
+- 未開 PR、未併 main（業主沒開口）
 - 素材：合併前已刪掉三張沒人引用的原檔（`20260416_090854`／`20260420_153712`／
   `20260420_155048`，約 15MB）。**保留 `20260427_103350`**——它是第二張 `wilting4.jpg`
   的未裁切原檔，兩天內從它重裁過兩次，日後要再調取景還得靠它。
@@ -1633,60 +1633,3 @@ tagline→敘述 8px（同一段訊息）、敘述→CTA 32px（從「讀」切�
 SEO：meta、JSON-LD、`llms.txt` 全程未動。中文文案只是同一句話換位置（多一個逗號），
 關鍵詞零流失且位置更前面；英文少掉的只有 "mountains of" 這種通用詞。
 實測首頁 HTML：`嘉義阿里山梅山` 37 次、`高山烏龍` 20 次；`/en`：Alishan 81、Chiayi 48。
-
-## 2026-08-27 茶葉小幫手全站 503（模型被下架）＋ lessons.md 精簡（兩個 PR 都已併 main）
-
-### 做了什麼
-
-**PR #13（`3b15174`）——茶葉小幫手修復。** 業主回報小幫手怪怪的，問是額度用完還是 bug。
-兩者都不是：硬編在 `src/app/api/chat/route.ts` 的 `llama-3.3-70b-versatile` 已被 Groq 下架，
-打回 404 `model_not_found`，被 catch 統一吞成 503「服務暫時無法使用」。API key 有效、
-每日額度沒滿、rate limit 沒觸發。
-
-- 模型改為 `CHAT_MODEL`（env `GROQ_MODEL` 可覆寫，預設 `openai/gpt-oss-120b`）
-- `GET /api/chat` 從回硬編 `{ok:true}` 改成真的查一次 `/v1/models`——**舊版是永遠不會紅的燈，
-  這次故障它一路回綠，只能靠客人回報才被發現**
-- 兩份 system prompt 加純文字規則（`ChatWidget` 是 `whitespace-pre-wrap`，markdown 會原樣顯示）
-
-**PR #14（`af5891d`）——lessons.md 照 MAINT-4 精簡**，31 條壓到 16 條。
-`judgment.md` 原 216 行、上限 220，沒空間開新 JUDG 條目，所以重複主題折進既有規則：
-JUDG-8 加第 4 判準「監控與健康檢查本身也要能變紅」、JUDG-2 的 push 那句擴充
-「commit 前先 `git status -sb`」。
-
-### 還沒做的
-
-- ⏳ **MAINT-3 步驟 4 的 `checker` read-back 未執行**（業主指示：下次 session 補驗）。
-  上一個 session 有「不主動開 subagent」的限制，改以逐條自查代替。
-  **補驗方式**：派 `checker`，驗收條件三條（MAINT-3 原文）——
-  (a) 新舊規則無矛盾；(b) 檔內路徑與工具名實際存在；(c) 無「弱模型會誤讀」的模糊句。
-  產物路徑：`.claude/playbooks/judgment.md`、`.claude/playbooks/lessons.md`、
-  `.claude/skills/reverse-verify/SKILL.md`。
-  原文備份在 `.claude/backups/{judgment.md,lessons.md,reverse-verify-SKILL.md}*.20260827*.bak`，
-  可拿來對照 diff。自查已抓到並修掉五項（兩個斷指標、判準數量、過時的次數說法、歸檔區標題），
-  checker 要找的是這五項以外的漏網。
-- `WORKLOG.md:897` 有一個指向已歸檔條目的指標，是 2026-08-25 那次精簡造成的。
-  WORKLOG 是歷史紀錄不宜回頭改寫，刻意未動——**checker 若報這條，是預期內，不算 FAIL**。
-
-### 順手處理掉的風險
-
-反向驗證健康檢查時我把 `.env.local` 備份到 `.claude/backups/`，那個目錄是 `.gitignore`
-白名單放行的**已追蹤**目錄，備份檔含 `GROQ_API_KEY` 且未被忽略，差一步就進 commit。
-已刪除該檔並加規則 `.claude/backups/env*`（實測 `git check-ignore` 生效）。
-
-順帶查證：`.env.local` 在 2026-03-16（`7b42544`）確實進過 git 歷史、`347cf9a` 才刪，
-但那是 security_audit 記憶裡的 **C-1，業主早已決策**（金鑰全數輪換、維持 repo 公開當教材、
-歷史清理暫緩）。逐項比對現行值確認輪換仍有效，只有 `ADMIN_EMAIL` 與
-`NEXT_PUBLIC_SUPABASE_URL` 未變（前者是業主信箱、後者本來就送到瀏覽器）。**無需再處理。**
-
-### 驗證證據
-
-四件套：`npx vitest run` 77 檔 **1010** 測試全過、`tsc --noEmit` 0 錯誤、
-`npm run lint` 0 error（36 warnings 既有債務）、`npm run build` 成功。
-
-反向驗證健康檢查：把 `GROQ_MODEL` 設成已下架的 `llama-3.3-70b-versatile`，
-`GET /api/chat` 如預期回 **503 `model_not_available`**——證明它真的會紅。
-
-線上實測（Vercel preview 與正式站各一次）：`GET /api/chat` 回
-`{"ok":true,"provider":"groq","model":"openai/gpt-oss-120b"}`；
-瀏覽器實際點開小幫手問「體驗活動有哪些」，正確列出六種體驗與價格、時長、人數，
-**純文字無 markdown 殘留**。GitGuardian 兩個 PR 都是 No secrets detected。
