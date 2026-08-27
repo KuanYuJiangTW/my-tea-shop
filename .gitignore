@@ -33,3 +33,6 @@ yarn-error.log*
 !.claude/WORKLOG.md
 .claude/settings.local.json
 .vercel
+
+# .env 的備份絕不進 repo（backups/ 是白名單放行的，會被誤掃進 commit）
+.claude/backups/env*
