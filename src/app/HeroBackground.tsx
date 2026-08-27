@@ -208,6 +208,76 @@ export default function HeroBackground({
     [slides.length],
   );
 
+  /**
+   * 觸控滑動換圖。
+   *
+   * 手機的自然動作是滑，不是點兩顆 28px 的箭頭——把箭頭縮到參考站的量級之後
+   * 更是如此。加了滑動，箭頭才從「唯一入口」降級成「提示這裡可以滑」，
+   * 小尺寸才站得住腳。**縮小按鈕與加滑動是同一件事的兩半**，只做前一半
+   * 會讓可用性倒退。
+   *
+   * 幾個刻意的取捨：
+   * - **只認 touch／pen，不認 mouse**：桌機拖曳是選字，攔下來會很煩。
+   * - 事件掛在 section 上而不是自己開一層覆蓋層：文案區是 relative z-10，
+   *   覆蓋層只能墊在它下面，滑在字上就不會有反應。掛 section 全區都收得到。
+   * - 門檻 40px 且水平位移要大於垂直的 1.5 倍，逾時 800ms 作廢——
+   *   避免把「想往下捲」誤判成換圖。
+   * - 認定成滑動之後，用 capture 階段吃掉緊接而來的 click：手指從 CTA 上
+   *   起手、滑一段再放開，瀏覽器仍會補一個 click，不擋就會誤觸連結。
+   * - section 要配 touch-pan-y（見 page.tsx）：告訴瀏覽器垂直捲動歸它、
+   *   水平歸我們。沒有那行的話，捲動一開始就會收到 pointercancel。
+   */
+  useEffect(() => {
+    const section = controlsRef.current?.closest("section");
+    if (!section || !multi) return;
+
+    let startX = 0;
+    let startY = 0;
+    let startT = 0;
+    let tracking = false;
+    let swiped = false;
+
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") return;
+      tracking = true;
+      swiped = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      startT = e.timeStamp;
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!tracking) return;
+      tracking = false;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (e.timeStamp - startT > 800) return;
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      swiped = true;
+      // 往左滑 = 看下一張，跟原生輪播的方向一致
+      go(dx < 0 ? 1 : -1);
+    };
+    const onCancel = () => {
+      tracking = false;
+    };
+    const onClickCapture = (e: Event) => {
+      if (!swiped) return;
+      swiped = false;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    section.addEventListener("pointerdown", onDown);
+    section.addEventListener("pointerup", onUp);
+    section.addEventListener("pointercancel", onCancel);
+    section.addEventListener("click", onClickCapture, true);
+    return () => {
+      section.removeEventListener("pointerdown", onDown);
+      section.removeEventListener("pointerup", onUp);
+      section.removeEventListener("pointercancel", onCancel);
+      section.removeEventListener("click", onClickCapture, true);
+    };
+  }, [multi, go]);
+
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (

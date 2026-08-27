@@ -121,7 +121,7 @@ export default async function HomePage() {
       {/* 100svh 不是 100vh：手機瀏覽器的 100vh 不扣工具列，實測 375×812 時
           主 CTA 底邊在 y=689，而 iOS Safari 的實際可視高約 650px——CTA 會被切掉。
           svh 用的是「工具列展開時」的高度，桌機與 vh 等值 */}
-      <section className="relative min-h-[100svh] flex items-center overflow-hidden">
+      <section className="relative min-h-[100svh] flex items-center overflow-hidden touch-pan-y">
         {/* 背景不是輪播，是**交叉淡入**：文案與 CTA 完全不動，只換底圖。
             傳統 hero carousel 每張帶各自的標題與 CTA，訊息互相稀釋才傷轉換；
             這裡照片不承載訊息（訊息在 h1 與 CTA），所以那組問題不成立。
