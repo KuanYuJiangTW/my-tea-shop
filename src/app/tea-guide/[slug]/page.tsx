@@ -4,10 +4,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { linkifyParagraph } from "@/lib/article-links";
 import { getArticle, getArticles, pick, pickList } from "@/lib/articles";
 import { faqPageJsonLd, jsonLdString, langAlternates, openGraphFor } from "@/lib/seo";
 
 export const revalidate = 3600;
+
+// 全站唯一對外電話。目前各處（Footer、退換貨、帳戶頁）都各自寫死，沒有共用常數；
+// 這裡沿用該慣例而不順手抽一個 lib——抽的話要一併改 6 個檔，超出這次的範圍。
+const CONTACT_PHONE      = "0972-619-391";
+const CONTACT_PHONE_HREF = "tel:0972619391";
+
+// 內文連結：用 green-ink（#58745F）而不是 tea-green（#7D9B84）。
+// 後者當文字在米白上只有 2.85，讀者根本看不出那是連結。
+const INLINE_LINK =
+  "text-tea-green-ink underline underline-offset-2 decoration-tea-green-pale " +
+  "hover:decoration-tea-green-ink transition-colors duration-base ease-standard";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -94,6 +106,19 @@ export default async function ArticlePage({ params }: Props) {
     paragraphs: pickList(s.paragraphs, s.paragraphsEn, isEn),
   }));
 
+  // 內文自動連結：電話 → tel:、體驗名稱 → 體驗頁（全文只連第一次）。
+  // `linked` 要在所有段落之間共用，所以在這裡建、往下傳。
+  // JSON-LD 仍吃上面那份純文字的 localizedSections——結構化資料不該帶 <a>
+  const linkableNames = (article.relatedExperiences ?? []).map(exp => ({
+    name: isEn ? (exp.nameEn || exp.name) : exp.name,
+    href: lp(`/experiences/${exp.slug}`),
+  }));
+  const linked = new Set<string>();
+  const renderedSections = localizedSections.map(s => ({
+    heading:    s.heading,
+    paragraphs: s.paragraphs.map(text => linkifyParagraph(text, linkableNames, linked)),
+  }));
+
   // 問句小標 → FAQPage。攻略型文章的小標本來就是讀者的問句（「什麼時候來最好？」），
   // 宣告出來 Google 才有機會把問答直接展開在搜尋結果裡。沒有問句小標就回 null，
   // 一般敘事型文章不會被硬套上 FAQ 標記
@@ -114,8 +139,11 @@ export default async function ArticlePage({ params }: Props) {
       <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">{t("label")}</p>
         <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-4">{title}</h1>
-        <p className="text-body-lg text-tea-text-light mb-3">{description}</p>
-        <p className="text-caption text-tea-text-light/80 mb-8">
+        {/* 內文一律用 tea-text-muted 而不是 tea-text-light：後者在米白上只有 3.43，
+            低於 WCAG AA 的 4.5。這頁手機版 5,968px 高、常在山上戶外強光下讀，
+            對比是能不能讀完的問題。層次改由字級與字重承擔，不再靠淡化文字 */}
+        <p className="text-body-lg text-tea-text-muted mb-3">{description}</p>
+        <p className="text-caption text-tea-text-muted mb-8">
           {article.updatedAt ? t("updatedOn", { date: published }) : t("publishedOn", { date: published })}
         </p>
 
@@ -126,14 +154,25 @@ export default async function ArticlePage({ params }: Props) {
         )}
 
         <div className="space-y-10">
-          {localizedSections.map((section, i) => (
+          {renderedSections.map((section, i) => (
             <section key={`${section.heading}-${i}`}>
               <h2 className="font-serif text-xl md:text-2xl font-bold text-tea-text mb-4">
                 {section.heading}
               </h2>
               <div className="space-y-4">
-                {section.paragraphs.map((p, j) => (
-                  <p key={j} className="text-body text-tea-text-light leading-relaxed">{p}</p>
+                {section.paragraphs.map((segments, j) => (
+                  <p key={j} className="text-body text-tea-text-muted leading-relaxed">
+                    {segments.map((seg, k) =>
+                      typeof seg === "string" ? (
+                        seg
+                      ) : seg.href.startsWith("tel:") ? (
+                        // tel: 不走 next/link——它不是路由，Link 的預抓與攔截毫無意義
+                        <a key={k} href={seg.href} className={INLINE_LINK}>{seg.text}</a>
+                      ) : (
+                        <Link key={k} href={seg.href} className={INLINE_LINK}>{seg.text}</Link>
+                      ),
+                    )}
+                  </p>
                 ))}
               </div>
             </section>
@@ -143,18 +182,33 @@ export default async function ArticlePage({ params }: Props) {
         {article.relatedExperiences && article.relatedExperiences.length > 0 && (
           <div className="mt-14 bg-tea-cream rounded-2xl border border-tea-green-pale p-6 md:p-8">
             <h2 className="font-serif text-xl font-bold text-tea-text mb-2">{t("ctaTitle")}</h2>
-            <p className="text-body text-tea-text-light mb-5">{t("ctaIntro")}</p>
-            <div className="flex flex-wrap gap-3">
+            <p className="text-body text-tea-text-muted mb-5">{t("ctaIntro")}</p>
+
+            {/* 手機整寬直排、桌機並排。原本是 166×42 的靠左小藥丸，是全頁唯一的出口
+                卻長得像次要按鈕；白字壓 tea-green 又只有 3.05 對比，是全頁最不清楚的元素。
+                改用 green-ink（白字 5.15）並拉到最小點擊尺寸以上 */}
+            <div className="flex flex-col sm:flex-row gap-3">
               {article.relatedExperiences.map(exp => (
                 <Link
                   key={exp.slug}
                   href={lp(`/experiences/${exp.slug}`)}
-                  className="text-label font-medium px-5 py-2.5 rounded-control bg-tea-green text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard"
+                  className="flex-1 text-center text-label font-medium px-6 py-3.5 rounded-pill bg-tea-green-ink text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard shadow-resting"
                 >
                   {isEn ? (exp.nameEn || exp.name) : exp.name}
                 </Link>
               ))}
+
+              {/* 打電話是這裡轉換最高的一條路：接電話的就是寫這篇文章的人。
+                  做成次要樣式而不是第三個綠塊，讓「預約」仍然是視覺主角 */}
+              <a
+                href={CONTACT_PHONE_HREF}
+                className="flex-1 text-center text-label font-medium px-6 py-3.5 rounded-pill border-2 border-tea-green-ink text-tea-green-ink hover:bg-tea-green-ink hover:text-white transition-colors duration-base ease-standard"
+              >
+                {t("ctaCall", { phone: CONTACT_PHONE })}
+              </a>
             </div>
+
+            <p className="text-caption text-tea-text-muted mt-4">{t("ctaCallNote")}</p>
           </div>
         )}
       </article>
