@@ -2043,6 +2043,8 @@
     "updatedOn": "最後更新 {date}",
     "ctaTitle": "想親眼看看？",
     "ctaIntro": "文章裡寫的都在我們家茶園發生，可以線上預約。",
+    "videoPlay": "播放影片",
+    "videoPause": "暫停影片",
     "ctaCall": "打電話問我們 {phone}",
     "ctaCallNote": "每日 08:00–22:00 都有人接，接電話的就是寫這篇的人。",
     "pageTitle": "茶知識",

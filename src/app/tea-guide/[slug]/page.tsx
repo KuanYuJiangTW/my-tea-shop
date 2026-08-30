@@ -4,9 +4,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import ArticleHeroVideo from "@/components/ArticleHeroVideo";
 import { linkifyParagraph } from "@/lib/article-links";
 import { getArticle, getArticles, pick, pickList } from "@/lib/articles";
 import { faqPageJsonLd, jsonLdString, langAlternates, openGraphFor } from "@/lib/seo";
+import { heroVideoFor, sectionImageFor } from "@/lib/tea-guide-media";
 
 export const revalidate = 3600;
 
@@ -114,10 +116,14 @@ export default async function ArticlePage({ params }: Props) {
     href: lp(`/experiences/${exp.slug}`),
   }));
   const linked = new Set<string>();
-  const renderedSections = localizedSections.map(s => ({
+  const renderedSections = localizedSections.map((s, i) => ({
     heading:    s.heading,
+    // 查表用中文原文，不用翻譯後的小標——否則英文頁會查不到圖
+    image:      sectionImageFor(slug, article.sections[i]?.heading ?? ""),
     paragraphs: s.paragraphs.map(text => linkifyParagraph(text, linkableNames, linked)),
   }));
+
+  const heroVideo = heroVideoFor(slug);
 
   // 問句小標 → FAQPage。攻略型文章的小標本來就是讀者的問句（「什麼時候來最好？」），
   // 宣告出來 Google 才有機會把問答直接展開在搜尋結果裡。沒有問句小標就回 null，
@@ -147,11 +153,18 @@ export default async function ArticlePage({ params }: Props) {
           {article.updatedAt ? t("updatedOn", { date: published }) : t("publishedOn", { date: published })}
         </p>
 
-        {article.coverImage && (
+        {heroVideo ? (
+          <ArticleHeroVideo
+            src={heroVideo.src}
+            poster={heroVideo.poster}
+            alt={pick(heroVideo.alt, heroVideo.altEn, isEn)}
+            caption={pick(heroVideo.caption ?? "", heroVideo.captionEn, isEn) || undefined}
+          />
+        ) : article.coverImage ? (
           <div className="relative aspect-[16/9] rounded-2xl overflow-hidden mb-10">
             <Image src={article.coverImage} alt={imageAlt} fill priority sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
           </div>
-        )}
+        ) : null}
 
         <div className="space-y-10">
           {renderedSections.map((section, i) => (
@@ -175,6 +188,28 @@ export default async function ArticlePage({ params }: Props) {
                   </p>
                 ))}
               </div>
+
+              {/* 圖放在該段文字之後而不是小標之下：讀者先讀到主張
+                  （「有洗手間、有位子」），再看到證據，說服力比先看圖強 */}
+              {section.image && (
+                <figure className="mt-6">
+                  <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-tea-cream">
+                    <Image
+                      src={section.image.src}
+                      alt={pick(section.image.alt, section.image.altEn, isEn)}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 768px) 100vw, 768px"
+                      className="object-cover"
+                    />
+                  </div>
+                  {section.image.caption && (
+                    <figcaption className="text-caption text-tea-text-muted mt-2.5">
+                      {pick(section.image.caption, section.image.captionEn, isEn)}
+                    </figcaption>
+                  )}
+                </figure>
+              )}
             </section>
           ))}
         </div>
