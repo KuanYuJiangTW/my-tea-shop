@@ -1828,3 +1828,74 @@ IntersectionObserver，所以「捲到首屏自動播、捲離自動停」在這
 `npm run lint` 報 **error**（`Calling setState synchronously within an effect`），
 專案門檻是 0 error。改用 `useSyncExternalStore`（訂閱函式要放模組層級才不會每次重訂閱），
 順便把 SSR 快照講清楚。**讀外部狀態就該用這個 hook，不要 effect + setState。**
+
+## 2026-08-31 賞鳥攻略第三批・目錄、季節倒數、同日交叉銷售、浮動 CTA
+
+commit `061c516`，同一分支、同一個 PR（#17）。
+
+### 做了什麼
+
+四件（都在 `/tea-guide/[slug]`）：目錄（`<details>` 預設收合）、季節倒數（沿用
+`SeasonBadge`）、文末同日第二體驗 9 折、浮動底部 CTA（`FloatingGuideCta`）。
+
+### 浮動 CTA 的設計理由（業主原本擔心陌生觸及會反感）
+
+反感的來源不是「有浮動條」，是三件具體的事，逐一擋掉：
+1. 一進來就跳 → **捲過 35% 才滑入**
+2. 遮住正在讀的字 → 把自己的高度寫進 `--floating-cta-h`，**容器讓出等高 padding**
+3. 關不掉 → 可關閉，記在 `sessionStorage`（鍵含 slug）
+
+第四件不在業主清單上但同樣重要：**文末真正的 CTA 卡片進入畫面就永久收起**。
+IntersectionObserver 只做**單向**切換——用 `isIntersecting` 雙向切的話，
+捲過卡片進到頁尾時浮動條會再冒出來蓋住 footer 連結。
+
+### `--floating-cta-h` 這個做法
+
+ChatWidget 的 FAB 原本是 `bottom-20 md:bottom-6`，會跟浮動條打架。
+改成 `bottom-[calc(5rem+var(--floating-cta-h,0px))]`，變數預設值放 `globals.css` 的 `:root`。
+**兩個元件不必互相知道對方存在**，其他頁面該變數是 0px、位置完全不變。
+要再加會佔用底部的東西時沿用這個變數就好。
+
+### 這批踩到的坑
+
+`no-cascading-renders` 這條 lint **是 error 不是 warning**，踩了兩次：
+- `ArticleHeroVideo` 讀 `matchMedia` → 改 `useSyncExternalStore`
+  （訂閱函式要放**模組層級**，寫成行內箭頭每次算繪都會重新訂閱）
+- `FloatingGuideCta` 讀 `sessionStorage` → 改 `useState` 惰性初始化，
+  用 `typeof window === "undefined"` 擋 SSR。這裡沒有 hydration 不一致的風險，
+  因為 `visible` 還要 `scrolledEnough`，而它首次算繪必為 false
+
+**結論：要讀瀏覽器的外部狀態，不要用 `useEffect` + `setState`。**
+
+### 預覽窗格驗不到的東西（重要，別再花時間追）
+
+`.claude/launch.json` 的 preview 窗格 **`document.hidden` 恆為 true**，瀏覽器因此會關掉：
+自動播放、IntersectionObserver、`scrollTo()` 觸發的 scroll 事件、
+**以及既有元素的樣式重算**。
+
+第三批被這件事誤導了一陣子：浮動條捲到 70% 都不出現、ChatWidget 的
+`calc(5rem + var(--floating-cta-h))` 設成 200px 也不動。兩者都不是 bug——
+- 手動 `dispatchEvent(new Event('scroll'))` 後浮動條正常出現
+- 對照組：**全新建立**的元素套同一條 calc 正確算出 280px，既有元素停在 80px
+
+**驗這類行為的方法**：手動派發事件、或建立對照組元素，不要相信「沒反應＝壞了」。
+真正要確認的話請在真實瀏覽器開。
+
+### 順手做完的
+
+業主授權後用 write token 改了 Sanity：`sections[9].paragraphs[1]` 與 `paragraphsEn[1]`
+的「現場付現」→「現場付現或轉帳（不接受刷卡）」。**現場手寫牌上的「可以刷卡」是舊資訊。**
+寫入前先比對原文一字不差、並用 `ifRevisionID` 鎖版本。
+注意 `/api/revalidate` 只清 `/products`，攻略頁要等 ISR（`revalidate: 3600`）到期或重新部署。
+
+### 驗證證據
+
+vitest 80 檔 **1048** 測試全過、`tsc` 0 錯誤、`npm run lint` **0 error**（36 warnings
+既有債務）、`build` 成功。`next start` 實測：目錄 10 條、小標 id 為 `section-N`、
+倒數顯示「到 10/11 還有 41 天」、交叉銷售三款價格時長正確、浮動條高 67px、
+顯示時容器 `padding-bottom: 67px`、關閉後歸零並寫入 sessionStorage、隱藏時 `tabIndex` 全 -1。
+
+### 還沒做的
+
+- **PR #17 尚未合併**。合併後才會上線。
+- ChatWidget 被頂上去這件事**只證明了機制正確（對照組），沒在真實瀏覽器看過**。
