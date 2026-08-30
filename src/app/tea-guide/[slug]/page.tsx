@@ -5,8 +5,12 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import ArticleHeroVideo from "@/components/ArticleHeroVideo";
+import FloatingGuideCta from "@/components/FloatingGuideCta";
+import SeasonBadge from "@/components/SeasonBadge";
 import { linkifyParagraph } from "@/lib/article-links";
 import { getArticle, getArticles, pick, pickList } from "@/lib/articles";
+import { hasSeason } from "@/lib/experience-ordering";
+import { getExperienceTypes } from "@/lib/experiences";
 import { faqPageJsonLd, jsonLdString, langAlternates, openGraphFor } from "@/lib/seo";
 import { heroVideoFor, sectionImageFor } from "@/lib/tea-guide-media";
 
@@ -58,10 +62,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const [article, locale, t] = await Promise.all([
+  const [article, locale, t, experienceTypes] = await Promise.all([
     getArticle(slug),
     getLocale(),
     getTranslations("teaGuide"),
+    // 季節倒數要 windows、同日交叉銷售要價格與時長，兩者 Sanity 都沒有——
+    // 這些欄位在 Supabase 的 experience_types
+    getExperienceTypes(),
   ]);
   if (!article) notFound();
 
@@ -125,6 +132,18 @@ export default async function ArticlePage({ params }: Props) {
 
   const heroVideo = heroVideoFor(slug);
 
+  // 主推體驗（文章關聯的第一個）：季節徽章要它的 windows
+  const primaryExp  = article.relatedExperiences?.[0] ?? null;
+  const primaryType = primaryExp ? experienceTypes.find(e => e.slug === primaryExp.slug) ?? null : null;
+
+  // 同日第二個體驗：導覽下午 2 點才開始，上午整段是空的，而車程是一樣的。
+  // 排除主推那款與其他季節限定款——季節外的東西推出去只會換來一次失望
+  const sameDayExps = experienceTypes
+    .filter(e => e.slug !== primaryExp?.slug && !hasSeason(e.windows))
+    .slice(0, 3);
+
+  const CTA_ANCHOR = "guide-cta";
+
   // 問句小標 → FAQPage。攻略型文章的小標本來就是讀者的問句（「什麼時候來最好？」），
   // 宣告出來 Google 才有機會把問答直接展開在搜尋結果裡。沒有問句小標就回 null，
   // 一般敘事型文章不會被硬套上 FAQ 標記
@@ -135,7 +154,7 @@ export default async function ArticlePage({ params }: Props) {
   }).format(new Date(article.updatedAt ?? article.publishedAt));
 
   return (
-    <div className="min-h-screen bg-tea-cream-light">
+    <div className="min-h-screen bg-tea-cream-light" style={{ paddingBottom: "var(--floating-cta-h, 0px)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(articleJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbJsonLd) }} />
       {faqJsonLd && (
@@ -149,9 +168,19 @@ export default async function ArticlePage({ params }: Props) {
             低於 WCAG AA 的 4.5。這頁手機版 5,968px 高、常在山上戶外強光下讀，
             對比是能不能讀完的問題。層次改由字級與字重承擔，不再靠淡化文字 */}
         <p className="text-body-lg text-tea-text-muted mb-3">{description}</p>
-        <p className="text-caption text-tea-text-muted mb-8">
-          {article.updatedAt ? t("updatedOn", { date: published }) : t("publishedOn", { date: published })}
-        </p>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-8">
+          <p className="text-caption text-tea-text-muted">
+            {article.updatedAt ? t("updatedOn", { date: published }) : t("publishedOn", { date: published })}
+          </p>
+          {/* 稀缺性是季節限定最強的轉換武器，而且它是真的。沿用體驗頁那顆徽章，
+              日期計算全在 seasonState()，這裡不重算 */}
+          {primaryExp && primaryType && (
+            <SeasonBadge
+              windows={primaryType.windows}
+              name={isEn ? (primaryExp.nameEn || primaryExp.name) : primaryExp.name}
+            />
+          )}
+        </div>
 
         {heroVideo ? (
           <ArticleHeroVideo
@@ -166,10 +195,32 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         ) : null}
 
+        {/* 目錄預設收合：這頁手機版 7 個螢幕高，攤開 10 條會吃掉整個首屏。
+            收合仍在 DOM 裡，搜尋引擎讀得到，想跳的人點一下就開 */}
+        {renderedSections.length >= 5 && (
+          <details className="mb-10 rounded-2xl border border-tea-green-pale bg-tea-cream/60">
+            <summary className="cursor-pointer list-none px-5 py-3.5 text-label font-medium text-tea-text [&::-webkit-details-marker]:hidden flex items-center justify-between gap-3">
+              {t("toc")}
+              <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                <path d="M3 6l5 5 5-5" />
+              </svg>
+            </summary>
+            <ol className="px-5 pb-4 pt-1 space-y-2">
+              {renderedSections.map((s, i) => (
+                <li key={`toc-${i}`}>
+                  <a href={`#section-${i}`} className="text-body text-tea-green-ink hover:underline underline-offset-2">
+                    {s.heading}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </details>
+        )}
+
         <div className="space-y-10">
           {renderedSections.map((section, i) => (
             <section key={`${section.heading}-${i}`}>
-              <h2 className="font-serif text-xl md:text-2xl font-bold text-tea-text mb-4">
+              <h2 id={`section-${i}`} className="font-serif text-xl md:text-2xl font-bold text-tea-text mb-4 scroll-mt-20">
                 {section.heading}
               </h2>
               <div className="space-y-4">
@@ -215,7 +266,7 @@ export default async function ArticlePage({ params }: Props) {
         </div>
 
         {article.relatedExperiences && article.relatedExperiences.length > 0 && (
-          <div className="mt-14 bg-tea-cream rounded-2xl border border-tea-green-pale p-6 md:p-8">
+          <div id={CTA_ANCHOR} className="mt-14 bg-tea-cream rounded-2xl border border-tea-green-pale p-6 md:p-8">
             <h2 className="font-serif text-xl font-bold text-tea-text mb-2">{t("ctaTitle")}</h2>
             <p className="text-body text-tea-text-muted mb-5">{t("ctaIntro")}</p>
 
@@ -244,9 +295,45 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             <p className="text-caption text-tea-text-muted mt-4">{t("ctaCallNote")}</p>
+
+            {/* 同日第二個體驗。導覽 2 點開始、鳥 3 點後才好看，上午整段是空的，
+                而車程一樣——這句話對已經決定要上山的人幾乎沒有阻力，客單價卻能翻倍 */}
+            {sameDayExps.length > 0 && (
+              <div className="mt-7 pt-6 border-t border-tea-green-pale">
+                <h3 className="font-serif text-body-lg font-bold text-tea-text mb-1.5">{t("sameDayTitle")}</h3>
+                <p className="text-body text-tea-text-muted mb-4">{t("sameDayIntro")}</p>
+                <ul className="flex flex-wrap gap-2">
+                  {sameDayExps.map(exp => (
+                    <li key={exp.slug}>
+                      <Link
+                        href={lp(`/experiences/${exp.slug}`)}
+                        className="inline-block text-label px-4 py-2 rounded-pill bg-white border border-tea-green-pale text-tea-green-ink hover:border-tea-green-ink transition-colors duration-base ease-standard"
+                      >
+                        {t("sameDayItem", {
+                          name:  isEn ? (exp.nameEn || exp.name) : exp.name,
+                          hours: exp.durationHours,
+                          price: exp.price,
+                        })}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-caption text-tea-text-muted mt-3">{t("sameDayNote")}</p>
+              </div>
+            )}
           </div>
         )}
       </article>
+
+      {primaryExp && (
+        <FloatingGuideCta
+          bookHref={lp(`/experiences/${primaryExp.slug}`)}
+          phoneHref={CONTACT_PHONE_HREF}
+          phoneLabel={t("floatingCall")}
+          storageKey={`guide-cta-dismissed:${slug}`}
+          anchorId={CTA_ANCHOR}
+        />
+      )}
     </div>
   );
 }
