@@ -385,7 +385,9 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
         return (
           <button
             onClick={() => { if (isIdle) { setFabIdle(false); } else { handleOpen(); } }}
-            className={`fixed right-4 z-50 bg-tea-green text-white rounded-full flex items-center transition-all duration-500 ease-in-out bottom-20 md:bottom-6 ${
+            // bottom 讀 --floating-cta-h：攻略文的浮動 CTA 出現時把這顆頂上去，
+            // 其他頁面該變數是 0px（globals.css 的預設值），位置完全不變
+            className={`fixed right-4 z-50 bg-tea-green text-white rounded-full flex items-center transition-all duration-500 ease-in-out bottom-[calc(5rem+var(--floating-cta-h,0px))] md:bottom-[calc(1.5rem+var(--floating-cta-h,0px))] ${
               showLabel
                 ? "px-4 py-2.5 md:px-5 md:py-3 gap-2 shadow-lg hover:bg-tea-green-dark hover:scale-105"
                 : isIdle

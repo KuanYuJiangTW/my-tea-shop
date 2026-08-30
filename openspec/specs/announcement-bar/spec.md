@@ -71,9 +71,9 @@ TBD - created by archiving change announcement-bar. Update Purpose after archive
 - **WHEN** 無痕模式或瀏覽器封鎖儲存，讀寫 localStorage 丟出例外
 - **THEN** 例外被吞掉，公告條照常顯示（不得因此白畫面）
 
-### Requirement: 結帳流程不顯示公告條
+### Requirement: 結帳、後台與攻略文不顯示公告條
 
-系統 SHALL NOT 在結帳與後台路徑掛載公告條。
+系統 SHALL NOT 在結帳、後台與茶知識攻略文路徑掛載公告條。
 
 #### Scenario: 結帳頁
 - **WHEN** 路徑為 `/checkout` 或 `/en/checkout`
@@ -82,6 +82,12 @@ TBD - created by archiving change announcement-bar. Update Purpose after archive
 #### Scenario: 後台
 - **WHEN** 路徑以 `/admin` 開頭
 - **THEN** 不掛載（沿用 `SiteChrome` 既有的 chrome 排除）
+
+#### Scenario: 茶知識攻略文
+- **WHEN** 路徑以 `/tea-guide` 或 `/en/tea-guide` 開頭
+- **THEN** 不掛載——這一區幾乎全是資訊型查詢的陌生搜尋流量（「萬鷺朝鳳 幾點」之類），
+  來的人要的是答案；第一眼吃到「註冊送購物金」會把訊號從「這裡有你要的答案」
+  變成「這是賣茶的網站」，而且它佔掉手機首屏 70px。商店與商品頁照掛
 
 ### Requirement: 版面與可及性
 
