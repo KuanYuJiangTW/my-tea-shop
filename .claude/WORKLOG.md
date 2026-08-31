@@ -22,7 +22,7 @@
 ### [已歸檔] 2026-07-05 ~ 08-02 的完成工作（12 節壓縮）
 
 > 依 MAINT-4 各壓成一行結論。**完整原文在 git 歷史**（`git log -p .claude/WORKLOG.md`）
-> 與備份 `.claude/backups/WORKLOG.md.20260806.bak`。多數決策細節另存於 `lessons.md`、
+> （該次備份已依 MAINT-4「每檔留最近 5 份」輪替刪除）。多數決策細節另存於 `lessons.md`、
 > 對應的 `openspec/specs/`、或程式碼檔頭註解。**仍有效的待辦已抽出到下一節**。
 
 1. **[07-05] 建立制度檔案**（Fable 5 建制）— 13 檔制度檔上線，CLAUDE.md 改為路由。
@@ -80,357 +80,52 @@
   agent 無法抽查線上頁面，要驗頁面內容請用本機 `npm run build && npm start` 打 localhost
 - **next-intl 把整份 `messages/*.json` 序列化進每一頁 HTML**（每頁 70–110KB），
   全站既有行為、不影響正確性，日後若要優化可考慮 messages 分割
+- **設計系統的三組 AA 對比不足是業主拍板的已知取捨，不是待修缺陷**（第四波做完、
+  第六波依小江決定全數回退）。動色彩前先讀 `docs/design-system.md`，**請勿自行「修正」**
+- **三種線上金流的組合下單從未實測** — `online`（綠界）／`stripe`／`paypal` 各 0 筆。
+  它們與貨到付款不同，是**付款成功後**才扣庫存，目前只有單元測試覆蓋
+- **訂單資料池還沒清乾淨** — 22 筆已取消的訂單（19 筆是 2026-03 的貨到付款）業主 2026-08-15
+  確認是他自己測試，但**尚未標記 `is_test`**；那 22 筆來自 8 個 email，與「已付款」6 筆的
+  3 個 email **有 2 個重疊**，真實客人可能只有 1 個。
+  **在業主逐一認過之前，任何 AOV／轉換率的數字都不可引用**
+- **商品照片缺兩款**：紅烏龍茶、四季春。同時影響商品頁外觀（只有漸層底色、無 fallback 圖）
+  與結構化資料（`product-jsonld.ts` 會**過濾掉無圖商品**——硬塞品牌圖等於謊報商品外觀）
+- **東方美人卡在缺成本**（要當價格錨點），尚未上架
+- **Merchant listing 的 `hasMerchantReturnPolicy`／`shippingDetails` 仍缺**（GSC 列為 warning）。
+  刻意不填：要填得正確需要真實運費與退貨天數進機器可讀欄位，寫錯比不寫傷害大。
+  建議連同商品獨立頁（openspec 5.4 `/products/[slug]`）一起做，那也是「五筆商品共用同一個
+  url」的真正解法
+- **商品詳情頁（`product-detail-pages`）未做**；商品評價區因此暫掛 `/products`，做好後搬過去
+- **`openInExternalBrowser()` 的 iOS 分支無效** — 非 Android 只做 `window.location.href = url`
+  （同一網址），會觸發整頁重載但跳不出 LINE 的 in-app browser，推論會反覆重載。
+  **本環境無法實證**（UA 覆寫活不過重載），需真 iPhone 從 LINE 對話點連結確認。
+  建議改成「不自動跳，直接顯示橫幅教他用選單開啟」
+- **`src/app/account/bookings/[id]/participants/page.tsx` 整頁沒有翻譯** — import 了 `useLocale`
+  但 11 處 UI 文案全是寫死中文。noindex 不影響 SEO，但英文客人訂了體驗之後會遇到一張全中文的表單
+- **體驗季節排序 3.3／3.4 未做**：季節外的「本季已結束・明年見 ＋ 留 Email 通知我」。
+  徽章已會顯示 ended／upcoming，但預約按鈕停用與 Email 登記入口沒做。
+  登記名單**要與開課請求的需求蒐集共用同一張表**，兩邊一起做比較省
+- **體驗季節排序 4.4 未做**：商品排序的後台 UI（欄位與查詢都好了，但後台商品頁是 1,035 行的
+  單一 client 元件）。現在要調商品順序可直接改 Supabase 欄位
+- **Vercel 舊 LINE 環境變數待刪**：`NEXT_PUBLIC_LINE_OFFICIAL_URL`、`NEXT_PUBLIC_LINE_ADD_URL`
+  （留著無害，只是雜訊；新名字見已歸檔 08-22 那條）
+- **Google 商家「梅山太興村賞黃頭鷺景觀平台停車場」**：貼新說明、網站欄位設成
+  `/experiences/cattle-egret-tour`（**說明欄不可放網址**，Google 政策）
+- **開課申請的採茶與紅茶職人仍關著**（`accepts_requests = false`）：9/10 前後看實際茶況再開。
+  理由見已歸檔 08-24 那條——按季節窗核准 → 客人付款 → 茶菁沒到位 → 要取消一筆已付款的預約
+- **開課請求的兩個已知風險**：(1)「兩個工作天內回覆」印在四個頁面上，排程每天寄積壓提醒，
+  天天來就會被忽略；(2) 48 小時核准連結會鎖住時段，同時多筆待付款時月曆會有一段
+  「看起來有空、其實不能排」
+- **LINE 轉換代碼 `_lt('send','cv',...)` 刻意沒做**（現在裝只會得到永遠是 0 的數字）。
+  觸發條件：開始投 LINE 廣告、或好友數到數百人、或要驗證漸進式訊息成效。
+  屆時作法：抽 `trackLineConversion(tradeNo, amount)`，三條成功路徑（綠界 `RtnCode==="1"`／
+  `stripe=success`／PayPal 等 capture 回來）各自在確定成功後呼叫，用交易編號寫 localStorage
+  冪等鎖，預約（`B` 開頭）與商品訂單分開標記。送金額給第三方前，隱私權政策要再補明確一句
+- **三個舊分支已全數併入 main，可刪**：`feat/product-reviews`、`feat/register-line-oauth`、
+  `feat/register-facebook`（2026-08-31 以 `git merge-base --is-ancestor` 逐一驗證）
 
 
-### [2026-08-03] 設計系統地基：字體收斂 ＋ 品牌灌入語意 token
-- 目標：小江要「一進站就有質感」。第零階段（Fable Max 產出的產品認識報告）已完成，
-  本節記錄**查證修正**與**三個拍板**，並執行第一波地基工程（字體＋色彩語意層）
-- **前情提要：Fable 的探索紀錄不在 main 上**。commit `2da8c59` 只存在於
-  `origin/claude/design-system-discovery-884sfs`，本節即取代該紀錄（內容已整合並修正）
-
-#### 對第零階段報告的查證結果
-屬實、照單全收：色彩雙軌不相通（`globals.css:57-88` 全 `oklch(x 0 0)`，含 chart 色）／
-深色模式是未啟用 scaffold（無 `darkMode` 鍵、無 ThemeProvider）／favicon 不存在／
-Email 內聯 hex（`src/lib/email.ts:107-109`）／border-beam 前台零使用／
-積分程式碼現值（`points.ts:72` `MIN_POINTS_USE = 10`，rate 0.02–0.04、上限 0.10–0.20）
-
-**四處修正**：
-1. **openspec 規格沒有過時，過時的只有 `tasks.md:26`**。
-   `openspec/specs/coupon-and-points/spec.md` 已寫「最低使用 10 點」「倍數限制已取消」
-   並引用 `points.ts` 為單一真相。此條必須更正——CLAUDE.md 鐵律 4 要求動高風險功能前
-   先讀 openspec，若沿用「規格也過時」的結論會養成繞過規格的習慣，屬制度層損害
-2. `Header.tsx:121` 的 `border-[#EDE8DC]` 引用錯誤（該行是 /account 連結；Header 為 271 行
-   非 274）。該 class 實際集中在 admin，前台對應處是 `AccountClient.tsx:109` 的 `bg-[#EDE8DC]`
-3. 「業務元件 0 處 `dark:`」→ 業務元件確實 0 處，但全站有 13 處，全在 `components/ui/`
-   的 button/select（shadcn 原生自帶，而其 dark token 恰好是灰的）
-4. **硬編碼 hex 的規模與分布是最大漏測**：全站 777 處 `[#xxxxxx]`，
-   **admin 佔 746 處（96%）**，前台僅 31 處（另有 173 處品牌色盤外的 Tailwind 色）。
-   → 重災區是後台不是前台，且「前後台同源」原則的成本 96% 落在後台
-
-#### 拍板（小江已確認）
-- **三條設計原則成立**，第 3 條補一句：**token 必須平台無關**——設計決策存在 CSS 變數層
-  （`--radius-card`），元件只引用語意名。理由：`--radius-card: 16px` 可導成 React Native
-  theme，`rounded-2xl` 一行帶不走。現在做是改名字，App 開案再做是重寫全站
-- **預設淺色，且深色模式現在不做，只留欄位**。現況 0 個業務元件支援 `dark:`，實作等於
-  全站再走一遍；真實需求只有「後台清晨看單」。深色欄位成本近 0 先填，實作綁後台重構那波
-- **門面五件換掉 ChatWidget**：它是覆蓋層、不在轉換路徑、611 行改動成本最高、投報率最差。
-  換成**付款轉跳與 `/order/result` 的等待／過渡狀態**——客人剛付完錢最焦慮的 3 秒，
-  目前是沒設計過的白畫面
-- **報告的最大缺口：全篇只談顏色與字體，沒有非顏色 token**。但質感八成來自間距節奏、
-  字級比例、陰影克制、動態曲線。現況 `--radius` 定義了沒人用、陰影用 Tailwind 預設、
-  動態寫死 `duration-500`。此軸另開任務（見待辦）
-
-#### 本波發現的線上缺陷（對比度實測）
-用 WCAG 公式實算 tea 色階，**主 CTA 不符 AA**：
-| 組合 | 對比 | 判定 |
-|---|---|---|
-| 白字 on `tea-green #7D9B84`（首頁主 CTA `page.tsx:123`） | **3.05** | ❌ 內文不合格 |
-| 白字 on `tea-green-dark #5C7A67` | 4.74 | ✅ |
-| `text-tea-green` on cream（「查看全部」連結） | **2.85** | ❌ |
-| `text-tea-text-light` on cream（次要內文，全站大量） | **3.43** | ❌ |
-
-→ 解法：**新增兩色，不改動既有色階**（既有 `tea-*` 值全部保留，視覺零位移）：
-- `tea-green-ink #58745F`：AA 安全的互動綠（連結／圖示／按鈕底），四種淺底皆 ≥4.54
-- `tea-text-muted #637169`：低彩度次要文字色，四種淺底皆 ≥4.52。
-  彩度 0.0214 vs green-ink 的 0.0476，明顯較灰，不會被誤讀為連結
-- 語意 token 一律指向這兩色；既有 39 個檔案的 `tea-green`／`tea-text-light` 遷移另開一波
-
-- 驗收條件：
-  - [x] `next/font` 收斂：移除 `globals.css:1` 的 Google Fonts CDN `@import`，
-        解決 `layout.tsx:14`（Geist）與 `globals.css:55`（Noto Sans TC）對 `--font-sans` 的雙重定義
-  - [x] `tea-*` 灌進 shadcn 語意層（primary/secondary/muted/accent/border/ring/chart-*），
-        深色欄位填但不啟用 `darkMode`
-  - [x] `/verify` 三件套全過（測試＋型別＋build）
-  - [x] 瀏覽器實跑驗證（見下方證據）
-
-#### 實跑證據（dev server + DOM 查詢，非推論）
-- `--font-latin` = `Geist, Geist Fallback`／`--font-sans` = `Noto Sans TC, Noto Sans TC Fallback`／
-  `--font-serif` = `Noto Serif TC, Noto Serif TC Fallback`——三支各自獨立，雙重定義已解除
-- **殘留 Google Fonts 連線：0**（`document.querySelectorAll('link')` 過濾 googleapis/gstatic 為空陣列）
-- sans 鏈實測：`Geist → Geist Fallback → Noto Sans TC → Noto Sans TC Fallback → sans-serif`，
-  拉丁走 Geist、中文回退 Noto——與改動前的視覺結果一致，但現在是明確宣告而非碰巧
-- 已載入字重：Sans 400/500/600/700、Serif 400/600/700。**600 有了**（先前假造）、**300 已無**（先前白載）
-- 產出 CSS 含 749 個 `unicode-range` 宣告、涵蓋 U+4E00–U+9FFF，中文字符確實自架成功
-- next/font 額外產出 `Noto Sans TC Fallback` size-adjust 字型 → 順帶降低 CLS
-- 建置成本：70 秒、218 個 woff2、11MB（瀏覽器只抓命中 unicode-range 的分片，不影響使用者）
-
-#### 一個必須誠實說明的落差
-`components/ui/button.tsx` 與 `select.tsx` **全站零引用**（grep import 無結果），
-業務元件也 0 處使用語意 token，bare `border` 僅 1 處。
-→ **語意層改動目前的可見變化幾乎只有 body 底色（白 → 米白 #FAF7F2），
-其餘是純地基、沒有立即視覺回報**。價值在於後續元件遷移時有正確且合規的落點，
-不該把這一步當成「視覺升級」向使用者邀功。真正的視覺回報在下一波遷移
-- 待辦（本波不做，已排隊）：
-  - [x] 非顏色 token 軸（radius/shadow/space/motion）→ 見下方「第二波」
-  - [x] favicon 與 app icon → 見「第五波」
-  - [x] `docs/design-system.md` ＋ 修 `tasks.md:26` 積分敘述（openspec 不動）→ 見「第三波」
-  - [x] ~~既有 39 檔的 AA 遷移~~ → 第四波做完，**第六波依小江決定全數回退**，改列為已知取捨
-  - [x] 後台 746 處 hex 收斂 → 見「第七波」，746 → 28（-96%）
-  - [x] **WORKLOG 精簡** → 2026-08-06 完成，610 行 14 節 → 302 行 4 節
-- **邊界：本波只動前台與 token 層，後台 746 處 hex 不碰**。量體是前台 24 倍，
-  且後台是茶農家庭每天在用的工作台，風險模式不同，混做會失控
-- 狀態：本波已完成（證據：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤、`npm run build` 成功、
-  dev server 實跑 DOM 查詢確認字型鏈與 token 值如預期、Google Fonts 殘留連線為 0）。
-  commit `6951084`，已推 `origin/claude/design-system-foundation`
-
-**第二波（2026-08-03）：非顏色 token 軸**（commit `665ff90`）
-- 命名由現況反推而非發明：先統計全站用法再替隱性慣例取名
-  | 軸 | 現況分布 | token |
-  |---|---|---|
-  | 圓角 | lg 100／xl 149／2xl 120／3xl 9／full 187 | `--radius-inline/control/card/showcase/pill` |
-  | 陰影 | sm 68／md 13／lg 10／xl 11 | `--shadow-resting/raised/float/modal` |
-  | 動態 | duration 150/200/300/500；transition-colors 167 處 | `--motion-fast/base/slow/reveal` ＋ `--ease-standard/exit` |
-  | 間距 | `py-16 md:py-24` 15 處／p-6 47／p-8 35 | `--space-section/-lg/card/card-lg/gutter` |
-- **陰影改用茶墨色 `rgb(61 74 66)` 取代 Tailwind 預設純黑**。純黑壓在米白上會透出灰調，
-  暖色陰影才不會讓米白顯髒——這是「看起來貴」與「看起來預設」的實際差別
-- 首頁作為參考實作（圓角值與原本完全相同，1rem = rounded-2xl，唯一視覺變化是陰影色）
-
-**順帶修掉的三個既有問題**
-1. **`.no-scrollbar` 實際不存在**：原本用 `@utility` 宣告（Tailwind 4 語法），但本專案是
-   Tailwind **3.4.19**，該語法不生成任何 CSS。`ChatWidget.tsx:565` 的橫向捲軸一直是露出來的。
-   已改回 `@layer utilities`（postcss 未裝 nesting plugin，故 `::-webkit-scrollbar` 寫平選擇器）
-2. **boxShadow 不可用 `card` 當 key**：`card` 已是 colors 的 key，同名會產出兩條 `.shadow-card`
-   （陰影＋陰影顏色），後者在後會覆寫 `--tw-shadow`。目前碰巧仍成立但屬巧合，已改名 `resting`
-3. **新增 `prefers-reduced-motion` 支援**：動態走 CSS 變數，改寫變數即可全站收斂
-
-**同時發現、未處理（影響為零，故不動）**
-- `globals.css` 裡的 `@theme inline`／`@custom-variant`／`@utility` 全是 Tailwind 4 語法，
-  在 v3 下不生成任何東西，並原樣漏進產物 CSS（`@utility` 165 次、`@custom-variant` 27 次、
-  `@theme` 6 次）。`tw-animate-css` 整包同理
-- 影響為零的原因：這些 class 只被 `components/ui/select.tsx` 使用，而該檔**全站零引用**。
-  專案自己用的 `animate-spin/bounce/pulse` 是 v3 內建、正常運作
-- 要清理需連帶處理未使用的 shadcn 元件與 `tw-animate-css` 相依，屬獨立的死碼清除任務
-
-**方法論教訓（已記 lessons）**：驗證 Tailwind 產物時我先用 `npx tailwindcss -c tailwind.config.ts`
-跑了三次 probe 都「查無 utility」，一度以為 token 沒生效。實際是 **CLI 根本沒讀 TS config**——
-用既有的 `bg-tea-green`（線上明明有效）當對照組才發現，先前三次全是無效測試。
-Tailwind 產物一律以 `npm run build` 為準
-
-- 驗證：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤、`npm run build` 成功；
-  dev server 實跑確認卡片圓角 16px、陰影為 `rgba(61,74,66,…)` 而非純黑、
-  `transitionDuration` 0.2s、`ease` 為 `cubic-bezier(0.2,0,0,1)`、`no-scrollbar` 的
-  `scrollbarWidth` 已回傳 `none`
-
-**第三波（2026-08-04）：`docs/design-system.md` ＋ 修 `tasks.md`**（commit `f26ecf9`）
-- 文件涵蓋：三條原則（含 token 平台無關的硬性條件）／色彩兩層對照／對比度基準與
-  **已知不合格清單**／字體來源與可用字重／非顏色四軸／外包交付規格／施工邊界／待遷移清單
-- **最實用的一節是「給生成工具的約束」**：附可直接貼的 prompt，明訂只出三色相階調、
-  圓角限四階、陰影限茶墨色、對比 ≥4.5、**不要輸出程式碼**。
-  這是把「用 Codex 做視覺」這件事變安全的關鍵——交付物換成圖與說明，不是 code
-- `tasks.md` 修兩處：L26（200 點／100 倍數／10% → 10 點／無倍數／依等級 10-15-20%）
-  與 L34（移除已不存在的「倍數」驗證項）。**openspec 規格未動**，它本來就是最新的
-- 文件數字已逐條複查：hex 746/31、版面慣例 54/29、tea 十二色、utility key 全在 config、
-  `select.tsx` 零引用、`border-beam` 前台無使用、所有引用路徑存在
-- 本次僅動 markdown，無程式碼改動故未跑 `/verify`（證據為上述存在性複查）
-
-**待使用者拍板**：是否把 `docs/design-system.md` 加進 `CLAUDE.md` 的路由表
-（情境「要動視覺／介面」）。依 MAINT-1，改 `CLAUDE.md` 要先問使用者。
-不加的話，未來 session 不會知道有這份文件——文件沒人讀等於沒寫。
-
-**第四波（2026-08-04）：AA 遷移**（commit `e9971a6`）
-- 三種線上不合格組合已修：`bg-tea-green+白字` 3.05（含首頁主 CTA）、`text-tea-green` 於米白 2.85、
-  `text-tea-text-light` 內文 3.43
-- 新增 `tea-green-deep #4D6954` 作 hover 態——舊的 `green-dark #5C7A67` 比 `green-ink #58745F`
-  **還亮**，沿用會讓 hover 反向變亮
-- **深色底方向相反**：淺底改深、深底改亮。`bg-tea-text` 內的標籤 → `green-light`；
-  深色區再疊半透明卡片的（合成底 `#47534C`）→ `cream-light`，因為 `green-light` 在那裡只有 4.04
-- 裝飾用 `bg-tea-green`（分隔線、圓點）**保留原色 40 處**——不承載文字就不是可存取性問題，
-  改了只會讓品牌的淺綠消失
-
-**驗證工具：`docs/contrast-audit.js`**（本波新建，後台那波會再用）
-瀏覽器端稽核器，會**合成半透明圖層**後計算真實對比——比 grep 原始碼可靠得多。
-成效：首頁 33→0、`/about` 6→0、`/products` 0、`/experiences` 0。
-**已知限制**：絕對定位的覆蓋層抓不到（Hero 那種「照片＋遮罩＋文字」結構，遮罩是文字的
-*兄弟*節點不是祖先，會穿透到 body 誤判）。首頁那 5 筆低對比即為此類假陽性，實際正常。
-
-**方法論**：這次是「先全域替換、再用實測稽核抓回歸」，不是逐檔人工判斷。
-關鍵在於稽核器對深色底的回歸一定抓得到（`#637169` 壓在 `#3D4A42` 上只有 1.9），
-所以大膽改、再用證據收斂，比小心翼翼逐處判斷更快也更可靠。
-
-**踩到的坑**（已記 lessons）：`perl -pi` 就地改檔的 unlink+rename 空窗被 Tailwind 撞上，
-錯誤被寫進 `.next` 快取，導致 dev server 重啟後仍 500。`rm -rf .next` 即解。
-一度誤以為檔案被刪，實際一個都沒少。
-
-**使用者回報待處理**：小江說已把 Hero 遮罩調成偏好的顏色（原本太亮），但該改動
-**不在本工作區**（`page.tsx:103` 仍是 `bg-tea-text/55`，`git diff` 為空，瀏覽器渲染值也相同）。
-需向小江取得實際值後再落進 repo。
-
-- 驗證：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤、`npm run build` 成功
-
-**第五波（2026-08-06）：favicon 與 app icon**（commit `36a1449`）
-- 正式站先前**完全沒有** favicon（`/favicon.ico` 回 404）。補齊三件：
-  `favicon.ico`（16/32/48 三尺寸）、`icon.svg`（現代瀏覽器）、`apple-icon.tsx`（iOS 180×180）
-- **設計決策：不是 Header logo 的等比縮小版**。Header 那顆（`Header.tsx:63-79`）雙層綠＋
-  三條 1.5px 莖線，16px 下糊成一團，且淺色葉子在淺色分頁列上幾乎看不見。
-  改為深色 chip `#3D4A42` ＋ 單層淺綠葉 `#C8DDD0`（對比 6.52）＋ 一條中脈
-- **中脈寬度是實測出來的，不是估的**：初版 1.8（32 viewBox）在 16px 被抗鋸齒吃掉，
-  加粗到 2.6 才在 16/32/64/180 全部可辨。葉形也放大（原本只佔 23% 面積）。
-  方法：把 SVG 光柵化到各尺寸後掃描像素，檢查葉子中段是否存在深色斷點
-- `favicon.ico` 產法：用 `sharp`（Next.js 內建相依，不需另裝）**逐尺寸原生渲染**
-  再手工組 ICO 容器（ICONDIR + ICONDIRENTRY + 內嵌 PNG）。
-  從大圖降採樣會讓 16px 糊掉，所以用 `density` 控制每個尺寸各自渲染
-- 驗證：ICO 容器解析正常（type=1、count=3）、三尺寸皆可解碼且與目錄記載相符、
-  每張都含深底與淺葉像素；dev server 實測三個路徑皆 200 且 content-type 正確、
-  Next.js link tag 齊全；`apple-icon` 透明度 0%（滿版方形，iOS 會自己套圓角，
-  自帶圓角會被切成雙層弧線）
-- 資產說明已寫進 `docs/design-system.md` 的「品牌識別資產」一節，含重新產生的方法
-
-**仍待小江提供**：Hero 遮罩的實際值。小江表示已調整成偏好的顏色（原本太亮不夠有質感），
-但改動不在本工作區——`page.tsx:103` 仍是 `bg-tea-text/55`，`git diff` 為空，
-瀏覽器渲染值也是 `rgba(61, 74, 66, 0.55)`。取得值後要用 `docs/contrast-audit.js`
-複驗 Hero 上那五段米色文字在新遮罩下的對比。
-
-**第六波（2026-08-06）：顏色回退到 Production**
-- 小江看了 preview 後判斷「顏色變得有點深色」，決定把顏色調回 Production 現狀。**這個判斷是對的**：
-  AA 遷移時我一刀切——連只需 3.0 門檻的圖示、大字、裝飾也一起改深，屬過度矯正；
-  另外 `text-muted` 為避免被誤讀為連結而把彩度由 0.047 砍到 0.021，副作用是次要文字整體變灰。
-  「變深＋變灰」疊加就是他感受到的沉
-- 前置查證：`origin/main` 在分岔後**零新 commit**，故 Production ＝ 本分支改動前的狀態，基準明確。
-  另確認 Production 的 Hero 遮罩也是 `bg-tea-text/55`——小江調整過的那版**不在 git 任何地方**
-- 執行：`git revert e9971a6`（非手工改回）。好處是歷史留著，日後若要「亮度回收版」
-  （按鈕用 `green-dark` 4.74、圖示與 ≥24px 大字保留 `tea-green` 走 3.0 門檻），
-  revert 那個 revert 即可重新套用 39 檔的替換再調亮
-- 另把 `--background` 由 cream-light `#FAF7F2` 改回純白（與 Production 一致）
-- **保留未動**：字體收斂、favicon 三件套、非顏色 token（圓角／陰影／間距／動態）、
-  語意 token 基礎、`design-system.md`、`contrast-audit.js`。這些與「變深」無關，是地基
-- `tea-green-ink` 與 `tea-text-muted` 兩色**保留在色盤中**，作為日後需要合規時的落點
-- 文件處置：`design-system.md` 2.3 節把三組對比由「已知不合格、待遷移」改記為
-  **「業主拍板的已知取捨，不列入待辦」**，數據與合規落點保留，並明寫「請勿再自行修正」
-- 驗證：536 測試全過（40 檔）、`tsc --noEmit` 零錯誤、`build` 成功；
-  **逐色比對 27 種 `tea-*` 類名的出現次數與 `origin/main` 完全相同**；
-  瀏覽器實測 body `#FFFFFF`、主 CTA `#7D9B84`、次要內文 `#6B8872` 皆回到 Production，
-  而 `rounded-pill`(9999px) 與 `shadow-resting` 仍生效
-
-**第七波（2026-08-06）：後台 hex 收斂 746 → 28**（`61f629f`、`0b61c15`）
-- 第一階段 628 處：11 種與色盤完全相同 ＋ 5 種色差 ΔEok<0.011（肉眼不可辨）的近似色
-- 第二階段 83 處：新增 `tea-text-faint #9CA89E`（第三層文字色，空狀態與載入提示，65 處）
-  與 `status-{idle,info,warn,danger,done}` ＋ 各自 `-soft` 底色（10 個 token）
-- **狀態色刻意不放進 `tea-*`**：狀態需與品牌色可區辨，混進去會讓「這個綠是品牌還是狀態」
-  變成每次都要重想的問題。成對使用 `bg-status-warn-soft text-status-warn`
-- **目標值一律映射回原始色階**（`#7D9B84`→`tea-green` 而非 `green-ink`），與第六波回退一致
-- 驗證方式值得沿用：**從建置產物 CSS 讀出每個 class 的實際 rgb，與原始 hex 逐位元比對**——
-  全同即證明是恆等變換，顏色不可能改變。這比「看起來一樣」強得多
-- 剩餘 28 處為深綠系與色差 0.02–0.05 的近似色，**刻意不動**（改了就是真的改視覺）
-- **踩到的坑**：正則跳脫掉了變成字元類別，26 檔全毀（`RevenueChart`→`Revenuetea-cream-darkhart`）。
-  救命的是事前盤點數字（預期 746、實際 12539）。已升格為 JUDG-8
-
-**順帶修掉的顯示 bug**（`a7d2bb5`、`731046e`）
-- 三個檔案各自複製狀態對照表且都少鍵，舊寫法 `MAP[s] ?? MAP.new` 讓未涵蓋的狀態
-  **偽裝成別的狀態且毫無痕跡**：`stock_issue`／`failed` 顯示成「新訂單」、
-  已完課預約顯示成「待付款」。dashboard 的近期預約沒有狀態過濾，是每天第一眼看到的畫面
-- 新增 `src/lib/admin-status.ts` 單一事實來源；刪掉從未被直接命中的死鍵 `BOOKING_STATUS.pending`
-  （**三個錯剛好讓兩個看起來是對的**）；fallback 改為顯示原始值
-- 前台 `AccountClient` 同一問題但更嚴重：`stock_issue`（**已付款**但缺貨）顯示「待付款」，
-  客人可能以為沒付成功而再付一次。小江拍板：`stock_issue`→「處理中」（沿用既有 i18n 鍵
-  `orderStatus.processing`，零新增字串）、`failed`→維持「待付款」。
-  **fallback 一併改為「處理中」——在不確定時告訴客人「你還欠錢」是最糟的猜法**
-- 回歸測試 15 條，其中一條**掃描原始碼**找出所有實際寫入的狀態值再比對鍵覆蓋率，
-  未來新增狀態卻忘了補表會變紅。反向驗證 3 次如預期變紅
-
-**第八波（2026-08-06）：制度檔精簡**（`6d2885f`、`2ace2f9`）
-- WORKLOG 610 行 14 節 → 302 行 4 節；lessons 36 條 → 17 條
-- **新增 JUDG-8「證據要有鑑別力（沒報錯 ≠ 有做到）」**——本週三次事故
-  （python 空殼靜默失敗、正則毀 26 檔、class 搬到 `src/lib` 後 Tailwind 掃不到）
-  加上七月的假驗證，根因全是同一個：證據分不出成功與失敗
-- 精簡時順帶抓到：先前三處待辦勾選用 python 改檔**全部靜默失敗**，
-  WORKLOG 對後續 session 一直顯示錯誤的完成狀態
-
-**第九波（2026-08-06）：字級尺度與首頁節奏**（`20690e0`、`357e320`）
-- 診斷：前台 `text-xs` 210 ＋ `text-sm` 345 ＝ 555 處小字，而 `text-base` 只有 14 處。
-  **四十年的故事用後台的字級在講。** 這是啞鈴分布不是尺度
-- 新增四階內文 token：`caption 12/1.6`、`label 14/1.55`、`body 16/1.8`、`body-lg 18/1.85`。
-  **行高刻意比 Tailwind 預設寬**——預設 1.5 對中文太緊，CJK 舒適區 1.7–1.9，
-  放寬行高的效果不亞於放大字級
-- 套用採三分法**不是全部放大**：敘事型升級（品牌故事 14→18px、預約須知依原則 2 升級）／
-  介面標籤維持 14px／真 metadata 維持 12px（eyebrow 小標籤是節奏標記不是閱讀內容，放大會破壞層次）
-- 首頁節奏：原本 5 段全是 `py-16 md:py-24`，**均勻等於沒有節奏**。
-  新增 `--space-section-xl: 8rem`，慢段（品茶哲學、品牌故事）與快段交替 →
-  桌機 128/96/96/128/96、行動 96/64/64/96/64
-- 驗證：桌機與行動皆零溢出零裁切；商品卡 5 張**全部 632px 等高**（`line-clamp-2` 鎖住高度）、
-  體驗卡每列內部等高
-- **刻意沒做**：把茶山體驗的卡片牆換成滿版照片斷點。那會移除三張體驗卡＝預約轉換入口，
-  屬商業決策不是設計決策，留給小江拍板
-
-**環境事實（`53706f7`）**：Avast 攔截 HTTPS，`preview_start` 的子行程拿不到
-`NODE_EXTRA_CA_CERTS` → 連 Supabase 失敗 → 頁面顯示「共 0 款茶品」，**看起來像沒資料其實是連不上**。
-判別法：直接 `node` fetch 得通但 dev server 不通 → 環境變數繼承問題，不是網路也不是 RLS。
-解法在 `.claude/launch.json`（已 gitignore）用 `--use-system-ca`。已入 diagnosis.md 環境事實表。
-
-**第十波（2026-08-06）：淺底收斂成兩層**
-- 診斷確認：`cream #F5F0E8`／`cream-light #FAF7F2`／`white` 三層彼此只差 2%，視覺上同一片
-- 執行：全站 101 處 `bg-tea-cream-light` → `bg-tea-cream`（34 檔）。
-  `cream-light` 不從色盤移除，**改當深底上的文字色**（`text-tea-cream-light` 13 處：
-  Hero 大標、Footer、深色 CTA 段），角色從「背景層」變成「深底文字」，定義反而更乾淨
-- **一開始的方向是錯的，被實測推翻**：原本想讓 section 交替 cream/white 來強化第九波的節奏。
-  改完掃描發現首頁「本季精選」段改白底後，**三張商品卡（`bg-white`）全部同色壓同色**——
-  卡片牆等於消失。修正後的原則是**層次由「有沒有卡片」決定，不是由「要不要交替」決定**：
-  有卡片的段用 cream 讓白卡浮起來，純敘事段用 white。節奏交給間距 token，背景只管層次
-- 依此原則順帶補上四處**既有**的白壓白（不是這波造成的，但同一個病）：
-  `/products` 與 `/experiences` 的卡片牆頁底、`/about` 理念卡段、`/process` 兩段
-- 新增的驗證器值得沿用：**掃出「不透明背景 == 最近的不透明祖先背景」且像卡片的元素**。
-  這比肉眼看可靠——2% 的色差人眼分不出來，但它分得出來。九個前台頁掃到零殘留
-  （`/process` 製程卡區剩 2 處，該區用米色系當色票，改底色會與卡片衝突，留待專門處理）
-- **對比零退步的證據**：`git stash` 前後各跑一次 `contrast-audit.js`，
-  首頁「檢查 182 節點／不合格 111／疊圖片 6」**改前改後完全相同**。
-  111 項全是第六波拍板的已知取捨（`tea-green`／`tea-text-light`），沒有任何項目從合格掉到不合格
-- **踩到的坑**：PowerShell 的 `Get-ChildItem`／`Get-Content` 會把路徑裡的 `[]`
-  當萬用字元，`[slug]`／`[id]` 那 8 個檔**整批被靜默跳過**（只在 stderr 留下看似無害的
-  「does not exist, or has been filtered」）。救命的還是事前盤點：預期 101、實得 88。
-  修法是全部改用 `-LiteralPath`。同一個迴圈若 `$c` 為 null 還會把檔案寫成空的——
-  已加 `if ($null -eq $c) { throw }` 守衛。已入 lessons.md
-- 順帶修正 `design-system.md` 的文件漂移：`--background` 記載為 cream-light，
-  但第六波已改回純白（瀏覽器實測 `lab(100 0 0)`）
-- 驗證：551 測試全過（42 檔）、`tsc` 零錯誤、build 成功
-
-**第十一波（2026-08-07）：門面四件打磨**（`258f0f6`、`68fba89`、`1f46395`、`8831c23`）
-- ProductCard／ExperienceCalendar／Header／`/order/result` 四個檔全面改用語意 token：
-  圓角、陰影、動態、字級。圓角與動態是恆等映射（`rounded-2xl`→`rounded-card` 都是 16px），
-  陰影刻意不恆等——改用茶墨色 `rgb(61 74 66)` 取代 Tailwind 預設純黑
-- **硬編碼 hex 退出 SVG 屬性**：Tailwind 有 `fill-*`／`stroke-*` utility，
-  logo 與圖示的 `fill="#7D9B84"` 全改成 `className="fill-tea-green"`。
-  實測渲染值 `rgb(125,155,132)` 與原 hex 相同——恆等，但色盤調整時不會再漏掉
-- **順帶補了四個對比不合格項**（都是既有缺陷，不是重構造成的）：
-  低庫存 `amber-500` 2.15→7.09、取消狀態 `red-400` 2.53→5.30、
-  `/order/result` 錯誤訊息 2.44→6.70、無信箱提示 2.81→6.25
-- **付款等待畫面**：抽 `VerifyingPayment` 給 PayPal capture 與 Suspense fallback 共用。
-  文案重點從「請稍候」改成**「不要再付一次」**——PayPal 是客人那邊已授權、
-  我們這邊才 capture，只寫「處理中」會讓人回上一頁重送而重複扣款
-- **兩個被實測推翻的判斷，兩次都是我先想錯**：
-  1. 「白畫面是 `<Suspense>` 沒 fallback 造成的」→ 抓 SSR 初始 HTML 後確認，
-     金流轉跳是整頁載入、`useSearchParams` 不會 suspend，根本沒有白畫面。
-     fallback 仍補上（client-side 導覽會用到），但程式碼註解改寫成正確因果，不留錯誤推論
-  2. 「停用態統一用 `text-tea-text-faint` 比較一致」→ 對比只有 2.02–2.47，
-     其中日曆載入提示從 3.90 掉到 2.47。**為一致性犧牲可讀性是本末倒置**，已退回
-- 驗證方法沿用第七波並補強：從建置產物 CSS 逐一確認 token 生成，
-  **每次都帶「必定存在」與「必定不存在」兩組對照**。這次靠它抓到自己的檢查器讀錯目錄
-  （CSS 在 `.next/static/chunks/` 不是 `.next/static/css/`），否則會誤報「全部沒生成」。
-  另：`hover:` 前綴的 class 在 CSS 裡是 `.hover\:x:hover`，用 `.x` 比對必然落空，要單獨查
-- `bg-[#F0F6F1]`→`bg-tea-green-mist` 用 ΔEok 驗證＝0.0107（門檻 0.011），
-  對照組「明顯不同色」0.3097 證明計算有鑑別力
-- 小尾巴：`/contact` 的輸入框從全站唯一的 `bg-white` 改回 `bg-tea-cream/50`，與其他四頁一致
-- **`/contact` 其餘 20 處也已收完**（`4ded95a`，等於第五件）：圓角／陰影／轉場／`py-section`，
-  成功圖示 `stroke="#7D9B84"`→`stroke-tea-green`，必填星號 `red-400` 對比 2.77→7.60。
-  字級一併做了三分法：**表單 label 由 12px 升 14px**（介面標籤本來就該是 `text-label`，
-  原本是把全站最小級距用在最該讀的地方）、敘事型內容升 `text-body`、
-  真 metadata 維持 12px 改用 `text-caption`
-
----
-
-### 下一個 session 從這裡接手
-
-> 本區於 2026-08-15 重寫。**舊內容（第十二波 CheckoutClient 打磨、2026-08-08 合併紀錄）
-> 已過時**，原文見 git 歷史與 `.claude/backups/WORKLOG.md.20260815b.bak`。
-
-**現況**：`main` 與 origin 同步、工作區乾淨。測試 652（51 檔）、tsc 零錯誤、
-lint 0 error（36 warning 是既有債務）、build 成功。
-
-**這一輪（08-12 ~ 08-15）做完並上線的**：轉換動線的信任訊號與運費修正、
-品飲組（tasting-set）、商品評價（product-reviews）階段一＋二、後台組合管理。
-各自的完整脈絡見下方三節，不要只看 git log。
-
----
-
-#### ⚠️ 業主已經否決過的，不要再提
+### 業主已經否決過的，不要再提
 
 這些是**看過實物之後**的決定，不是還沒試過：
 
@@ -442,32 +137,15 @@ lint 0 error（36 warning 是既有債務）、build 成功。
 | 公告條註冊連結的 19px 觸控區 | 業主指示**維持不修** |
 | 首頁三張卡換成紅烏龍 | 業主決定不換 |
 | 品飲組上首頁 | 業主決定不上，只在 `/products` |
-| 蜜香紅茶／茶包調價 | 業主決定**維持現價** |
+| 蜜香紅茶／茶包調價 | 業主決定**維持現價**（蜜香紅茶 400、蜜香紅茶茶包 250、四季春茶包 250） |
 | 商品卡顯示星等 | 實測會多 32px 撐破 632px（業主指定值），走退路改在顧客回饋區呈現 |
+| 體驗 9 折做成線上自動折抵 | 刻意不做，改人工給（理由見已歸檔 08-21 那條） |
 
 **`ProductCard.tsx` 的卡片總高 632px 是業主指定值**，卡內 6 處間距早在 08-12 為了
 描述第三行各縮過 2–4px，最多再擠出 22px。動它之前先量，並先問業主。
 
----
 
-#### 目前擱置中的事
-
-1. **品飲組做完了但沒開賣**：`product_bundles.is_active = false`。程式碼、後台管理、
-   驗收全部完成並上線，客人卻看不到。開關在 `/admin/bundles`。
-   這是目前投入產出比最差的一項——成本全付了、收益是零
-2. **三種線上金流的組合下單從未實測**：全資料庫只有 2 筆含組合的訂單，都是貨到付款。
-   `online`（綠界）／`stripe`／`paypal` 一筆都沒有。它們的扣減時機與 COD 不同
-   （**付款成功後**才扣），目前只有單元測試覆蓋
-3. **訂單資料池還沒清乾淨**：125 筆訂單，97 筆已標 `is_test`。剩下 28 筆裡的
-   22 筆已取消——**業主 2026-08-15 確認那是他自己在測試**，尚未標記。
-   更麻煩的是：那 22 筆來自 8 個 email，而「已付款」的 6 筆來自 3 個 email，
-   **兩邊有 2 個 email 重疊**。所以真實客人可能只有 1 個 email 而不是 3 個。
-   **在業主逐一認過之前，任何 AOV／轉換率的數字都不可引用**
-4. 未做：商品圖 2MB PNG ×6、東方美人上架（卡在缺成本）
-
----
-
-#### 這個專案在數字上的實況（給任何要談優化的人）
+### 這個專案在數字上的實況（給任何要談優化的人）
 
 - 真實已付款訂單極少（個位數），且**可能全是測試**。不要拿站上的統計推論客人行為
 - 免運門檻國內 1,000／國際 2,500；宅配實收成本是黑貓「3 斤以下・本島」130，
@@ -475,841 +153,118 @@ lint 0 error（36 warning 是既有債務）、build 成功。
 - 各品項毛利率（業主 2026-08-13 提供斤價換算）：紅烏龍 60%、高山烏龍 59.4%、
   金萱 53.6%、蜜香紅茶 50%、四季春 45%（已從賠錢的 8.3% 調到 250）
 - **75g 的毛利率一律比 150g 高 6–7 個百分點**（價格 60%、茶葉成本 50%）
-
-
-### [2026-08-11] 英文版漏翻：會員中心（預約／點數）與結帳 order summary
-- 目標：業主回報切英文時仍有中文。盤查後歸成四個根因，本波做掉三個半
-- 驗收條件：
-  - [x] 體驗名稱、商品名、規格、等級名稱、日期格式在英文版全部跟著語系走
-  - [x] 帳本描述有對照表且**漏補會被測試抓到**
-  - [x] `/verify` 三項全過
-- **四個根因**（分類比逐條列清單有用，未來同類問題照這四類找）：
-  1. **DB 有英文欄位但沒取用** — `experience_types.name_en`（查詢只 select 了 `name`）、
-     `products.nameEn`（結帳與購物車直接用 `.name`）。修法最輕
-  2. **硬編碼中文** — 5 處（保級預警、等級變更紀錄、升等／年度重置、最早到期、
-     結帳的「您為金卡會員…」）
-  3. **日期寫死 `zh-TW`** — `AccountClient` 8 處。專案本來就有寫法可沿用
-     （`ExperienceReviews.tsx:40`：`locale === "en" ? "en-US" : "zh-TW"`）
-  4. **DB 沒有英文欄位** — `member_tiers.name` 與 `point_transactions.description`
-- **兩個結構性決定**：
-  - **等級名稱一律不讀 DB 的 `name`**，改由 tier id 對 `common.memberTier.*`
-    （該表沒有 `name_en`，加欄位不如讓顯示層決定）。i18n 本來就有這三個字串，
-    原本擺在 `account.rewards.tier*`、只有 account 用得到；移到 `common` 讓結帳共用
-  - **帳本描述走顯示層對照表（業主拍板 A 案）**，不改寫入端。理由：描述在 DB 裡是中文
-    字面值且**歷史資料已經落地**，顯示層對照可以一併涵蓋舊資料；而點數是高風險區，
-    不動寫入路徑風險最低。認不出來的**原樣顯示原字串**——寧可露出中文也不猜
-- **測試的關鍵設計**（`src/__tests__/points/points-i18n.test.ts`）：不是我列了哪些字串就測哪些，
-  而是**掃描原始碼**把所有寫入 `description` 的字面值抓出來（模板的 `${...}` 換成 `123`
-  還原成真實形狀），逐一比對對照表。新增寫入點卻忘了補，測試就會紅並指名檔案。
-  掃描器**必須先篩檔**（`point_transactions` 或 import `@/lib/points`）——
-  `description:` 這個鍵在頁面 metadata 與 Sanity schema 裡到處都是，不篩會被雜訊淹沒
-- 反向驗證：拿掉對照表一條後測試如預期變紅並指名來源檔，確認不是空過
-- **順手修掉的既有問題**：等級變更紀錄原本直接印 id（`standard → gold`，中文版也一樣看不懂）；
-  購物車頁的產地在英文版也沒切 `originEn`
-- **踩到的坑**（已入 lessons）：茶包組的購物車商品名是**合成**的（`${name} 茶包組`），
-  但 `nameEn` 沒同步合成，直接切過去會讓英文版的茶包組與 150g 散茶同名
-- 環境：`node_modules` 是空的，得先 `npm ci`；`npm ci` 後**第一次**跑 vitest 會有
-  5s timeout 的假失敗（transform 花了 45 秒），重跑即過——不要當成改動造成的
-- 狀態：已完成（證據：44 檔 578 測試全過／baseline stash 對比為 43 檔 568 全過、
-  `tsc --noEmit` exit 0、`npm run build` exit 0）
-- **瀏覽器覆驗：業主實測通過**（2026-08-11，截圖三張）。`/en/checkout` 的 order summary
-  顯示 `Ali Shan High Mountain Oolong 150g × 1` 與 `You're a Gold member — up to NT$227 off this order`；
-  `/en/account` 預約顯示 `Tea Ceremony`／`Tea Fruit Wine` 與 `Sun, August 9, 2026 14:00`；
-  點數明細顯示 `Points refunded — booking cancelled`、`NT$10 redeemed on booking`。
-  **其中 `(system reissue)` 那三筆是歷史 SQL 補資料留下的後綴**——證明對照表確實涵蓋舊資料，
-  不是只有新寫入的才對得到（這正是選 A 方案的理由，實測到此為止成立）
-- **補洞：`product-display.ts` 原本零測試覆蓋**。業主實測的購物車只有 150g 散茶，
-  茶包組那條分支（規格字串 ＋ `Tea Bag Set` 後綴）當時既無測試也沒被看過。
-  已補 8 條單元測試，關鍵那條斷言的是**「茶包組與散茶不可同名」**而非字面值，
-  反向驗證（拿掉補後綴邏輯）確實紅在該條
-- **拍板：茶包規格英文寫法維持 `15 bags × 3g`**（業主 2026-08-11）。
-  測試用 `expect(...).toBe(en.products.teaBagHint)` 把它與 messages 綁在一起——
-  全站只能有一種寫法，任一處改動就會變紅，避免出現 `15 bags` 與 `15 tea bags` 並存
-
-### [2026-08-12] 轉換動線的信任訊號、運費修正與定價盤點
-- 目標：業主問「視覺與銷售怎麼優化」。盤查後做掉轉換動線上四項，並把定價與運費的
-  真實數字算出來（成本是業主當天提供的）
-- 驗收條件：
-  - [x] 四項改動在正式站實測到（見下方證據）
-  - [x] `/verify` 三項全過（測試 587、tsc 0、build 成功）
-  - [x] 合併進 `main` 並確認 Vercel 部署成功（約 40 秒）
-- **已上線（`8cd73ba`，正式站實測）**：
-  1. 規格 chip 只在庫存 ≤10 顯示（`ProductCard.tsx:269`）。正式站只剩 `剩 7 包`×1、
-     `剩 8 包`×2，九個數字變三個橘字；數量旁的 `庫存 N 包` 保留
-  2. 商品區信任列（`TrustRow.tsx`，收在「本季精選」內部，不新增底色階）
-  3. 宅配運費 250 → 150（`DOMESTIC_FEES`），文案改帶參數＋測試釘住顯示值
-  4. `NumberTicker` 初值改真值，SSR 從 `<span>0</span>` 變 `40 / 3 / 10 / 1,300`
-  另有 Hero `100svh`、`chat-knowledge` 免運金額 1500→1000、五款商品補 slug、
-  `orders.is_test` 欄位與 trigger
-- **三個結構性發現（都用業主提供的成本算過）**：
-  - **四季春是轉售品且原本賠錢賣**。進價 550/斤、原售價 150/150g → 毛利 12.5（8.3%），
-    扣包材與金流是負的；七包湊 1,000 免運那筆單淨虧約 176。**已調 250 / 75g 140**
-  - **宅配 250 是黑貓「15–30 斤」的費率**，實際出貨幾乎都在 3 斤以下（本島 130）。
-    真實訂單 4/6 筆是「單包 400 ＋ 運費 250」，等於把 9 包以內的單按 46 包收費
-  - **75g 毛利率一律高於 150g 6–7 個百分點**（價格 60%、茶葉成本 50%）。
-    賣兩包 75g 比一包 150g 多賺 80 元且茶葉同重——品飲組的數字依據
-- **業主拍板（2026-08-12）**：蜜香紅茶 400、蜜香紅茶茶包 250、四季春茶包 250
-  **全部維持不動**（我建議調價，業主否決）；免運門檻國內 1,000 維持；
-  公告條 19px 觸控目標維持不修；紅烏龍不換上首頁；`NumberTicker` 要 spring 的手感
-- **AOV 之前算不準的原因**：123 筆訂單有 95 筆是業主自己 email 的測試單。
-  已加 `is_test` 欄位＋trigger（`supabase/add_orders_is_test*.sql`，業主已執行）。
-  排除後真實已付款只有 6 筆／3 個客人（400×4、1020、1250），**還不能拿來設門檻**，
-  目前價值是基線
-- **未解**：22 筆真實訂單全部 `order_status = cancelled`，其中 19 筆是 2026-03 的
-  貨到付款。資料看不出原因，**只有業主知道**。若那是真實客人，比本節任何一項都重要
-- **踩到的坑（一條已入 lessons，其餘記在這裡）**：
-  - **卡片內元素改條件式渲染會破壞等高**。庫存字改成 `v.stock <= 10 &&` 之後，
-    `/products` 出現 632 與 617 兩種高度（沒有低庫存規格的卡片矮 15px）。
-    修法是讓那行永遠佔位（`min-h-[1lh]`，同 `L241` 描述容器的手法）。
-    **卡片內元素改條件式渲染前，先在有多筆資料的列表頁量所有卡片高度取 Set**
-  - **`payment_method` 不能用來判斷國內外**。用它算出海外佔 39%，實際是 3.6%
-    （唯一那筆還是測試單）——台灣人也用 PayPal。`orders` 沒有 `delivery_type` 欄位，
-    正確依據是 `shipping_address->>'country'`（海外才有值）與 `->>'type'`
-  - **dev server 執行中不要 `rm -rf .next`**。Turbopack 的持久快取 DB 被抽走檔案後
-    panic（`Unable to open static sorted file ... .sst`），要 `preview_stop` 再重啟
-  - **前台文案硬寫常數值會漂移**。`shippingOptions` 寫死「宅配 NT$250」，
-    改費率時差點漏掉。改成帶參數並加一條測試把顯示值釘回 `calcDomesticFee`
-  - **`next build --webpack` 目前會失敗**（型別檢查），因為
-    `api/ecpay/cvs-map/route.ts` 匯出了兩個非路由函式而 `cvs-callback/route.ts`
-    直接 import 它。Turbopack 不抓、webpack 會抓。已開背景任務待處理
-- **Vercel 偶發故障（已解）**：preview 建置失敗於
-  `Can't resolve '@vercel/turbopack-next/internal/font/google/font'`，419 條錯誤都是
-  Noto Sans TC 的 CJK 子集。CSS 已產生（query 裡有真實 Google URL），所以不是下載
-  失敗而是 Turbopack 虛擬模組解析失敗。本機清快取建置三次全過、版本兩邊一致。
-  **Redeploy 取消勾選 build cache 後轉綠**——屬偶發，未改任何程式碼。
-  若再發生，永久解法是 CJK 字型改 `next/font/local` 自架
-- 狀態：已完成並上線。**未驗**：統計數字捲進畫面後的 spring 滾動（環境限制，見 lessons
-  2026-08-12 那條），需業主目視
-- **待業主提供／拍板**：東方美人的成本（要當價格錨點）、茶包代工成本已知 96–108、
-  Hero 三件套（CTA 暖色相／`h1` 價值主張／遮罩漸層）、商品評價系統、品飲組 SKU
+- **`payment_method` 不能用來判斷國內外**（台灣人也用 PayPal，用它算出海外 39%、實際 3.6%）。
+  `orders` 沒有 `delivery_type` 欄位，正確依據是 `shipping_address->>'country'` 與 `->>'type'`
 
 ---
 
-**必讀**：`docs/design-system.md`（三條設計原則、token 表、**已知取捨：AA 三組對比是業主拍板
-的取捨不是待修缺陷，請勿自行「修正」**）、`docs/contrast-audit.js`（對比稽核器，後台遷移用過）
-
----
-
-### [2026-08-13~15] 品飲組（tasting-set）＋ 後台組合管理
-
-- 目標：`openspec/changes/tasting-set` 從 0/36 做到上線。真實訂單的商品小計是
-  `400, 400, 400, 400, 1020, 1250`——**400 與 1,020 之間一筆都沒有**，組合就是要補那段
-- 驗收條件：
-  - [x] 36/36 任務完成，測試 617 過、tsc 0、lint 0 error、build 成功
-  - [x] 併發／原子性／端對端對**真實資料庫**實測，且庫存精確還原
-  - [x] 合併進 main 並部署，功能開關（`is_active`）與部署分離
-- **定位在做的過程中翻轉過一次**：原提案是「入門低門檻組合（三包 75g 約 650–700）」。
-  業主提供成本後重算——禮盒包材 175–210 是四包茶葉成本（362.5）的一半以上，固定成本
-  這麼高只有高單價撐得住（禮盒要 1,200 才對得齊散茶毛利率），而 1,200 落在訂單空缺帶
-  **之上**，補不到缺口。改為**三款 75g ＋ 手提袋**，禮盒降為後續選項。
-  **先驗證再投資**——無禮盒版不必採購盒子、零庫存風險，跑出需求再說
-- **定價 650 的理由不是毛利，是免運算術**：
-  `650 ＋ 阿里山金萱 150g 350 ＝ 1,000`，差額正好等於一包金萱，加購變成一句不用解釋的
-  算術。620 的差額 380、700 的差額 300，都沒有商品剛好對得上。
-  成本（業主提供）：茶葉 262.5 ＋ 單包包材 11.16×3 ＝ 295.98，手提袋 20–25 ＋ 貼紙 2；
-  淨利率 47.6–48.3%，與散茶單包同級
-- **先修了一個既有缺陷（第 1 章，與品飲組無關但會被它放大）**：
-  `/api/orders`（貨到付款）在建單**前**扣庫存防超賣，方向正確，但扣減失敗回 400、
-  訂單寫入失敗回 500 時**都沒把已扣的補回去**——庫存憑空蒸發。`increment_stock` 這支
-  RPC 早就存在，卻只在取消訂單時被呼叫。已加 `rollbackStock()`，只補
-  `data === true` 的項目（失敗那項沒扣成功，補了會無中生有）
-- **兩次寫錯範圍假設，兩次都是查證後才發現**：
-  - 提案寫「四條建單路徑都要修回補」→ 實際缺陷**只在 `orders/route.ts` 一支**。
-    三條線上金流是**付款成功後**才扣，那時已無法回滾付款，它們標記
-    `order_status = "stock_issue"` 交人工——那是正確設計，不該照搬回補
-  - 第 5 章又寫「四條建單路徑」→ 實際是**七個接點**：建單 4 條（分流驗證）＋
-    付款後扣減 3 處（`ecpay/return`、`stripe/webhook`、`paypal` capture）
-- **關鍵實作選擇**：四條建單路徑的驗證迴圈是**各自複製的**。沒有在裡面加
-  `if (isBundle)`（那要改四次、四份會慢慢長歪），改成**先分流**——單品照既有迴圈
-  原封不動，組合集中在 `lib/order-bundles.ts`。既有行為零風險
-- **原子性放在 DB 而不是應用層**：`decrement_bundle_stock` 在單一 plpgsql 交易內逐一
-  扣減，任一成分不足即 `RAISE` 整組回滾。**刻意不用 `return false`**——那樣前面已扣的
-  會留下來，正是上面那個缺陷的成因
-- **取消依「下單當時的成分快照」回補**，不是依目前的成分設定。成分被改過的話，照現況
-  回補會補到錯的商品上。原本的寫法遇到組合會送出 `p_id: undefined`
-- **順手還了一筆債**：購物車合成 id（`10000+`＝75g、`20000+`＝茶包、新增 `30000+`＝組合）
-  的解碼原本重複在三處（`CheckoutClient` ×2、`CartClient` ×1），只要有一處把 30000 排在
-  10000 之後，組合就會被誤判成 75g。收斂進 `lib/cart-item-id.ts`，11 條測試把既有編碼
-  釘住——**那些數字已經在客人的 localStorage 裡**，解碼一變他們重整就會看到購物車走樣
-- **真實資料庫的驗證證據**：
-  - 併發：可售量做成剛好 1（金萱茶包 7、每組需 4），兩筆同時搶 → 成功 1 失敗 1，
-    庫存 7→3，無超賣無負數，測後還原
-  - 原子性對照：應用層逐一扣 → 烏龍 50→**49**（留下部分狀態）；
-    `decrement_bundle_stock` → 烏龍 50→**50**（完全回滾）。差別即為交易保護
-  - 端對端：業主 2026-08-15 用真實 COD 訂單走完，庫存 50/53/48 → 扣 2 補 1 →
-    **49/52/47**，與算術完全吻合，**取消回補的路由層因此得到實資料驗證**
-- **業主拍板**：定價 650、不做禮盒、不上首頁、紅烏龍與四季春 75g 是暫時缺貨
-- **後台組合管理（額外補的）**：業主回報「品飲組卡片我開不了」。原因是
-  `product_bundles` 開了 RLS 但**只有 SELECT 政策、沒有 UPDATE 政策**（刻意的，
-  寫入只該由 service role 進行），副作用是 Supabase 的 Table Editor 那個勾點不動。
-  等於我建了一張只能用 SQL 維護的表卻沒給介面。已補 `/admin/bundles`
-  （版面與產品管理一致），**可售量顯示為算出來的值、沒有可編輯的庫存欄位**
-- 狀態：已上線。`is_active` 由業主用後台開關控制
-- **未驗**：三種線上金流（綠界／Stripe／PayPal）的組合下單——它們是**付款成功後**才扣，
-  與貨到付款不同，只有單元測試覆蓋；售完畫面（現貨 48 組，不值得為此把真實庫存歸零）
-
----
-
-### [2026-08-15] 商品評價（product-reviews）階段一＋階段二
-
-- 目標：`openspec/changes/product-reviews` 從 0/31 做到可上線。茶葉是「不能試喝就要先付
-  400 元」的品類，社會證明的權重高於任何視覺優化，而商品端原本是零評價
-- 驗收條件：
-  - [x] `/verify` 四項全過（測試 652、tsc 0、lint 0 error、build 成功）
-  - [x] 對**真資料庫**驗過寫入／軟刪除／JSON-LD 門檻（驗證用資料已刪乾淨）
-  - [x] 反向驗證「訂單含此商品」那道防線的測試會紅
-  - [x] 合併進 `main` 並部署（`babb455`，2026-08-15）。正式站實證：部署前 POST
-        `/api/product-reviews` 回 HTML、部署後回 `401 {"error":"請先登入"}`（同一支探針
-        打本機回 401 JSON，證明探針有鑑別力）；`/products` 與 `/en/products` 皆 200、
-        五張卡仍 632px
-- **已完成（branch `feat/product-reviews`，`3fe89ab` ＋ `10e3511`，未合併）**：
-  - 資料層 `supabase/add_product_reviews.sql`（業主已執行）：RLS 公開只讀 `is_visible`、
-    partial UNIQUE `(order_id, product_id)`（`where order_id is not null`，
-    所以手動建檔的 NULL 不受約束）
-  - 後台「商品評價」頁（側欄→商品）：手動建檔既有口碑，`source` 是必填下拉
-  - `PATCH /api/admin/reviews/[id]?type=product|experience`，未帶預設 experience
-  - `/products` 底部「顧客回饋」區：≥3 則顯示平均、1–2 則只列清單、0 則整區不存在
-  - `POST /api/product-reviews`（站內留評）＋ 會員中心已完成訂單的留評入口
-  - Product JSON-LD 的 `aggregateRating`（≥3 則才輸出）
-- **決策紀錄**：
-  - **商品卡不放星等**（design.md D4 的退路）。實測 1280／768／375 三個斷點：加一行星等
-    是 632 → 664，固定 +32px；632 是業主指定值、卡內 6 處間距早在 08-12 為了描述第三行
-    各縮過 2–4px，最多再擠 22px。理由已寫進 `ProductCard.tsx` 註解，**不要再試一次**
-  - 「訂單含此商品」把**組合展開比對**（`bundleItems` 裡的 `productId`）——買品飲組的人
-    真的喝過那三款茶，不讓他們留評沒道理
-  - 重複留評靠 DB 的 UNIQUE，不先 select 再 insert（併發下兩個請求都會查到「沒有」）
-  - 評價區暫掛 `/products`：商品詳情頁（`product-detail-pages`）還沒做，做好後搬過去
-- **待業主**：
-  1. 輸入既有的 LINE／FB 口碑（同一款茶滿 3 則才會顯示平均星等與 `aggregateRating`）
-  2. 驗會員中心的留評 UI（要登入有已完成訂單的帳號，我不能代輸密碼）——tasks.md 8.4
-  3. 決定要不要合併 `main`
-- 狀態：已合併 `main` 並上線，31＋1 項全數結案。
-  現有兩則評價（蜜香紅茶、阿里山金萱各 1 則五星）**是業主走會員中心留評寫進去的**——
-  兩筆都帶 `order_id` 與 `user_id`，所以 `source = 'site'` 與「前台不顯示來源標註」都正確。
-  （查證方式：後台建檔的評價 `order_id` 為 NULL，站內投稿才有值。只看前台分不出來，
-  我一度誤判成業主把口碑存錯來源。）
-- **口碑已輸入（08-15）**：目前 8 則（7 則可見）。阿里山高山烏龍與阿里山金萱各 3 則
-  → 兩者都達門檻，正式站顯示「5.0（3 則）」且 JSON-LD 有 `aggregateRating`（5／3）；
-  蜜香紅茶 1 則只列清單不顯示平均。來源標註實測正確：`line` 顯示「來自 LINE 的顧客回饋」、
-  `other` 顯示「來自顧客的回饋」、`site` 不標註；英文版是 `Shared via LINE` / `Customer feedback`
-- **小瑕疵（業主自行斟酌）**：兩則後台建檔的 `source_note` 日期與前台顯示的 `reviewed_at`
-  對不上（陳小姐 note 2023-05-17／顯示 2024-10-16；簡先生 note 2026-05-07／顯示 2026-04-30）。
-  前台顯示的是 `reviewed_at`，要對齊就改那欄
-
-## 2026-08-15｜註冊頁補 LINE 登入＋抽 SocialAuthButtons（branch `feat/register-line-oauth`，`3ec3ca1`，未合併）
-
-- **起因**：業主發現登入頁有 Google／LINE／FB，註冊頁只有 Google。功能上其實沒缺口
-  （`signInWithOAuth` 對新用戶會自動建帳號，歡迎券也走同一支 `/auth/callback`，
-  從登入頁用 LINE 進來的新客一樣拿得到），**缺的是入口**。
-- **關鍵證據**：註冊頁本來就有 `isLineInAppBrowser`、跳外部瀏覽器的 effect、
-  fallback banner、LINE 內建瀏覽器時停用 Google 的提示——LINE 的**配套全在，就缺按鈕**。
-  `messages/zh.json` 的 `auth.login.lineLogin` 也早就有。判定是漏做而非刻意。
-- **做法**：新增 `src/app/auth/SocialAuthButtons.tsx`，把 icon、內建瀏覽器偵測與跳轉、
-  fallback banner、行動裝置警告 Modal、三個 provider 的 OAuth 呼叫全部集中。
-  兩頁只傳 `namespace` / `callbackUrl` / `showFacebook` / `onError`。
-  **文案刻意不共用**：登入頁講「登入」、註冊頁講「繼續」，各讀各的 namespace。
-- **順手修掉的 en bug**：`callbackUrl()` 原本跟 `lp("/account")` 比，en 版比出來相等
-  → 不帶 `next` → 英文使用者登入後被 callback 導去中文版 `/account`。改成跟 callback
-  自己的預設 `"/account"` 比。實測 en 註冊頁點 Google，`redirect_to` 解碼後確為
-  `http://localhost:3000/auth/callback?next=/en/account`。
-- **Facebook 刻意不放上註冊頁**（`showFacebook` 預設 false）：FB 只要 `public_profile`、
-  不拿 email，而 `src/app/api/bookings/route.ts:87` 直接寫 `booker_email: user.email`，
-  FB 新客第一次來就預約體驗會存成 null。**要開 FB 之前先修那條。**
-- **驗證**：`/verify` 四項全過（測試 51 檔／652、tsc 0、lint 0 error＋36 warning、build 成功）。
-  瀏覽器實測：註冊頁 zh／en 皆為 Google＋LINE 無 FB、登入頁維持三顆；
-  mobile 375 下點註冊頁 LINE 會跳「行動裝置提醒」且文案是註冊版（「使用 LINE 註冊時…」）。
-- **追加（`0aaf544`）**：登入頁補上歡迎券提示。抽出 `src/app/auth/WelcomeCouponBadge.tsx`，
-  文案固定讀 `auth.register` namespace（券講的是註冊，不管哪頁顯示），登入頁用精簡版
-  （不含門檻／效期附註）、註冊頁 `showNote` 開啟。`CouponIcon` 一併收進元件。
-  zh／en 皆實測：登入頁底部出現「完成註冊即獲 NT$50 購物金」／「Get NT$50 off when you sign up」。
-- **FB 的真實影響（查證後，比原本記的更明確）**：
-  - `supabase/booking_schema.sql:48` 的 `booker_email` 是 **NOT NULL**，所以 FB 用戶預約
-    體驗不是存成 null 而是 **500 硬失敗**（Postgres 原文錯誤），`BookingFlow.tsx:442`
-    的 email 欄位在無 email 時整個不顯示，使用者連填的機會都沒有
-  - `src/app/api/waitlist/route.ts:43` 是 `user.email ?? ""` → 存空字串、NOT NULL 過關，
-    之後遞補通知信寄到空信箱，**靜默失效**，這條最危險
-  - 商品訂單有守住：`verifiedEmail` 會 fallback 到 `body.customer.email`，沒有就 400；
-    但 `api/orders/route.ts:322` 的 `if (!user.email) return` 表示 FB 用戶下單成功卻收不到確認信
-- **待業主**：
-  1. 決定要不要合併 `main`
-  2. FB 上註冊頁的前置修正——建議做「補填 Email 關卡」（callback 後若無 email 導去
-     補填頁，`supabase.auth.updateUser({ email })` 會寄驗證信），一處修好下游全對；
-     即刻止血則是先把 waitlist 的 `?? ""` 改成擋下。單靠跟 Meta 要 email scope 不夠：
-     需要 App Review，且使用者可在同意畫面取消勾選
-
-## 2026-08-15（續）｜移除 LINE 行動裝置警告彈窗（`42727c2`）
-
-- **業主指定移除**的就是這段：「使用 LINE 登入時，手機或平板裝置可能會跳轉到其他
-  瀏覽器，導致登入失敗。建議改用 Google 帳號 或 Email 登入⋯」
-- **考古結果（這是移除的正當理由，不是憑感覺砍）**：
-  - `4b49fca`（2026-03-27）加入此彈窗，針對「Android 跳去三星瀏覽器導致失敗」
-  - `0e8c4d4`（2026-04-23）加入 LINE 內建瀏覽器自動跳外部瀏覽器，commit 訊息寫的
-    目的是「解決 Google OAuth 被封鎖問題」（Google 拒絕在 embedded webview 跑 OAuth），
-    但**順帶**讓使用者在按下登入前就離開 LINE 瀏覽器 → 跨瀏覽器失聯大多不再發生
-  - 彈窗晚了一個月才被它的成因解決，卻沒跟著撤 → 殘留貼紙。業主回報「用家人手機
-    試好像又可以了」與這條時間線吻合
-- **另一個移除理由**：兩段文案互相矛盾——橫幅說「Google 登入將無法使用」、
-  彈窗說「建議改用 Google 帳號」。對只會用 LINE 的長輩客群等於死路
-- **實測**（Android LINE UA 覆寫 + 前端軟導航讓元件重新掛載）：移除前彈窗與橫幅
-  同時出現；移除後點 LINE 直接進「連線中…」開始 OAuth，彈窗不再出現
-- **`/verify` 四項全過**（652 測試、tsc 0、lint 0 error、build 成功）
-- **已知未解（重要）**：`openInExternalBrowser()` 對非 Android 只做
-  `window.location.href = url`（同一網址）。實測證明會觸發**整頁重載**（全域變數與
-  UA 覆寫都被清掉），但這跳不出 iOS 的 in-app browser，只是在 LINE 瀏覽器裡重載。
-  真機上 UA 恆為 `Line/...`，推論會反覆重載，且 1.5 秒的橫幅計時器可能撐不到顯示。
-  **此迴圈無法在本環境實證**（UA 覆寫活不過重載），需真 iPhone 從 LINE 對話點連結確認。
-  → iOS 分支建議改成「不自動跳，直接顯示橫幅教他用選單開啟」
-
-## 2026-08-15（續二）｜註冊頁開放 FB＋預約/候補的 email 防線（branch `feat/register-facebook`）
-
-- **前情更正**：我一度斷言「會員中心沒有補 email 的入口」，**是錯的**——業主指正後查證，
-  `AccountClient.tsx:314` 的 `handleBindEmail` 走 `supabase.auth.updateUser({ email })`
-  寄驗證信，UI 有輸入框／綁定鈕／「驗證信已寄出」狀態／重新輸入，`emailRedirectTo`
-  也正確帶 `?next=/account`。教訓：只 grep 到 `{user.email ? (` 就下結論，沒讀 else 分支。
-- **`c32f26c`**：註冊頁開放 Facebook（業主指示）。補 `auth.register.facebookLogin`——
-  這個鍵原本只有 `auth.login` 有，只加 prop 會噴缺字串。
-- **`0a018f0`**：補上 email 防線，這是開放 FB 的前置條件
-  - `POST /api/bookings`：寫入前 `if (!user.email) → 400`，不再撞 NOT NULL 變 500
-  - `POST /api/waitlist`：原本 `user.email ?? ""` 存空字串（NOT NULL 過得去，遞補通知
-    寄到空信箱且不報錯），改成同樣 400；順手清掉查了沒用的 `profile` 與 `void profile;`
-  - `BookingFlow.tsx`：缺 email 時原本整個欄位消失 → 改成顯示說明與「前往會員中心
-    設定 Email」連結（預約 step 2 與候補區塊都有），送出前也先擋
-  - **設計取捨**：沒有做「就地內嵌綁定表單」。綁定一定要收驗證信才生效，流程無論如何
-    都會被打斷，內嵌只是把同一個中斷點換個位置，不值得為它抽元件
-- **反向驗證已做**：`git stash` 退回兩道防線後，`email-required.test.ts` 兩個「應為 400」
-  的案例確實轉紅、「有 email → 200」維持綠；還原後三個全綠
-- **`/verify` 四項全過**（52 檔／655 測試、tsc 0、lint 0 error、build 成功）
-- **仍未解**：`openInExternalBrowser()` 的 iOS 分支無效（見上一節），待真機確認
-
-## 2026-08-17｜Google 索引通知診斷：/en 前綴的三處漏洞（branch `fix/en-prefix-seo-and-admin-guard`）
-
-- **起點**：業主轉來 Google Search Console 三封「網頁未編入索引」通知，原因分別是
-  「替代頁面（有適當的標準標記）」、「遭到 noindex 標記排除」、「遭到 robots.txt 封鎖」。
-- **根因是同一個**：`/en/*` 由 `src/proxy.ts` 內部 rewrite 到無前綴路徑（**沒有
-  `[locale]` 路由段**），凡拿 `pathname` 做判斷的邏輯都得自己處理 `/en`——三處都忘了。
-  教訓已寫進 `lessons.md`（2026-08-17 兩條）。
-
-### 一、安全漏洞（`f36bbf9`，不在業主的原始需求內，是查 SEO 時撞到的）
-- **`/en/admin/dashboard` 未登入回 200**，實測那份 HTML 含 32 筆 `NT$` 金額。
-  `proxy.ts` 的守衛用原始 `pathname`，`"/en/admin/dashboard".startsWith("/admin/")` 為 false。
-  對照組 `/admin/dashboard` 正確 307。違反 `openspec/specs/admin-auth`「所有後台路由
-  須驗證 `admin_session`」，屬實作沒對上規格，**規格不需要改**。
-- **API 層倖免**：25 條 `api/admin` route 有 23 條套 `withAdminAuth`（另 2 條是登入端點），
-  資料寫入未被打開。但後台頁面是 server component 直查 Supabase，
-  `admin/(protected)/layout.tsx` 沒有自帶驗證，middleware 是唯一那道門。
-- 修法：新增 `routePath = rewritePath ?? pathname`，所有路由判斷改看它；轉址目的地帶
-  locale 前綴。Studio 的寬鬆 CSP 判斷同樣改看 `routePath`（否則 `/en/studio` 會被誤套
-  nonce CSP 而跑不起來——順帶修掉的既有 bug）。
-- 證據：dev server 實測 `/en/admin/dashboard` → 307 `/en/admin`、`/en/api/admin/orders`
-  → 401、`/admin` 與 `/en/admin` 登入頁維持 200。回歸測試 18 條 zh/en 成對。
-  **反向驗證**：退回修正後 7 條 `/en` 案例轉紅、11 條 zh 維持綠。
-
-### 二、canonical（`8bf696a`）——三封信裡唯一真正有害的一項
-- `langAlternates` 寫死 `canonical: path`，兩語言共用同一份 metadata → **每個英文頁都
-  宣告「我的正式版本是中文頁」**，而 sitemap 同時列出那 16 個 `/en` 網址要求收錄。
-  線上實測（修正前）：`/en/products` canonical 為 `https://taiwantea.store/products`。
-- 修法：`canonical` 跟著當前語言 self-canonical，補 `x-default` → zh-TW。
-  locale 只有 request 期間拿得到，因此 **10 個頁面的靜態 `metadata` 改成
-  `generateMetadata`**；`og:url` 一併沿用 canonical。
-- 證據：dev server 實測 6 個網址，`/en/*` 全部 self-canonical，hreflang 叢集三鍵一致。
-  **反向驗證**：退回後 5 條 en 案例轉紅、zh 維持綠。
-
-### 三、robots.txt 與 noindex 的矛盾（`8bf696a`）
-- **第二、三封信不是錯誤**——是 Google 回報「你刻意排除的頁面確實被排除了」。但配置
-  有典型矛盾：`/cart`、`/checkout`、`/order/result` **同時**被 robots.txt 封鎖又帶
-  `noindex`，而被封鎖的頁面 Google 抓不到、永遠讀不到那個 `noindex`。
-- 且 DISALLOW 清單沒有 `/en` 版本 → `/en/cart` 反而可抓取（這就是「noindex 排除」那類
-  的來源）。
-- 修法：robots.txt 收斂成**只封鎖 `/api/`**，排除索引一律交給頁面自己的 `noindex`
-  （rewrite 後兩種前綴都會輸出，不需逐語言維護）。新增 4 個 noindex layout：
-  `auth/`、`account/`、`waitlist/`、`experiences/booking/`——**後兩者從來沒被 robots.txt
-  擋過，等於一直可被索引**。
-- 保留不動：`Content-Signal: search=yes, ai-input=yes, ai-train=yes` 與 AI 爬蟲 Allow 群組
-  （AI SEO 那套是健康的，不要在收斂 DISALLOW 時一起弄掉——已有測試釘住）。
-
-### 四、順帶修掉的 SEO 缺陷
-- 體驗頁標題「茶藝體驗 | 霧抉茶體驗 | 霧抉茶」**品牌名重複兩次**（自己寫了一次又被
-  root layout 的 `title.template` 接一次），且英文頁用中文名。改交給 template 收尾，
-  並用**既有的** `nameEn`／`taglineEn` 欄位（不是新寫文案）。
-  實測 `/en/experiences/tea-ceremony` → `Tea Ceremony | 霧抉茶`。
-- `/products` 的 ItemList **有兩筆商品沒有 `image`**（Merchant listing 必填，是 error
-  不是 warning）：紅烏龍茶與四季春在 DB 沒照片，商品卡本身也只顯示漸層底色、
-  **沒有 fallback 圖**。抽出 `src/lib/product-jsonld.ts` 並過濾掉無圖商品——硬塞品牌圖
-  等於謊報商品外觀。照片補進 DB 就會自動出現。一併補 `brand`、`offers.url`，
-  讓 `seller` 不再是懸空 `@id`，名稱描述跟著語言走。
-  **反向驗證**：拿掉圖片過濾後 3 條轉紅。
-
-- **`/verify` 四項全過**：56 檔／715 測試、tsc 0、lint 0 error（36 warning，數量未增加，
-  `baseUrl` 那條在 `api/admin/products/route.ts`，與本次無關）、build 成功 92 頁。
-
-### 待業主／未解
-1. **決定要不要合併**（本分支已 push，未開 PR）。合併後 Google 需重新抓取才會恢復
-   英文頁索引，可在 GSC 對 `/en` 網址手動要求索引加速。
-2. **合併後會收到新的 GSC 通知**：`/cart`、`/en/cart` 等從「robots.txt 封鎖」轉為
-   「noindex 排除」。**那是預期結果不是退步**，別以為修壞了。
-3. **業主要做的資料補齊**：紅烏龍茶、四季春上傳商品照片（缺照片同時影響商品頁外觀
-   與結構化資料）。
-4. **未做，需業主決定**：英文頁的 title／description 目前仍是中文（頁面本體已翻譯，
-   只有 metadata 沒有）。約 10 個頁面要把文案搬進 `messages/`，屬文案工作不是 bug 修復，
-   已向業主說明並暫不動。`web-design` 與體驗頁已是正確寫法，可當範本。
-5. **未做，刻意的**：Merchant listing 的 `hasMerchantReturnPolicy` 與 `shippingDetails`
-   仍缺（GSC 會列為 warning）。要填得**正確**需要真實運費與退貨天數進機器可讀欄位，
-   寫錯比不寫傷害大；建議連同商品獨立頁（openspec 5.4 `/products/[slug]`）一起做，
-   那也是「五筆商品共用同一個 url」的真正解法。
-6. `lessons.md` 已 32 條，**超過 MAINT-4 的 30 條門檻**，下次該走 MAINT-3 開精簡任務。
-
-## 2026-08-17（續）｜合併上線與線上驗收
-
-- **已合併並部署到 production**（`2303bc8` merge → `5f3d244` 空 commit → `bdc9aa1`）。
-- **踩到一次部署沒被觸發**：`2303bc8` push 上 main 後 Vercel 完全沒產生部署，
-  Production 標記仍在前一個 `9afdf15`。確認不是快取（`x-vercel-cache: MISS`、
-  `age: 0`、`cf-cache-status: DYNAMIC`），也不是失敗——清單裡根本沒有那筆。
-  推空 commit `5f3d244` 重新觸發後約 6 分鐘上線。後續 `bdc9aa1` 約 3 分鐘正常上線，
-  所以是單次 webhook 漏接。教訓已記進 lessons.md。
-- **線上驗收（production 實測，非本機）**：
-  - 後台守衛：`/admin/dashboard` 與 `/en/admin/dashboard` 皆 307 導回各自登入頁；
-    `/api/admin/orders`、`/en/api/admin/orders` 皆 401；`/admin`、`/en/admin` 維持 200
-  - canonical：7 個網址全部 self-canonical，`/en/*` 不再指回中文頁，x-default 皆指 zh-TW
-  - robots.txt：只剩 `Disallow: /api/`，`Content-Signal` 與 AI 爬蟲群組完好
-  - noindex：`/cart`、`/auth/login`、`/auth/register` 的 zh／en 皆 `noindex, nofollow`；
-    `/products` zh／en 維持 `index, follow`
-  - 商品 JSON-LD：兩語言各 3 筆、缺圖 0 筆，`/en/products` 的 url 帶 `/en` 前綴
-- **`bdc9aa1` 補修**：線上驗收時才發現 `/en/faq` 標題是「常見問題 | 霧抉茶 | 霧抉茶」。
-  root template 已會接品牌名，faq／experiences／admin-layout 三處又自己寫了一次。
-  其餘含品牌名的 title 都是 `openGraph.title`（不吃 template），未動。
-  **刻意沒加靜態掃描測試**：原始碼層要可靠分辨「頁面 title」與「openGraph.title」
-  只能靠縮排或上下文，太脆；寧可不放一條會誤判的測試。
-- 待業主項目沿用上一節（商品照片、英文 metadata 文案、Merchant listing 運費退貨欄位、
-  GSC 手動要求索引、lessons.md 精簡）。
-
-## 2026-08-17（續二）｜英文頁 metadata 雙語化
-
-- 業主指示把英文頁的 title／description 也改成雙語（上一節列為「待業主決定」的項目）。
-- **文案位置**：沿用既有慣例 `<namespace>.meta.{title,description}`（`webDesign.meta`
-  本來就是這個形狀）。10 個區塊進 `messages/{zh,en}.json`，另加新的 `siteMeta`
-  namespace 放 root layout 那層（品牌名、title.template、og:locale、og:site_name）。
-  `/alishan-tea` 例外——metadata 放進該頁既有的 `CONTENT.zh/en`，因為那頁的長文本來就
-  刻意不進 messages/，拆開會讓同一頁文案散在兩處。
-- **JSON 改寫方式**：先驗證 `JSON.parse → stringify(indent 2) → CRLF` round-trip
-  byte-identical，才用 Node 程式化插入，diff 是純新增（226 insertions / 4 deletions，
-  那 4 個 deletion 是結尾大括號多了逗號）。
-- **英文文案一律逐句譯自中文版，不新增任何中文版沒有的事實宣稱**（產地、年數、品項、
-  電話都照原文；依 lessons.md 2026-07-30 那條，已升格為 JUDG-11）。`title.template` 英文版用
-  `%s | Wu Jue Tea`、`og:locale` 用 `en_US`。
-
-### 途中發現並修掉的兩件事（都不是這次改動造成的）
-1. **`og:type`／`og:locale`／`og:site_name` 全站都沒輸出**。Next 的 metadata 是
-   **淺層合併**：子頁一旦宣告 `openGraph`，root layout 那整個物件就被取代。
-   有設 og 的 9 個頁面早就掉了這三個欄位；沒設的（首頁、FAQ）才靠繼承留著——而我這輪
-   給它們加了 `openGraph: { url }`，等於把僅存的兩頁也弄掉了。
-   → 抽出 `openGraphFor(path, extra)`（`src/lib/seo.ts`），**所有宣告 og 的頁面一律
-   用它組**，type／locale／siteName／url／images 由它統一給。現在 13 個頁面都有。
-2. **`og:image:alt` 在英文頁是中文**。`app/opengraph-image.tsx` 的 `export const alt`
-   是模組層常數、寫死中文，頁面沒有明確帶 images 時會退回 file convention 用它。
-   → `openGraphFor` 一律明確帶 images（alt 讀 `siteMeta.ogImageAlt`）。
-3. **`og:title` 少了品牌名**：og:title 不吃 `title.template`，faq／privacy／
-   return-policy 的 og:title 會只剩「FAQ」這種短字串，分享卡片看不出是誰的網站。
-   → `openGraphFor` 加 `titleWithBrand` 選項，由它依語言接上品牌名。
-4. **`seoDescription` 只有中文版**：體驗頁原本 `content.seoDescription ?? (...)`，
-   只要中文 SEO 欄位有填，英文頁的 description 就是中文。補 Sanity 欄位
-   `seoDescriptionEn`（留空會退回 Tagline (EN)）、GROQ 兩處查詢、interface，
-   並抽出 `localizedDescription()` 讓 metadata 與 JSON-LD 共用同一份。
-
-### 驗證
-- 改用 **production build（`next start`）驗 metadata**，不用 dev server：dev 期間
-  `next/font/google` 去 fonts.gstatic.com 下載偶爾失敗，整頁變 500（本次就踩到，
-  但 `npm run build` 正常，證明是 dev 的暫時性網路問題不是程式）。已在
-  `.claude/launch.json` 加 `prod` 設定，之後驗 SEO 輸出都用它。
-- 實測 14 個網址：title／description／og:title／og:locale／og:site_name／og:image:alt
-  在 zh／en 各自正確；`/en/*` 全為英文，`og:locale` 為 `en_US`。
-- 新增測試 `metadata-bilingual.test.ts`（43 條）：zh／en 的 meta 區塊必須成對且 key 一致、
-  en 不得含中日韓字元、zh 必須含中文（防貼反）、title.template 與 og:locale 各自成立、
-  `/alishan-tea` 的檔內 meta 也要雙語齊備。
-  **反向驗證**：把 en 的 `about.meta.title` 換回中文 → 1 條轉紅；刪掉 en 的 `faq.meta`
-  → 2 條轉紅；還原後 43 條全綠。
-- `/verify` 四項全過：57 檔／758 測試、tsc 0、lint 0 error（36 warning 未增加）、build 成功。
-
-### 仍未做
-- Merchant listing 的 `hasMerchantReturnPolicy`／`shippingDetails`（沿用上一節理由）
-- 商品照片（紅烏龍茶、四季春）
-- `lessons.md` 精簡（已 34 條）
-
-## 2026-08-18｜要求索引前的最後三項（圖片 alt、Article 參照、sitemap x-default）
-
-業主問「重新到 GSC 要求索引前還有什麼要改的」。實掃線上狀態後找到 3 項值得先修、
-5 項建議不動。
-
-### 修掉的三項
-1. **英文頁的圖片 `alt` 是中文**（含寫死的「第二張」「放大查看」）。alt 是 Google
-   圖片搜尋與螢幕閱讀器唯一的文字來源，英文頁塞中文等於兩者都拿到錯的語言。
-   **這不是缺文案而是接線沒接上**：`nameEn` 早就有，`ProductLightbox` 自己在圖說
-   那裡已經在用 `productNameEn`，只有 `alt` 還讀中文欄位。
-   改了 `ProductCard`、`TeaBagCard`、`ProductLightbox`、`ExperienceGallery`、
-   `experiences/page.tsx`、`experiences/[slug]/page.tsx`、`page.tsx`（hero 兩張）。
-   新增 4 個翻譯鍵（`products.imageAltSecond`／`zoomLabel`、`home.heroImageAlt`／
-   `craftImageAlt`）。
-   **刻意不碰購物車的商品名合成規則**（`${product.name} 茶包組`）——改成 nameEn 會讓
-   兩個規格在購物車同名，見 lessons.md 2026-08-11。
-2. **`/alishan-tea` 的 Article `author`／`publisher` 是懸空 `@id`**。Google 的 Article
-   規範要求 author 有 name。這是 2026-08-17 修 `seller` 時漏掉的同一類問題。
-3. **sitemap 缺 `x-default`**（HTML head 已有）。兩邊給不同的 hreflang 叢集會讓
-   Google 收到矛盾的語言對應。36 筆全部補上。
-
-### 建議不動的五項（已向業主說明理由）
-- 中文品名出現在英文卡片上是**刻意的雙語設計**（英文 `<h3>` + 中文斜體副標），不是 bug
-- 中文顧客評價與評價者姓名留著——真實 UGC，翻譯等於偽造評價（`/en/products` 那
-  157 個中文字元幾乎全是這個）
-- footer「© 2026 霧抉茶 Wu Jue Tea」中英並列，刻意
-- sitemap 的 `lastmod` 36 筆同值（build 時間）：不是錯誤，Google 對不可靠的 lastmod
-  會直接忽略，靜態頁也沒有更真實的時間戳，投入產出不划算
-- 寫死中文的 `aria-label`（約 14 處）是無障礙問題**不影響索引**，另外排；
-  其中「切換為中文」本來就該是中文（它是切換到中文的按鈕）
-
-### 驗證
-- production build 實測 7 個英文頁：**中文 alt 歸零**（修前 `/en` 有 8 個、
-  `/en/products` 6 個、tea-ceremony 1 個半中半英的「茶藝體驗 Gallery 1」）。
-  `aria-label` 剩 2–13 個中文，全是上面刻意不動的那批。
-- Article 的 author／publisher 在 zh／en 皆為 `@type=Organization` 且有 name。
-- sitemap 36 筆的 hreflang 皆為 zh-TW／en／x-default 三鍵齊全。
-- 新增 `image-alt.test.ts`（8 條）：掃 `src/app`＋`src/components` 的 `alt` **字面值**
-  不得含中文（排除 admin／studio）、已知三處確實改用翻譯鍵、翻譯鍵 zh/en 齊備且
-  `{name}` 佔位符保留。`robots-noindex.test.ts` 加一條 sitemap x-default 不變量。
-- **反向驗證（第二次才有效）**：第一次用 `node -e` 做突變，PowerShell 把引號吃掉
-  導致檔案根本沒被改、測試全綠——**那是無效對照組**。改用暫存腳本並以
-  `git diff --stat` 證明檔案真的變了之後：退回 hero alt → 2 條轉紅；
-  移除 sitemap x-default → 1 條轉紅；還原後 94 條全綠。教訓已記進 lessons.md。
-- **build 的假警報**：本輪 build 曾兩次失敗在 `next/font/google` 抓不到
-  fonts.gstatic.com。依 JUDG-5 用 `git stash` 做對照——實驗組 fail／fail／**success**、
-  對照組 success／success。**同一份工作樹既失敗也成功過**，證明是該下載不穩定而非
-  程式問題。最終 build 成功。
-- 測試 58 檔／767、tsc 0、lint 0 error（36 warning 未增加）、build 成功。
-
-## 2026-08-18（續）｜aria-label 的中文也修掉
-
-業主指示連無障礙標籤一起處理（上一節列為「不影響索引、另外排」的那批）。
-
-- **新增 `common.a11y`**（7 鍵：prevPhoto／nextPhoto／goToPhoto／openLargeImage／
-  decreaseQuantity／increaseQuantity／remove）。**close 不放這裡**——
-  `common.buttons.close` 已經有了，一條規則只有一個家（MAINT-3）。
-  `menu` 也是沿用既有的 `common.menu`。
-- 改了 13 處：`Header`、`ProductLightbox`（4）、`ProductCard`（2）、
-  `cart/CartClient`（2）、`about/PhotoGallery`（5，其中 `openLargeImage` 帶 caption 參數）。
-- **`LanguageSwitcher` 刻意不改**：「切換為中文」配「中文」鈕、「Switch to English」
-  配「EN」鈕——**每個標籤用它的目標語言**是語言切換器的標準做法，不是漏翻。
-  已寫進測試的例外名單，並附一條「名單裡的字串必須還存在」防止它腐爛成免死金牌。
-- **踩到的坑**：hooks 一開始插進 `usePhotos()`（那是回傳資料的 hook，不是元件），
-  tsc 報 5 個 `Cannot find name 'ta'`。PhotoGallery 一檔內有三個元件，
-  aria-label 分別在 `GalleryCell` 與 `Lightbox`，hooks 要各自插。
-
-### 驗證
-- production build 實測：英文頁的中文 aria-label 從 2–13 個降到 **只剩「切換為中文」
-  那一個刻意的例外**；中文頁不受影響（仍是「關閉公告」「選單」「放大查看 …」）。
-  英文頁樣本：`Dismiss announcement`／`Menu`／`View larger image of Ali Shan High
-  Mountain Oolong`。
-- `image-alt.test.ts` 擴充為同時掃 `alt` 與 `aria-label` 的**字面值**（12 條），
-  並驗 `common.a11y` 7 鍵雙語齊備、`{index}`／`{caption}` 佔位符兩邊都保留。
-- **反向驗證**：退回 Header 的 `aria-label={t("menu")}` → 1 條轉紅。
-  這次先確認突變真的生效才看紅綠：突變腳本找不到目標字串就 `throw`，
-  且 `git diff --stat` 從「1 insertion/1 deletion」變成空（因為突變把檔案改回 HEAD
-  的舊狀態）、還原後又變回來——diff 的方向與預期相反但邏輯正確。
-- 58 檔／771 測試、tsc 0、lint 0 error（36 warning 未增加）、build 成功。
-
-### 順帶掃到、**未處理**的一項（需要業主決定）
-`src/app/account/bookings/[id]/participants/page.tsx` **整頁沒有翻譯**——
-它 import 了 `useLocale` 但 11 處 UI 文案全是寫死中文（驗證錯誤訊息、placeholder、
-送出按鈕）。這是會員預約後填寫參加者資料的頁面，noindex 不影響 SEO，但**英文客人
-訂了體驗之後會遇到一張全中文的表單**。屬頁面級翻譯工作，不在本輪範圍，已向業主報告。
-
-admin／studio 的中文 placeholder 與 title 刻意不動：內部工具，中文單語是設計。
-
-## 2026-08-21｜體驗季節排序上線驗收（branch `feat/experience-seasonal-ordering`）
-
-業主要求：萬鷺朝鳳季時要能把它排到體驗卡片第一張，但後台無法調整順序
-（`getExperienceTypes()` 與 `getProducts()` 都是寫死的 `.order("id")`，
-萬鷺朝鳳是 id 6 → 永遠最後一張）。
-
-**不能改 id**：`experience_sessions`、`experience_bookings`、`experience_reviews`
-三張表以外鍵指著 `experience_types.id`。
-
-### 做法
-排序鍵改為 `(釘選中, 季節中, sort_order, id)`，實作集中在
-`src/lib/experience-ordering.ts`（純函式，唯一入口是 `getExperienceTypes()`）。
-季節區間存 `experience_availability_windows`，**與 `experience-open-class-request`
-提案共用同一張表**——同一份季節設定同時決定「能不能申請開課」與「排在哪」。
-
-原 design 規劃建資料庫 view，實作時改成應用層排序（D3 已更新）：本專案 SQL
-由業主手動執行，少一個資料庫物件就少一件會出錯的事；且季節判定要用台灣時間，
-寫在 TS 才測得到「台灣已是首日、UTC 還在前一天」的邊界。
-
-釘選用 `pinned_until DATE` 而非 BOOLEAN——**沒有到期日的置頂將來一定會忘記
-撤下**（12 月首頁還掛著一個沒有場次的季節商品）。API 層也擋，不只 UI。
-
-### 線上驗收（2026-08-21，業主已執行 `supabase/add_experience_ordering.sql`）
-- **增欄沒動到既有資料**：六列的 id／slug／價格／is_active 與執行前逐項相同；
-  `sort_order` 全 100、`pinned_until` 全 NULL、`products.sort_order` 全 100。
-- **順序**：`/experiences` 與 `/en/experiences` 皆為
-  萬鷺朝鳳 → 茶藝 → 烤茶 → 採茶 → 紅茶 → 茶果酒。**首頁只顯示前 3 張，
-  萬鷺朝鳳也自動進了首頁。**
-- **徽章**：中文「季節限定・到 10/11 還有 51 天」（`bg-tea-green`）、
-  採茶與紅茶「季節限定・9/15 開放」（`bg-tea-cream`，因為今天落在兩段可採期之間）；
-  英文「Seasonal · 51 days left, until Oct 11」「Opens Sep 15」。
-- **末日分支**：用一段「今天開始今天結束」的臨時區間（掛在烤茶、驗完即刪，
-  `finally` 清理並確認無殘留）實跑 → 顯示「季節限定・今天是最後一天」、
-  `bg-amber-500`，且**沒有出現「還有 0 天」**。
-- **手機 375px**：三個徽章都單行，最寬 204px（卡片 359px）不溢出，
-  不壓到卡片標題，頁面無水平捲動。
-- **DB 約束**：對萬鷺朝鳳插入重疊區間 → 400 / `23P01`（正是 API 轉成 409
-  的那個碼）；不重疊的可新增（已刪）。
-- **RLS**：匿名讀 200（徽章需要）、匿名寫 401。
-- 退路警告 0 次（走的是主要查詢路徑），server error 0。
-- 811 測試全綠、tsc 0、lint 0 error（36 warning 未增加）、build 成功。
-
-### 實跑才抓到的缺陷（已修，有回歸測試）
-`.order("sort_order")` 加進 `getProducts()` 之後，**欄位還沒建好時商品列表
-會整個變空**——PostgREST 對不存在的欄位排序是讓整個查詢失敗（42703），
-不是忽略排序。tsc 綠、測試綠，只有把 dev server 跑起來看畫面才看得到。
-改成「先試新查法、遇 42703 才退回舊查法」，`ordering-fallback.test.ts` 守住。
-
-### 未完成（下一個 session 接手）
-- **3.3／3.4 季節外的「本季已結束・明年見 ＋ 留 Email 通知我」**。徽章已經會
-  顯示 ended／upcoming，但「預約按鈕停用」與 Email 登記入口沒做。登記名單
-  **要與 `experience-open-class-request` 的需求蒐集共用同一張表**，兩邊一起做
-  比較省。萬鷺朝鳳季到 10/11，這個狀態 51 天後才看得到，不急。
-- **4.4 商品排序的後台 UI**：欄位與查詢都好了，但後台商品頁是 1,035 行的單一
-  client 元件，動它的範圍遠超本次目標。現在要調商品順序可直接改 Supabase 欄位。
-- ~~後台登入後畫面沒驗過~~ → 業主 2026-08-21 實按過，**功能正常但踩到一個設計缺陷**：
-  重排以「疊加後的顯示順序」為基準重新編號，把季節造成的第一名固化成
-  `sort_order=10`。已修（commit 49b8c33／merge 4bb62ed）：新增
-  `sortByManualOrder()`，後台改成「唯讀的實際順序」＋「可編輯的手動順序」兩區。
-  `sort_order` 已全部重設回 100，改由季節決定。教訓見 lessons.md 同日條目。
-
-### 2026-08-21（續）｜同日加購的交叉銷售區（commit ff95b0a，已上線）
-詳細頁月曆之後、評價之前新增加購區，會自動濾掉「季節未開始／已結束」的體驗
-（推一個訂不到的東西比不推更糟）。連帶效果：8/22 起萬鷺朝鳳進入季節，會自動
-出現在其他五個體驗頁的加購區，季節結束一起收回。
-
-**9 折刻意不做成線上自動折抵**：`POST /api/bookings` 不吃優惠券，承諾結帳做不到
-的價格會變客訴。改為「線上先挑、再用 LINE 或電話說」，折扣人工給。要自動化得動
-預約與金流（高風險區），且要先定義「同一天同一組人」「折在哪一筆」「其中一筆取消
-怎麼辦」——建議先人工跑一季看用量。
-
-### 業主端待辦（我做不到的部分）
-1. ~~Sanity 貼上新的注意事項與 SEO 描述；`seoDescriptionEn` 目前是空的~~ → 業主 8/23 全部完成。
-   線上驗證：六款體驗的 `/en/` 頁 meta description 都吃到英文原生文案（非中文直譯、
-   未退回 Tagline）；導覽頁注意事項含集合點「信淳茶居（本身就是停車場）」、7 個車位、
-   停滿備案、下午 2 點開始，JSON-LD 描述帶 8/22–10/11。本項結案
-2. Google 商家「梅山太興村賞黃頭鷺景觀平台停車場」：貼新說明、網站欄位設成
-   `/experiences/cattle-egret-tour`（說明欄不可放網址，Google 政策）
-3. ~~**待業主回答**：鐵皮屋招牌是「信淳茶居」還是「信淳茶葉」？~~ → 業主 8/23 拍板
-   **信淳茶居**，Google 商家停車場說明欄同日已改，地圖／網站 JSON-LD 三邊一致。已結案
-
-### 2026-08-22｜LINE 環境變數改名＋體驗頁接錯帳號的修正（分支 fix/line-env-rename）
-- 起因：業主在設定霧抉茶 LINE OA 的自動回應，順著網站的 LINE 入口逐一對照時，
-  發現 `src/app/experiences/[slug]/RelatedExperiences.tsx` 的「用 LINE 問同日安排」
-  按鈕讀的是 `NEXT_PUBLIC_LINE_ADD_URL`＝**風土數位** `@580ariqa`。茶山體驗的客人
-  點下去會加到接案品牌的帳號，霧抉茶 `@976jhznk` 這條諮詢入口等於斷的。
-- 根因不是手滑，是變數命名：`OFFICIAL` 與 `ADD` 兩個名字都看不出屬於哪個品牌。
-  已改名為 `NEXT_PUBLIC_LINE_TEA_URL`（霧抉茶 @976jhznk）與
-  `NEXT_PUBLIC_LINE_TERROIR_URL`（風土數位 @580ariqa），註解一律寫上帳號 ID。
-- 連帶更新：`.env.example`、`.env.local`、README（中英）、
-  `openspec/specs/{web-design-quote-page,web-inquiry-form}`、
-  以及尚未實作的 `openspec/changes/experience-open-class-request`
-  （proposal 37 行、spec 4/15 行、tasks 5.2）——後者原本也寫著 ADD_URL，
-  是同一個坑的第二次發作，趁還沒實作先改掉。`openspec/changes/archive/` 不動（歷史紀錄）。
-- 驗證：測試 62 檔 826 測試全綠、tsc 零錯誤、lint 0 error（36 warnings 為既有債務）、build 成功。
-  首跑曾有 1 個 ecpay/cvs-availability 的 5 秒 timeout，單獨重跑與整包重跑都全綠，判定為併發 flake。
-
-**業主端待辦（阻擋合併，我做不到的部分）**
-- **Vercel 環境變數要先加新名字再合併**：Production／Preview 都要新增
-   `NEXT_PUBLIC_LINE_TEA_URL=https://lin.ee/ZTNpFA8` 與
-   `NEXT_PUBLIC_LINE_TERROIR_URL=https://line.me/R/ti/p/@580ariqa`。
-   `NEXT_PUBLIC_*` 是 build 時內嵌，舊名字留著不會報錯，但按鈕會**靜默消失**
-   （三處都是 `lineUrl && ...` 才渲染）。確認新站沒問題後再刪舊的兩個。
-
-**2026-08-23 收尾（已合併上線，commit 8f395d6／merge 0877aa5）**
-- 業主已在 Vercel 補上兩個新變數，merge 進 main 後自動部署完成
-- 生產環境實測（不是讀程式碼）：
-  - `/experiences/*` 的「用 LINE 問同日安排」→ `https://lin.ee/ZTNpFA8`，
-    `curl -L` 解出最終網址為 `line.me/R/ti/p/@976jhznk`＝霧抉茶 ✅
-  - `/web-design` 與 `/web-design/case` → `@580ariqa`＝風土數位 ✅
-- **仍待業主**：確認新版沒問題後，回 Vercel 刪掉舊的
-  `NEXT_PUBLIC_LINE_OFFICIAL_URL` 與 `NEXT_PUBLIC_LINE_ADD_URL`（留著無害，只是雜訊）
-- 教訓已寫入 `playbooks/lessons.md`（2026-08-22 條：環境變數名稱看不出品牌）
-- 下一件事：霧抉茶 `@976jhznk` 的自動回應設定。這個修正會讓體驗諮詢真的流進該帳號，
-  但它目前「聊天」是關的，訊息進來沒人接得到；建議的回應清單見本 session 對話
-
-### 2026-08-23｜業主待辦結案：店名確定為「信淳茶居」
-- 原待辦（8/21 起掛著）：鐵皮屋招牌是「信淳茶居」還是「信淳茶葉」？地圖店名與
-  網站 JSON-LD 的 alternateName 不一致。**業主 8/23 拍板：信淳茶居**
-- 程式碼端不用改：`src/app/page.tsx:49` 的 `alternateName` 本來就是「信淳茶居」
-- ~~仍待業主：Google 商家停車場說明欄寫成「信淳茶葉」~~ → 業主 8/23 已改成
-  「信淳茶居」。地圖店名、停車場說明、`page.tsx:49` 的 alternateName 三處一致，本項結案
-- 順帶蒐集到的對外事實（給 LINE 自動回應用，全部有程式碼出處）：
-  宅配 NT$150／超商 NT$60／滿 NT$1,000 免運（`shipping-constants.ts`）、
-  海外滿 NT$2,500 免國際運費走 PayPal、出貨 2–3 個工作天、
-  貨到付款支援 7-11／全家／萊爾富但 **OK 超商不支援**（`lib/cvs.ts`）、
-  註冊送 NT$50 購物金（滿 350 可用、30 天）、點數 1 點折 NT$1、
-  梅山市區上山車程 50–60 分鐘（業主提供）
-
-### 2026-08-23｜LINE 官方帳號建置完成（@976jhznk）＋ LINE Tag 上線
-**已完成（業主端）**：Default 兜底訊息、5 則數字選單回覆（1 買茶／2 體驗預約／
-3 賞鳥導覽／4 交通地址／5 同日兩個體驗）、3 則補漏（6 取消改期／7 查訂單／
-8 營業時間與聯絡）、圖文選單 v1（賞鳥季，8/23–10/11）與 v2（平常，10/12–2027/12/31）。
-選單 D／F 用「文字」動作送出 `交通地址`／`聯絡我們`，靠關鍵字回應接——LINE 的關鍵字
-是**完全一致**比對，文字欄只能填單一關鍵字，填「4 交通地址」這種組合會全部落空。
-v2 的選茶指南連 `/alishan-tea`，**不是 `/tea-guide`**（後者只有 `[slug]`、沒有索引頁，會 404）。
-
-**已完成（程式碼，commit fceb1f3／merge faebbac，已上線）**：
-- `src/components/LineTag.tsx`：沿用 GoogleAnalytics 的模式，讀 `NEXT_PUBLIC_LINE_TAG_ID`，
-  未設定就不渲染。`customerType` 必須是 `'account'`（官方帳號型標籤），`'lap'` 是
-  LINE Ads Platform 用的——填錯不報錯、pv 照送，但 LINE 端不認資料
-- `src/proxy.ts` CSP 白名單加 `d.line-scdn.net`（script-src）與 `tr.line.me`（img/connect）
-- 隱私權政策 zh／en 第四節具名揭露 Google Analytics 與 LINE Tag，更新日期改 2026-08-23
-- 生產環境實測（瀏覽器）：tagId、customerType=account、lt.js、tr.line.me 信標各 1 次，無 console 錯誤
-
-**刻意沒做：訂單完成頁的轉換代碼 `_lt('send','cv',...)`**。理由：(1) 帳號目前 2 位好友、
-沒跑 LINE 廣告，現在裝只會得到永遠是 0 的數字；(2) `ResultClient.tsx` 有三條獨立的成功
-判定（綠界 `RtnCode==="1"`／Stripe `stripe=success`／PayPal 要等 `/api/paypal/capture` 回來），
-LINE 給的靜態寫法會在 PayPal capture 前就報轉換；(3) 金額不在該頁的 URL 參數裡，
-重新整理還會重複計數。**觸發條件**：開始投 LINE 廣告、或好友數到數百人、或要驗證
-漸進式訊息成效。屆時作法：抽 `trackLineConversion(tradeNo, amount)`，三條路徑各自在
-確定成功後呼叫，用交易編號寫 localStorage 冪等鎖，預約（`B` 開頭）與商品訂單分開標記，
-測試訂單實跑驗證只送一筆。送金額給第三方前，隱私權政策要再補明確一句。
-
-**2026-08-23 補記：對外時間定案（寫對外文案前先看這段）**
-- **現場（信淳茶居）：每日 08:00–18:00**，文案一律附「上山前先傳個訊息，我們才知道要留人」
-  （茶園的人可能在山上採茶或在廠裡做茶，寫死時間會讓客人白跑 50–60 分鐘山路）
-- **LINE 回覆：每日 08:00–22:00**，七天都設——週末才是茶山體驗與賞鳥旺日，
-  晚上則是規劃週末行程的高峰。LINE 後台的回應時間表已同步
-- 用詞：對外講地點用「**現場**」不用「門市」（那裡是茶園、茶居、停車場、賞鳥平台
-  連在一起的一片地方，來的人多半為了賞鳥與體驗）。網站購買情境裡既有的「門市」
-  用語維持不動，兩者講的是不同的事
-- 網站聯絡頁 `contactPage.info.responseValue`（zh／en）已同步為每日 08:00–22:00
-- 非回應時間不推播聊天室提醒：自動回應照發，但業主手機不會響。時段拉到 22:00
-  就是為了這個，不是為了承諾秒回
-
----
-
-## 2026-08-23 客製開課請求（完整版）— 分支 `feat/open-class-request-data`，**尚未併入 main**
-
-Phase 0（輕量登記）已在 main 上線。這一輪做的是完整版第 1–9b 章，91 項任務
-裡程式面全數完成，剩下的都是需要業主本人動手的（見文末清單）。
-
-**為什麼還沒併 main**：第 6 章動到公開場次 API 的查詢條件、第 7 章動到綠界
-回調——兩處都是「錯了不會報錯、只會靜默出事」的地方，要業主看過再上。
-
-### 各章交付
-
-| 章 | 內容 | 關鍵決策 |
-|---|---|---|
-| 1 | `add_experience_requests.sql` | 7 狀態 CHECK、`request_no` 給人看／`token` 給機器認；部分唯一索引擋同人重複申請 |
-| 2 | `src/lib/experience-requests.ts` 純函式 | 前置天數、90 天上限、急件加成、可申請日判定，全部離線可測 |
-| 3 | 客人端 API（建立／查詢／撤回） | 查詢用白名單 select，**不用 `select("*")`**——新增欄位不會自動外洩 `admin_note` |
-| 4 | 五封信件樣板 | 收件確認、業主通知、核准、替代方案、婉拒 |
-| 5 | 客人端 UI | 成交條件（最低名額、金額、回覆時效）寫在送出之前 |
-| 6 | 私人場次不進公開月曆 | `visibility` 欄位；查詢帶 42703 兩段式 fallback，SQL 沒跑也不會讓月曆開天窗 |
-| 7 | 後台審核 ＋ 綠界回調收尾 | `convertRequestOnPayment` **整段包在 try/catch 裡、永不 throw**——它跑在金流回調裡，爆掉會讓綠界收不到 `1\|OK` 而重送 |
-| 8 | 每日排程 | 待審積壓提醒、核准 48 小時逾期回收、替代方案 7 天逾期。**場次已有人付款時只標請求、不回收場次** |
-| 9 | 需求標記與附議 | 公開月曆顯示「已有 N 人想這天」，一鍵附議 |
-| 9b | 萬鷺朝鳳半日・等鳥茶席 | 開新的一款，不蓋加購系統 |
-
-### 兩個值得記住的產品判斷
-
-**需求標記的門檻是 2 人，不是 1 人。** 只有一個人想開課時，標記傳達的訊息是
-「只有你想」——那是負面社會證明，會降低而不是提高附議意願。門檻設 2，
-標記出現時永遠是正向訊號。
-
-**「成團訊號」要求不只一筆申請。** 單獨一筆 6 人的申請本來就能直接核准，
-不需要提醒；真正需要系統加總的是「散著看是三筆待審、聚起來是一場滿團」，
-因為業主不會每天自己做這個加總。
-
-### 等鳥茶席為什麼是新的一款，不是加購
-
-加購要動 booking schema——品項、金額、退款分攤都要改，是一整套子系統。
-而實際上賣的是不同行程：待四個小時，茶席就是等鳥那兩小時的內容。
-開新款只是一筆資料，客人在列表上也直接看得懂差別。兩款並存：
-250 元 / 1.5 小時（順路來看）vs 650 元 / 4 小時（專程待到鳥況最好）。
-
-### 驗證
-
-953 tests passed（70 檔）、tsc 0 error、`npm run lint` 0 error（36 warning，
-都是既有的）、`npm run build` 通過。第 9 章的成團門檻做了反向驗證：
-把 `g.count > 1` 改成 `> 0`，該紅的那一條確實紅了，改回來就綠。
-
-### 業主要做的（照順序）
-
-1. Supabase SQL Editor 跑 `supabase/add_experience_requests.sql`
-   → 確認既有場次的 `visibility` 全是 `public`、月曆與預約行為沒變
-2. 併 main、部署後線上實跑一次：申請 → 收確認信 → 後台核准 → 收核准信
-   → 點連結 → 完成付款 → 場次轉公開 → 出現在公開月曆
-3. 再跑一次婉拒流程與替代方案流程，確認信件內容與連結
-4. **先只開茶藝體驗**的 `accepts_requests`，其餘維持 false
-5. 兩週後看數據（申請量、核准率、成交率、審核耗時），再調最低消費與前置天數
-
-等鳥茶席那一款是分開的：跑 `supabase/add_egret_half_day.sql`（建出來是
-`is_active = FALSE`，前台看不到）→ 在 `/studio` 照
-`openspec/changes/experience-open-class-request/egret-half-day-content.md`
-貼內容補照片 → 跑該檔最後那一行 `UPDATE … is_active = TRUE` 上架。
-
----
-
-## 2026-08-24 客製開課請求上線，逐款開關的當前狀態
-
-**功能已合併並部署**（PR #8，merge `27579bd`；急件加價撤銷 `1b6d798`）。
-開關是資料庫欄位 `experience_types.accepts_requests`，**不需要改程式或重新部署**。
-
-| 體驗 | 開課申請 | 最低名額／金額 | 備註 |
-|---|---|---|---|
-| 茶藝體驗 | ✅ | 4／3,200 | 全年 |
-| 烤茶 | ✅ | 4／1,800 | 全年 |
-| 淺漬茶果酒 | ✅ | 4／2,400 | 全年 |
-| 萬鷺朝鳳導覽 | ✅ | 3／1,350 | 季節中到 10/11，只有 14:00 |
-| 採茶 | ❌ | 4／1,800 | **9/10 前後再開**，理由見下 |
-| 紅茶職人 | ❌ | 4／3,200 | 同上；門檻已由 6 調到 4 |
-| 萬鷺朝鳳半日 | ❌ | — | 體驗本身已停用，決定不上架 |
-
-關掉的兩款**不是留白**：前台自動退回 Phase 0 的輕量登記（「留下聯絡方式」），
-需求照樣收得到。
-
-**為什麼採茶與紅茶職人先關**：兩款 9/15 才進季節，前置 7 天代表現在就能申請
-9/15 之後的日期，申請會集中在季節頭幾天。但那段「期間內也不是每天都能採」。
-按季節窗核准 → 客人付款 → 茶菁還沒到位 → **要取消一筆已付款的預約**，那是
-這套系統裡最糟的結果，比一開始就拒絕還糟。9/10 前後看實際茶況再開。
-
-**紅茶職人門檻 6→4 的理由**：6 名額＝4,800，是六款裡最高的。要一個陌生人
-在線上、沒跟任何人講過話就承諾 4,800。如果太高，症狀是**零申請**——而零會被
-讀成「沒需求」，實際上可能是「有需求但被門檻擋掉」。**這種錯誤沒有訊號**，
-所以寧可先放低。
-
-**要更精準地擋日期**用 `experience_blackout_dates`（整款關掉是鈍器）。
-
-### 已知風險（開之前就想到的，不是事後補）
-
-- **「兩個工作天內回覆」現在印在四個頁面上**。賞鳥季業主整天在現場，排程每天
-  會寄積壓提醒；那封信變成天天來的時候就會被忽略。第一個等四天的客人就是會
-  去寫評論的那個
-- **萬鷺朝鳳的機會成本**：核准一筆 3 人（1,350）會在該時段開私人場次，衝突檢查
-  會擋掉同時段再開公開場（上限 20 人 × 450 ＝ 9,000）。目前 20 場公開場次報名
-  數全是 0，所以現在只是理論值；真正要小心的是季節後段媒體報導後的那幾天
-- **48 小時核准連結會鎖住時段**：同時多筆待付款時，月曆會有一段「看起來有空、
-  其實不能排」
-
-### 測試資料（待清理）
-
-`R2608-E59D`（業主測試，8/31 私人場次，掛一筆 `pending_payment` 預約）與
-`R2608-RHCJ`（Claude 測試，9/05 私人場次）。核准連結到期後排程會自動回收。
-
-### 綠界測試模式：還沒做
-
-`ECPAY_URL` 在 `src/app/api/ecpay/checkout/route.ts` 是**寫死正式站端點**，沒有
-測試模式開關；`is_test` 只有 `orders` 有，`experience_bookings` 沒有。要驗
-`convertRequestOnPayment` 得加一個 `ECPAY_MODE` 開關並在 **Vercel Preview**
-（不是正式站）掛綠界測試帳號。**絕對不要在正式站切測試模式**——賞鳥季真實客人
-會付不了錢。
-
-暫緩的理由：`convertRequestOnPayment` 整段包在 try/catch 永不 throw，最壞情況是
-「請求沒轉 converted、場次沒轉公開」，後台看得到、可人工補，**不影響金流本身**
-（綠界照樣收到 `1|OK`）。等第一筆真實付款走完再看即可。
+### [已歸檔] 2026-08-03 ~ 08-24 的完成工作（20 節壓縮）
+
+> 依 MAINT-4 各壓成一行結論。**完整原文在 git 歷史**（`git log -p .claude/WORKLOG.md`）
+> 與備份 `.claude/backups/WORKLOG.md.20260831.bak`。多數決策細節另存於 `lessons.md`、
+> 對應的 `openspec/specs/`、或程式碼檔頭註解。**仍有效的待辦已抽到上面三區**。
+
+1. **[08-03~07] 設計系統十一波**（`6951084` … `8831c23`）— 字體收斂、色彩語意 token
+   （**token 必須平台無關**：決策存在 CSS 變數層 `--radius-card`，元件只引用語意名，
+   將來導 React Native theme 才帶得走）、非顏色 token 軸、`docs/design-system.md`、
+   favicon、**後台 hex 收斂 746 → 28（-96%）**、字級尺度與首頁節奏、淺底收斂成兩層、
+   門面四件打磨。**深色模式只留欄位不實作**（0 個業務元件支援 `dark:`，真實需求只有
+   「後台清晨看單」）。AA 遷移做了又全數回退，成為已知取捨（見上方未結案第一條）。
+2. **[08-11] 英文版漏翻（會員中心預約／點數、結帳 order summary）** — 四個根因分類，
+   同類問題照這四類找：DB 有英文欄位但沒取用／硬編碼中文／日期寫死 `zh-TW`／DB 沒有英文欄位。
+   **等級名稱一律不讀 DB 的 `name`**（改由 tier id 對 `common.memberTier.*`）；
+   **帳本描述走顯示層對照表**（不改寫入端，可涵蓋歷史資料；認不出來的原樣顯示原字串）。
+   測試**掃描原始碼**抓所有寫入 `description` 的字面值比對對照表，漏補會紅並指名檔案。
+3. **[08-12] 轉換動線的信任訊號＋運費修正＋定價盤點**（`8cd73ba`）— 宅配運費 250 → 150
+   （**250 是黑貓「15–30 斤」費率**，實際出貨幾乎都在 3 斤以下）；**四季春原本賠錢賣**
+   （進價 550／斤、售 150 → 毛利 8.3%，扣包材金流是負的），已調 250；規格 chip 只在
+   庫存 ≤10 顯示；`orders.is_test` 欄位＋trigger（排除 95 筆業主測試單）。
+4. **[08-13~15] 品飲組（tasting-set）＋後台組合管理** — 三款 75g ＋手提袋 650，不做禮盒
+   （禮盒包材 175–210 是四包茶葉成本的一半以上，要賣 1,200 才對得齊，反而跳過訂單空缺帶）。
+   **定價 650 的理由是免運算術**：`650 ＋ 金萱 350 ＝ 1,000`，加購變成一句不用解釋的算術。
+   **原子性放在 DB 不是應用層**：`decrement_bundle_stock` 單一交易逐一扣，任一成分不足
+   即 `RAISE` 整組回滾（刻意不用 `return false`，那樣前面已扣的會留下來）。
+   順手修掉 `/api/orders` 扣庫存後建單失敗**不回補**的既有缺陷（`rollbackStock()`，
+   只補 `data === true` 的項目）。購物車合成 id 解碼收斂進 `lib/cart-item-id.ts`
+   （`10000+`＝75g、`20000+`＝茶包、`30000+`＝組合）——**那些數字已在客人的 localStorage 裡**。
+5. **[08-15] 商品評價（product-reviews）階段一＋二** — 已上線，目前 8 則（7 則可見）。
+   **商品卡刻意不放星等**（實測三個斷點固定 +32px，撐破 632px，理由已寫進 `ProductCard.tsx`
+   註解，**不要再試一次**）；「訂單含此商品」把**組合展開比對**（買品飲組的人真的喝過那三款）；
+   重複留評靠 DB 的部分唯一索引，不先 select 再 insert（併發下兩個請求都會查到「沒有」）。
+6. **[08-15] 註冊頁補 LINE 登入＋抽 `SocialAuthButtons`**（`3ec3ca1`、`0aaf544`，已在 main）—
+   LINE 的配套（內建瀏覽器偵測、跳轉、fallback banner、翻譯鍵）全都在，**缺的只是按鈕**。
+   順手修掉 en bug：`callbackUrl()` 原本比錯對象，英文使用者登入後被導去中文版 `/account`。
+7. **[08-15] 移除 LINE 行動裝置警告彈窗**（`42727c2`）— 考古證明它的成因（Android 跨瀏覽器
+   失聯）早被 `0e8c4d4` 的「自動跳外部瀏覽器」順帶解決，彈窗晚一個月才被解決卻沒跟著撤，
+   是**殘留貼紙**；且橫幅說「Google 登入將無法使用」、彈窗說「建議改用 Google」互相矛盾。
+8. **[08-15] 註冊頁開放 FB ＋ 預約／候補的 email 防線**（`c32f26c`、`0a018f0`，已在 main）—
+   FB 只給 `public_profile` 不給 email：`bookings` 撞 NOT NULL 變 **500 硬失敗**、
+   `waitlist` 存空字串**靜默失效**（遞補通知寄到空信箱且不報錯，這條最危險）。
+   兩處改成 400，前台改為導去會員中心綁定 Email。反向驗證已做。
+9. **[08-17] `/en` 前綴的三處漏洞**（`f36bbf9`、`8bf696a`）— **根因同一個**：`/en/*` 由
+   `src/proxy.ts` 內部 rewrite、**沒有 `[locale]` 路由段**，凡拿 `pathname` 判斷的邏輯
+   都得自己處理 `/en`。(1) **`/en/admin/dashboard` 未登入回 200**，HTML 含 32 筆金額
+   （API 層倖免，25 條有 23 條套 `withAdminAuth`）→ 全面改看 `routePath = rewritePath ?? pathname`；
+   (2) 每個英文頁的 canonical 都宣告「正式版本是中文頁」→ 改 self-canonical ＋ `x-default`，
+   10 個頁面的靜態 `metadata` 改成 `generateMetadata`；(3) robots.txt 收斂成**只封鎖 `/api/`**，
+   排除索引一律交給頁面自己的 `noindex`（`/waitlist`、`/experiences/booking/` 從來沒被擋過）。
+10. **[08-17] 合併上線與線上驗收**（`2303bc8` → `bdc9aa1`）— production 實測全過。
+    **踩到 Vercel 單次 webhook 漏接**：push 上 main 後完全沒產生部署（不是快取也不是失敗，
+    清單裡根本沒那筆），推空 commit 重新觸發才上線。
+11. **[08-17] 英文頁 metadata 雙語化** — 10 個區塊進 `messages/` ＋新 `siteMeta` namespace。
+    途中發現 **Next 的 metadata 是淺層合併**：子頁一旦宣告 `openGraph`，root layout 那整個
+    物件就被取代 → 全站 `og:type`／`og:locale`／`og:site_name` 早就沒輸出。抽出
+    `openGraphFor()`（`src/lib/seo.ts`），所有宣告 og 的頁面一律用它組。
+    `metadata-bilingual.test.ts` 43 條釘住（en 不得含中日韓字元、zh 必須含中文，防貼反）。
+12. **[08-18] 要求索引前的最後三項** — 英文頁圖片 `alt` 改讀 `nameEn`（**接線沒接上，
+    不是缺文案**）、Article 的 author／publisher 補 name、sitemap 補 `x-default`。
+    **建議不動的五項**：中文品名並列是刻意的雙語設計、中文 UGC 不譯（翻譯等於偽造評價）、
+    footer 中英並列、sitemap `lastmod` 同值、`aria-label` 另外排。
+13. **[08-18] `aria-label` 的中文也修掉** — 新增 `common.a11y` 7 鍵、改 13 處。
+    **`LanguageSwitcher` 刻意不改**（每個標籤用它的**目標**語言是語言切換器的標準做法），
+    已寫進測試例外名單，並附一條「名單裡的字串必須還存在」防止它腐爛成免死金牌。
+14. **[08-21] 體驗季節排序上線**（`feat/experience-seasonal-ordering`）— 排序鍵
+    `(釘選中, 季節中, sort_order, id)`，集中在 `src/lib/experience-ordering.ts`。
+    **不能改 id**（三張表以外鍵指著 `experience_types.id`）；季節區間與開課申請共用
+    `experience_availability_windows`；**釘選用 `pinned_until DATE` 而非 BOOLEAN**
+    （沒有到期日的置頂將來一定會忘記撤下）。**實跑才抓到的缺陷**：`.order("sort_order")`
+    在欄位還沒建好時會讓商品列表**整個變空**（PostgREST 對不存在的欄位排序是整個查詢
+    失敗 42703，不是忽略排序），已改成兩段式 fallback，`ordering-fallback.test.ts` 守住。
+    後台重排一度把季節造成的第一名固化成 `sort_order=10`，已改成「唯讀的實際順序」＋
+    「可編輯的手動順序」兩區（`49b8c33`／merge `4bb62ed`）。
+15. **[08-21] 同日加購的交叉銷售區**（`ff95b0a`，已上線）— 詳細頁月曆後、評價前，
+    自動濾掉「季節未開始／已結束」的體驗（**推一個訂不到的東西比不推更糟**）。
+16. **[08-22] LINE 環境變數改名**（`8f395d6`／merge `0877aa5`）— 體驗頁的「用 LINE 問同日安排」
+    接到**風土數位**帳號，霧抉茶的諮詢入口等於斷的。根因不是手滑是命名：`OFFICIAL`／`ADD`
+    看不出屬於哪個品牌 → 改為 `NEXT_PUBLIC_LINE_TEA_URL`（霧抉茶 @976jhznk）與
+    `NEXT_PUBLIC_LINE_TERROIR_URL`（風土數位 @580ariqa），註解一律寫上帳號 ID。
+    生產實測 `curl -L` 解出最終網址正確。**`NEXT_PUBLIC_*` 是 build 時內嵌**，
+    改名而環境變數沒先加，按鈕會**靜默消失**（三處都是 `lineUrl && ...` 才渲染）。
+17. **[08-23] 店名確定為「信淳茶居」** — 地圖店名、Google 商家停車場說明欄、
+    `src/app/page.tsx:49` 的 `alternateName` 三處一致，本項結案。
+18. **[08-23] LINE 官方帳號（@976jhznk）建置＋ LINE Tag 上線**（`fceb1f3`／merge `faebbac`）—
+    8 則關鍵字回應＋圖文選單 v1（賞鳥季）／v2（平常）。**LINE 的關鍵字是「完全一致」比對**，
+    文字欄只能填單一關鍵字，填「4 交通地址」這種組合會全部落空。v2 的選茶指南連
+    `/alishan-tea`**不是 `/tea-guide`**（後者只有 `[slug]`、沒有索引頁，會 404）。
+    `LineTag.tsx` 的 `customerType` 必須是 `'account'`（`'lap'` 是廣告平台用的，
+    填錯不報錯、pv 照送，但 LINE 端不認資料）；CSP 加 `d.line-scdn.net`／`tr.line.me`。
+    **對外時間定案**：現場（信淳茶居）每日 08:00–18:00，文案一律附「上山前先傳個訊息」
+    （茶園的人可能在山上，寫死時間會讓客人白跑 50–60 分鐘山路）；LINE 回覆每日 08:00–22:00。
+    **用詞：講地點用「現場」不用「門市」**（購買情境裡既有的「門市」用語維持不動）。
+19. **[08-23] 客製開課請求完整版**（`feat/open-class-request-data`，91 項）— 7 狀態 CHECK、
+    `request_no` 給人看／`token` 給機器認、客人端查詢**用白名單 select 不用 `select("*")`**
+    （新增欄位不會自動外洩 `admin_note`）、私人場次靠 `visibility` 不進公開月曆（帶 42703
+    兩段式 fallback，SQL 沒跑也不會讓月曆開天窗）、**`convertRequestOnPayment` 整段包在
+    try/catch 裡、永不 throw**（它跑在綠界回調裡，爆掉會讓綠界收不到 `1|OK` 而重送）。
+    **需求標記的門檻是 2 人不是 1 人**（「只有你想」是負面社會證明，會降低附議意願）。
+    **等鳥茶席開新的一款、不做加購**（加購要動 booking schema 的品項／金額／退款分攤，
+    是一整套子系統；而實際賣的是不同行程）：250 元／1.5 小時 vs 650 元／4 小時。
+20. **[08-24] 客製開課請求上線＋逐款開關**（PR #8，merge `27579bd`；急件加價撤銷 `1b6d798`）—
+    開關是資料庫欄位 `experience_types.accepts_requests`，**不需要改程式或重新部署**；
+    關掉的款式前台自動退回 Phase 0 的輕量登記，需求照樣收得到。
+    **紅茶職人門檻 6→4 的理由**：門檻太高的症狀是**零申請**，而零會被讀成「沒需求」，
+    **這種錯誤沒有訊號**，所以寧可先放低。要更精準地擋日期用 `experience_blackout_dates`
+    （整款關掉是鈍器）。
 
 ---
 
