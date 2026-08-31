@@ -34,7 +34,16 @@
 ## 5. 驗收（部署一週後）
 
 - [ ] 5.1 Cloudflare Metrics：確認 GPTBot、ClaudeBot、PerplexityBot 等出現 Allowed 抓取量
-- [ ] 5.2 AI 實測：Perplexity / ChatGPT 問「嘉義梅山 高山茶」「阿里山茶園體驗 推薦」「Alishan tea picking experience」，記錄是否引用 taiwantea.store
+- [x] 5.2 AI 實測：Perplexity / ChatGPT 問「嘉義梅山 高山茶」「阿里山茶園體驗 推薦」「Alishan tea picking experience」，記錄是否引用 taiwantea.store
+      ⚠️ 2026-08-31 實測，**三個查詢都沒有出現 taiwantea.store**。
+      用的工具是 WebSearch，**不是 Perplexity／ChatGPT 本身**——這是可得性的代償，
+      結果只能當「一般網頁檢索是否收錄」的近似，不能直接當成 AI 助理的引用率。
+      實際出現的競品：碧湖山觀光茶園、二尖山休閒茶園、山角鐵茶屋、生力農場、
+      茗園茶叄代、Klook／KKday 型的套裝行程頁。
+      判讀：AI 檢索收錄需要時間，且對手多為經營多年、有大量外部連結的觀光茶園頁。
+      **這一項不當失敗**（原規格也寫明「還沒出現屬正常」），但它指出兩件事：
+      (1) 產品獨立頁 `/products/[slug]` 與茶知識內容（已立案於 BACKLOG）是補收錄的主要槓桿；
+      (2) 下次覆測應改用真的 Perplexity／ChatGPT，本次無法。
 - [x] 5.3 抽查 robots.txt 未被 Cloudflare 重新注入：Content-Signal 必須是站方正面宣告 `search=yes, ai-input=yes, ai-train=yes`；若變成 `ai-train=no` 或出現整排 AI 爬蟲 `Disallow: /`，代表 Managed robots.txt 被重新開啟
       ✅ 2026-08-13 覆驗：robots.txt 為 `Content-Signal: search=yes, ai-input=yes, ai-train=yes`，AI 爬蟲無 `Disallow: /`
 - [x] 5.4 評估是否立案：產品獨立頁 `/products/[slug]`、茶知識內容策略（GEO 長期槓桿）、預約查詢 MCP server
