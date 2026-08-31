@@ -33,6 +33,7 @@
 | 要修改 `.claude/` 內任何規則檔 | `.claude/playbooks/maintenance.md` |
 | 想了解本環境的坑（token/失焦/出錯） | `.claude/playbooks/diagnosis.md` |
 | 前人踩過的坑 | `.claude/playbooks/lessons.md` |
+| 要動視覺／介面（色彩、字級、間距、元件樣式） | `docs/design-system.md` |
 | 你是新 session 的第一個 turn | `.claude/playbooks/letter-to-future-sessions.md` |
 | 改完要驗證 | 跑 `/verify`（測試＋型別＋build） |
 | 修完安全性 bug，要確認測試真的有效 | `reverse-verify` skill |
