@@ -8,13 +8,14 @@
 - i18n：next-intl（zh-TW / EN），字串在 `messages/`
 - 指令：`/verify` 一次跑完測試＋型別＋lint＋build（`npm run lint` 門檻 0 error，見 JUDG-5）
 - e2e：`e2e/`（Playwright；瀏覽器已預裝，**不要跑 playwright install**）
-- 規格流程：動功能前先讀 `openspec/specs/<能力>/`；變更提案放 `openspec/changes/`
+- 規格流程：動功能前先讀 `openspec/specs/<能力>/`；變更提案放 `openspec/changes/`；想做但沒排程的構想放 `openspec/BACKLOG.md`，不要賴在 `changes/`
+- **openspec 歸檔一律用 `npx openspec archive <name>`**（會驗 delta 與主 spec 對不對得上，對不上就中止且不動任何檔）。**不要照 `opsx:*` command 或 `openspec-*` skill 裡寫的 `mv` 步驟做**——那會繞過驗證，2026-08-31 已因此累積 37 份汙染的主 spec（見 lessons）。那兩套檔是 openspec 自己產生的，改了會被 `openspec update` 蓋掉，所以規則寫在這裡
 - 部署：Vercel（含 cron，見 `vercel.json`）
 
-## 每次 session 開場（照做，不要跳過）
-1. `git status -sb` 確認在指定分支（web session 用系統指定的 `claude/*` 分支）
-2. 讀 `.claude/WORKLOG.md` 最後一節：有未完成的工作先接手
-3. 記住：web 環境沒有 `gh` CLI，GitHub 一律用 `mcp__github__*` 工具（先 ToolSearch 載入）
+## 每次 session 開場
+`.claude/hooks/session-start.js` 會自動報三件事：目前分支與工作區狀態、`.claude/WORKLOG.md`
+最後一節的「還沒做的」、這個環境有沒有 `gh` CLI（沒有就一律用 `mcp__github__*`，先 ToolSearch 載入）。
+**你要做的是據此行動**：分支不對先開分支、有未完成的工作先接手。沒看到那段就自己補跑一次。
 
 ## 鐵律
 1. **沒 push＝不存在**。每完成一個交付物就 commit+push（容器隨時回收）。
@@ -38,8 +39,9 @@
 | 改完要驗證 | 跑 `/verify`（測試＋型別＋build） |
 | 修完安全性 bug，要確認測試真的有效 | `reverse-verify` skill |
 
-**自動防護**：`npm audit fix`（會降級 Next.js）與 Bash 裡的 PowerShell here-string
-已由 `.claude/hooks/guard-commands.js` 攔截，不必記——但被擋時請讀它給的理由，不要繞過。
+**自動防護**（`.claude/hooks/guard-commands.js` 攔截，不必記——但被擋時請讀它給的理由，不要繞過）：
+`npm audit fix`（會降級 Next.js）、Bash 裡的 PowerShell here-string、
+以及 **main／master 上的 commit 與 push**（使用者明確要求時，在指令前加 `ALLOW_MAIN=1` 豁免——寫在指令裡才看得見）。
 
 ## 溝通約定
 - 對使用者回覆用繁體中文；程式碼、識別字、工具名照原樣英文。

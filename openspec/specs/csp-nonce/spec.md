@@ -1,3 +1,10 @@
+# csp-nonce Specification
+
+## Purpose
+每個請求動態生成 CSP nonce 並套用到 Next.js 的 Script 標籤，讓內容安全政策不必開放 `unsafe-inline`。
+
+## Requirements
+
 ### Requirement: 每個請求動態生成 CSP nonce
 系統 SHALL 在 middleware 為每個請求生成唯一的 base64 nonce，並注入至 CSP header 的 `script-src`，取代 `'unsafe-inline'`。
 

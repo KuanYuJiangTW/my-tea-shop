@@ -1,4 +1,9 @@
-## ADDED Requirements
+# booking-cancellation Specification
+
+## Purpose
+體驗預約的取消：本人限定、可取消的狀態、依距離活動時間計算的退款比例、取消確認信，以及釋出名額後通知候補者。
+
+## Requirements
 
 ### Requirement: 只有訂購人本人可以取消預約
 系統 SHALL 驗證請求使用者的 `user_id` 與預約記錄相符。
@@ -160,9 +165,9 @@
 - **THEN** 記錄錯誤並計入 `results.errors`，繼續處理同場次的其他預約
 
 ### Requirement: 待退款超過 3 天要提醒管理者
-現金退款是純人工流程（於綠界後台操作，再回本站後台標記 `processed`），
-系統 SHALL 每日檢查 `refund_status = "pending"` 且 `cancelled_at` 早於
-3 天前的預約，寄摘要信給 `ADMIN_EMAIL`。
+系統 SHALL 每日檢查 `refund_status = "pending"` 且 `cancelled_at` 早於 3 天前的預約，
+寄摘要信給 `ADMIN_EMAIL`。現金退款是純人工流程（於綠界後台操作，
+再回本站後台標記 `processed`）。
 
 > 本系統**不會**自動執行現金退款——那需要綠界退款 API 與實際出款權限。
 > 這條需求只提供可見性，不碰金流。

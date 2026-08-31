@@ -1,4 +1,9 @@
-## ADDED Requirements
+# admin-auth Specification
+
+## Purpose
+後台登入的密碼驗證與 timing-safe 比對、失敗頻率限制、Cookie 安全屬性，以及受保護路由的守衛。
+
+## Requirements
 
 ### Requirement: 後台登入採密碼驗證，使用 timing-safe 比對
 系統 SHALL 使用 `timingSafeEqual` 比對密碼，防止 timing attack。密碼正確後，若 2FA 已啟用則進入 TOTP 驗證流程；若未啟用則直接核發 DB-backed session。

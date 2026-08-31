@@ -24,6 +24,7 @@ yarn-error.log*
 # 新增要提交的子項時，記得同步加白名單並用 git check-ignore -v 驗證
 .claude/*
 !.claude/agents/
+!.claude/agent-memory/
 !.claude/playbooks/
 !.claude/backups/
 !.claude/commands/

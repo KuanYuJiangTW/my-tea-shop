@@ -1,4 +1,9 @@
-## ADDED Requirements
+# admin-experience-management Specification
+
+## Purpose
+後台對體驗預約與場次的管理：查詢與搜尋、代為取消（含依距離活動時間的退款計算）、以及預約資料的 CSV 匯出。
+
+## Requirements
 
 ### Requirement: 後台代為取消預約（含退款計算）
 管理員 SHALL 能夠代替用戶取消預約，系統依相同退款規則計算退款金額。

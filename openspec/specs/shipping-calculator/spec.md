@@ -1,8 +1,13 @@
-## ADDED Requirements
+# shipping-calculator Specification
+
+## Purpose
+各建單 API 共用的運費計算函式。原本 5 個 route 各自實作，費率改動時容易漏改其中一處。
+
+## Requirements
 
 ### Requirement: 共用運費計算函式
 
-`src/lib/shipping.ts` 提供統一的運費計算入口，取代現有 5 個 API route 中的重複邏輯。
+`src/lib/shipping.ts` SHALL 提供統一的運費計算入口，取代現有 5 個 API route 中的重複邏輯。
 
 #### Scenario: 國內宅配
 - **WHEN** deliveryType = "home"，subtotal >= 1000

@@ -1,4 +1,9 @@
-## ADDED Requirements
+# points-liability-report Specification
+
+## Purpose
+未兌現點數的負債計算、點數過期的沖銷事件記錄，以及 earnBase 以 subtotal 為準的定義。
+
+## Requirements
 
 ### Requirement: 未兌現點數負債計算
 系統 SHALL 計算所有有效未使用點數的總金額（1:1），作為合約負債估算。

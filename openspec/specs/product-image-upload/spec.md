@@ -1,4 +1,9 @@
-## ADDED Requirements
+# product-image-upload Specification
+
+## Purpose
+前台商品卡片的圖片來源順序：優先讀取 gallery 欄位，沒有時退回既有的單張圖片欄位。
+
+## Requirements
 
 ### Requirement: 前台商品卡片優先讀取 gallery 欄位
 系統 SHALL 在 `lib/products.ts` 的 `mapRow` 函式中，優先使用 `gallery[0]` 作為主圖、`gallery[1]` 作為副圖，若 gallery 為空則 fallback 至 `image_url`/`image_url2`，確保現有商品資料不受影響。

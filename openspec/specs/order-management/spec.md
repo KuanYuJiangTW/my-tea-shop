@@ -1,8 +1,13 @@
-## MODIFIED Requirements
+# order-management Specification
+
+## Purpose
+訂單管理中的國際地址顯示。國際地址的欄位結構與國內不同，後台與會員中心都要能正確呈現。
+
+## Requirements
 
 ### Requirement: 國際地址顯示
 
-管理後台與會員中心需支援顯示國際地址格式。
+管理後台與會員中心 SHALL 支援顯示國際地址格式。
 
 #### Scenario: 後台訂單詳情顯示國際地址
 - **WHEN** 訂單 shipping_address.type = "international"

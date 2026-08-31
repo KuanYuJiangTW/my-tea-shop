@@ -1,4 +1,9 @@
-## ADDED Requirements
+# admin-order-management Specification
+
+## Purpose
+後台訂單管理：訂單查詢、狀態更新的白名單驗證、完成時發放點數的防重複，以及取消訂單時還原庫存、折價券與點數。
+
+## Requirements
 
 ### Requirement: 後台可查詢所有訂單列表
 系統 SHALL 提供 `GET /api/admin/orders`，回傳所有訂單依 `created_at` 降序排列。

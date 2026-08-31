@@ -1,4 +1,9 @@
-## ADDED Requirements
+# coupon-rate-limit Specification
+
+## Purpose
+通用折價券碼驗證的頻率限制。通用碼可被暴力猜測，沒有限制等於把折扣公開送出。
+
+## Requirements
 
 ### Requirement: 通用碼驗證頻率限制
 系統 SHALL 對通用碼驗證端點實施 rate limit，防止暴力破解。

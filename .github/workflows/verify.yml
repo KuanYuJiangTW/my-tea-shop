@@ -1,0 +1,61 @@
+# 驗證四件套裡的前三項，每個 PR 與每次進 main 都跑。
+#
+# 為什麼沒有 npm run build：
+#   Vercel 已經在每次 push 建置一次，CI 再建一次是重複付錢也重複等待；
+#   而且 build 需要 Supabase／Stripe／綠界等真實環境變數，把金鑰放進 CI
+#   只為了重跑 Vercel 已經做過的事，划不來。
+#   **代價要講清楚**：只在 build 期浮現的問題（Edge middleware 那類）CI 抓不到，
+#   要靠 Vercel 的建置結果與本機 `/verify`。合併前請看 Vercel 那支 check。
+#
+# 為什麼 lint 不擋 warning：
+#   門檻是 0 error。目前 36 個 warning 屬既有債務（見 .claude/playbooks/judgment.md JUDG-5）。
+#   eslint 預設 warning 不影響 exit code，所以這裡不需要額外參數——
+#   但也因此**不要**改成 --max-warnings=0，那會讓每個 PR 都紅。
+
+name: verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# 同一個 PR 連續推送時，取消還在跑的舊次
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安裝相依套件
+        run: npm ci
+
+      # 三項各自獨立回報：前一項失敗仍要看到後面的結果，
+      # 才不用一項一項來回（對齊 .claude/commands/verify.md 的做法）。
+      - name: 測試（vitest）
+        if: '!cancelled()'
+        run: npx vitest run
+
+      - name: 型別檢查（tsc）
+        if: '!cancelled()'
+        run: npx tsc --noEmit
+
+      - name: Lint（門檻 0 error）
+        if: '!cancelled()'
+        run: npm run lint
+
+      - name: Hook 自我測試
+        if: '!cancelled()'
+        # .claude/hooks/*.test.js 被 vitest exclude（它們是獨立的 node 腳本），
+        # 沒有這一步就沒人跑它們——而 guard 失效是靜默的。
+        run: node .claude/hooks/guard-commands.test.js

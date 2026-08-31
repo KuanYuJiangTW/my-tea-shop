@@ -15,6 +15,9 @@
 | Agent tool 的 `model` 參數只接受當下 schema 列的 enum | 派工前看自己 session 的 Agent tool 定義；不要假設 fable/mythos 存在 |
 | CLAUDE.md 裡 `@路徑` 會在 session 開始時整檔載入（eager，最深 4 層） | 路由引用一律寫純文字路徑，禁用 `@` 前綴 |
 | repo 內 `.claude/agents/*.md` 會自動載入為可用 subagent | 制度化的派工角色放這裡，每個 session 都拿得到 |
+| `.mcp.json`（2026-08-31 建）宣告 supabase 與 sanity 兩個 remote MCP，走 OAuth，**檔內沒有任何密鑰** | 進版控是刻意的：新容器 clone 下來就有設定。但**授權要在互動式 `claude` 打 `/mcp` 完成**，非互動 session 會看到「Pending approval」 |
+| supabase MCP 的 URL 帶 `?read_only=true&project_ref=...`——**那兩個參數是安全邊界，不是裝飾** | `read_only` 讓查詢以唯讀 Postgres 使用者執行；`project_ref` 綁定單一專案並停用帳號層級工具。**不要為了「查不到東西」把它們拿掉**。唯讀仍讀得到 `orders`／`experience_bookings` 的客人個資，撈資料前先想清楚要不要 |
+| sanity MCP 的 OAuth session **7 天過期**；Sanity 寫入**即上線、無預覽緩衝** | 過期就重新授權。寫入前照 copy-guardian 的規矩：先比對原文一字不差、用 `ifRevisionID` 鎖版本 |
 | Playwright 瀏覽器已預裝（`/opt/pw-browsers`） | 不要跑 `playwright install` |
 | 對外 HTTPS 走 agent proxy | TLS 錯誤時看 `/root/.ccr/README.md`，不要關閉憑證驗證 |
 | **本機（Windows）：Avast 攔截 HTTPS，`preview_start` 的子行程拿不到 `NODE_EXTRA_CA_CERTS`** | 連 Supabase 會 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`，頁面靜默變成「共 0 款茶品」——**看起來像沒資料，其實是連不上**。解法：`.claude/launch.json` 用 `cmd /c "set NODE_OPTIONS=--use-system-ca && npm run dev"`（讀 Windows 憑證庫，不寫死 Avast 路徑）。該檔已被 gitignore，屬本機設定不進 repo |

@@ -1,3 +1,10 @@
+# admin-session-management Specification
+
+## Purpose
+後台 session 的生命週期：隨機 token 核發、每次請求查資料庫驗證有效性、登出時撤銷。不使用可離線偽造的無狀態 token。
+
+## Requirements
+
 ### Requirement: 隨機 session token 核發
 
 系統 SHALL 在管理員完成最終驗證步驟（密碼驗證（2FA 未啟用）或 TOTP 驗證通過）後，以 `crypto.randomBytes(32).toString('hex')` 產生 64 字元隨機 token，並將其寫入 `admin_sessions` 資料表（含 `expires_at = now() + 7天` 與來源 IP）。

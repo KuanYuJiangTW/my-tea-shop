@@ -1,4 +1,9 @@
-## ADDED Requirements
+# persistent-rate-limiting Specification
+
+## Purpose
+跨實例持久化的頻率限制、限流後端故障時的 fail-open 行為，以及各 API route 共用的 helper。
+
+## Requirements
 
 ### Requirement: Durable cross-instance rate limiting
 

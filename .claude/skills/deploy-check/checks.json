@@ -1,0 +1,43 @@
+{
+  "base": "https://taiwantea.store",
+
+  "_說明": "每一條都是『壞掉時客人或 AI 檢索器會看到錯東西』的不變量。新增條目前先確認它現在是真的（用 --base 對 preview 跑一次），不要憑印象寫斷言。",
+
+  "checks": [
+    { "path": "/", "why": "首頁掛掉就沒有生意了" },
+    { "path": "/en", "why": "英文站是獨立的 middleware rewrite，曾有三處 pathname 判斷同時被繞過（lessons.md 2026-08-17）" },
+    { "path": "/products", "why": "商品列表" },
+    { "path": "/experiences/cattle-egret-tour", "why": "季節限定體驗，8 月下旬至 10 月中是旺季" },
+    { "path": "/sitemap.xml", "why": "GSC 與 Bing 都吃這支" },
+
+    {
+      "path": "/robots.txt",
+      "mustContain": [
+        "Content-Signal: search=yes, ai-input=yes, ai-train=yes",
+        "GPTBot",
+        "ClaudeBot",
+        "PerplexityBot"
+      ],
+      "mustNotContain": ["ai-train=no"],
+      "why": "Cloudflare 的『Managed robots.txt』會自己重新開啟，把 AI 爬蟲全部擋掉。出現 ai-train=no 或 AI 爬蟲 Disallow，就去 Cloudflare Dashboard → AI Crawl Control → Signals 關掉它"
+    },
+
+    {
+      "path": "/llms.txt",
+      "mustContain": [
+        "450 元",
+        "150 元",
+        "沒有座位也沒有洗手間",
+        "遮蔭座位"
+      ],
+      "mustNotContain": ["250 元"],
+      "why": "這支專門餵 AI 檢索器，錯的價格會被原樣引用。2026-08-31 曾把 450 寫成 250，而四件套全綠——它只是純文字檔。兩個賞鳥地點的條件也必須分開講，混在一起是客訴等級的誤導"
+    },
+
+    {
+      "path": "/videos/egret-flock.mp4",
+      "method": "HEAD",
+      "why": "攻略文的主視覺。用 HEAD 是因為 GET 會把整支影片下載完才回來"
+    }
+  ]
+}

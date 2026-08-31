@@ -1,3 +1,10 @@
+# admin-2fa-totp Specification
+
+## Purpose
+後台管理員的 TOTP 雙因素驗證：綁定流程、登入時的驗證關卡、以及停用條件。後台掌握訂單與金流資料，密碼外洩時這是最後一道關。
+
+## Requirements
+
 ### Requirement: 管理員可設定 TOTP 雙因素驗證
 系統 SHALL 提供 TOTP 設定流程，讓管理員透過 Google Authenticator 等 App 綁定驗證器。
 

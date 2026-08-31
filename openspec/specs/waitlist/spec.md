@@ -1,4 +1,9 @@
-## ADDED Requirements
+# waitlist Specification
+
+## Purpose
+候補機制：加入資格（僅額滿場次）、候補人數更新、釋出名額時的遞補通知、確認期限與名額再驗證，以及過期候補的清理 cron。
+
+## Requirements
 
 ### Requirement: 只有額滿場次才能加入候補
 系統 SHALL 拒絕對 `status != "full"` 的場次加入候補請求。

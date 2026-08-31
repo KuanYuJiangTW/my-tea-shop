@@ -1,4 +1,9 @@
-## ADDED Requirements
+# tier-history Specification
+
+## Purpose
+會員等級變動的歷史追蹤。等級影響點數折抵上限，變動軌跡要查得到才能處理爭議。
+
+## Requirements
 
 ### Requirement: 等級變動���史追蹤
 系統 SHALL 在每次會員等級變動時記錄歷史。

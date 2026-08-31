@@ -1,4 +1,9 @@
-## ADDED Requirements
+# experience-reminders Specification
+
+## Purpose
+體驗的排程通知：cron 受 CRON_SECRET 保護、活動前 3 天確認是否開課、前 1 天寄送提醒。
+
+## Requirements
 
 ### Requirement: Cron Job 受 CRON_SECRET 保護
 系統 SHALL 驗證 `Authorization: Bearer <CRON_SECRET>` Header，拒絕未授權呼叫。

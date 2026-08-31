@@ -1,4 +1,9 @@
-## ADDED Requirements
+# campaign-audit-log Specification
+
+## Purpose
+行銷活動設定變更的記錄。活動參數直接影響發點與折抵金額，改動必須留下誰在何時改了什麼的軌跡。
+
+## Requirements
 
 ### Requirement: 活動設定變更記錄
 系統 SHALL 在 points_campaigns 被修改時記錄變更歷史。

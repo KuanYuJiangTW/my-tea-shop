@@ -13,6 +13,19 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.js\"",
+            "timeout": 15,
+            "statusMessage": "讀取分支與 WORKLOG 進度"
+          }
+        ]
+      }
     ]
   }
 }

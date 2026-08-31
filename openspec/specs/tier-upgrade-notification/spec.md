@@ -1,4 +1,9 @@
-## ADDED Requirements
+# tier-upgrade-notification Specification
+
+## Purpose
+升等的即時通知、保級預警的顯示，以及結帳頁的等級提示。讓會員知道自己離下一級還差多少。
+
+## Requirements
 
 ### Requirement: 升等即時通知
 系統 SHALL 在用戶等級提升時記錄升等事件，並在帳戶頁顯示升等通知。

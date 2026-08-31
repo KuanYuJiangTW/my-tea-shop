@@ -1,4 +1,9 @@
-## ADDED Requirements
+# points-anomaly-detection Specification
+
+## Purpose
+點數異常偵測：單日折抵超額告警、高倍率活動的 flag，以及每日執行的異常掃描 cron。點數等同現金，異常要能及早發現。
+
+## Requirements
 
 ### Requirement: 單日折抵超額告警
 系統 SHALL 在單一用戶單日點數折抵總額超過 NT$500 時發送告警給管理員。

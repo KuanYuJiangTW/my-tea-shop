@@ -1,4 +1,9 @@
-## ADDED Requirements
+# admin-product-management Specification
+
+## Purpose
+後台商品的新增、編輯、刪除與上下架，含 75g 與茶包兩種規格可各自停用（價格與庫存留空）的行為。
+
+## Requirements
 
 ### Requirement: 後台可查詢所有商品列表
 系統 SHALL 提供 `GET /api/admin/products`，回傳所有商品依 `id` 升序排列（含下架商品）。

@@ -1,3 +1,10 @@
+# experience-detail Specification
+
+## Purpose
+體驗詳細頁顯示 Sanity 相簿照片的行為，含 Sanity 無內容時的備援來源。照片是體驗頁最主要的說服材料。
+
+## Requirements
+
 ### Requirement: 體驗詳細頁面顯示 Sanity 相簿照片
 系統 SHALL 在體驗詳細頁面（`/experiences/[slug]`）顯示 `content.gallery` 中的所有照片，當 gallery 陣列不為空時。手機版頁面 SHALL 以 CSS order 將月曆區塊優先顯示於體驗資訊欄位之前，桌機版（lg）維持原本左資訊右月曆的並排版面。
 

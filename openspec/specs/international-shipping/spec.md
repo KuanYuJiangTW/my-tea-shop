@@ -1,8 +1,13 @@
-## ADDED Requirements
+# international-shipping Specification
+
+## Purpose
+國際配送：運費區域資料表、依區域與包裹總重的費用計算、結構化國際地址表單、商品配送重量欄位，以及結帳時的注意事項揭露。
+
+## Requirements
 
 ### Requirement: 國際運費區域資料表
 
-系統維護 `shipping_zones` 與 `shipping_countries` 兩張資料表，記錄 ePacket 7 個運費區域、各區域起重費與續重費、以及國家對照。
+系統 SHALL 維護 `shipping_zones` 與 `shipping_countries` 兩張資料表，記錄 ePacket 7 個運費區域、各區域起重費與續重費、以及國家對照。
 
 #### Scenario: 查詢可配送國家
 - **WHEN** 前端呼叫 `GET /api/shipping/countries`
@@ -14,7 +19,7 @@
 
 ### Requirement: 國際運費計算
 
-國際運費依寄達國家所屬區域與包裹總重計算，公式為：`fee = base + ceil((totalWeightG - 100) / 100) * perExtra`。
+國際運費 SHALL 依寄達國家所屬區域與包裹總重計算，公式為：`fee = base + ceil((totalWeightG - 100) / 100) * perExtra`。
 
 #### Scenario: 正常計算
 - **WHEN** 訂單配送至日本（asia_1），商品總重 600g
@@ -34,7 +39,7 @@
 
 ### Requirement: 國際地址表單
 
-國際訂單需填寫結構化地址欄位，存入 orders.shipping_address JSONB。
+國際訂單 SHALL 填寫結構化地址欄位，存入 orders.shipping_address JSONB。
 
 #### Scenario: 填寫國際地址
 - **WHEN** 選擇國際配送並選定國家
@@ -55,7 +60,7 @@
 
 ### Requirement: 國際訂單注意事項
 
-結帳頁選擇國際配送時，需顯示注意事項聲明。
+結帳頁選擇國際配送時，SHALL 顯示注意事項聲明。
 
 #### Scenario: 顯示注意事項
 - **WHEN** 使用者選擇國際配送
@@ -63,7 +68,7 @@
 
 ### Requirement: 商品配送重量
 
-products 表新增 3 個配送重量欄位（`shipping_weight_150g`、`shipping_weight_75g`、`shipping_weight_teabag`），管理員可從後台調整。留空時使用預設值。
+products 表 SHALL 提供 3 個配送重量欄位（`shipping_weight_150g`、`shipping_weight_75g`、`shipping_weight_teabag`），管理員可從後台調整。留空時使用預設值。
 
 #### Scenario: 使用商品自訂重量
 - **WHEN** 商品有設定 shipping_weight_150g / shipping_weight_75g / shipping_weight_teabag
