@@ -138,6 +138,13 @@
 - 規則：工具附的 skill／command 若描述了「手動做掉某件事」的步驟，**先查那個工具的 CLI 有沒有對應指令**（`npx <tool> --help`）。有就用 CLI——CLI 通常帶驗證會擋下錯誤，手動步驟不會。另外：這類 vendor 檔（frontmatter 有 `generatedBy`）改了會被 `<tool> update` 蓋掉，**要覆蓋它的規則必須寫在那個工具管不到的地方**（本專案寫在 CLAUDE.md）。
 - 去處：已入 CLAUDE.md「技術事實」的 openspec 歸檔那條。
 
+## 2026-08-31 隔離了狀態的第一個來源，卻漏掉備援鏈的另外兩個——PR 綠、合併後 main 紅
+
+- 情境：guard 的 `currentBranch()` 為了不 fail-open，改成依序試 `payload.cwd` → `CLAUDE_PROJECT_DIR` → `process.cwd()`。測試只把 `payload.cwd` 指到非 repo 目錄。
+- 代價：CI 上退到 `process.cwd()`＝checkout 在 main 的 repo，分支規則誤觸發，6 個「預期放行」的案例全紅。**而 PR 的 CI 跑在 merge ref 上（分支名不是 main）所以是綠的——這個缺陷只在合併進 main 之後才看得見**，等於帶著綠燈把 main 弄紅。
+- 規則：測試若依賴「當下環境的某個狀態」，要把該狀態的**所有取得路徑**都隔離掉，不是只蓋第一個（子行程要同時設 `cwd`、`env`、以及傳進去的 payload）。另外：**CI 在 PR 與在 main 上跑的環境不同**（分支名、觸發事件都不同），對分支／環境敏感的驗證要在兩種情境各跑一次；本機重現法是 `git checkout main` 後把待驗檔案 `git checkout <branch> -- <file>` 拉過來跑。
+- 去處：暫存於此。與檔末「護欄查不到狀態卻放行」那條互為一對——那條講不能 fail-open，這條講防 fail-open 的手段會反過來污染測試。
+
 ## 已歸檔（2026-08-06 精簡 18 條；2026-08-15 再精簡 2 條；2026-08-25 再精簡 17 條；2026-08-27 再精簡 15 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
