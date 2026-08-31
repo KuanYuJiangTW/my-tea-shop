@@ -19,13 +19,22 @@ const { decide } = require("./guard-commands.js");
 
 /**
  * 子行程跑法（驗完整的 stdin → stdout 合約）。
- * cwd 刻意指到非 git 目錄：否則 main 分支規則會去查「跑測試時剛好在哪個分支」，
- * 同一個案例在 main 上和在功能分支上結果不同——測試就飄了。
- * 分支相關的判定改用下面的 BRANCH_CASES 直接呼叫 decide()。
+ *
+ * 分支規則會去查「現在在哪個分支」，所以這裡必須讓子行程**三個備援來源全部**
+ * 都指到非 git 目錄，否則同一個案例在 main 上和在功能分支上結果不同。
+ * guard 的 currentBranch() 依序試：payload.cwd → CLAUDE_PROJECT_DIR → process.cwd()，
+ * 只蓋掉第一個不夠——2026-08-31 就是漏了後兩個，PR 上綠、合併進 main 後
+ * process.cwd() 變成「checkout 在 main 的 repo」，6 個預期放行的案例全被擋。
+ *
+ * 分支相關的判定改用下面的 BRANCH_CASES 直接呼叫 decide()，分支由測試指定。
  */
+const NO_REPO = os.tmpdir();
+
 function run(tool, command) {
   const out = execFileSync("node", [GUARD], {
-    input: JSON.stringify({ tool_name: tool, tool_input: { command }, cwd: os.tmpdir() }),
+    input: JSON.stringify({ tool_name: tool, tool_input: { command }, cwd: NO_REPO }),
+    cwd: NO_REPO,
+    env: { ...process.env, CLAUDE_PROJECT_DIR: NO_REPO },
     encoding: "utf8",
   });
   return out.trim().length > 0; // 有輸出 = 攔截
