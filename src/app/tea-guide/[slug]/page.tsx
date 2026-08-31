@@ -6,13 +6,14 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import ArticleHeroVideo from "@/components/ArticleHeroVideo";
 import FloatingGuideCta from "@/components/FloatingGuideCta";
+import VisitDirections from "@/components/VisitDirections";
 import SeasonBadge from "@/components/SeasonBadge";
 import { linkifyParagraph } from "@/lib/article-links";
 import { getArticle, getArticles, pick, pickList } from "@/lib/articles";
 import { hasSeason } from "@/lib/experience-ordering";
 import { getExperienceTypes } from "@/lib/experiences";
 import { faqPageJsonLd, jsonLdString, langAlternates, openGraphFor } from "@/lib/seo";
-import { heroVideoFor, sectionImageFor } from "@/lib/tea-guide-media";
+import { heroVideoFor, sectionImageFor, showsDirectionsAfter } from "@/lib/tea-guide-media";
 
 export const revalidate = 3600;
 
@@ -127,6 +128,7 @@ export default async function ArticlePage({ params }: Props) {
     heading:    s.heading,
     // 查表用中文原文，不用翻譯後的小標——否則英文頁會查不到圖
     image:      sectionImageFor(slug, article.sections[i]?.heading ?? ""),
+    directions: showsDirectionsAfter(slug, article.sections[i]?.heading ?? ""),
     paragraphs: s.paragraphs.map(text => linkifyParagraph(text, linkableNames, linked)),
   }));
 
@@ -260,6 +262,13 @@ export default async function ArticlePage({ params }: Props) {
                     </figcaption>
                   )}
                 </figure>
+              )}
+
+              {/* 導航擺在照片之後：先看到那個地方長什麼樣子，再給按鈕 */}
+              {section.directions && (
+                <div className="mt-6">
+                  <VisitDirections />
+                </div>
               )}
             </section>
           ))}

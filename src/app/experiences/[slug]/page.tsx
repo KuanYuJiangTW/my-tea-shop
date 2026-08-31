@@ -17,6 +17,7 @@ import {
   nextAvailableWindow,
 } from "@/lib/experience-requests";
 import RelatedExperiences from "./RelatedExperiences";
+import VisitDirections from "@/components/VisitDirections";
 import AdmissionTiers from "./AdmissionTiers";
 import GuideLink from "./GuideLink";
 import InterestForm from "./InterestForm";
@@ -323,6 +324,12 @@ export default async function ExperienceDetailPage({ params }: Props) {
             {/* 價格層級放在月曆之前：看到「450 才能看鳥」就走掉的人，
                 應該先知道還有免費賞鳥與看鳥茶位兩種選擇 */}
             <AdmissionTiers tiers={content.admissionTiers} bookablePrice={experience.price} />
+
+            {/* 導航擺在三階方案正下方：客人剛做完「要去哪一個」的選擇，
+                下一個問題就是「那要怎麼開過去」 */}
+            <div className="mt-6">
+              <VisitDirections />
+            </div>
             <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
               <h2 className="font-serif text-xl font-bold text-tea-text mb-6">{t("selectSession")}</h2>
               <ExperienceCalendar experience={experience} />

@@ -78,6 +78,20 @@ const SECTION_MEDIA: Record<string, Record<string, ArticleImage>> = {
   },
 };
 
+/**
+ * slug → 要在哪個中文小標之後插入「怎麼來」。
+ *
+ * 業主回報客人「在網路上找到文章後不知道怎麼來」，而這篇的流量正是那批人。
+ * 掛在「在哪裡看？停車怎麼停？要花錢嗎？」之後——問題就是在那一段產生的。
+ */
+const DIRECTIONS_AFTER: Record<string, string> = {
+  "cattle-egret-viewing-guide": "在哪裡看？停車怎麼停？要花錢嗎？",
+};
+
+export function showsDirectionsAfter(slug: string, zhHeading: string): boolean {
+  return Boolean(zhHeading) && DIRECTIONS_AFTER[slug] === zhHeading;
+}
+
 export function heroVideoFor(slug: string): ArticleHeroVideo | null {
   return HERO_VIDEO[slug] ?? null;
 }
