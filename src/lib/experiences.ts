@@ -82,7 +82,10 @@ const FALLBACK_CONTENT: Record<string, Omit<ExperienceContent, "slug" | "name" |
   // Sanity 掛掉時的備援。沒有這一筆，該頁會直接 404——
   // getExperienceContent 查不到內容就回 null，詳細頁 notFound()
   "cattle-egret-tour": {
-    tagline:    "秋季限定・萬鷺朝鳳的推廣就是從我家門口開始的——停車、洗手間、茶席、賞鳥都在同一個地方。",
+    // 這句刻意不提「推廣是誰開始的」：萬鷺朝鳳是「梅山太興村賞黃頭鷺景觀平台停車場」
+    // 與附近幾戶鄰居的觀景平台一起推起來的，不是哪一家的功勞（業主 2026-08-31 更正）。
+    // 那段歷史寫在攻略文的「這件事是怎麼開始的」，tagline 的位置留給賣點
+    tagline:    "秋季限定・停車、洗手間、茶席、賞鳥都在同一個地方，由在這裡種了四十年茶的一家人帶你看",
     coverImage: "/images/gallery/picking2.jpg",
     // 「現場有洗手間」「7 個車位」「視野無電線」三項是刻意寫進包含項目而不是
     // 只寫在注意事項裡：Google AI 模式（2026-08-23）把隔壁免費平台的
