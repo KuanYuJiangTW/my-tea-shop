@@ -904,3 +904,50 @@ vitest 80 檔 **1048** 測試全過、`tsc` 0 錯誤、`npm run lint` **0 error*
 - PR #18（文案盤點）與本 PR 都還沒合併。
 - ChatWidget 被浮動條頂上去這件事只用對照組證明機制正確，尚未在真手機確認。
   （浮動條本身業主已實機看過，回報「有點慢才出來」，本 PR 已調整。）
+
+## 2026-08-31 對照八層成熟度手冊做全站盤點，並補完第 3–5 層
+
+分支 `chore/maturity-level4-5-upgrades`，四個 commit（`09f57af` → `5c7ba27`），已推送未合併。
+
+### 盤點結論
+
+八層裡前三層（下好指令／CLAUDE.md／OpenSpec）本來就強，**第 6 層 MCP 是最大缺口**
+（本機 MCP 0 個、plugin 0 個）。形狀是「規範與規格做得極好，但沒接上執行力」——
+規則靠自覺、線上狀態靠人工查、重複流程靠敘事傳承。
+網頁版盤點：https://claude.ai/code/artifact/19849a9d-bcd1-4332-bae8-9032a2cad0d2
+
+### 做完的七項
+
+1. **四個 subagent 全開 `memory: project`**。`memory` 欄位已向官方文件查證（值 user/project/local，
+   存 `.claude/agent-memory/<name>/`）。`.gitignore` 的 `.claude/*` 是黑名單制，
+   白名單漏加 `agent-memory` 會靜默忽略——已補並用 `git check-ignore -v` 複驗。
+2. **main 分支護欄**（guard 第三條規則）。測試 26 → 46 案例。逃生口是 `ALLOW_MAIN=1` 前綴，
+   豁免必須寫在指令裡看得見。
+3. **SessionStart hook**：開場自動報分支、WORKLOG 最後一節的待辦、`gh` CLI 有無。
+   **本機 `gh` 是可用的**——CLAUDE.md 那句「沒有 gh」講的是 web 容器。
+4. **新增 `tester` 與 `copy-guardian`**，dispatch.md 的 DISP-1 與 DISP-6 同步更新。
+5. **GitHub Actions CI**（`.github/workflows/verify.yml`）：測試、型別、lint，
+   外加跑 `guard-commands.test.js`（它被 vitest exclude）。刻意不含 build，理由寫在檔內註解。
+6. **`deploy-check`（帶腳本）與 `contrast-audit` skill**。前者對正式站實跑 8 項全過，
+   並用必定不存在的字串反向測試確認會紅且 exit 1。
+7. **每週正式站健檢排程**（週一 09:03，taskId `taiwantea-weekly-healthcheck`）。
+
+### 順手查證的線上事實
+
+正式站 `llms.txt` 目前**是對的**：450 元、無 250、兩個賞鳥地點的設施條件有分開講。
+`robots.txt` 的 Content-Signal 與 AI 爬蟲 Allow 群組都在。
+
+**但發現一句待確認的宣稱**：`llms.txt` 賞鳥那行寫「賞鳥的起點就是**自家的**茶居與停車場」。
+依 auto-memory 的 `project_egret_venue_facts` 與 8/31 的歸屬更正，景觀平台停車場
+恐怕不是自家的。這需要業主原話（JUDG-11），**我沒有動它**。
+
+### 還沒做的
+
+- **行動清單第 4 項**：10 個未歸檔 openspec change 要分流（歸檔／降級 backlog／刪），
+  最舊三個停在 07-27。需要使用者逐個決定。
+- **行動清單第 5 項**：裝 Supabase + Vercel MCP。需要使用者提供金鑰與授權。
+- **`llms.txt` 的「自家的茶居與停車場」**：等業主確認是否要改。
+- 本分支尚未開 PR、未合併。CI 因為只在 `pull_request` 與進 `main` 時觸發，
+  **到開 PR 前還沒有第一次實跑紀錄**。
+- 四份 agent 記憶目前是「種子」（我從既有 lessons／WORKLOG／測試檔整理進去並標明），
+  尚未經過實際使用累積。
