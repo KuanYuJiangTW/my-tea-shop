@@ -1,4 +1,9 @@
-## ADDED Requirements
+# user-reviews Specification
+
+## Purpose
+體驗評論的資格（已確認且活動已結束）、每筆預約限一則、1–5 星評分與選填留言，以及帳號頁的留評狀態標記。
+
+## Requirements
 
 ### Requirement: 只有已確認且體驗已結束的預約可以留評
 系統 SHALL 在 `POST /api/reviews` 驗證：預約屬於本人、`status = "confirmed"`、`session_date < today`。

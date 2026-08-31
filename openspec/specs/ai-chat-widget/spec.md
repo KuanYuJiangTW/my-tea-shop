@@ -1,4 +1,9 @@
-## ADDED Requirements
+# ai-chat-widget Specification
+
+## Purpose
+前台 AI 客服元件：浮動按鈕、視窗開合、歡迎訊息、依所在頁面給出的情境式快速提問，以及答不出來時轉接 LINE 真人。
+
+## Requirements
 
 ### Requirement: Floating chat button
 The system SHALL display a floating circular button at the bottom-right corner of all frontend pages (excluding Admin pages). On mobile, the button SHALL be positioned to avoid overlapping bottom-fixed CTA buttons (e.g., "Add to Cart", "Book Now").

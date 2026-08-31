@@ -1,4 +1,9 @@
-## ADDED Requirements
+# stripe-checkout Specification
+
+## Purpose
+Stripe 結帳：Checkout Session 建立、webhook 處理付款成功，以及訂單編號前綴規則。
+
+## Requirements
 
 ### Requirement: Stripe Checkout Session 建立
 系統 SHALL 提供 `POST /api/stripe/checkout` 端點，接收與 ECPay checkout 相同的 `CreateOrderRequest` payload，執行後端驗證後建立 Stripe Checkout Session 並回傳 redirect URL。

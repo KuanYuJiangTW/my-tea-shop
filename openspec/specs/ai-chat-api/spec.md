@@ -1,4 +1,9 @@
-## ADDED Requirements
+# ai-chat-api Specification
+
+## Purpose
+AI 客服的 API 端點：system prompt 組裝、語系感知回應、頻率限制、對話脈絡與錯誤處理。
+
+## Requirements
 
 ### Requirement: Chat API endpoint
 The system SHALL expose a POST `/api/chat` endpoint that accepts a JSON body with `messages` (array of `{role, content}`) and `locale` (string), and returns a streaming response from Gemini API.

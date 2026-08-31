@@ -1,3 +1,10 @@
+# admin-audit-log Specification
+
+## Purpose
+後台寫入操作的審計日誌：什麼時候記錄、必須包含哪些足以追查的資訊。目的是讓「誰在什麼時候改了什麼」事後查得出來，而不是只能靠印象。
+
+## Requirements
+
 ### Requirement: 後台寫入操作自動記錄審計日誌
 系統 SHALL 在所有後台 POST、PATCH、DELETE 操作成功後，非同步寫入 Supabase `admin_audit_logs` 資料表。
 

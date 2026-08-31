@@ -1,4 +1,9 @@
-## ADDED Requirements
+# experience-booking Specification
+
+## Purpose
+體驗預約的建立：登入要求、必填欄位、場次狀態與剩餘名額檢查、茶果酒的成年確認，以及金額與資料截止日的計算。
+
+## Requirements
 
 ### Requirement: 使用者必須登入才能預約
 系統 SHALL 拒絕未登入使用者的預約請求，回傳 401。

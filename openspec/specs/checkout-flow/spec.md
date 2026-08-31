@@ -1,8 +1,13 @@
-## ADDED Requirements
+# checkout-flow Specification
+
+## Purpose
+結帳流程的配送地區選擇（台灣境內與國際），以及運費計算統一改用共用函式、不在前端硬編碼費率。
+
+## Requirements
 
 ### Requirement: 國際配送選項
 
-結帳頁新增「配送地區」選擇，分為台灣境內與國際配送。
+結帳頁 SHALL 提供「配送地區」選擇，分為台灣境內與國際配送。
 
 #### Scenario: 選擇國際配送
 - **WHEN** 使用者點選「國際配送」
@@ -22,8 +27,12 @@
 - **WHEN** 購物車商品總重超過 2000g
 - **THEN** 國際配送選項 disabled，顯示「超過國際配送限重 2kg」提示
 
-## MODIFIED Requirements
 
 ### Requirement: 運費計算統一化
 
-現有結帳頁的運費計算邏輯改用 API 回傳或共用函式計算，不再前端硬編碼。
+結帳頁的運費計算 SHALL 改用 API 回傳或共用函式計算，不再於前端硬編碼費率。
+
+#### Scenario: 結帳頁顯示的運費與建單結果一致
+- **WHEN** 使用者在結帳頁選定配送方式，購物車內容確定
+- **THEN** 頁面顯示的運費取自 API 回傳或 `calculateShippingFee()`，與建單時實際計算的金額一致
+  ——費率以 `shipping-constants.ts` 的 `DOMESTIC_FEES` 為單一真相，前端不另行複製數字

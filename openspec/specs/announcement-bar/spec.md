@@ -1,8 +1,10 @@
 # announcement-bar Specification
 
 ## Purpose
-TBD - created by archiving change announcement-bar. Update Purpose after archive.
+首頁公告條：依登入狀態擇一顯示、金額與門檻取自單一事實來源、付款方式限制提前揭露、可關閉並記憶 7 天，以及結帳與後台不顯示。
+
 ## Requirements
+
 ### Requirement: 公告條依登入狀態擇一顯示
 
 系統 SHALL 在 Header 上方顯示單一則公告，內容依登入狀態決定，且 SHALL NOT 輪播。
@@ -102,4 +104,3 @@ TBD - created by archiving change announcement-bar. Update Purpose after archive
 - **WHEN** 渲染公告條
 - **THEN** 底色 `tea-green-dark`（#5C7A67）配白字，對比 4.74 通過 AA 內文門檻；
   關閉鈕觸控區為 36×36px，並有 `aria-label`
-

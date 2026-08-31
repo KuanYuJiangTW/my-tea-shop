@@ -1,4 +1,9 @@
-## ADDED Requirements
+# booking-participants Specification
+
+## Purpose
+參加者的四項必填資料、活動前 5 天的補填截止，以及對未填寫者的 cron 提醒。資料要在出發前湊齊，現場才不會卡住。
+
+## Requirements
 
 ### Requirement: 參加者資料於活動前 5 天截止補填
 建立預約時，系統 SHALL 計算 `participants_due_at = 活動日期 - 5 天`，作為補填截止時間。

@@ -1,4 +1,9 @@
-## ADDED Requirements
+# cvs-pickup Specification
+
+## Purpose
+超商取貨：透過綠界物流 API 開啟地圖、依實況限制可用超商、門市選取結果以 postMessage 回傳。
+
+## Requirements
 
 ### Requirement: 超商取貨地圖透過 ECPay 物流 API 開啟
 系統 SHALL 呼叫 `POST /api/ecpay/cvs-map`，回傳 ECPay 物流地圖的 `actionUrl` 與簽章參數，由前端開啟彈窗跳轉。

@@ -1,4 +1,9 @@
-## ADDED Requirements
+# points-expiry-notification Specification
+
+## Purpose
+點數到期前的 email 通知，以及每日執行的到期通知 cron。點數無預警消失是客訴來源，到期前要先講。
+
+## Requirements
 
 ### Requirement: 點數到期前自動發送 email 通知
 系統 SHALL 在點數到期前 7 天自動發送 email 通知持有者，提醒即將到期的點數金額。

@@ -1,4 +1,9 @@
-## ADDED Requirements
+# user-profile Specification
+
+## Purpose
+會員個人資料的查看與更新（走 Supabase Browser Client），以及登入 Email 的唯讀顯示。
+
+## Requirements
 
 ### Requirement: 用戶可查看與更新個人資料
 系統 SHALL 允許已登入用戶查看並更新 `profiles` 表中的姓名、電話、縣市、地址欄位。

@@ -1,8 +1,10 @@
 # web-inquiry-form Specification
 
 ## Purpose
-TBD - created by archiving change add-web-design-quote-page. Update Purpose after archive.
+接案諮詢表單：六題欄位與驗證、寫入資料庫、RLS deny-by-default、防濫用、admin 通知信與成功後的 LINE 導流。
+
 ## Requirements
+
 ### Requirement: 六題諮詢欄位
 表單 SHALL 包含六題：(1) 認識管道（單選：茶網站看到／朋友介紹／搜尋／社群／其他）、(2) 產業與品牌名（文字）、(3) 想解決的痛點（複選：還沒有網站／網站太舊／想收線上訂單／想要預約功能／想被 Google 和 AI 搜到／其他）、(4) 預算區間（單選：5 萬內／5–15 萬／15–30 萬／30 萬以上／還不確定）、(5) 期望上線時程（單選：1 個月內／3 個月內／還在評估）、(6) 聯絡方式（姓名必填＋LINE ID 或 Email 至少一項）與方便聯絡時段（選填）。
 
@@ -48,4 +50,3 @@ API SHALL 套用 `@/lib/rate-limit` 限流，且表單 SHALL 含 honeypot 隱藏
 #### Scenario: 成功後導 LINE
 - **WHEN** 提交成功且 LINE 連結已設定
 - **THEN** 成功畫面出現 LINE 按鈕，點擊開啟該連結
-

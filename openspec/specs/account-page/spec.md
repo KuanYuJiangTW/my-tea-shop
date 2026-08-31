@@ -1,4 +1,9 @@
-## ADDED Requirements
+# account-page Specification
+
+## Purpose
+會員帳號頁的登入守衛、profile 自動建立、一次載入所有 Tab 資料，以及用 URL 參數切換 Tab。
+
+## Requirements
 
 ### Requirement: 未登入用戶重導向至登入頁
 系統 SHALL 在帳號頁偵測到未登入時，重導向至 `/auth/login`。

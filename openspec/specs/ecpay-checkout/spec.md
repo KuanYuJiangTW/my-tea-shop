@@ -1,4 +1,9 @@
-## ADDED Requirements
+# ecpay-checkout Specification
+
+## Purpose
+綠界金流結帳：來源驗證、訂單編號前綴規則、callback 簽章驗證、庫存扣減失敗的標記，以及結果頁轉址。
+
+## Requirements
 
 ### Requirement: ECPay 結帳只接受來自本站的請求
 系統 SHALL 驗證 `Origin` header，拒絕非本站來源的請求。

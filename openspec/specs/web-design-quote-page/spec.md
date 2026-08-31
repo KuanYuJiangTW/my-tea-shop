@@ -1,8 +1,10 @@
 # web-design-quote-page Specification
 
 ## Purpose
-TBD - created by archiving change add-web-design-quote-page. Update Purpose after archive.
+接案品牌的報價頁：路由與內容結構、三階報價卡、雙語 SEO metadata、Footer 徽章入口、LINE 導流與案例故事頁。
+
 ## Requirements
+
 ### Requirement: 報價頁路由與內容結構
 系統 SHALL 於 `/web-design`（英文版 `/en/web-design`）提供報價頁，由上而下包含：品牌 Hero（「每個生意，都有自己的風土」敘事＋本站作為實例的成績重點）、痛點區塊（五個具體場景＋轉折句）、成果區塊（四項機制性利益＋ROI 試算框＋案例頁連結）、三階報價卡、加購項目、維護月費方案、商業條款（付款節奏 40/30/30、含 2 次修改、報價效期 14 天、網域主機實報實銷）、常見問題、諮詢表單區塊、頁尾一行「實戰課程籌備中」。文案 MUST NOT 含任何編造的客戶成效數字；成效表述限於機制性利益、「如果」框架的 ROI 試算、與可驗證的真實事實。
 
@@ -51,4 +53,3 @@ TBD - created by archiving change add-web-design-quote-page. Update Purpose afte
 #### Scenario: 錨點直達
 - **WHEN** 訪客開啟 `/web-design#faq`
 - **THEN** 瀏覽器捲動至常見問題區塊
-

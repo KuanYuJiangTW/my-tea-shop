@@ -1,4 +1,9 @@
-## ADDED Requirements
+# ai-chat-knowledge Specification
+
+## Purpose
+餵給 AI 客服的知識來源：商品、體驗、FAQ 的動態組裝與語系切換，以及避免每次對話都重查資料庫的快取策略。
+
+## Requirements
 
 ### Requirement: Dynamic product knowledge
 The system SHALL fetch current product data (name, description, price, origin, category) from Supabase and include it in the AI system prompt.

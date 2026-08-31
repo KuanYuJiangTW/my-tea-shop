@@ -1,4 +1,9 @@
-## ADDED Requirements
+# admin-points-adjustment Specification
+
+## Purpose
+後台手動調整會員點數的規則，以及點數明細的匯出。手動調整直接影響會員資產，因此必須留下可稽核的軌跡。
+
+## Requirements
 
 ### Requirement: 後台手動調整點數
 系統 SHALL 提供管理員手動加/扣點數的功能，用於客訴補償或帳務修正。

@@ -1,4 +1,7 @@
-## ADDED Requirements
+# coupon-and-points Specification
+
+## Purpose
+折價券與點數的折抵規則：專屬性與單次使用、最低消費門檻、依會員等級的折抵上限，以及扣點與累積的時點。
 
 > **點數制度沿革（改這塊之前先讀）**
 >
@@ -11,6 +14,8 @@
 > 因此任何「依訂單欄位反推點數」的邏輯都不安全，一律以 `point_transactions`
 > 為準。2026-08-01 曾因此寫出會超額退還 3267 點的程式碼——本規格先前的舊制
 > 描述正是誤導來源之一。
+
+## Requirements
 
 ### Requirement: 折價券為用戶專屬且單次使用
 系統 SHALL 驗證折價券的 `user_id` 符合當前用戶、`used_at` 為 null、`expires_at` 未過期。

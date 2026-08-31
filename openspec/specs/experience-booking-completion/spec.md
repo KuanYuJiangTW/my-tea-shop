@@ -1,3 +1,8 @@
+# experience-booking-completion Specification
+
+## Purpose
+體驗預約的完成標記：後台手動標記、逾期未處理的視覺提示、已完成篩選 tab，以及 7 天自動完成的 cron。
+
 ## Requirements
 
 ### Requirement: 後台手動標記預約完成

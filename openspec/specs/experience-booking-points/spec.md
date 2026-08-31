@@ -1,3 +1,8 @@
+# experience-booking-points Specification
+
+## Purpose
+體驗預約的點數折抵與發放：扣點時點、同筆預約防重複、以及一律以帳本（point_transactions）為準的計算原則。
+
 > **制度沿革（2026-08-01 以線上資料核實，見稽核 SQL 第 7 段的實際輸出）**
 >
 > 體驗預約的點數在 `2e1da44`（2026-04-11 09:19 +0800）到 `abae014` 之間是
@@ -28,7 +33,7 @@
 >
 > 以下描述的是**現行新制（1:1）**。
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: 體驗結帳時可使用會員點數折抵金額
 系統 SHALL 在 `POST /api/ecpay/experience-checkout` 接受 `pointsToUse` 參數，
@@ -108,9 +113,9 @@
 - **THEN** `points_used = 0`、`points_discount = 0`
 
 ### Requirement: 點數在導向金流前就扣除，逾期未付款由 cron 收回
-系統扣點的時機是**建立綠界結帳參數時**，而非付款成功後。客人放棄付款時
-預約會停在 `pending_payment`，因此系統 SHALL 以
-`GET /api/cron/expire-pending-bookings`（每日 03:30 UTC）清理這些孤兒預約。
+系統 SHALL 在**建立綠界結帳參數時**扣點（而非付款成功後），並以
+`GET /api/cron/expire-pending-bookings`（每日 03:30 UTC）清理客人放棄付款後
+停在 `pending_payment` 的孤兒預約。
 
 取消條件為**任一**成立：
 - `created_at` 早於 `now - 24 小時`

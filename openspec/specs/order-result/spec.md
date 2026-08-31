@@ -1,8 +1,13 @@
-## MODIFIED Requirements
+# order-result Specification
+
+## Purpose
+國際訂單的結果頁顯示。國際訂單的運費、地址與注意事項與國內不同，結果頁要如實反映。
+
+## Requirements
 
 ### Requirement: 國際訂單結果頁
 
-訂單結果頁需顯示國際配送相關資訊。
+訂單結果頁 SHALL 顯示國際配送相關資訊。
 
 #### Scenario: PayPal 國際訂單付款成功
 - **WHEN** 國際訂單 PayPal 付款成功
