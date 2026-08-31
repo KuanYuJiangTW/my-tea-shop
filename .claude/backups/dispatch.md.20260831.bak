@@ -14,12 +14,7 @@
 | 明確規格的實作、批次改檔 | `general-purpose` | 改 5+ 檔的機械性修改，或主對話 context 已經很滿 |
 | 驗收任何交付物 | `checker`（本 repo 自訂，`.claude/agents/checker.md`） | 每次宣告完成前 |
 | 第二意見、仲裁、卡死的難題 | `judge`（本 repo 自訂，`.claude/agents/judge.md`） | 高風險判斷或升級路徑走到頂 |
-| 寫測試、補回歸測試、修紅掉的測試 | `tester`（本 repo 自訂，`.claude/agents/tester.md`） | 補測試、或修完 bug 要釘住它 |
-| 對外宣稱一致性盤點 | `copy-guardian`（本 repo 自訂，`.claude/agents/copy-guardian.md`） | 動到價格、設施、包含項目、地點差異、或任何對外文字檔 |
 | 實作前的方案設計 | `Plan`（內建） | 跨 3+ 模組或動高風險區前 |
-
-**這四個自訂 agent（checker／judge／tester／copy-guardian）都開了 `memory: project`**（記憶在 `.claude/agent-memory/<name>/`，隨 repo 走）。
-它們會跨 session 累積這個專案的經驗，所以**同類工作固定派同一個角色**——每次改派等於把記憶丟掉。
 
 **反面界線（不要過度派工）**：讀一個已知路徑的小檔、跑一條指令、改一兩個檔的小修——主對話直接做。每次 spawn 都是冷啟動、要重建 context，2 分鐘內能做完的事不派。
 
@@ -82,7 +77,6 @@
 |---|---|---|
 | 文件／規則檔 | read-back：讀檔逐條比對驗收條件，引 file:line 作證 | `checker` |
 | 程式碼 | 主對話先跑 `npm run test`；行為驗證用 `verify` skill；diff 品質用 `code-review` skill | 測試＋`checker` 或 code-review |
-| 對外文案（價格、設施、包含項目、`llms.txt`、JSON-LD、雙語字串） | 交叉比對所有文案來源——**四件套全綠也證明不了文案對** | `copy-guardian` |
 | 高風險判斷（金流、庫存、auth、RLS、架構） | 第二意見：`judge` 獨立分析後比對；或派 3 個 sonnet 各自解，`judge` 評審選優 | `judge` |
 
 checker 回報 FAIL 時：修完必須**再驗一次**，不能「我修好了所以過了」。
