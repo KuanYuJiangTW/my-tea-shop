@@ -11,7 +11,7 @@ import Link from "next/link";
  * 但反感的來源不是「有浮動按鈕」，而是三件具體的事——一進來就跳、遮住正在讀的字、
  * 關不掉。所以這個元件把那三件事逐一擋掉：
  *
- *   1. **捲過 35% 才出現**。讀者已經投入了才問，不是一見面就推銷。
+ *   1. **捲過一個半螢幕才出現**。讀者已經投入了才問，不是一見面就推銷。
  *   2. **不遮字**。把自己的高度寫進 `--floating-cta-h`，由頁面加上等高的 padding；
  *      條子退場時歸零，版面不會留下一塊空白。
  *   3. **關得掉**，而且記在 sessionStorage——同一次瀏覽不會再跳出來。
@@ -23,7 +23,7 @@ import Link from "next/link";
  * 一通電話的成交率遠高於任何按鈕，而且它讀起來是服務不是推銷。
  */
 export default function FloatingGuideCta({
-  bookHref, phoneHref, phoneLabel, storageKey, anchorId, showAfter = 0.35,
+  bookHref, phoneHref, phoneLabel, storageKey, anchorId, showAfterScreens = 1.5,
 }: {
   bookHref:   string;
   phoneHref:  string;
@@ -32,8 +32,14 @@ export default function FloatingGuideCta({
   storageKey: string;
   /** 文末 CTA 卡片的 id；它進入畫面時本條收起 */
   anchorId:   string;
-  /** 捲過整頁的幾成才出現 */
-  showAfter?: number;
+  /**
+   * 捲過幾個螢幕高才出現。
+   *
+   * 用螢幕數而不是「整頁的幾成」（原本是 0.35）：攻略文加了首屏影片與四張圖之後
+   * 長了快一半，同樣的比例換算成絕對距離就變遠，業主實機回報「有點慢才出來」。
+   * 螢幕數不受文章長度影響，之後再長也不會漂移，調整時也直觀——1.5 就是一個半螢幕。
+   */
+  showAfterScreens?: number;
 }) {
   const t = useTranslations("teaGuide");
   const barRef = useRef<HTMLDivElement>(null);
@@ -53,13 +59,12 @@ export default function FloatingGuideCta({
 
   useEffect(() => {
     const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setScrolled(max > 0 && window.scrollY / max >= showAfter);
+      setScrolled(window.scrollY >= window.innerHeight * showAfterScreens);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [showAfter]);
+  }, [showAfterScreens]);
 
   useEffect(() => {
     const target = document.getElementById(anchorId);

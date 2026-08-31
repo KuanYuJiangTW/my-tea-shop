@@ -99,6 +99,12 @@
 - 代價：這次沒出事，但「檔頭註解寫『請先跑另一支』」在人工流程裡等於沒有保護——貼錯順序就是 `42703 column does not exist`，而且是整段 rollback，前面成功的 INSERT 也一起沒了
 - 規則：**手動執行的 SQL 之間有欄位相依時，把相依那段包進 `DO $ IF EXISTS (SELECT 1 FROM information_schema.columns …) THEN … END $`**，讓兩支檔任何順序都能跑。這跟前台程式碼用 `42703`／`42P01` 兩段式 fallback 是同一件事的兩端：**這個 repo 的 code 與 schema 一定會有一段時間不同步，兩邊都要能單獨活著**
 - 去處：暫存於此
+## 2026-08-31 「這只是 WORKLOG」——我替文件變更自我豁免，直接在 main 上 commit＋push
+- 情境：PR #17 合併後要把上線驗證寫進 WORKLOG，心裡認定「只改文件、沒有程式碼」就不必開分支，於是 `git checkout main` 之後直接 commit 並 push
+- 代價：違反 CLAUDE.md「使用者沒開口就不開 PR、不動 main 分支」，被使用者抓到並要求處理；多花一個 revert PR 把內容照規矩帶回來
+- 規則：**切到 main 之後只能讀不能寫**。commit 任何東西之前先確認 `git status -sb` 第一行不是 `## main...`，是就先 `git checkout -b`。**「只改文件」「只改 WORKLOG」「只改 lessons」都不是例外**——會自我豁免的正好都是這類看起來無害的變更
+- 去處：暫存於此。與檔末「hook 擋掉複合命令、commit 落到 main」那條互補——那條是**意外**掉到 main，這條是**刻意**切過去，兩種都要靠 commit 前看 `git status -sb` 擋下（JUDG-2）
+
 ## 已歸檔（2026-08-06 精簡 18 條；2026-08-15 再精簡 2 條；2026-08-25 再精簡 17 條；2026-08-27 再精簡 15 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
