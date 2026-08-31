@@ -89,3 +89,58 @@ describe("llms.txt 不得再出現「推廣是自家開始的」說法", () => {
     expect(txt).not.toContain("推廣就是從我家");
   });
 });
+
+// ── 三階方案區塊的引言（messages 的 experiences.admission.intro）──────────────
+//
+// 2026-08-31 業主抓到：引言寫「停車場那邊…有車位、有洗手間、視野沒有電線橫過」，
+// 但**正下方的免費卡片**寫「平台那邊也沒有洗手間跟座位」。同一個畫面上自相矛盾，
+// 而且錯的那半邊會讓人停到免費平台才發現沒廁所。
+//
+// 這種矛盾不會有任何測試變紅——兩段文字分屬 messages 與 Sanity，沒有人比對過。
+// 這裡就是那個比對。
+
+const messages = (locale: string) =>
+  JSON.parse(read(`messages/${locale}.json`)) as Record<string, unknown>;
+
+/** experiences.admission 那一段（巢狀位置可能改，用遞迴找） */
+function admission(locale: string): Record<string, string> {
+  const found: Record<string, string>[] = [];
+  const walk = (n: unknown) => {
+    if (!n || typeof n !== "object") return;
+    const o = n as Record<string, unknown>;
+    if (typeof o.intro === "string" && typeof o.perPerson === "string") found.push(o as Record<string, string>);
+    Object.values(o).forEach(walk);
+  };
+  walk(messages(locale));
+  expect(found.length, `messages/${locale}.json 找不到 admission 區塊`).toBe(1);
+  return found[0];
+}
+
+describe("三階方案的引言不得與免費卡片打架", () => {
+  it("中文：講明免費平台沒有座位、沒有洗手間", () => {
+    const intro = admission("zh").intro;
+    expect(intro).toContain("沒有座位");
+    expect(intro).toContain("沒有洗手間");
+  });
+
+  it("中文：不得把「有洗手間」掛在停車場那一句上", () => {
+    const intro = admission("zh").intro;
+    expect(intro).not.toContain("有車位、有洗手間");
+  });
+
+  it("英文：講明免費停車場沒有座位、沒有洗手間", () => {
+    const intro = admission("en").intro.toLowerCase();
+    expect(intro).toContain("no seating");
+    expect(intro).toContain("no toilets");
+  });
+
+  it("英文：不得把 toilets 直接列成停車場的設施", () => {
+    const intro = admission("en").intro;
+    expect(intro).not.toContain("which is also ours: parking, toilets");
+  });
+
+  it("兩種語言都要指出洗手間與座位在茶居那邊", () => {
+    expect(admission("zh").intro).toContain("信淳茶居");
+    expect(admission("en").intro.toLowerCase()).toContain("tea house");
+  });
+});
