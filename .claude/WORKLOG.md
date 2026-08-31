@@ -30,11 +30,11 @@
 2. **[07-28] 資安修補（高風險項）** — SEC-001 後台 2FA 可完全繞過等 6 項修畢。
    決策：git 歷史清理暫緩（金鑰已輪換、repo 刻意公開當教材）；
    `validate_admin_session` **刻意保留 anon 權限**——Edge middleware 需要它，收掉會導致後台完全登不進去。
-3. **[07-28] 資安清尾（M-3 ＋ L 級 7 項）** — 全數結案。**三個「刻意不做」**：
+3. **[07-28] 資安清尾（M-3 ＋ L 級 7 項）** — 修補項全數結案，**但 L-3 仍懸著**（見上方未結案區）。**三個「刻意不做」**：
    L-1 不跑 `npm audit fix`（`--force` 會把 Next 降到 9.3.3，不加 force 則改 328 套件修 0 漏洞）；
    L-4 保留 CSP `unsafe-inline`（有 nonce 時瀏覽器會忽略它，
    且**不可照 `openspec/specs/csp-nonce/spec.md` 補 `strict-dynamic`**——會讓 host 白名單失效、GA 與 Cloudflare Insights 掛掉）；
-   L-3 PII 到期清除待保單要求釐清（個資法查證結果存於 `src/lib/pii.ts` 檔頭）。
+   L-3 PII 到期清除待保單要求釐清（個資法查證結果存於 `src/lib/pii.ts` 檔頭）——**這條不是「刻意不做」而是「等外部答案」**，別跟前兩條一起讀成已定案。
 4. **[07-29] session 教訓固化成 hook / command / skill** — `guard-commands.js`（26 案例測試全過）、
    `/verify` command、`reverse-verify` skill。決策：**hook 不是安全邊界，是防手滑的護欄**；
    攔截型 hook 必須先剝離 heredoc 與引號內容再比對，否則會擋住「提到該指令」的正常操作。
@@ -113,14 +113,26 @@
   `/experiences/cattle-egret-tour`（**說明欄不可放網址**，Google 政策）
 - **開課申請的採茶與紅茶職人仍關著**（`accepts_requests = false`）：9/10 前後看實際茶況再開。
   理由見已歸檔 08-24 那條——按季節窗核准 → 客人付款 → 茶菁沒到位 → 要取消一筆已付款的預約
-- **開課請求的兩個已知風險**：(1)「兩個工作天內回覆」印在四個頁面上，排程每天寄積壓提醒，
+- **開課請求的三個已知風險**：(1)「兩個工作天內回覆」印在四個頁面上，排程每天寄積壓提醒，
   天天來就會被忽略；(2) 48 小時核准連結會鎖住時段，同時多筆待付款時月曆會有一段
-  「看起來有空、其實不能排」
+  「看起來有空、其實不能排」；(3) **萬鷺朝鳳的機會成本**——核准一筆 3 人（1,350）會在
+  該時段開私人場次，衝突檢查會擋掉同時段再開公開場（上限 20 人 × 450 ＝ 9,000）。
+  20 場公開場次報名數全是 0 時只是理論值，**真正要小心的是季節後段媒體報導後的那幾天**
 - **LINE 轉換代碼 `_lt('send','cv',...)` 刻意沒做**（現在裝只會得到永遠是 0 的數字）。
   觸發條件：開始投 LINE 廣告、或好友數到數百人、或要驗證漸進式訊息成效。
   屆時作法：抽 `trackLineConversion(tradeNo, amount)`，三條成功路徑（綠界 `RtnCode==="1"`／
   `stripe=success`／PayPal 等 capture 回來）各自在確定成功後呼叫，用交易編號寫 localStorage
   冪等鎖，預約（`B` 開頭）與商品訂單分開標記。送金額給第三方前，隱私權政策要再補明確一句
+- **`next build --webpack` 會失敗（型別檢查），Turbopack 不抓** — `api/ecpay/cvs-map/route.ts`
+  匯出 `createSignedTradeNo`／`verifyTradeNo` 兩個非路由函式，而 `cvs-callback/route.ts:3`
+  直接 `import { verifyTradeNo } from "../cvs-map/route"`。2026-08-31 實查**兩處都還在原狀**
+  （08-12 記的「已開背景任務待處理」那個任務早就沒了）。日常 build 走 Turbopack 不受影響，
+  但這是把非路由匯出放進 route 檔的既有債，修法是把兩支函式抽到 `src/lib/`
+- **`docs/design-system.md` 要不要加進 `CLAUDE.md` 路由表（待使用者拍板）** — 情境是
+  「要動視覺／介面」。2026-08-31 實查路由表仍然沒有它。依 MAINT-1 改 `CLAUDE.md` 要先問使用者；
+  不加的話未來 session 不會知道有這份文件，**而文件沒人讀等於沒寫**
+- **L-3：PII 到期清除待保單要求釐清**（07-28 資安清尾唯一沒結案的一項，個資法查證結果存於
+  `src/lib/pii.ts` 檔頭）。它不是「刻意不做」，是等外部答案
 - **三個舊分支已全數併入 main，可刪**：`feat/product-reviews`、`feat/register-line-oauth`、
   `feat/register-facebook`（2026-08-31 以 `git merge-base --is-ancestor` 逐一驗證）
 
@@ -153,6 +165,7 @@
 - 各品項毛利率（業主 2026-08-13 提供斤價換算）：紅烏龍 60%、高山烏龍 59.4%、
   金萱 53.6%、蜜香紅茶 50%、四季春 45%（已從賠錢的 8.3% 調到 250）
 - **75g 的毛利率一律比 150g 高 6–7 個百分點**（價格 60%、茶葉成本 50%）
+- **茶包代工成本已知 96–108**（業主提供）；東方美人的成本仍未提供，見上方未結案區
 - **`payment_method` 不能用來判斷國內外**（台灣人也用 PayPal，用它算出海外 39%、實際 3.6%）。
   `orders` 沒有 `delivery_type` 欄位，正確依據是 `shipping_address->>'country'` 與 `->>'type'`
 
