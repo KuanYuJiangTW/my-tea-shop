@@ -941,11 +941,45 @@ vitest 80 檔 **1048** 測試全過、`tsc` 0 錯誤、`npm run lint` **0 error*
 依 auto-memory 的 `project_egret_venue_facts` 與 8/31 的歸屬更正，景觀平台停車場
 恐怕不是自家的。這需要業主原話（JUDG-11），**我沒有動它**。
 
+### 第 4 項：提案分流，以及它挖出來的 OpenSpec 結構問題
+
+動手歸檔 `tasting-set` 時 `openspec archive` 直接中止。追下去發現主 spec 樹有系統性問題：
+**`openspec validate --specs` 是 3 通過、45 失敗**——缺 `## Purpose` 與 `## Requirements`
+區段，其中 37 份還帶著 `## ADDED Requirements` 這種只該出現在 delta 的標題
+（歷次歸檔把 delta 原樣搬進主 spec 留下的）。**不是沒人整理，是工具讓人歸檔不了。**
+
+我原本給 OpenSpec 90 分是數檔案數得出的，沒驗規格本身；下修到 55、修好後回到 85。
+順帶修正：先前說「39 個歸檔」是目測估的，起點實際是 35（`git ls-tree 058f5e1` 核對）。
+
+做了：
+- 腳本一次遷移 48 份，**需求內文一字未動**（逐檔比對 HEAD，需求數與情境數全部不變）
+- 12 條需求補 RFC 2119 關鍵字。**驗證器只讀需求的第一行**當 text——有兩條其實寫了
+  SHALL 只是位置在後面，把該句提前就過
+- 補兩處缺漏的 scenario；更正 `tea-process-multi-tea` 一條標題（寫「三態」但
+  內文與 design.md 都是四態）
+- Purpose 逐份改寫，取代 archive 產生的 `TBD - ...` 佔位字串
+- 新增 `openspec/BACKLOG.md`：OpenSpec 只有「在做」與「歸檔」兩態，
+  想做但沒排到的構想無處可去，只能假裝成 change 賴著。這才是三個 07-27 提案的成因
+
+分流結果 10 → 5：歸檔 3（`tasting-set`／`product-reviews`／`tea-knowledge-content`）、
+進 backlog 2（`product-detail-pages`／`agentic-commerce-mcp`，都線上實測確認沒開工）。
+
+**查證推翻了我自己的建議**：`tea-knowledge-content` 看似停滯 35 天，其實早就做完上線
+（article schema、`/tea-guide` 兩路由、sitemap、llms.txt、線上攻略文），只是從沒建
+tasks.md 所以結不了案。已依實際實作補寫 delta spec 與追溯 tasks（每項附查證方式）後歸檔。
+
+最終：`openspec validate --all` **57/57 零失敗**、specs 52 份、archive 38 個。
+遷移後跑 `npx vitest run` 81 檔 / 1061 測試全過，確認無連帶損傷。
+
 ### 還沒做的
 
-- **行動清單第 4 項**：10 個未歸檔 openspec change 要分流（歸檔／降級 backlog／刪），
-  最舊三個停在 07-27。需要使用者逐個決定。
-- **行動清單第 5 項**：裝 Supabase + Vercel MCP。需要使用者提供金鑰與授權。
+- **行動清單第 5 項**：裝 Supabase（唯讀）+ Vercel + Sanity MCP。使用者已同意三個都裝，
+  **等提供權杖**——金鑰一律由使用者自己貼進設定，我不經手。
+- 剩下 5 個 change 的去向（都不是殭屍）：`tea-process-multi-tea` 等 checker 複驗（需使用者明示）、
+  `ai-search-seo` 等 Cloudflare 儀表板數據、`experience-open-class-request` 等上線實跑、
+  `coupon-shipping-touchpoints` 等 Vercel MCP 確認 `CRON_SECRET`、
+  `experience-seasonal-ordering` 是真的還在寫（3.3／3.4／4.4）。
+- `openspec/BACKLOG.md` 裡兩個構想的開工訊號：想認真補 AI 搜尋收錄時先做 `product-detail-pages`。
 - **`llms.txt` 的「自家的茶居與停車場」**：等業主確認是否要改。
 - 本分支尚未開 PR、未合併。CI 因為只在 `pull_request` 與進 `main` 時觸發，
   **到開 PR 前還沒有第一次實跑紀錄**。
