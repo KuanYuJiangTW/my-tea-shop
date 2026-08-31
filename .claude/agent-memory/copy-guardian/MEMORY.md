@@ -18,7 +18,14 @@
 
 - 2026-08-31（種子）**兩地點設施混講**已發作至少三次，分別藏在 `public/llms.txt`、Sanity 摘要、三階方案引言。**每次盤點都要把這三處一起看。**
 - 2026-08-31（種子）**三階方案卡片本來就把兩個地點分得很清楚**，可以當文案範本（正面樣本，出處見 WORKLOG 2026-08-31）。
+- 2026-08-31（第一次實跑，PASS）全站交叉比對：`public/llms.txt`、`messages/zh.json`＋`en.json`（含逐 key 結構比對＋數字比對）、`src/lib/experiences.ts` FALLBACK_CONTENT、`src/lib/seo.ts`／`src/app/page.tsx` 的 JSON-LD、電話／地址、`egret-copy.test.ts`＋`egret-half-day.test.ts`（19 個測試全過）**一致，零矛盾**。表示 8/31 那次修復＋既有測試釘住確實守住了，沒有新回歸。這次盤點的價值主要在確認基準線，不是抓新錯。
+- 2026-08-31 **有一個容易誤判的假警報，已排除**：同日 WORKLOG（`chore/maturity-level4-5-upgrades` 分支）有一則「`llms.txt` 的『自家的茶居與停車場』恐怕不對，需業主確認」的疑慮，是另一個 agent 沒有分清楚「歸屬」與「所有權」兩件事所致（歸屬要講共同、所有權本來就是自家的——已在本檔另一條記清楚）。下次若又看到類似疑慮，直接引用本記憶檔已有的結論，不必再問業主。
 
 ## 掃描範圍備註
 
 - 2026-08-31（種子）我碰不到 Sanity dataset（需要 token）。涉及 Sanity 內容的項目一律標「需要查 Sanity，我查不到」並列出要查什麼，交回派工者。
+- 2026-08-31（第一次實跑）確認以下三處**完全吃 Sanity**、repo 裡沒有文字可比對，每次盤點都要單獨列出「需要查 Sanity」：
+  1. `/faq` 頁（`src/app/faq/page.tsx` 用 `ALL_FAQS_QUERY`）——包含「下雨天照常舉辦嗎」的實際答案，要核對是否等於 FALLBACK_CONTENT 寫的「遇雨可免費改期一次，不退費」
+  2. `AdmissionTiers`（`src/app/experiences/[slug]/AdmissionTiers.tsx`）吃 Sanity 的 `admissionTiers` 欄位——450/150/免費三層的實際文字與價格數字都在這裡，repo 裡完全查不到
+  3. `/tea-guide/cattle-egret-viewing-guide` 全文（含「這件事是怎麼開始的」段落）——攻略文本體在 Sanity，只有圖片版位（`src/lib/tea-guide-media.ts`）與連結規則在 repo 裡
+- 2026-08-31 已核對過、確認不是矛盾的一組數字：`experiences.crossSell.intro`／`teaGuide.sameDayIntro` 的 zh「9 折」對 en「10% off」——同一件事的兩種講法，不是誤譯，下次比對數字時不必重查。
