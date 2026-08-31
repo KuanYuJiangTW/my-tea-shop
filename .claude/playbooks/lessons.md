@@ -108,7 +108,7 @@
 ## 2026-08-31 用 Bash heredoc 寫長檔案，內容裡的單引號讓外層引號配對失敗
 - 情境：依 MAINT-4 精簡 WORKLOG 時要先產生一份 200 行的中文片段檔，用 `cat > file <<'EOF'` 寫入。命令直接失敗在 `unexpected EOF while looking for matching '`，檔案沒建立
 - 代價：一次無效呼叫。事後定位到報錯行號正好落在含 `shipping_address->>'country'` 的那行；但把同一段單引號內容包成短命令重測**兩次都成功**，成因未確定（疑似長命令在封裝層被重新引號化）
-- 規則：**要寫進檔案的多行內容一律用 Write 工具，不要用 Bash heredoc**。heredoc 只留給 commit 訊息這類一次性短文字；內容含 ASCII 單引號又非用不可時，改成先寫檔再 `-F <檔案>`
+- 規則：**要寫進檔案的多行內容一律用 Write 工具，不要用 Bash heredoc**。heredoc 只留給 commit 訊息這類一次性短文字；內容含 ASCII 單引號又非用不可時，改成先寫檔再 `-F <檔案>`。**同一天第三次發作**：`for k in ...; do grep -c "$k"` 的關鍵詞裡有反引號，bash 當成命令替換直接 `unexpected EOF`——**要 grep 的字串含反引號時，改抽一段不含反引號的子字串來比對**
 - 去處：暫存於此。**同一個 turn 裡我還先用了 `python` 才發現它不可用**——而歸檔區早有「本機 `python` 是 Windows Store 空殼，改檔一律用 Node」那條。**歸檔區的條目仍然有效，動手前要讀的是整份 lessons.md 不是只讀未歸檔那半**（MAINT-5 說的退化訊號，這次就是我）
 
 ## 2026-08-31 `sed -i` 把 CRLF 檔案靜默改成 LF——而我驗行尾是在它執行「之前」
