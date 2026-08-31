@@ -73,7 +73,7 @@ describe("robots.txt 只封鎖沒有 HTML 的路徑", () => {
     for (const p of disallowed) {
       // /api/ 底下是 route handler，沒有 metadata 可言，本來就不在此列
       if (p === "/api/") continue;
-      const routeDir = p.replace(/^\/|\/$/g, "").replaceAll("/", "\\");
+      const routeDir = p.replace(/^\/|\/$/g, "");
       expect(
         declaresNoindex(routeDir),
         `${p} 同時被 robots.txt 封鎖又宣告 noindex——兩者只能選一個`,
@@ -92,22 +92,29 @@ describe("robots.txt 只封鎖沒有 HTML 的路徑", () => {
 describe("交易與個人頁面必須宣告 noindex", () => {
   // 這些路徑都沒有搜尋價值：購物流程、後台、登入、個人資料、單次連結。
   // 原本有幾條是靠 robots.txt 擋的（且沒有 /en 版本），現在一律走 noindex。
+  //
+  // 路由一律用正斜線寫。`join()` 會自己正規化成各平台的分隔符，
+  // **不要改回反斜線**——那在 Windows 上會過、在 Linux 上會全紅：
+  // `\` 在 Linux 是合法的檔名字元，`join(APP_DIR, "order\\result")` 得到的是
+  // 一個名叫 `order\result` 的檔案，`existsSync` 當然回 false，
+  // 於是這個測試會用「路由不存在，測試已腐爛」的訊息騙你去改路由清單。
+  // 2026-08-31 由 CI（ubuntu-latest）首次跑到才發現，本機 Windows 一直是綠的。
   const mustBeNoindex = [
     "cart",
     "checkout",
-    "order\\result",
+    "order/result",
     "admin",
     "studio",
-    "auth\\login",
-    "auth\\register",
+    "auth/login",
+    "auth/register",
     "account",
-    "account\\bookings\\[id]\\participants",
-    "waitlist\\[id]\\confirm",
-    "experiences\\booking\\[sessionId]",
+    "account/bookings/[id]/participants",
+    "waitlist/[id]/confirm",
+    "experiences/booking/[sessionId]",
   ];
 
   for (const routeDir of mustBeNoindex) {
-    it(`/${routeDir.replaceAll("\\", "/")} 宣告了 noindex`, () => {
+    it(`/${routeDir} 宣告了 noindex`, () => {
       expect(existsSync(join(APP_DIR, routeDir)), `路由不存在，測試已腐爛：${routeDir}`).toBe(true);
       expect(declaresNoindex(routeDir)).toBe(true);
     });
