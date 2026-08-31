@@ -128,9 +128,6 @@
   直接 `import { verifyTradeNo } from "../cvs-map/route"`。2026-08-31 實查**兩處都還在原狀**
   （08-12 記的「已開背景任務待處理」那個任務早就沒了）。日常 build 走 Turbopack 不受影響，
   但這是把非路由匯出放進 route 檔的既有債，修法是把兩支函式抽到 `src/lib/`
-- **`docs/design-system.md` 要不要加進 `CLAUDE.md` 路由表（待使用者拍板）** — 情境是
-  「要動視覺／介面」。2026-08-31 實查路由表仍然沒有它。依 MAINT-1 改 `CLAUDE.md` 要先問使用者；
-  不加的話未來 session 不會知道有這份文件，**而文件沒人讀等於沒寫**
 - **L-3：PII 到期清除待保單要求釐清**（07-28 資安清尾唯一沒結案的一項，個資法查證結果存於
   `src/lib/pii.ts` 檔頭）。它不是「刻意不做」，是等外部答案
 - **三個舊分支已全數併入 main，可刪**：`feat/product-reviews`、`feat/register-line-oauth`、
