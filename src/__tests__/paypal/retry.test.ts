@@ -98,6 +98,7 @@ describe("POST /api/paypal/retry", () => {
       1200, "order-abc",
       expect.stringContaining("/order/result"),
       expect.stringContaining("/order/result"),
+      undefined, // 國內單不帶地址
     );
   });
 
@@ -185,6 +186,65 @@ describe("POST /api/paypal/retry", () => {
       1200, "order-abc",
       expect.stringContaining("/en/order/result"),
       expect.stringContaining("/en/order/result"),
+      undefined,
     );
+  });
+
+  // ── 國際脈絡：重新付款必須與首次結帳等價 ────────────────────────────────
+  //
+  // 漏掉時的後果不是「少一個參數」，而是國際客人走重新付款會：
+  // (a) 在 PayPal 被要求自己挑地址，可能挑到與我們出貨依據不同的那個
+  // (b) 成功頁不顯示關稅與不可退貨須知——違反 order-result 既有規格
+  const INTL_ORDER = {
+    ...BASE_ORDER,
+    total_amount: 2550,
+    customer_name: "Mr Tai Ma",
+    shipping_address: {
+      type: "international",
+      country: "AU",
+      countryName: "Australia",
+      state: "QLD",
+      city: "Sunnybank",
+      addressLine1: "341 Mains Road",
+      addressLine2: "Centre Management Office",
+      postalCode: "4109",
+    },
+  };
+
+  it("國際訂單重新付款要帶入原地址並標記 intl=1", async () => {
+    setupOrderLookup(INTL_ORDER);
+
+    const res = await POST(makeRequest({ orderId: "order-abc", locale: "en" }));
+    expect(res.status).toBe(200);
+
+    expect(mockCreatePayPalOrder).toHaveBeenCalledWith(
+      2550, "order-abc",
+      expect.stringContaining("paypal=success&intl=1"),
+      expect.any(String),
+      {
+        fullName: "Mr Tai Ma",
+        addressLine1: "341 Mains Road",
+        addressLine2: "Centre Management Office",
+        city: "Sunnybank",
+        state: "QLD",
+        postalCode: "4109",
+        countryCode: "AU",
+      },
+    );
+  });
+
+  it("國內訂單重新付款不得帶 intl=1", async () => {
+    setupOrderLookup({
+      ...BASE_ORDER,
+      customer_name: "測試用戶",
+      shipping_address: { type: "home", city: "台北市", address: "信義路一段1號" },
+    });
+
+    const res = await POST(makeRequest({ orderId: "order-abc" }));
+    expect(res.status).toBe(200);
+
+    const [, , returnUrl, , shipping] = mockCreatePayPalOrder.mock.calls.at(-1)!;
+    expect(returnUrl).not.toContain("intl=1");
+    expect(shipping).toBeUndefined();
   });
 });
