@@ -60,6 +60,15 @@ const navGroups: NavGroup[] = [
         ),
       },
       {
+        href: "/admin/bird-report",
+        label: "今日鳥況",
+        icon: (
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M12 2a7 7 0 0 0-7 7c0 3.9 3.1 8 7 11 3.9-3 7-7.1 7-11a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
+          </svg>
+        ),
+      },
+      {
         href: "/admin/experiences/ordering",
         label: "排序與季節",
         icon: (
