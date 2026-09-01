@@ -17,6 +17,8 @@ import {
   nextAvailableWindow,
 } from "@/lib/experience-requests";
 import RelatedExperiences from "./RelatedExperiences";
+import VisitDirections from "@/components/VisitDirections";
+import StickyBookingBar from "@/components/StickyBookingBar";
 import AdmissionTiers from "./AdmissionTiers";
 import GuideLink from "./GuideLink";
 import InterestForm from "./InterestForm";
@@ -197,7 +199,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-tea-cream-light">
+    <div className="min-h-screen bg-tea-cream-light" style={{ paddingBottom: "var(--floating-cta-h, 0px)" }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(productJsonLd) }}
@@ -323,7 +325,8 @@ export default async function ExperienceDetailPage({ params }: Props) {
             {/* 價格層級放在月曆之前：看到「450 才能看鳥」就走掉的人，
                 應該先知道還有免費賞鳥與看鳥茶位兩種選擇 */}
             <AdmissionTiers tiers={content.admissionTiers} bookablePrice={experience.price} />
-            <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
+
+            <div id="booking" className="scroll-mt-20 bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
               <h2 className="font-serif text-xl font-bold text-tea-text mb-6">{t("selectSession")}</h2>
               <ExperienceCalendar experience={experience} />
             </div>
@@ -357,9 +360,22 @@ export default async function ExperienceDetailPage({ params }: Props) {
                 刻意不放月曆上方——它是把人帶離本頁的連結，不該擋在預約前面。
                 原本放在左欄的注意事項之後，手機要捲 2.5 個螢幕才看得到。 */}
             <GuideLink slug={slug} />
+
+            {/* 導航放在整個預約流程之後。原本擺在月曆上方，是想著「客人剛選完
+                要去哪一個地點，下一步就想知道怎麼開過去」——那個推論錯了：
+                選完方案的下一步是**訂位**，不是出發。它在手機版把月曆往下推了
+                586px，業主回報「要滑很久才看到選擇場次」。
+
+                導航是出發當天才用得到的東西。放在這裡既不擋預約，又還在
+                「看完場次」的視線範圍內，不必捲到左欄最底。 */}
+            <VisitDirections compact />
           </div>
 
         </div>
+
+        {/* 預約懸浮條。整頁 8.5 個螢幕，滑過月曆之後預約入口就消失了——
+            這條讓它隨時一鍵可達，月曆本身露出時會自動收起 */}
+        <StickyBookingBar price={experience.price} anchorId="booking" />
 
         {/* 同日加購：放在看完場次之後——這時客人已經決定要來了 */}
         <RelatedExperiences currentSlug={slug} />
