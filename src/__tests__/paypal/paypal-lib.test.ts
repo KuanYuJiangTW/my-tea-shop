@@ -115,6 +115,59 @@ describe("createPayPalOrder", () => {
     expect(result.approveUrl).toBe("https://paypal.com/approve/PAYPAL-123");
   });
 
+  // shipping_preference 沒明寫時 PayPal 預設 GET_FROM_FILE，會忽略我們傳過去的
+  // purchase_unit.shipping。這兩個測試釘住的是「地址由誰決定」，不是欄位長相。
+  it("國際單（有地址）用 SET_PROVIDED_ADDRESS，並帶入我方地址", async () => {
+    const { createPayPalOrder } = await freshImport();
+    mockAuth();
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        id: "PAYPAL-INTL",
+        links: [{ rel: "payer-action", href: "https://paypal.com/approve/PAYPAL-INTL" }],
+      }),
+    });
+
+    await createPayPalOrder(2550, "order-intl", "https://a.com/s", "https://a.com/c", {
+      fullName: "Mr Tai Ma",
+      addressLine1: "341 Mains Road",
+      city: "Sunnybank",
+      state: "QLD",
+      postalCode: "4109",
+      countryCode: "AU",
+    });
+
+    const body = JSON.parse(mockFetch.mock.calls.at(-1)![1].body as string);
+    expect(body.payment_source.paypal.experience_context.shipping_preference)
+      .toBe("SET_PROVIDED_ADDRESS");
+    expect(body.purchase_units[0].shipping.address).toMatchObject({
+      address_line_1: "341 Mains Road",
+      admin_area_2: "Sunnybank",
+      admin_area_1: "QLD",
+      postal_code: "4109",
+      country_code: "AU",
+    });
+  });
+
+  it("國內單（無地址）用 NO_SHIPPING，不讓 PayPal 再問一次地址", async () => {
+    const { createPayPalOrder } = await freshImport();
+    mockAuth();
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        id: "PAYPAL-DOM",
+        links: [{ rel: "payer-action", href: "https://paypal.com/approve/PAYPAL-DOM" }],
+      }),
+    });
+
+    await createPayPalOrder(1200, "order-dom", "https://a.com/s", "https://a.com/c");
+
+    const body = JSON.parse(mockFetch.mock.calls.at(-1)![1].body as string);
+    expect(body.payment_source.paypal.experience_context.shipping_preference)
+      .toBe("NO_SHIPPING");
+    expect(body.purchase_units[0].shipping).toBeUndefined();
+  });
+
   it("should throw if no payer-action link", async () => {
     const { createPayPalOrder } = await freshImport();
     mockAuth();

@@ -107,6 +107,14 @@ export async function createPayPalOrder(
             return_url: returnUrl,
             cancel_url: cancelUrl,
             user_action: "PAY_NOW",
+            // **一定要明寫**。預設值是 GET_FROM_FILE，那會讓 PayPal 忽略上面
+            // purchase_unit.shipping 傳過去的地址，改叫客人在 PayPal 端自己挑一個。
+            // 兩個後果：多一個結帳步驟（國際客人的流失點），以及客人在 PayPal 選的
+            // 地址與我們實際據以出貨的 orders.shipping_address 可能不一致。
+            //
+            // 國內單則是 NO_SHIPPING——地址在本站結帳頁就收好了，沒有理由讓 PayPal
+            // 再問一次。
+            shipping_preference: shippingAddress ? "SET_PROVIDED_ADDRESS" : "NO_SHIPPING",
           },
         },
       },

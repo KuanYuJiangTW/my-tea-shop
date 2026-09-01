@@ -26,9 +26,10 @@ export async function POST(req: NextRequest) {
   }
 
   // Find order and verify ownership
+  // customer_name / shipping_address 是給 PayPal 帶收件地址用的（見下方組裝處）
   const { data: order, error } = await supabase
     .from("orders")
-    .select("id, user_id, payment_status, order_status, total_amount, payment_method")
+    .select("id, user_id, payment_status, order_status, total_amount, payment_method, customer_name, shipping_address")
     .eq("id", orderId)
     .single();
 
@@ -53,15 +54,38 @@ export async function POST(req: NextRequest) {
   }
 
   // Create new PayPal Order (no points/coupon deduction — already done)
+  //
+  // 重新付款必須重現首次結帳的脈絡，否則國際客人走這條路會少掉東西：
+  // 不帶地址 → PayPal 要他自己再挑一次（且可能挑到與我們出貨依據不同的地址）；
+  // returnUrl 不帶 intl=1 → 成功頁不顯示關稅與不可退貨須知，違反 order-result 規格。
+  const shipping = order.shipping_address as {
+    type?: string; country?: string; state?: string; city?: string;
+    addressLine1?: string; addressLine2?: string; postalCode?: string;
+  } | null;
+  const isInternational = shipping?.type === "international";
+
   const reqOrigin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/order.*/, "") || "";
   const base = reqOrigin || process.env.NEXT_PUBLIC_BASE_URL || ALLOWED_ORIGIN;
   const locale = body.locale === "en" ? "/en" : "";
-  const returnUrl = `${base}${locale}/order/result?paypal=success`;
+  const intlParam = isInternational ? "&intl=1" : "";
+  const returnUrl = `${base}${locale}/order/result?paypal=success${intlParam}`;
   const cancelUrl = `${base}${locale}/order/result?paypal=cancel&orderId=${order.id}`;
 
   try {
+    const paypalShipping = isInternational && shipping
+      ? {
+          fullName: order.customer_name,
+          addressLine1: shipping.addressLine1 ?? "",
+          addressLine2: shipping.addressLine2 || undefined,
+          city: shipping.city ?? "",
+          state: shipping.state ?? "",
+          postalCode: shipping.postalCode ?? "",
+          countryCode: shipping.country ?? "",
+        }
+      : undefined;
+
     const { paypalOrderId, approveUrl } = await createPayPalOrder(
-      order.total_amount, order.id, returnUrl, cancelUrl,
+      order.total_amount, order.id, returnUrl, cancelUrl, paypalShipping,
     );
 
     // Update PayPal Order ID

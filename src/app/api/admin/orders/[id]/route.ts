@@ -71,6 +71,27 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
     .eq("id", id)
     .single();
 
+  // 未付款不得推進狀態。
+  //
+  // 線上金流是「capture 成功才扣庫存」，所以未付款就出貨會讓帳面與實體同時錯：
+  // 錢沒收到、庫存也從沒扣過，卻已經寄出貨通知信給客人。而 `preparing` 一樣要擋——
+  // 它雖然不出貨，卻讓客人失去自助取消的能力（cancel 路由的 CANCELLABLE_STATUSES
+  // 只含 `new`），等於把一個還沒付完款的人鎖在訂單裡。
+  //
+  // **COD 是唯一例外**：貨到付款本來就是先出貨後收款，擋了等於停掉整條業務。
+  const ADVANCING_STATUSES = ["preparing", "shipped", "delivered", "completed"];
+  if (body.orderStatus && ADVANCING_STATUSES.includes(body.orderStatus) && prevOrder) {
+    // 以「這次請求寫入後的付款狀態」為準，而不是資料庫現值——否則同一請求
+    // 既標記已付款又推進狀態（COD 的「確認收款」就是這樣）會被自己擋掉
+    const effectivePaymentStatus = body.paymentStatus ?? prevOrder.payment_status;
+    if (prevOrder.payment_method !== "cod" && effectivePaymentStatus !== "paid") {
+      return NextResponse.json(
+        { error: "此訂單尚未收到付款，無法推進狀態。請先確認金流入帳，或直接取消訂單。" },
+        { status: 409 },
+      );
+    }
+  }
+
   const { error } = await supabase
     .from("orders")
     .update(updateData)

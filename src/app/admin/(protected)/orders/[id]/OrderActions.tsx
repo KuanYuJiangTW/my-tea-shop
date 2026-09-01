@@ -38,11 +38,24 @@ type Props = {
   totalAmount: number;
 };
 
+/** 線上金流且尚未收到款——推進狀態會賠貨（見 getActions 與後端 PATCH 的同名防護） */
+export function isAwaitingOnlinePayment(paymentMethod: string, paymentStatus: string): boolean {
+  return paymentMethod !== "cod" && paymentStatus !== "paid";
+}
+
 function getActions(
   orderStatus: string,
   paymentMethod: string,
   paymentStatus: string
 ): Action[] {
+  // 未付款的線上金流訂單只留取消。理由與後端 PATCH 的防護相同：線上金流付款成功
+  // 才扣庫存，未付款出貨會錢貨兩失；而 preparing 之後客人就無法自助取消了。
+  // 這裡是防呆，真正的強制在後端——UI 擋得住手滑，擋不住直接打 API。
+  if (isAwaitingOnlinePayment(paymentMethod, paymentStatus)) {
+    if (orderStatus === "cancelled" || orderStatus === "completed") return [];
+    return [{ label: "取消訂單", orderStatus: "cancelled", variant: "danger" }];
+  }
+
   if (orderStatus === "new") {
     return [
       { label: "開始備貨", orderStatus: "preparing", variant: "primary" },
@@ -93,6 +106,7 @@ export default function OrderActions({
   const router = useRouter();
 
   const actions = getActions(orderStatus, paymentMethod, paymentStatus);
+  const awaitingPayment = isAwaitingOnlinePayment(paymentMethod, paymentStatus);
 
   async function handleClick(action: Action) {
     if (action.sendEmail) {
@@ -157,6 +171,13 @@ export default function OrderActions({
       <div className="flex flex-wrap gap-2 items-center">
         {actionError && (
           <span className="w-full text-xs text-rose-500 mb-1">{actionError}</span>
+        )}
+        {/* 說明為什麼推進按鈕不見了。沒有這行，看板的人只會覺得後台壞了 */}
+        {awaitingPayment && (
+          <span className="w-full text-xs text-[#7A6A45] bg-[#FBF6E9] border border-[#EFE4C8] rounded-xl px-3 py-2 mb-1">
+            尚未收到付款，暫時無法備貨或出貨。客人完成付款後按鈕會自動出現；
+            確定不會付款的話，直接取消訂單即可。
+          </span>
         )}
         {actions.map((action) => (
           <button
