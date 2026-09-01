@@ -60,6 +60,24 @@ describe("兩個地點的座標", () => {
   });
 });
 
+describe("精簡版的按鈕標籤", () => {
+  it("兩個地點都有短名稱，且不比完整名稱長", () => {
+    for (const d of [TEA_HOUSE, VIEWING_PLATFORM]) {
+      expect(d.shortName.length).toBeGreaterThan(0);
+      expect(d.shortName.length).toBeLessThanOrEqual(d.name.length);
+      expect(d.shortNameEn.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("停車場的短名稱要短到能在 375px 單行放得下——完整名稱有 17 個字會折行", () => {
+    expect(VIEWING_PLATFORM.shortName.length).toBeLessThanOrEqual(9);
+  });
+
+  it("短名稱只影響按鈕文字，導航仍然帶座標", () => {
+    expect(directionsUrl(VIEWING_PLATFORM)).toContain("23.553223%2C120.632091");
+  });
+});
+
 describe("導航連結", () => {
   it("用官方的 api=1 通用格式，手機才會直接開 Google 地圖 App", () => {
     expect(directionsUrl(TEA_HOUSE)).toContain("https://www.google.com/maps/dir/?api=1&destination=");

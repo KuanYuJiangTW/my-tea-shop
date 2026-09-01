@@ -368,7 +368,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
                 導航是出發當天才用得到的東西。放在這裡既不擋預約，又還在
                 「看完場次」的視線範圍內，不必捲到左欄最底。 */}
-            <VisitDirections />
+            <VisitDirections compact />
           </div>
 
         </div>

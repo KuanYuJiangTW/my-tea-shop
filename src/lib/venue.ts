@@ -17,6 +17,10 @@ export interface VenueDestination {
   /** 對應 Google 地圖上的地點名稱 */
   name:   string;
   nameEn: string;
+  /** 精簡版的按鈕標籤。按鈕文字是我們自己的文案，導航連結帶的是座標，
+   *  縮短不影響目的地正確性——但完整名稱在窄螢幕會折行 */
+  shortName:   string;
+  shortNameEn: string;
   /** 這個地點是給哪一種客人的 */
   forWho:   string;
   forWhoEn: string;
@@ -28,8 +32,10 @@ export interface VenueDestination {
 
 /** 主要集合點：茶位與導覽都在這裡，停車費含在入園費裡 */
 export const TEA_HOUSE: VenueDestination = {
-  name:     "信淳茶居",
-  nameEn:   "Xinchun Tea House",
+  name:        "信淳茶居",
+  nameEn:      "Xinchun Tea House",
+  shortName:   "信淳茶居",
+  shortNameEn: "Xinchun Tea House",
   forWho:   "看鳥茶位・導覽集合點",
   forWhoEn: "Tea seat & tour meeting point",
   lat:      23.5537537,
@@ -39,8 +45,10 @@ export const TEA_HOUSE: VenueDestination = {
 
 /** 免費賞鳥；也是茶居 7 個車位停滿時的備案 */
 export const VIEWING_PLATFORM: VenueDestination = {
-  name:     "梅山太興村賞黃頭鷺景觀平台停車場",
-  nameEn:   "Cattle Egret Viewing Platform Car Park",
+  name:        "梅山太興村賞黃頭鷺景觀平台停車場",
+  nameEn:      "Cattle Egret Viewing Platform Car Park",
+  shortName:   "景觀平台停車場",
+  shortNameEn: "Viewing platform car park",
   forWho:   "免費賞鳥・茶居車位停滿時的備案",
   forWhoEn: "Free viewing, and the overflow when the tea house is full",
   lat:      23.553223,
@@ -71,6 +79,10 @@ export const DRIVE_TIMES: DriveTime[] = [
 /** 路況。山路焦慮是真的，這一句消掉的猶豫比任何文案都多 */
 export const ROAD_NOTE =
   "全程柏油路，一般轎車就可以直接開到門口，不需要四輪傳動；會車也不困難。";
+/** 精簡版用。體驗頁的讀者已經在看這款要不要訂，只需要一句「開得上去」 */
+export const ROAD_NOTE_SHORT    = "全程柏油路，轎車可到";
+export const ROAD_NOTE_SHORT_EN = "Sealed road all the way, fine for an ordinary car";
+
 export const ROAD_NOTE_EN =
   "Sealed road the whole way. An ordinary car gets you to the door — no 4WD needed, and passing oncoming traffic is not a problem.";
 

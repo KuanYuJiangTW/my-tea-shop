@@ -49,13 +49,22 @@ describe("版面順序", () => {
   });
 
   it("「怎麼來」在月曆之後。它是出發當天才用得到的東西，不該擋在預約前面", () => {
-    expect(idx("<VisitDirections />")).toBeGreaterThan(idx('id="booking"'));
+    expect(idx("<VisitDirections")).toBeGreaterThan(idx('id="booking"'));
   });
 
   it("找不到日期的出口仍緊接月曆，中間沒有被插入別的區塊", () => {
     const between = page().slice(idx('id="booking"'), idx("experience.acceptsRequests"));
     expect(between).not.toContain("<VisitDirections");
     expect(between).not.toContain("<AdmissionTiers");
+  });
+
+  it("體驗頁用精簡版、攻略文用完整版——兩邊讀者的處境不同", () => {
+    // 體驗頁：讀者已經在看這款要不要訂，只需要知道開去哪
+    expect(page()).toContain("<VisitDirections compact />");
+    // 攻略文：讀者在規劃行程，需要車程表與完整路況
+    const article = read("src/app/tea-guide/[slug]/page.tsx");
+    expect(article).toContain("<VisitDirections />");
+    expect(article).not.toContain("<VisitDirections compact");
   });
 
   it("容器讓出懸浮條的高度，否則會蓋住頁尾內容", () => {
