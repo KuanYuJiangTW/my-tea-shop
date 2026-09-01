@@ -17,6 +17,7 @@ import {
   nextAvailableWindow,
 } from "@/lib/experience-requests";
 import RelatedExperiences from "./RelatedExperiences";
+import BirdReport from "@/components/BirdReport";
 import VisitDirections from "@/components/VisitDirections";
 import StickyBookingBar from "@/components/StickyBookingBar";
 import AdmissionTiers from "./AdmissionTiers";
@@ -325,6 +326,10 @@ export default async function ExperienceDetailPage({ params }: Props) {
             {/* 價格層級放在月曆之前：看到「450 才能看鳥」就走掉的人，
                 應該先知道還有免費賞鳥與看鳥茶位兩種選擇 */}
             <AdmissionTiers tiers={content.admissionTiers} bookablePrice={experience.price} />
+
+            {/* 鳥況擺在三階方案與月曆之間：它直接影響「這幾天值不值得跑一趟」，
+                是訂位前的決策資訊。沒有回報時整塊不算繪，版面不會留洞 */}
+            <BirdReport />
 
             <div id="booking" className="scroll-mt-20 bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
               <h2 className="font-serif text-xl font-bold text-tea-text mb-6">{t("selectSession")}</h2>

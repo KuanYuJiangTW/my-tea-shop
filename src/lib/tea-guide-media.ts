@@ -84,6 +84,20 @@ const SECTION_MEDIA: Record<string, Record<string, ArticleImage>> = {
  * 業主回報客人「在網路上找到文章後不知道怎麼來」，而這篇的流量正是那批人。
  * 掛在「在哪裡看？停車怎麼停？要花錢嗎？」之後——問題就是在那一段產生的。
  */
+/**
+ * slug → 要在哪個中文小標之後插入「最近的鳥況」。
+ *
+ * 掛在「什麼時候來最好？」之後：那一段講的正是「哪天來、幾點來」，
+ * 而一則昨天的實際回報是那個問題最有力的答案。
+ */
+const BIRD_REPORT_AFTER: Record<string, string> = {
+  "cattle-egret-viewing-guide": "什麼時候來最好？",
+};
+
+export function showsBirdReportAfter(slug: string, zhHeading: string): boolean {
+  return Boolean(zhHeading) && BIRD_REPORT_AFTER[slug] === zhHeading;
+}
+
 const DIRECTIONS_AFTER: Record<string, string> = {
   "cattle-egret-viewing-guide": "在哪裡看？停車怎麼停？要花錢嗎？",
 };

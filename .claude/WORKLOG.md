@@ -985,3 +985,65 @@ tasks.md 所以結不了案。已依實際實作補寫 delta spec 與追溯 task
   **到開 PR 前還沒有第一次實跑紀錄**。
 - 四份 agent 記憶目前是「種子」（我從既有 lessons／WORKLOG／測試檔整理進去並標明），
   尚未經過實際使用累積。
+
+## 2026-08-31（續）今日鳥況回報（bird-report）—— 已實作，等業主跑 SQL
+
+分支 `feat/bird-report`。先立 openspec 提案（4 份文件通過 `openspec validate`），再實作。
+
+### 為什麼做這個
+
+客人最怕的不是花錢，是**開一小時山路上來卻沒看到鳥**（梅山交流道 44 分、嘉義市區 60 分）。
+一則第一手的「昨天下午鳥況如何」是唯一能消掉那個顧慮的東西，而且只有住在賞鳥起點的人
+給得出來，競爭者複製不了。
+
+### 四個關鍵設計（理由完整版在 design.md）
+
+- **48 小時自動過期，用讀取時判斷不用排程**。排程壞掉的方式正好最糟：過期的
+  「鳥況良好」繼續掛在線上，客人白跑一趟會算在店家頭上。少一個狀態就少一個失效模式。
+- **季節沿用 `experience_availability_windows`**，不另存日期。日期只能有一個真相來源，
+  而兩份不同步的那天正好是季節交界、最多人在看的時候。
+- **append-only，不做編輯與刪除**。送錯了補送一則就蓋過去——刪除在對外事實上更危險。
+- **第一版只有自由文字**，不做等級下拉。業主的口吻是這品牌最強的東西，選單會把它磨掉。
+
+### 業主確認過的立場
+
+**壞鳥況照實貼。** 只報好消息的東西客人看兩次就不看了，那時候連好消息也沒人信。
+後台頁面上直接寫了寫法提示：「寫事實不要寫評價——『下午下雨，四點後零星幾隻』
+比『鳥況很差』有用」。事實不扣分，評價會。
+
+### 這批踩到的坑
+
+1. **`bird-report.ts` 直接 import supabase，測試會爆**。本 repo 早有 `*-core.ts` 的
+   切法（`bundle-core`／`product-review-core`），純邏輯抽到 `bird-report-core.ts`。
+   **這是第二次踩同一個坑**（上次是 `egret-copy.test.ts` 想 import `@/lib/experiences`）。
+2. **`no-cascading-renders` 又擋了一次**，這次是後台頁面的 `useEffect(() => { void load(); })`。
+   lint 不追進 async 函式，只看到 effect 裡同步呼叫了含 setState 的函式。
+   解法照本 repo 既有寫法（`admin/(protected)/settings/page.tsx`）：effect 裡只放 promise chain，
+   並把「取資料」（`fetchLatest`，不碰狀態）與「套用狀態」（`apply`）拆開。
+3. **測試對 SQL 做字串比對，抓到了註解裡的說明文字**。我自己的註解寫著「沒有 is_active
+   ／expires_at 欄位」，測試就斷言失敗。**斷言 SQL 前要先剝掉 `--` 註解**。
+4. `git checkout -b` 與 `git commit` 串成一條指令被 guard 擋下——就是我昨天寫進
+   lessons 的那條。分開下就過了。
+
+### 驗證證據
+
+vitest 85 檔 **1130** 測試全過（新增 34）、`tsc` 0 錯誤、`npm run lint` **0 error**
+（36 warnings 既有債務）、`build` 成功。
+
+反向驗證兩次：
+- 把 `FRESH_WINDOW_HOURS` 從 48 改成 72 → 4 條變紅
+- 把 RLS 政策改成開放匿名寫入（`FOR ALL ... WITH CHECK (true)`）→ 2 條變紅
+
+`next start` 實測（**資料表尚未建立**的狀態）：
+- 攻略文／體驗頁／英文體驗頁三處 `rendered: false`，完全靜默略過，頁面其餘正常
+  （注意：原始 HTML 裡搜得到「最近的鳥況」是 next-intl 序列化的訊息資料，不是算繪出來的。
+  這是第二次被這種假陽性騙到，第一次是公告條）
+- `/admin/bird-report` 未登入 → 重導登入頁
+- `POST /api/admin/bird-report` 未登入 → 401
+
+### 還沒做的
+
+- **業主要在 Supabase SQL Editor 執行 `supabase/add_bird_report.sql`**，功能才會啟用。
+  合併前後站上都不會有任何行為改變。
+- **有資料時的顯示路徑只在單元測試層級驗過**，沒有端到端跑過——因為那需要在正式
+  Supabase 建表，那是業主的決定不是我的。建表後請送一則測試回報確認。
