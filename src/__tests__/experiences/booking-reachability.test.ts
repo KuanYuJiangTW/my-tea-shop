@@ -72,6 +72,29 @@ describe("版面順序", () => {
   });
 });
 
+describe("懸浮條只在手機出現", () => {
+  const bar = () => read("src/components/StickyBookingBar.tsx");
+
+  it("用 matchMedia 判斷桌機，而不是只靠 CSS 藏起來", () => {
+    // 只加 lg:hidden 的話元件仍會把高度寫進 --floating-cta-h，
+    // 桌機的 ChatWidget 會為了一條看不見的 bar 往上頂 63px
+    expect(bar()).toContain('"(min-width: 1024px)"');
+    expect(bar()).toContain("useSyncExternalStore");
+  });
+
+  it("visible 有把桌機排除掉", () => {
+    expect(bar()).toContain("const visible = !isDesktop &&");
+  });
+
+  it("CSS 也擋一層，hydration 之前不會閃一下", () => {
+    expect(bar()).toContain("lg:hidden");
+  });
+
+  it("訂閱函式放在模組層級——寫成行內箭頭每次算繪都會重新訂閱", () => {
+    expect(bar()).toMatch(/^const subscribeDesktop = /m);
+  });
+});
+
 describe("懸浮條用到的 i18n 鍵", () => {
   const experiences = (locale: string) =>
     (JSON.parse(read(`messages/${locale}.json`)) as Record<string, Record<string, string>>).experiences;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 
 /**
@@ -22,7 +22,28 @@ import { useTranslations } from "next-intl";
  *
  * 沒有關閉鈕：價格＋預約條是商品頁的標準做法，客人是自己點進來看這款體驗的，
  * 不是陌生觸及。要加的話就是多一顆 ×，一行的事。
+ *
+ * ## 只在手機出現
+ *
+ * 桌機整頁 3,575px（約 4 個螢幕），手機 6,749px（8.3 個螢幕）——業主回報的問題
+ * 本來就是「尤其是手機頁面」。而全寬的 bar 在 1440px 下會把價格推到最左、
+ * 按鈕推到最右，中間空一大片，看起來像壞掉。
+ *
+ * 用 matchMedia 而不是只加 `lg:hidden`：CSS 藏起來的話，元件仍然會把高度寫進
+ * `--floating-cta-h`，桌機的 ChatWidget 會為了一條看不見的 bar 往上頂 63px。
  */
+
+const DESKTOP = "(min-width: 1024px)";   // Tailwind 的 lg
+
+// 模組層級的穩定參考——寫成行內箭頭每次算繪都會重新訂閱
+const subscribeDesktop = (onChange: () => void) => {
+  const mq = window.matchMedia(DESKTOP);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+};
+const getDesktopSnapshot       = () => window.matchMedia(DESKTOP).matches;
+const getDesktopServerSnapshot = () => false;   // SSR 讀不到寬度；首次算繪 visible 必為 false，不會有 hydration 不一致
+
 export default function StickyBookingBar({
   price, anchorId, showAfterScreens = 1,
 }: {
@@ -36,8 +57,9 @@ export default function StickyBookingBar({
 
   const [scrolledEnough, setScrolled] = useState(false);
   const [anchorInView, setAnchorInView] = useState(false);
+  const isDesktop = useSyncExternalStore(subscribeDesktop, getDesktopSnapshot, getDesktopServerSnapshot);
 
-  const visible = scrolledEnough && !anchorInView;
+  const visible = !isDesktop && scrolledEnough && !anchorInView;
 
   useEffect(() => {
     const onScroll = () => {
@@ -75,7 +97,7 @@ export default function StickyBookingBar({
     <div
       ref={barRef}
       aria-hidden={!visible}
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-tea-green-pale bg-tea-cream-light/95 backdrop-blur-sm transition-transform duration-slow ease-standard ${
+      className={`fixed inset-x-0 bottom-0 z-40 lg:hidden border-t border-tea-green-pale bg-tea-cream-light/95 backdrop-blur-sm transition-transform duration-slow ease-standard ${
         visible ? "translate-y-0" : "translate-y-full pointer-events-none"
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
