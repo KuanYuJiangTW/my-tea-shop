@@ -48,7 +48,7 @@ export default function BundleCard({ bundle }: { bundle: Bundle }) {
         <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">
           {isEn ? bundle.nameEn || bundle.name : bundle.name}
         </h3>
-        <p className="text-label text-tea-text-light mb-4 flex-1">
+        <p className="text-label text-tea-text-muted mb-4 flex-1">
           {isEn ? bundle.descriptionEn || bundle.description : bundle.description}
         </p>
 
@@ -71,7 +71,7 @@ export default function BundleCard({ bundle }: { bundle: Bundle }) {
 
         <div className="flex items-center justify-between pt-3 border-t border-tea-green-pale/60">
           <div className="flex flex-col">
-            <span className={`font-bold text-xl leading-none ${soldOut ? "text-tea-text/40" : "text-tea-green"}`}>
+            <span className={`font-bold text-xl leading-none ${soldOut ? "text-tea-text/40" : "text-tea-text"}`}>
               NT${bundle.price.toLocaleString()}
             </span>
             {lowStock && (
@@ -89,7 +89,7 @@ export default function BundleCard({ bundle }: { bundle: Bundle }) {
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
                 : added
                 ? "bg-tea-green-pale text-tea-green-dark scale-95"
-                : "bg-tea-green hover:bg-tea-green-dark text-white hover:shadow-raised active:scale-95"
+                : "bg-tea-green-dark hover:bg-tea-green-ink text-white hover:shadow-raised active:scale-95"
             }`}
           >
             {soldOut ? t("soldOut") : added ? t("added") : t("addToCart")}

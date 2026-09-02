@@ -65,34 +65,34 @@ export default function TeaBagCard({ product }: Props) {
         <div>
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="text-xs text-tea-green font-medium mb-0.5 tracking-wide">{product.origin}</p>
+              <p className="text-xs text-tea-green-ink font-medium mb-0.5 tracking-wide">{product.origin}</p>
               <h3 className="font-serif font-bold text-tea-text text-base leading-snug truncate">
                 {product.name}
               </h3>
-              <p className="text-xs text-tea-text-light italic truncate">{product.nameEn}</p>
+              <p className="text-xs text-tea-text-muted italic truncate">{product.nameEn}</p>
             </div>
-            <span className="bg-tea-green-mist text-tea-green text-xs px-2.5 py-0.5 rounded-full font-medium flex-shrink-0 border border-tea-green-pale/50">
+            <span className="bg-tea-green-mist text-tea-green-ink text-xs px-2.5 py-0.5 rounded-full font-medium flex-shrink-0 border border-tea-green-pale/50">
               茶包
             </span>
           </div>
-          <p className="text-xs text-tea-text-light mt-2 leading-relaxed">
+          <p className="text-xs text-tea-text-muted mt-2 leading-relaxed">
             每盒 15 包，每包 3g，方便沖泡，風味同等
           </p>
         </div>
 
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-tea-green-pale/40">
           <div>
-            <span className="font-bold text-lg text-tea-green">
+            <span className="font-bold text-lg text-tea-text">
               NT${product.priceTeaBag.toLocaleString()}
             </span>
-            <span className="text-tea-text-light text-xs ml-1">/ 盒</span>
+            <span className="text-tea-text-muted text-xs ml-1">/ 盒</span>
           </div>
           <button
             onClick={handleAdd}
             className={`flex items-center gap-1.5 text-xs px-4 py-2 rounded-full font-medium transition-all duration-200 shadow-sm ${
               added
                 ? "bg-tea-green-pale text-tea-green-dark scale-95"
-                : "bg-tea-green hover:bg-tea-green-dark text-white hover:shadow-md active:scale-95"
+                : "bg-tea-green-dark hover:bg-tea-green-ink text-white hover:shadow-md active:scale-95"
             }`}
           >
             {added ? (

@@ -92,7 +92,7 @@ export default function Header() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="whitespace-nowrap text-tea-text-light hover:text-tea-green transition-colors duration-base ease-standard text-label font-medium tracking-wide"
+                className="whitespace-nowrap text-tea-text-muted hover:text-tea-green-ink transition-colors duration-base ease-standard text-label font-medium tracking-wide"
               >
                 {link.label}
               </Link>
@@ -114,7 +114,7 @@ export default function Header() {
                   <>
                     <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-control hover:bg-tea-green-mist transition-colors duration-base ease-standard text-label text-tea-text-light hover:text-tea-green"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-control hover:bg-tea-green-mist transition-colors duration-base ease-standard text-label text-tea-text-muted hover:text-tea-green-ink"
                     >
                       {/* 兩個圖示 flex-shrink-0：版面吃緊時要被壓縮的是名字（它有 truncate
                           會出現省略號），不是圖示——圖示被壓會變形且看不出原因 */}
@@ -132,9 +132,9 @@ export default function Header() {
                         <Link
                           href={lp("/account")}
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-label text-tea-text hover:bg-tea-green-mist hover:text-tea-green transition-colors duration-base ease-standard"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-label text-tea-text hover:bg-tea-green-mist hover:text-tea-green-ink transition-colors duration-base ease-standard"
                         >
-                          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current text-tea-text-light">
+                          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current text-tea-text-muted">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
                           </svg>
                           {t("user.account")}
@@ -142,9 +142,9 @@ export default function Header() {
                         <Link
                           href={lp("/account?tab=orders")}
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-label text-tea-text hover:bg-tea-green-mist hover:text-tea-green transition-colors duration-base ease-standard"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-label text-tea-text hover:bg-tea-green-mist hover:text-tea-green-ink transition-colors duration-base ease-standard"
                         >
-                          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current text-tea-text-light">
+                          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current text-tea-text-muted">
                             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
                           </svg>
                           {t("user.orders")}
@@ -165,7 +165,7 @@ export default function Header() {
                 ) : (
                   <Link
                     href={lp("/auth/login")}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-control hover:bg-tea-green-mist transition-colors duration-base ease-standard text-label text-tea-text-light hover:text-tea-green"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-control hover:bg-tea-green-mist transition-colors duration-base ease-standard text-label text-tea-text-muted hover:text-tea-green-ink"
                   >
                     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                       <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
@@ -186,14 +186,14 @@ export default function Header() {
               <svg
                 width="22" height="22" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="1.8"
-                className="text-tea-text group-hover:text-tea-green transition-colors"
+                className="text-tea-text group-hover:text-tea-green-ink transition-colors"
               >
                 <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <path d="M16 10a4 4 0 01-8 0" />
               </svg>
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-tea-green text-white text-caption rounded-pill w-5 h-5 flex items-center justify-center font-medium">
+                <span className="absolute -top-0.5 -right-0.5 bg-tea-green-dark text-white text-caption rounded-pill w-5 h-5 flex items-center justify-center font-medium">
                   {totalItems}
                 </span>
               )}
@@ -227,7 +227,7 @@ export default function Header() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="block py-2.5 px-2 text-tea-text-light hover:text-tea-green hover:bg-tea-green-mist rounded-inline transition-colors duration-base ease-standard"
+                className="block py-2.5 px-2 text-tea-text-muted hover:text-tea-green-ink hover:bg-tea-green-mist rounded-inline transition-colors duration-base ease-standard"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {link.label}
@@ -235,7 +235,7 @@ export default function Header() {
             ))}
             {/* AI 茶葉顧問 */}
             <button
-              className="flex items-center gap-2 w-full py-2.5 px-2 text-tea-text-light hover:text-tea-green hover:bg-tea-green-mist rounded-inline transition-colors duration-base ease-standard"
+              className="flex items-center gap-2 w-full py-2.5 px-2 text-tea-text-muted hover:text-tea-green-ink hover:bg-tea-green-mist rounded-inline transition-colors duration-base ease-standard"
               onClick={() => {
                 setIsMenuOpen(false);
                 window.dispatchEvent(new Event("open-chat-widget"));
@@ -251,7 +251,7 @@ export default function Header() {
                 <>
                   <Link
                     href={lp("/account")}
-                    className="block py-2.5 px-2 text-tea-text-light hover:text-tea-green hover:bg-tea-green-mist rounded-inline transition-colors duration-base ease-standard"
+                    className="block py-2.5 px-2 text-tea-text-muted hover:text-tea-green-ink hover:bg-tea-green-mist rounded-inline transition-colors duration-base ease-standard"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t("user.memberCenter", { name: displayName })}
@@ -266,7 +266,7 @@ export default function Header() {
               ) : (
                 <Link
                   href={lp("/auth/login")}
-                  className="block py-2.5 px-2 text-tea-text-light hover:text-tea-green hover:bg-tea-green-mist rounded-inline transition-colors duration-base ease-standard"
+                  className="block py-2.5 px-2 text-tea-text-muted hover:text-tea-green-ink hover:bg-tea-green-mist rounded-inline transition-colors duration-base ease-standard"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {t("user.loginRegister")}

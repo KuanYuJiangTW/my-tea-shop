@@ -387,7 +387,7 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
             onClick={() => { if (isIdle) { setFabIdle(false); } else { handleOpen(); } }}
             // bottom 讀 --floating-cta-h：攻略文的浮動 CTA 出現時把這顆頂上去，
             // 其他頁面該變數是 0px（globals.css 的預設值），位置完全不變
-            className={`fixed right-4 z-50 bg-tea-green text-white rounded-full flex items-center transition-all duration-500 ease-in-out bottom-[calc(5rem+var(--floating-cta-h,0px))] md:bottom-[calc(1.5rem+var(--floating-cta-h,0px))] ${
+            className={`fixed right-4 z-50 bg-tea-green-dark text-white rounded-full flex items-center transition-all duration-500 ease-in-out bottom-[calc(5rem+var(--floating-cta-h,0px))] md:bottom-[calc(1.5rem+var(--floating-cta-h,0px))] ${
               showLabel
                 ? "px-4 py-2.5 md:px-5 md:py-3 gap-2 shadow-lg hover:bg-tea-green-dark hover:scale-105"
                 : isIdle
@@ -426,7 +426,7 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
         >
           {/* Drag handle — 手機版下滑關閉 */}
           <div
-            className="md:hidden flex justify-center pt-2 pb-0 bg-tea-green cursor-grab active:cursor-grabbing"
+            className="md:hidden flex justify-center pt-2 pb-0 bg-tea-green-dark cursor-grab active:cursor-grabbing"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
@@ -434,7 +434,7 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-tea-green text-white rounded-t-none md:rounded-t-2xl flex-shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 bg-tea-green-dark text-white rounded-t-none md:rounded-t-2xl flex-shrink-0">
             <div className="flex items-center gap-2.5">
               <svg width="20" height="20" viewBox="0 0 34 34" fill="none">
                 <path d="M17 4C17 4 8 11 8 20C8 24.97 12.03 29 17 29C21.97 29 26 24.97 26 20C26 11 17 4 17 4Z" fill="white" opacity="0.85"/>
@@ -522,7 +522,7 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
                   <div
                     className={`px-3 py-2 md:px-3 md:py-2 rounded-2xl text-sm leading-relaxed ${
                       msg.role === "user"
-                        ? "bg-tea-green text-white rounded-tr-md"
+                        ? "bg-tea-green-dark text-white rounded-tr-md"
                         : "bg-white border border-tea-green-pale text-tea-text rounded-tl-md"
                     }`}
                   >
@@ -532,7 +532,7 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
                     }
                   </div>
                   {msg.timestamp && (
-                    <span className="text-[10px] text-tea-text-light/40 px-1">
+                    <span className="text-[10px] text-tea-text-muted/40 px-1">
                       {formatTime(msg.timestamp)}
                     </span>
                   )}
@@ -596,7 +596,7 @@ function ChatWidgetPanel({ pathname }: { pathname: string }) {
               <button
                 onClick={() => sendMessage(input)}
                 disabled={isStreaming || !input.trim()}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-40 text-white transition-all active:scale-90 flex-shrink-0"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-40 text-white transition-all active:scale-90 flex-shrink-0"
                 aria-label={t("send")}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
