@@ -104,7 +104,7 @@ export default function LoginForm() {
             <span className="font-serif text-xl font-bold text-tea-text block">霧抉茶</span>
           </Link>
           <h1 className="text-2xl font-bold text-tea-text mt-4 mb-1">{t("title")}</h1>
-          <p className="text-sm text-tea-text-light">{t("subtitle")}</p>
+          <p className="text-sm text-tea-text-muted">{t("subtitle")}</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-8">
@@ -119,7 +119,7 @@ export default function LoginForm() {
           {/* 分隔線 */}
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-tea-green-pale" />
-            <span className="text-xs text-tea-text-light">{t("or")}</span>
+            <span className="text-xs text-tea-text-muted">{t("or")}</span>
             <div className="flex-1 h-px bg-tea-green-pale" />
           </div>
 
@@ -131,7 +131,7 @@ export default function LoginForm() {
                 type="button"
                 onClick={() => { setMode(m); setErrors({}); setGeneralError(""); setMagicSent(false); }}
                 className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-                  mode === m ? "bg-white text-tea-text shadow-sm" : "text-tea-text-light hover:text-tea-text"
+                  mode === m ? "bg-white text-tea-text shadow-sm" : "text-tea-text-muted hover:text-tea-text"
                 }`}
               >
                 {m === "password" ? t("passwordMode") : t("magicMode")}
@@ -175,7 +175,7 @@ export default function LoginForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
+                className="w-full py-3 bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
               >
                 {loading ? t("loggingIn") : t("loginBtn")}
               </button>
@@ -193,14 +193,14 @@ export default function LoginForm() {
                   </svg>
                 </div>
                 <p className="text-sm font-medium text-tea-text mb-1">{t("magicLinkSent")}</p>
-                <p className="text-xs text-tea-text-light">
+                <p className="text-xs text-tea-text-muted">
                   {t("magicLinkSentHint", { email })}
                 </p>
-                <p className="text-xs text-tea-text-light mt-1">{t("checkSpam")}</p>
+                <p className="text-xs text-tea-text-muted mt-1">{t("checkSpam")}</p>
                 <button
                   type="button"
                   onClick={() => setMagicSent(false)}
-                  className="mt-4 text-xs text-tea-green hover:text-tea-green-dark underline"
+                  className="mt-4 text-xs text-tea-green-ink hover:text-tea-green-dark underline"
                 >
                   {t("reenter")}
                 </button>
@@ -218,12 +218,12 @@ export default function LoginForm() {
                     className={inputCls(!!errors.email)}
                   />
                   {errors.email && <p className="mt-1 text-xs text-rose-500">{errors.email}</p>}
-                  <p className="mt-1.5 text-xs text-tea-text-light">{t("magicLinkHint")}</p>
+                  <p className="mt-1.5 text-xs text-tea-text-muted">{t("magicLinkHint")}</p>
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors"
+                  className="w-full py-3 bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors"
                 >
                   {loading ? t("sending") : t("sendLink")}
                 </button>
@@ -235,11 +235,11 @@ export default function LoginForm() {
         {/* 券的提示要放在登入頁：從這頁用 LINE／Google 進來的新客同樣會拿到券，
             原本只有註冊頁講，等於誘因只講給走 email 的那一半人聽。 */}
         <div className="text-center mt-6">
-          <p className="text-sm text-tea-text-light">
+          <p className="text-sm text-tea-text-muted">
             {t("noAccount")}{" "}
             <Link
               href={lp(`/auth/register${redirectTo !== lp("/account") ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`)}
-              className="text-tea-green hover:text-tea-green-dark font-medium transition-colors"
+              className="text-tea-green-ink hover:text-tea-green-dark font-medium transition-colors"
             >
               {t("register")}
             </Link>

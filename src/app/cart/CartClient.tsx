@@ -117,15 +117,18 @@ export default function CartClient() {
             <line x1="3" y1="6" x2="21" y2="6" />
             <path d="M16 10a4 4 0 01-8 0" />
           </svg>
-          <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">
+          {/* 空車狀態原本最高只到 h2，整頁沒有 h1——標題階層斷掉，
+              螢幕閱讀器與 SEO 都拿不到頁面主題。有商品時的分支本來就是 h1，
+              這裡補齊，兩個分支的階層才一致。 */}
+          <h1 className="font-serif text-2xl font-bold text-tea-text mb-3">
             {t("empty.title")}
-          </h2>
-          <p className="text-tea-text-light mb-8">
+          </h1>
+          <p className="text-tea-text-muted mb-8">
             {t("empty.desc")}
           </p>
           <Link
             href={lp("/products")}
-            className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors"
+            className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-full font-medium transition-colors"
           >
             {t("empty.cta")}
           </Link>
@@ -205,13 +208,13 @@ export default function CartClient() {
                       <h3 className="font-serif font-bold text-tea-text">
                         {productDisplayName(item.product, isEn, tProducts("teaBagSet"))}
                       </h3>
-                      <p className="text-xs text-tea-text-light mt-0.5">
+                      <p className="text-xs text-tea-text-muted mt-0.5">
                         {productDisplayOrigin(item.product, isEn)} · {productDisplayWeight(item.product.weight, isEn)}
                       </p>
                     </div>
                     <button
                       onClick={() => removeFromCart(item.product.id)}
-                      className="text-tea-text-light hover:text-red-400 transition-colors flex-shrink-0"
+                      className="text-tea-text-muted hover:text-red-400 transition-colors flex-shrink-0"
                       aria-label={ta("remove")}
                     >
                       <svg
@@ -234,7 +237,7 @@ export default function CartClient() {
                         onClick={() =>
                           updateQuantity(item.product.id, item.quantity - 1)
                         }
-                        className="w-6 h-6 flex items-center justify-center text-tea-text-light hover:text-tea-green transition-colors font-medium"
+                        className="w-6 h-6 flex items-center justify-center text-tea-text-muted hover:text-tea-green-ink transition-colors font-medium"
                       >
                         −
                       </button>
@@ -250,12 +253,12 @@ export default function CartClient() {
                           const maxQty = stock !== undefined ? Math.min(stock, 99) : 99;
                           return item.quantity >= maxQty;
                         })()}
-                        className="w-6 h-6 flex items-center justify-center text-tea-text-light hover:text-tea-green transition-colors font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-tea-text-light"
+                        className="w-6 h-6 flex items-center justify-center text-tea-text-muted hover:text-tea-green-ink transition-colors font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-tea-text-muted"
                       >
                         +
                       </button>
                     </div>
-                    <span className="font-bold text-tea-green">
+                    <span className="font-bold text-tea-text">
                       NT$
                       {(item.product.price * item.quantity).toLocaleString()}
                     </span>
@@ -272,14 +275,14 @@ export default function CartClient() {
                 {t("orderSummary")}
               </h2>
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-sm text-tea-text-light">
+                <div className="flex justify-between text-sm text-tea-text-muted">
                   <span>{t("quantity")}</span>
                   <span>{t("quantityUnit", { count: totalItems })}</span>
                 </div>
-                <div className="flex justify-between text-sm text-tea-text-light">
+                <div className="flex justify-between text-sm text-tea-text-muted">
                   <span>{t("shipping")}</span>
                   {totalPrice >= DOMESTIC_FREE_THRESHOLD ? (
-                    <span className="text-tea-green">{t("freeShipping")}</span>
+                    <span className="text-tea-green-ink">{t("freeShipping")}</span>
                   ) : (
                     <span>{t("shippingOptions", { home: DOMESTIC_FEES.home, cvs: DOMESTIC_FEES.cvs })}</span>
                   )}
@@ -304,7 +307,7 @@ export default function CartClient() {
                 )}
                 <div className="border-t border-tea-green-pale pt-3 flex justify-between font-bold text-tea-text">
                   <span>{t("total")}</span>
-                  <span className="text-tea-green text-lg">
+                  <span className="text-tea-text text-lg">
                     NT${totalPrice.toLocaleString()}
                   </span>
                 </div>
@@ -312,21 +315,21 @@ export default function CartClient() {
               {user ? (
                 <Link
                   href={lp("/checkout")}
-                  className="block w-full bg-tea-green hover:bg-tea-green-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
+                  className="block w-full bg-tea-green-dark hover:bg-tea-green-ink text-white text-center py-3.5 rounded-full font-medium transition-colors"
                 >
                   {t("checkout")}
                 </Link>
               ) : (
                 <Link
                   href={lp("/auth/login?redirect=" + lp("/checkout"))}
-                  className="block w-full bg-tea-green hover:bg-tea-green-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
+                  className="block w-full bg-tea-green-dark hover:bg-tea-green-ink text-white text-center py-3.5 rounded-full font-medium transition-colors"
                 >
                   {t("loginToCheckout")}
                 </Link>
               )}
               <Link
                 href={lp("/products")}
-                className="block w-full text-center text-tea-text-light hover:text-tea-green text-sm mt-4 transition-colors"
+                className="block w-full text-center text-tea-text-muted hover:text-tea-green-ink text-sm mt-4 transition-colors"
               >
                 {t("continueShopping")}
               </Link>

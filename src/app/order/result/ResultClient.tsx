@@ -30,7 +30,7 @@ function VerifyingPayment({ title, hint }: { title: string; hint: string }) {
           </svg>
         </div>
         <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">{title}</h2>
-        <p className="text-body text-tea-text-light">{hint}</p>
+        <p className="text-body text-tea-text-muted">{hint}</p>
       </div>
     </div>
   );
@@ -157,14 +157,14 @@ function ResultContent() {
             </svg>
           </div>
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paypalCancelTitle")}</h2>
-          <p className="text-body text-tea-text-light mb-2">{t("paypalCancelDesc")}</p>
+          <p className="text-body text-tea-text-muted mb-2">{t("paypalCancelDesc")}</p>
           <p className="text-body text-amber-600 mb-8 bg-amber-50 rounded-control p-3">{t("paypalCancelPointsHint")}</p>
           {paypalError && <p className="text-red-400 text-label mb-3">{paypalError}</p>}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             {paypalOrderId && (
               <>
                 <button onClick={handlePaypalRetry} disabled={paypalRetrying || paypalCancelling}
-                  className="bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+                  className="bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                   {paypalRetrying ? t("paypalProcessing") : t("paypalRetry")}
                 </button>
                 <button onClick={handlePaypalCancelOrder} disabled={paypalRetrying || paypalCancelling}
@@ -174,7 +174,7 @@ function ResultContent() {
               </>
             )}
             <Link href={lp("/")}
-              className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+              className="border border-tea-green text-tea-green-ink hover:bg-tea-green-dark hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
               {t("backHome")}
             </Link>
           </div>
@@ -194,15 +194,15 @@ function ResultContent() {
             </svg>
           </div>
           <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paypalCaptureFailed")}</h2>
-          <p className="text-body text-tea-text-light mb-2">{t("paypalCaptureFailedDesc")}</p>
+          <p className="text-body text-tea-text-muted mb-2">{t("paypalCaptureFailedDesc")}</p>
           <p className="text-red-400 text-label mb-6">{paypalError}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href={lp("/")}
-              className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+              className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
               {t("backHome")}
             </Link>
             <Link href={lp("/contact")}
-              className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+              className="border border-tea-green text-tea-green-ink hover:bg-tea-green-dark hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
               {t("paypalContactSupport")}
             </Link>
           </div>
@@ -226,14 +226,14 @@ function ResultContent() {
             {isBooking ? (
               <>
                 <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("bookingSuccess")}</h2>
-                <p className="text-body text-tea-text-light mb-2">{t("bookingSuccessDesc")}</p>
+                <p className="text-body text-tea-text-muted mb-2">{t("bookingSuccessDesc")}</p>
                 {tradeNo && (
-                  <p className="text-caption text-tea-text-light mb-2">
+                  <p className="text-caption text-tea-text-muted mb-2">
                     {t("bookingRef")}<span className="font-mono font-medium">{tradeNo}</span>
                   </p>
                 )}
                 {user?.email ? (
-                  <p className="text-tea-text-light text-label mb-4">{t("emailSentBooking", { email: user.email })}</p>
+                  <p className="text-tea-text-muted text-label mb-4">{t("emailSentBooking", { email: user.email })}</p>
                 ) : (
                   <p className="text-label text-amber-600 mb-4">
                     {t("noEmailBookingPrefix")}{" "}
@@ -244,17 +244,17 @@ function ResultContent() {
                 {/* 下一步是預約成功後最重要的資訊，用 body 級距而不是 14px 附註 */}
                 <div className="bg-[#F0F6F1] rounded-card px-6 py-4 text-left mb-10">
                   <p className="text-label font-semibold text-tea-text mb-2">{t("nextSteps")}</p>
-                  <ul className="space-y-1.5 text-body text-tea-text-light">
+                  <ul className="space-y-1.5 text-body text-tea-text-muted">
                     <li className="flex items-start gap-2">
-                      <span className="text-tea-green mt-0.5">①</span>
+                      <span className="text-tea-green-ink mt-0.5">①</span>
                       {t("nextStep1")}
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-tea-green mt-0.5">②</span>
+                      <span className="text-tea-green-ink mt-0.5">②</span>
                       {t("nextStep2")}
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-tea-green mt-0.5">③</span>
+                      <span className="text-tea-green-ink mt-0.5">③</span>
                       {t("nextStep3")}
                     </li>
                   </ul>
@@ -263,14 +263,14 @@ function ResultContent() {
             ) : (
               <>
                 <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("orderSuccess")}</h2>
-                <p className="text-body text-tea-text-light mb-2">{t("orderSuccessDesc")}</p>
+                <p className="text-body text-tea-text-muted mb-2">{t("orderSuccessDesc")}</p>
                 {tradeNo && (
-                  <p className="text-caption text-tea-text-light mb-2">
+                  <p className="text-caption text-tea-text-muted mb-2">
                     {t("orderRef")}<span className="font-mono font-medium">{tradeNo}</span>
                   </p>
                 )}
                 {user?.email ? (
-                  <p className="text-tea-text-light text-label mb-4">{t("emailSentOrder", { email: user.email })}</p>
+                  <p className="text-tea-text-muted text-label mb-4">{t("emailSentOrder", { email: user.email })}</p>
                 ) : (
                   <p className="text-label text-amber-600 mb-4">
                     {t("noEmailOrderPrefix")}{" "}
@@ -303,7 +303,7 @@ function ResultContent() {
               </svg>
             </div>
             <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paymentFailed")}</h2>
-            <p className="text-body text-tea-text-light mb-10">{rtnMsg || t("paymentFailedDefault")}</p>
+            <p className="text-body text-tea-text-muted mb-10">{rtnMsg || t("paymentFailedDefault")}</p>
           </>
         )}
 
@@ -311,23 +311,23 @@ function ResultContent() {
           {isBooking && isSuccess ? (
             <>
               <Link href={lp("/account?tab=bookings")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                 {t("viewBookings")}
               </Link>
               <Link href={lp("/experiences")}
-                className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+                className="border border-tea-green text-tea-green-ink hover:bg-tea-green-dark hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                 {t("browseExperiences")}
               </Link>
             </>
           ) : (
             <>
               <Link href={lp("/")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                 {t("backHome")}
               </Link>
               {!isSuccess && (
                 <Link href={lp("/cart")}
-                  className="border border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+                  className="border border-tea-green text-tea-green-ink hover:bg-tea-green-dark hover:text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                   {t("backToCart")}
                 </Link>
               )}
