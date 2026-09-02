@@ -27,7 +27,7 @@ export default function Footer() {
                 />
                 <line x1="17" y1="29" x2="17" y2="33" stroke="#A3BFA8" strokeWidth="2.5" strokeLinecap="round" />
               </svg>
-              <h3 className="font-serif text-xl font-bold text-tea-green-light">霧抉茶</h3>
+              <h3 className="font-serif text-xl font-semibold text-tea-green-light">霧抉茶</h3>
             </div>
             <p className="text-sm text-tea-green-pale leading-relaxed whitespace-pre-line">
               {t("tagline")}

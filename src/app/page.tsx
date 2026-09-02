@@ -225,7 +225,13 @@ export default async function HomePage() {
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-3 sm:mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-bold text-tea-cream-light mb-7 sm:mb-6 leading-none">
+            {/* 字級 128px → 60px（`md:text-9xl` → `md:text-6xl`）。
+                實測 17 個高質感品牌，整頁最大字級的樣本上限是 Belmond 的 64px，
+                中位數約 28px（Aman 31／虎屋 28／Loro Piana 26／一保堂 21）。
+                128px 是樣本上限的兩倍，靠字級撐場面是賣場的做法——
+                這些品牌的視覺衝擊來自攝影，不是來自字。
+                手機維持 text-5xl(48px) 不動：小螢幕的品牌名本來就要夠大才立得住。 */}
+            <h1 className="font-serif text-5xl sm:text-6xl font-normal text-tea-cream-light mb-7 sm:mb-6 leading-none tracking-display">
               {t("hero.title")}
             </h1>
             <div className="hidden sm:block w-16 h-0.5 bg-tea-green-pale mb-7" />
@@ -242,7 +248,7 @@ export default async function HomePage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 href={lp("/products")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-6 py-3 text-label sm:px-8 sm:py-3.5 sm:text-base rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
+                className="bg-tea-text hover:bg-tea-text-deep text-white px-6 py-3 text-label sm:px-8 sm:py-3.5 sm:text-base rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
               >
                 {t("hero.exploreBtn")}
               </Link>
@@ -259,7 +265,20 @@ export default async function HomePage() {
 
       {/* 季節限定條帶 —— 只在季節中出現，見上方 seasonalExp 的說明 */}
       {seasonalExp && (
-        <section className="bg-tea-green-mist border-y border-tea-green-pale">
+        // 底色 2026-09-02 業主拍板：green-mist → 紺淡底 → **cream**（全暖）。
+        // 這一塊只有**實心預約鈕**是紺（那是 f6eeeae 定的體驗線轉換重音）；
+        // eyebrow、季節徽章、外框鈕維持品牌綠——業主選的是「暖底＋綠配件＋紺主鈕」，
+        // 我一度把配件也改成紺，那不是他要的版本，已改回。
+        //
+        // 底色取 cream-**light** 而非 cream：下一段「品茶哲學」就是 `bg-tea-cream`，
+        // 兩者若同值會變成 ΔL 0.000 完全同色，而下邊框 cream-dark 對 cream 只有 1.08
+        // （2.1.2 明寫「邊框會直接消失」）——條帶下緣會整個融進下一段。
+        // 改用 cream-light 之後有 ΔL +.020 的落差（與 2.1.1 三層序列的標準級距相同），
+        // 邊框可見度 1.08→1.14，而且次要字對比從 4.52 升到 4.80。
+        //
+        // 條帶比下一段**亮**是刻意的：它是滿版促銷條，不屬於 2.1.1 那條
+        // 「依序變亮」的敘事序列，亮一階讓它讀起來像浮在上面的條，而不是序列的一員。
+        <section className="bg-tea-cream-light border-y border-tea-cream-dark">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
             <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
               <div className="flex-1 min-w-0">
@@ -268,7 +287,7 @@ export default async function HomePage() {
                 </p>
                 {/* 名稱與倒數徽章並排：稀缺性要跟商品名一起被讀到才有作用 */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-2">
-                  <h2 className="font-serif text-2xl md:text-3xl font-bold text-tea-text">
+                  <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text tracking-display">
                     {isEn ? seasonalExp.nameEn : seasonalExp.name}
                   </h2>
                   <SeasonBadge
@@ -296,7 +315,7 @@ export default async function HomePage() {
                 )}
                 <Link
                   href={lp(`/experiences/${seasonalExp.slug}`)}
-                  className="bg-tea-green-ink hover:bg-tea-green-dark text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
+                  className="bg-cta-visit hover:bg-cta-visit-dark text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
                 >
                   {t("seasonal.bookBtn")}
                 </Link>
@@ -317,13 +336,13 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="flex flex-col justify-center">
-              <p className="text-tea-green font-medium tracking-[0.3em] text-xs uppercase mb-4">
+              <p className="text-tea-green-ink font-medium tracking-[0.3em] text-xs uppercase mb-4">
                 {t("philosophy.sectionLabel")}
               </p>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3 tracking-display">
                 {t("philosophy.title")}
               </h2>
-              <p className="text-tea-text-light text-body-lg mb-10 max-w-md">
+              <p className="text-tea-text-muted text-body-lg mb-10 max-w-md">
                 {t("philosophy.tagline")}
               </p>
 
@@ -335,14 +354,14 @@ export default async function HomePage() {
                 ].map(({ number, Icon, key }) => (
                   <div key={number} className="flex items-start gap-6 py-8 group">
                     <div className="flex-shrink-0 flex flex-col items-center gap-2 w-8">
-                      <span className="text-xs font-medium text-tea-green tracking-widest">{number}</span>
+                      <span className="text-xs font-medium text-tea-green-ink tracking-widest">{number}</span>
                       <Icon className="w-4 h-4 text-tea-green-light" />
                     </div>
                     <div>
-                      <h3 className="font-serif text-xl font-bold text-tea-text mb-2 group-hover:text-tea-green transition-colors">
+                      <h3 className="font-serif text-xl font-semibold text-tea-text mb-2 group-hover:text-tea-green-ink transition-colors">
                         {t(`philosophy.items.${key}.title`)}
                       </h3>
-                      <p className="text-tea-text-light text-body">
+                      <p className="text-tea-text-muted text-body">
                         {t(`philosophy.items.${key}.desc`)}
                       </p>
                     </div>
@@ -373,14 +392,14 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2 tracking-display">
                 {t("featured.title")}
               </h2>
-              <p className="text-tea-text-light text-body-lg">{t("featured.tagline")}</p>
+              <p className="text-tea-text-muted text-body-lg">{t("featured.tagline")}</p>
             </div>
             <Link
               href={lp("/products")}
-              className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 py-2 transition-colors"
+              className="text-tea-green-ink hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 py-2 transition-colors"
             >
               {tc("buttons.viewAll")}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -402,13 +421,13 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">{t("experiences.sectionLabel")}</p>
-                <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-2">{t("experiences.title")}</h2>
-                <p className="text-tea-text-light text-body-lg">{t("experiences.tagline")}</p>
+                <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-3">{t("experiences.sectionLabel")}</p>
+                <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2 tracking-display">{t("experiences.title")}</h2>
+                <p className="text-tea-text-muted text-body-lg">{t("experiences.tagline")}</p>
               </div>
               <Link
                 href={lp("/experiences")}
-                className="text-tea-green hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 py-2 transition-colors"
+                className="text-tea-green-ink hover:text-tea-green-dark font-medium text-sm flex items-center gap-1 py-2 transition-colors"
               >
                 {tc("buttons.viewAll")}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -449,21 +468,21 @@ export default async function HomePage() {
                       />
                     </div>
                     <div className="p-5">
-                      <h3 className="font-serif text-xl font-bold text-tea-text mb-1.5 group-hover:text-tea-green transition-colors">
+                      <h3 className="font-serif text-xl font-semibold text-tea-text mb-1.5 group-hover:text-tea-green-ink transition-colors">
                         {isEn ? (exp.nameEn || exp.name) : exp.name}
                       </h3>
                       {/* 與商品卡同理：14px + 3 行才讀得完，見 ProductCard 的註解 */}
-                      <p className="text-tea-text-light text-label mb-4 line-clamp-3">
+                      <p className="text-tea-text-muted text-label mb-4 line-clamp-3">
                         {isEn ? (content.taglineEn || content.tagline) : content.tagline}
                       </p>
-                      <div className="flex items-center justify-between text-sm text-tea-text-light">
+                      <div className="flex items-center justify-between text-sm text-tea-text-muted">
                         <div className="flex items-center gap-3">
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-tea-green" />
+                            <Clock className="w-3.5 h-3.5 text-tea-green-ink" />
                             {exp.durationHours}h
                           </span>
                           <span className="flex items-center gap-1">
-                            <Users className="w-3.5 h-3.5 text-tea-green" />
+                            <Users className="w-3.5 h-3.5 text-tea-green-ink" />
                             {exp.minParticipants}–{exp.maxParticipants}{isEn ? "" : "人"}
                           </span>
                         </div>
@@ -479,7 +498,7 @@ export default async function HomePage() {
               <div className="text-center mt-8">
                 <Link
                   href={lp("/experiences")}
-                  className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-pill font-medium transition-colors inline-block"
+                  className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3 rounded-pill font-medium transition-colors inline-block"
                 >
                   {t("experiences.viewAllCount", { count: experiences.length })}
                 </Link>
@@ -494,10 +513,10 @@ export default async function HomePage() {
       <section className="py-section md:py-section-xl bg-tea-text">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mb-14">
-            <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
+            <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
               {t("brandStory.sectionLabel")}
             </p>
-            <h2 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-7 leading-snug whitespace-pre-line">
+            <h2 className="font-serif text-3xl md:text-5xl font-normal text-tea-cream-light mb-7 leading-snug whitespace-pre-line tracking-display">
               {t("brandStory.title")}
             </h2>
             {/* 品牌故事是整站最重要的一段敘事——四十年、一家三口。
@@ -523,11 +542,11 @@ export default async function HomePage() {
       {/* Process Teaser */}
       <section className="py-section md:py-section-lg bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
+          <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3 tracking-display">
             {t("process.title")}
           </h2>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light text-body-lg mb-14 max-w-lg mx-auto">
+          <p className="text-tea-text-muted text-body-lg mb-14 max-w-lg mx-auto">
             {t("process.tagline")}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-14">
@@ -536,19 +555,19 @@ export default async function HomePage() {
                 key={key}
                 className="bg-white rounded-card p-5 md:p-7 text-center shadow-resting hover:shadow-raised transition-shadow duration-base ease-standard"
               >
-                <div className="text-xs text-tea-green font-medium tracking-widest mb-3">
+                <div className="text-xs text-tea-green-ink font-medium tracking-widest mb-3">
                   {String(i + 1).padStart(2, "0")}
                 </div>
                 <div className="font-serif text-xl font-bold text-tea-text mb-2">
                   {t(`process.steps.${key}.name`)}
                 </div>
-                <div className="text-label text-tea-text-light">{t(`process.steps.${key}.desc`)}</div>
+                <div className="text-label text-tea-text-muted">{t(`process.steps.${key}.desc`)}</div>
               </div>
             ))}
           </div>
           <Link
             href={lp("/process")}
-            className="bg-tea-green hover:bg-tea-green-dark text-white px-9 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
+            className="bg-tea-text hover:bg-tea-text-deep text-white px-9 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
           >
             {t("process.exploreBtn")}
           </Link>

@@ -73,7 +73,7 @@ export default async function VisitDirections({ compact = false }: { compact?: b
 
   return (
     <section className="rounded-2xl border border-tea-green-pale bg-tea-cream/60 p-5 md:p-6">
-      <h3 className="font-serif text-body-lg font-bold text-tea-text mb-1.5">{t("title")}</h3>
+      <h3 className="font-serif text-body-lg font-semibold text-tea-text mb-1.5">{t("title")}</h3>
       {!compact && <p className="text-body text-tea-text-muted mb-4">{t("intro")}</p>}
 
       {/* 茶居排前面：它是集合點，也是三種方式裡有兩種要去的地方 */}

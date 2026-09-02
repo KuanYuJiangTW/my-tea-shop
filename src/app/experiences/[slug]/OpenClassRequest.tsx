@@ -129,11 +129,11 @@ export default function OpenClassRequest({
   if (done) {
     return (
       <div className="flex items-start gap-3 bg-tea-green-mist rounded-2xl border border-tea-green-pale p-5">
-        <CheckCircle className="w-5 h-5 text-tea-green mt-0.5 shrink-0" aria-hidden="true" />
+        <CheckCircle className="w-5 h-5 text-tea-green-ink mt-0.5 shrink-0" aria-hidden="true" />
         <div>
           <p className="text-body font-medium text-tea-text">{t("doneTitle", { no: done.no })}</p>
-          <p className="text-caption text-tea-text-light mt-1">{t("doneNote")}</p>
-          <a href={lp(`/experiences/request/${done.token}`)} className="text-caption text-tea-green font-medium mt-2 inline-block">
+          <p className="text-caption text-tea-text-muted mt-1">{t("doneNote")}</p>
+          <a href={lp(`/experiences/request/${done.token}`)} className="text-caption text-tea-green-ink font-medium mt-2 inline-block">
             {t("doneLink")} →
           </a>
         </div>
@@ -146,12 +146,12 @@ export default function OpenClassRequest({
       emphasis ? "bg-tea-green-mist border-tea-green" : "bg-tea-cream border-tea-green-pale"
     }`}>
       <div className="flex items-start gap-3">
-        <CalendarPlus className="w-5 h-5 text-tea-green mt-0.5 shrink-0" aria-hidden="true" />
+        <CalendarPlus className="w-5 h-5 text-tea-green-ink mt-0.5 shrink-0" aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <p className={emphasis ? "text-body-lg font-medium text-tea-text" : "text-body font-medium text-tea-text"}>
             {emphasis ? t("emptyMonthTitle") : t("title")}
           </p>
-          <p className="text-caption text-tea-text-light mt-1">{t("intro", { days: leadDays })}</p>
+          <p className="text-caption text-tea-text-muted mt-1">{t("intro", { days: leadDays })}</p>
           {/* 成交條件用內文級距，不是附註——依設計原則 2「交易時刻，清晰壓倒氣氛」 */}
           <p className="text-body text-tea-text mt-2">
             {t("slotsNote", { slots: minSlots, total: minTotal.toLocaleString(), price: unitPrice.toLocaleString() })}
@@ -165,11 +165,11 @@ export default function OpenClassRequest({
               <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="text-label font-medium px-5 py-2.5 rounded-control bg-tea-green text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard"
+                className="text-label font-medium px-5 py-2.5 rounded-control bg-tea-green-dark text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard"
               >{t("cta")}</button>
               {lineUrl && (
                 <a href={lineUrl} target="_blank" rel="noopener noreferrer"
-                  className="text-label font-medium px-5 py-2.5 rounded-control border border-tea-green text-tea-green hover:bg-white transition-colors duration-base ease-standard">
+                  className="text-label font-medium px-5 py-2.5 rounded-control border border-tea-green text-tea-green-ink hover:bg-white transition-colors duration-base ease-standard">
                   {t("askLine")}
                 </a>
               )}
@@ -179,23 +179,23 @@ export default function OpenClassRequest({
           {open && (
             <form onSubmit={submit} className="mt-4 space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("dateLabel")}
                   <input type="date" required min={minDate} max={maxDate}
                     value={f.preferredDate} onChange={set("preferredDate")} className={`${field} mt-1`} />
                 </label>
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("timeLabel")}
                   <select value={f.preferredStartTime} onChange={set("preferredStartTime")} className={`${field} mt-1`}>
                     {startTimes.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </label>
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("altDateLabel")}
                   <input type="date" min={minDate} max={maxDate}
                     value={f.altDate} onChange={set("altDate")} className={`${field} mt-1`} />
                 </label>
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("headcountLabel")}
                   <input type="number" min={1} max={50} required inputMode="numeric"
                     value={f.headcount} onChange={set("headcount")} className={`${field} mt-1`} />
@@ -213,36 +213,36 @@ export default function OpenClassRequest({
                 </p>
               )}
 
-              <label className="flex items-center gap-2 text-caption text-tea-text-light">
+              <label className="flex items-center gap-2 text-caption text-tea-text-muted">
                 <input type="checkbox" checked={f.isPrivate} onChange={set("isPrivate")} />
                 {t("privateLabel")}
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("nameLabel")}
                   <input type="text" required maxLength={100} value={f.contactName} onChange={set("contactName")} className={`${field} mt-1`} />
                 </label>
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("phoneLabel")}
                   <input type="tel" required maxLength={50} value={f.contactPhone} onChange={set("contactPhone")} className={`${field} mt-1`} />
                 </label>
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("emailLabel")}
                   <input type="email" required maxLength={200} value={f.contactEmail} onChange={set("contactEmail")} className={`${field} mt-1`} />
                 </label>
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("lineLabel")}
                   <input type="text" maxLength={100} value={f.contactLine} onChange={set("contactLine")} className={`${field} mt-1`} />
                 </label>
               </div>
 
-              <label className="block text-caption text-tea-text-light">
+              <label className="block text-caption text-tea-text-muted">
                 {t("contactTimeLabel")}
                 <input type="text" maxLength={200} value={f.contactTime} onChange={set("contactTime")} className={`${field} mt-1`} />
               </label>
 
-              <label className="block text-caption text-tea-text-light">
+              <label className="block text-caption text-tea-text-muted">
                 {t("noteLabel")}
                 <textarea rows={2} maxLength={500} value={f.note} onChange={set("note")} className={`${field} mt-1`} />
               </label>
@@ -255,7 +255,7 @@ export default function OpenClassRequest({
               {error && <p className="text-caption text-red-600">{error}</p>}
 
               <button type="submit" disabled={busy}
-                className="text-label font-medium px-5 py-2.5 rounded-control bg-tea-green text-white hover:bg-tea-green-dark disabled:opacity-50 transition-colors duration-base ease-standard">
+                className="text-label font-medium px-5 py-2.5 rounded-control bg-tea-green-dark text-white hover:bg-tea-green-dark disabled:opacity-50 transition-colors duration-base ease-standard">
                 {busy ? t("sending") : t("submit")}
               </button>
             </form>

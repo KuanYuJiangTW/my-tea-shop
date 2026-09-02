@@ -70,10 +70,10 @@ export default function InterestForm({ experienceTypeId, locale }: Props) {
   if (sent) {
     return (
       <div className="flex items-start gap-3 bg-tea-green-mist rounded-2xl border border-tea-green-pale p-5">
-        <CheckCircle className="w-5 h-5 text-tea-green mt-0.5 shrink-0" aria-hidden="true" />
+        <CheckCircle className="w-5 h-5 text-tea-green-ink mt-0.5 shrink-0" aria-hidden="true" />
         <div>
           <p className="text-body font-medium text-tea-text">{t("doneTitle")}</p>
-          <p className="text-caption text-tea-text-light mt-1">{t("doneNote")}</p>
+          <p className="text-caption text-tea-text-muted mt-1">{t("doneNote")}</p>
         </div>
       </div>
     );
@@ -84,16 +84,16 @@ export default function InterestForm({ experienceTypeId, locale }: Props) {
   return (
     <div className="bg-tea-cream rounded-2xl border border-tea-green-pale p-5">
       <div className="flex items-start gap-3">
-        <CalendarPlus className="w-5 h-5 text-tea-green mt-0.5 shrink-0" aria-hidden="true" />
+        <CalendarPlus className="w-5 h-5 text-tea-green-ink mt-0.5 shrink-0" aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <p className="text-body font-medium text-tea-text">{t("title")}</p>
-          <p className="text-caption text-tea-text-light mt-1">{t("intro")}</p>
+          <p className="text-caption text-tea-text-muted mt-1">{t("intro")}</p>
 
           {!open && (
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="mt-3 text-label font-medium px-4 py-2 rounded-control border border-tea-green text-tea-green hover:bg-tea-green hover:text-white transition-colors duration-base ease-standard"
+              className="mt-3 text-label font-medium px-4 py-2 rounded-control border border-tea-green text-tea-green-ink hover:bg-tea-green hover:text-white transition-colors duration-base ease-standard"
             >
               {t("cta")}
             </button>
@@ -102,28 +102,28 @@ export default function InterestForm({ experienceTypeId, locale }: Props) {
           {open && (
             <form onSubmit={submit} className="mt-4 space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("dateLabel")}
                   <input type="date" value={form.preferredDate} onChange={set("preferredDate")} className={`${field} mt-1`} />
                 </label>
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("headcountLabel")}
                   <input type="number" min={1} max={50} inputMode="numeric" value={form.headcount} onChange={set("headcount")} className={`${field} mt-1`} />
                 </label>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("emailLabel")}
                   <input type="email" value={form.contactEmail} onChange={set("contactEmail")} className={`${field} mt-1`} />
                 </label>
-                <label className="text-caption text-tea-text-light">
+                <label className="text-caption text-tea-text-muted">
                   {t("lineLabel")}
                   <input type="text" maxLength={100} value={form.contactLine} onChange={set("contactLine")} className={`${field} mt-1`} />
                 </label>
               </div>
 
-              <label className="block text-caption text-tea-text-light">
+              <label className="block text-caption text-tea-text-muted">
                 {t("noteLabel")}
                 <textarea rows={2} maxLength={500} value={form.note} onChange={set("note")} className={`${field} mt-1`} />
               </label>
@@ -140,11 +140,11 @@ export default function InterestForm({ experienceTypeId, locale }: Props) {
               <button
                 type="submit"
                 disabled={busy}
-                className="text-label font-medium px-5 py-2.5 rounded-control bg-tea-green text-white hover:bg-tea-green-dark disabled:opacity-50 transition-colors duration-base ease-standard"
+                className="text-label font-medium px-5 py-2.5 rounded-control bg-tea-green-dark text-white hover:bg-tea-green-dark disabled:opacity-50 transition-colors duration-base ease-standard"
               >
                 {busy ? t("sending") : t("submit")}
               </button>
-              <p className="text-caption text-tea-text-light">{t("privacy")}</p>
+              <p className="text-caption text-tea-text-muted">{t("privacy")}</p>
             </form>
           )}
         </div>

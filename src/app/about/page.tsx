@@ -43,10 +43,10 @@ export default async function AboutPage() {
           <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-tea-green/8 rounded-full" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
+          <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
             {t("hero.sectionLabel")}
           </p>
-          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-tea-cream-light mb-6">
+          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-normal text-tea-cream-light mb-6 tracking-display">
             {t("hero.title")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
@@ -76,30 +76,30 @@ export default async function AboutPage() {
                   <path d="M165 225Q160 215 165 205" stroke="#C8DDD0" strokeWidth="2" fill="none" strokeLinecap="round" />
                 </svg>
               </div>
-              <div className="absolute -bottom-4 -right-4 bg-tea-green text-white px-6 py-4 rounded-2xl shadow-lg">
+              <div className="absolute -bottom-4 -right-4 bg-tea-green-dark text-white px-6 py-4 rounded-2xl shadow-lg">
                 <div className="font-serif text-3xl font-bold">40+</div>
-                <div className="text-tea-green-pale text-xs mt-1">{t("story.yearsLabel")}</div>
+                <div className="text-white text-xs mt-1">{t("story.yearsLabel")}</div>
               </div>
             </div>
 
             {/* Text */}
             <div>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-6">
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-6 tracking-display">
                 {t("story.title")}
               </h2>
               <div className="w-10 h-0.5 bg-tea-green mb-7" />
-              <p className="text-tea-text-light leading-relaxed mb-5">
+              <p className="text-tea-text-muted text-body mb-5">
                 {t("story.p1")}
               </p>
-              <p className="text-tea-text-light leading-relaxed mb-5">
+              <p className="text-tea-text-muted text-body mb-5">
                 {t("story.p2")}
               </p>
-              <p className="text-tea-text-light leading-relaxed mb-8">
+              <p className="text-tea-text-muted text-body mb-8">
                 {t("story.p3")}
               </p>
               <Link
                 href={lp("/products")}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors"
+                className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3.5 rounded-full font-medium transition-colors"
               >
                 {t("story.shopCta")}
               </Link>
@@ -112,14 +112,14 @@ export default async function AboutPage() {
       <section className="py-16 md:py-24 bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-tea-green text-xs tracking-[0.3em] uppercase font-medium mb-3">
+            <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase font-medium mb-3">
               {t("gallery.sectionLabel")}
             </p>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
+            <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3 tracking-display">
               {t("gallery.sectionLabel")}
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto mb-4" />
-            <p className="text-tea-text-light max-w-md mx-auto text-sm">
+            <p className="text-tea-text-muted max-w-md mx-auto text-sm">
               {t("gallery.tagline")}
             </p>
           </div>
@@ -132,7 +132,7 @@ export default async function AboutPage() {
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">
+            <h2 className="font-serif text-4xl font-normal text-tea-text mb-3 tracking-display">
               {t("values.sectionLabel")}
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto" />
@@ -143,13 +143,13 @@ export default async function AboutPage() {
                 key={key}
                 className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="text-tea-green font-bold text-sm tracking-widest mb-3">
+                <div className="text-tea-green-ink font-bold text-sm tracking-widest mb-3">
                   {String(i + 1).padStart(2, "0")}
                 </div>
-                <h3 className="font-serif text-2xl font-bold text-tea-text mb-4">
+                <h3 className="font-serif text-2xl font-semibold text-tea-text mb-4">
                   {t(`values.${key}.title`)}
                 </h3>
-                <p className="text-tea-text-light leading-relaxed">
+                <p className="text-tea-text-muted text-body">
                   {t(`values.${key}.desc`)}
                 </p>
               </div>
@@ -162,11 +162,11 @@ export default async function AboutPage() {
       <section className="py-16 md:py-24 bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">
+            <h2 className="font-serif text-4xl font-normal text-tea-text mb-3 tracking-display">
               {t("teas.title")}
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-            <p className="text-tea-text-light max-w-md mx-auto">
+            <p className="text-tea-text-muted max-w-md mx-auto">
               {t("teas.tagline")}
             </p>
           </div>
@@ -176,13 +176,13 @@ export default async function AboutPage() {
                 key={key}
                 className={`bg-gradient-to-br ${teaColors[i]} rounded-2xl p-6 text-center`}
               >
-                <span className="text-xs text-tea-green bg-white/70 px-3 py-1 rounded-full font-medium">
+                <span className="text-xs text-tea-green-ink bg-white/70 px-3 py-1 rounded-full font-medium">
                   {t(`teas.${key}.flavor`)}
                 </span>
-                <h3 className="font-serif text-lg font-bold text-tea-text mt-4 mb-3">
+                <h3 className="font-serif text-lg font-semibold text-tea-text mt-4 mb-3">
                   {t(`teas.${key}.name`)}
                 </h3>
-                <p className="text-tea-text-light text-xs leading-relaxed">
+                <p className="text-tea-text-muted text-xs leading-relaxed">
                   {t(`teas.${key}.desc`)}
                 </p>
               </div>
@@ -194,33 +194,33 @@ export default async function AboutPage() {
       {/* Contact */}
       <section className="py-16 md:py-24 bg-tea-text">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-serif text-4xl font-bold text-tea-cream-light mb-6">
+          <h2 className="font-serif text-4xl font-normal text-tea-cream-light mb-6 tracking-display">
             {t("contact.sectionLabel")}
           </h2>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-10" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left mb-10">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-colors">
-              <h3 className="font-serif text-lg font-bold text-tea-cream-light mb-5">{t("contact.contactInfo")}</h3>
+              <h3 className="font-serif text-lg font-semibold text-tea-cream-light mb-5">{t("contact.contactInfo")}</h3>
               <div className="space-y-4 text-tea-green-pale text-sm">
                 <p>
-                  <span className="text-tea-green font-medium block mb-1">{t("contact.address.label")}</span>
+                  <span className="text-tea-green-pale font-medium block mb-1">{t("contact.address.label")}</span>
                   {t("contact.address.value")}
                 </p>
                 <p>
-                  <span className="text-tea-green font-medium block mb-1">{t("contact.phone.label")}</span>
+                  <span className="text-tea-green-pale font-medium block mb-1">{t("contact.phone.label")}</span>
                   {t("contact.phone.value")}
                 </p>
                 <p>
-                  <span className="text-tea-green font-medium block mb-1">{t("contact.delivery.label")}</span>
+                  <span className="text-tea-green-pale font-medium block mb-1">{t("contact.delivery.label")}</span>
                   {t("contact.delivery.value")}
                 </p>
               </div>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-colors">
-              <h3 className="font-serif text-lg font-bold text-tea-cream-light mb-5">{t("contact.social.label")}</h3>
+              <h3 className="font-serif text-lg font-semibold text-tea-cream-light mb-5">{t("contact.social.label")}</h3>
               <div className="space-y-4 text-tea-green-pale text-sm">
                 <p>
-                  <span className="text-tea-green font-medium block mb-1">{t("contact.social.searchLabel")}</span>
+                  <span className="text-tea-green-pale font-medium block mb-1">{t("contact.social.searchLabel")}</span>
                   {t("contact.social.socialHandle")}
                 </p>
                 <p>{t("contact.social.socialPlatforms")}</p>
@@ -233,7 +233,7 @@ export default async function AboutPage() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href={lp("/products")}
-              className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors"
+              className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3.5 rounded-full font-medium transition-colors"
             >
               {t("cta.shopBtn")}
             </Link>

@@ -42,11 +42,11 @@ export default async function ExperienceReviews({ experienceTypeId }: { experien
   return (
     <div className="mt-12">
       <div className="flex items-center gap-3 mb-6">
-        <h2 className="font-serif text-xl font-bold text-tea-text">{t("reviewsTitle")}</h2>
+        <h2 className="font-serif text-xl font-normal text-tea-text tracking-display">{t("reviewsTitle")}</h2>
         <div className="flex items-center gap-1.5">
           <Stars rating={Math.round(avg)} />
           <span className="text-sm font-medium text-tea-text">{avg.toFixed(1)}</span>
-          <span className="text-sm text-tea-text-light">{t("reviewsCount", { count: reviews.length })}</span>
+          <span className="text-sm text-tea-text-muted">{t("reviewsCount", { count: reviews.length })}</span>
         </div>
       </div>
 
@@ -55,12 +55,12 @@ export default async function ExperienceReviews({ experienceTypeId }: { experien
           <div key={r.id} className="bg-white rounded-2xl p-5 border border-tea-green-pale/50 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <Stars rating={r.rating} />
-              <span className="text-xs text-tea-text-light">
+              <span className="text-xs text-tea-text-muted">
                 {new Date(r.created_at).toLocaleDateString(dateFmt)}
               </span>
             </div>
             {r.comment && (
-              <p className="text-sm text-tea-text-light leading-relaxed">{r.comment}</p>
+              <p className="text-sm text-tea-text-muted leading-relaxed">{r.comment}</p>
             )}
           </div>
         ))}

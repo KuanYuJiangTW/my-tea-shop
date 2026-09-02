@@ -166,8 +166,8 @@ export default async function ArticlePage({ params }: Props) {
       )}
 
       <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-3">{t("label")}</p>
-        <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-4">{title}</h1>
+        <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-3">{t("label")}</p>
+        <h1 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-4 tracking-display">{title}</h1>
         {/* 內文一律用 tea-text-muted 而不是 tea-text-light：後者在米白上只有 3.43，
             低於 WCAG AA 的 4.5。這頁手機版 5,968px 高、常在山上戶外強光下讀，
             對比是能不能讀完的問題。層次改由字級與字重承擔，不再靠淡化文字 */}
@@ -224,7 +224,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="space-y-10">
           {renderedSections.map((section, i) => (
             <section key={`${section.heading}-${i}`}>
-              <h2 id={`section-${i}`} className="font-serif text-xl md:text-2xl font-bold text-tea-text mb-4 scroll-mt-20">
+              <h2 id={`section-${i}`} className="font-serif text-xl md:text-2xl font-normal text-tea-text mb-4 scroll-mt-20 tracking-display">
                 {section.heading}
               </h2>
               <div className="space-y-4">
@@ -284,7 +284,7 @@ export default async function ArticlePage({ params }: Props) {
 
         {article.relatedExperiences && article.relatedExperiences.length > 0 && (
           <div id={CTA_ANCHOR} className="mt-14 bg-tea-cream rounded-2xl border border-tea-green-pale p-6 md:p-8">
-            <h2 className="font-serif text-xl font-bold text-tea-text mb-2">{t("ctaTitle")}</h2>
+            <h2 className="font-serif text-xl font-normal text-tea-text mb-2 tracking-display">{t("ctaTitle")}</h2>
             <p className="text-body text-tea-text-muted mb-5">{t("ctaIntro")}</p>
 
             {/* 手機整寬直排、桌機並排。原本是 166×42 的靠左小藥丸，是全頁唯一的出口
@@ -317,7 +317,7 @@ export default async function ArticlePage({ params }: Props) {
                 而車程一樣——這句話對已經決定要上山的人幾乎沒有阻力，客單價卻能翻倍 */}
             {sameDayExps.length > 0 && (
               <div className="mt-7 pt-6 border-t border-tea-green-pale">
-                <h3 className="font-serif text-body-lg font-bold text-tea-text mb-1.5">{t("sameDayTitle")}</h3>
+                <h3 className="font-serif text-body-lg font-semibold text-tea-text mb-1.5">{t("sameDayTitle")}</h3>
                 <p className="text-body text-tea-text-muted mb-4">{t("sameDayIntro")}</p>
                 <ul className="flex flex-wrap gap-2">
                   {sameDayExps.map(exp => (

@@ -30,10 +30,10 @@ export default async function PrivacyPage() {
           <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-tea-green/8 rounded-full" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
+          <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
             {t("hero.label")}
           </p>
-          <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-6">
+          <h1 className="font-serif text-3xl md:text-5xl font-normal text-tea-cream-light mb-6 tracking-display">
             {t("hero.title")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
@@ -49,7 +49,7 @@ export default async function PrivacyPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-tea-cream-dark/30 p-8 md:p-12 space-y-10">
             {SECTION_KEYS.map((key) => (
               <div key={key}>
-                <h2 className="font-serif text-lg font-bold text-tea-text mb-4 pb-2 border-b border-tea-cream-dark/40">
+                <h2 className="font-serif text-lg font-normal text-tea-text mb-4 pb-2 border-b border-tea-cream-dark/40 tracking-display">
                   {t(`sections.${key}.title`)}
                 </h2>
                 <p className="text-sm text-tea-text/70 leading-8 whitespace-pre-line">

@@ -59,8 +59,8 @@ export default function ProductsClient({ products, bundles = [] }: Props) {
             onClick={() => setSelectedCategory(cat)}
             className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
               selectedCategory === cat
-                ? "bg-tea-green text-white shadow-sm"
-                : "bg-white text-tea-text-light hover:bg-tea-green-mist border border-tea-green-pale"
+                ? "bg-tea-green-dark text-white shadow-sm"
+                : "bg-white text-tea-text-muted hover:bg-tea-green-mist border border-tea-green-pale"
             }`}
           >
             {cat === "全部" ? t("filterAll") : cat === "烏龍茶" ? t("categoryOolong") : t("categoryBlack")}
@@ -69,7 +69,7 @@ export default function ProductsClient({ products, bundles = [] }: Props) {
       </div>
 
       {/* Count */}
-      <p className="text-tea-text-light text-sm mb-3 text-center">
+      <p className="text-tea-text-muted text-sm mb-3 text-center">
         {t("countLabel", { count: filtered.length })}
       </p>
 
@@ -95,7 +95,7 @@ export default function ProductsClient({ products, bundles = [] }: Props) {
 
       {filtered.length === 0 && (
         <div className="text-center py-24">
-          <p className="text-tea-text-light text-lg">{t("noResults")}</p>
+          <p className="text-tea-text-muted text-lg">{t("noResults")}</p>
         </div>
       )}
     </div>
