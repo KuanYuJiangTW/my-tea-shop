@@ -78,7 +78,6 @@ const config: Config = {
         cta: {
           tea: "#B34D31",   "tea-dark": "#973317",   "tea-soft": "#FBEFEA",   // 焙火紅：白字 5.22／7.50；淡底 墨字 8.26／次要字 4.55
           visit: "#2A4073", "visit-dark": "#1E2E53", "visit-soft": "#EEF2F9", // 紺：白字 10.10／13.37；淡底 墨字 8.29／次要字 4.57
-          "visit-line": "#D1D8E5",                                            // 紺淡底的區塊邊框（對底 1.28，與 green-pale 對 mist 的 1.26 同級）
         },
 
         // 狀態語意色 —— 刻意不放進 tea-*。

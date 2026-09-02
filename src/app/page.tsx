@@ -265,8 +265,10 @@ export default async function HomePage() {
 
       {/* 季節限定條帶 —— 只在季節中出現，見上方 seasonalExp 的說明 */}
       {seasonalExp && (
-        // 底色 2026-09-02 業主拍板走全暖：green-mist → 紺淡底 → **cream**。
-        // 冷色只留在重音（eyebrow／徽章／外框鈕／預約鈕仍是紺），底色回到暖米。
+        // 底色 2026-09-02 業主拍板：green-mist → 紺淡底 → **cream**（全暖）。
+        // 這一塊只有**實心預約鈕**是紺（那是 f6eeeae 定的體驗線轉換重音）；
+        // eyebrow、季節徽章、外框鈕維持品牌綠——業主選的是「暖底＋綠配件＋紺主鈕」，
+        // 我一度把配件也改成紺，那不是他要的版本，已改回。
         //
         // ⚠️ **下一段「品茶哲學」也是 bg-tea-cream，兩者同色（ΔL 0.000）**，
         // 而下邊框 cream-dark 對 cream 只有 1.08（2.1.2 明寫「邊框會直接消失」）——
@@ -277,7 +279,7 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
             <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
               <div className="flex-1 min-w-0">
-                <p className="text-cta-visit text-xs tracking-[0.25em] uppercase mb-3 font-medium">
+                <p className="text-tea-green-ink text-xs tracking-[0.25em] uppercase mb-3 font-medium">
                   {t("seasonal.label")}
                 </p>
                 {/* 名稱與倒數徽章並排：稀缺性要跟商品名一起被讀到才有作用 */}
@@ -303,7 +305,7 @@ export default async function HomePage() {
                 {seasonalGuide && (
                   <Link
                     href={lp(`/tea-guide/${seasonalGuide.slug}`)}
-                    className="border-2 border-cta-visit text-cta-visit hover:bg-cta-visit hover:text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard"
+                    className="border-2 border-tea-green-ink text-tea-green-ink hover:bg-tea-green-ink hover:text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard"
                   >
                     {t("seasonal.guideBtn")}
                   </Link>
