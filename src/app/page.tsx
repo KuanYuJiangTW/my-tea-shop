@@ -265,12 +265,15 @@ export default async function HomePage() {
 
       {/* 季節限定條帶 —— 只在季節中出現，見上方 seasonalExp 的說明 */}
       {seasonalExp && (
-        // 底色 2026-09-02 從 green-mist 改為紺淡底。這一塊是**體驗線**的入口，
-        // 右邊的預約鈕已經是紺色——整塊（底、邊框、eyebrow、外框鈕、徽章）收斂成
-        // 同一個紺家族之後，冷色才有理由：阿里山的雲海晨霧正好是這個體驗在賣的東西。
-        // 原本的 green-mist 與全站米底同明度（皆 L.957）、色相卻差 79°，
-        // 做不出層次只做出色塊，而且綠底配紺鈕是兩個不同家族的冷色擠在一起。
-        <section className="bg-cta-visit-soft border-y border-cta-visit-line">
+        // 底色 2026-09-02 業主拍板走全暖：green-mist → 紺淡底 → **cream**。
+        // 冷色只留在重音（eyebrow／徽章／外框鈕／預約鈕仍是紺），底色回到暖米。
+        //
+        // ⚠️ **下一段「品茶哲學」也是 bg-tea-cream，兩者同色（ΔL 0.000）**，
+        // 而下邊框 cream-dark 對 cream 只有 1.08（2.1.2 明寫「邊框會直接消失」）——
+        // 所以這條的**下緣會融進下一段**。這是業主明確選的版本，不是疏漏；
+        // 若日後覺得條帶不夠獨立，最小修法是改 `bg-tea-cream-light`
+        // （與下一段有 ΔL +.020 的落差，次要字對比還從 4.52 升到 4.80）。
+        <section className="bg-tea-cream border-y border-tea-cream-dark">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
             <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
               <div className="flex-1 min-w-0">
