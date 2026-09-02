@@ -254,7 +254,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-serif text-3xl font-normal text-tea-text mb-3 tracking-display">{t("divergence.insightTitle")}</h2>
-          <p className="text-tea-text-muted leading-relaxed max-w-2xl mx-auto mb-10">
+          <p className="text-tea-text-muted text-body max-w-2xl mx-auto mb-10">
             {t("divergence.insightDesc")}
           </p>
           <div className="flex flex-col md:flex-row items-stretch gap-3 text-left">
@@ -480,10 +480,10 @@ export default function ProcessContent({ experiences, contents }: Props) {
                             </div>
 
                             {skipped ? (
-                              <p className="text-tea-text-muted leading-relaxed">{copy.skipReason}</p>
+                              <p className="text-tea-text-muted text-body">{copy.skipReason}</p>
                             ) : (
                               <>
-                                <p className="text-tea-text-muted leading-relaxed mb-4">{copy.desc}</p>
+                                <p className="text-tea-text-muted text-body mb-4">{copy.desc}</p>
                                 <div className="inline-flex items-start gap-2 bg-white/70 rounded-2xl px-4 py-2">
                                   <svg
                                     width="14"
@@ -515,7 +515,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
           {/* 工藝取捨 */}
           <div className="bg-tea-cream rounded-3xl p-7 md:p-9 mt-12">
             <h2 className="font-serif text-2xl font-normal text-tea-text mb-3 tracking-display">{t("craftNote.title")}</h2>
-            <p className="text-tea-text-muted leading-relaxed mb-6">{t(`craftNote.${activeTea}`)}</p>
+            <p className="text-tea-text-muted text-body mb-6">{t(`craftNote.${activeTea}`)}</p>
             <div className="border-t border-tea-green-pale/60 pt-5">
               <h3 className="font-serif text-lg font-semibold text-tea-text mb-2">{t("craftNote.roastTitle")}</h3>
               <p className="text-tea-text-muted leading-relaxed text-sm">{t("craftNote.roastNote")}</p>

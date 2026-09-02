@@ -91,7 +91,7 @@ export default async function WebDesignPage() {
               key={item.scenario}
               className="bg-white rounded-xl border border-tea-green-pale/40 p-6"
             >
-              <p className="text-tea-text-muted italic leading-relaxed mb-2">{item.scenario}</p>
+              <p className="text-tea-text-muted italic text-body mb-2">{item.scenario}</p>
               <p className="text-tea-green-ink font-semibold text-sm">{item.note}</p>
             </div>
           ))}

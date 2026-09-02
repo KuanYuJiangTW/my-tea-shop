@@ -49,7 +49,7 @@ export default async function WebDesignCasePage() {
         <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text text-center mb-8 tracking-display">
           {t("starting.sectionTitle")}
         </h2>
-        <p className="text-tea-text-muted leading-relaxed mb-6">{t("starting.intro")}</p>
+        <p className="text-tea-text-muted text-body mb-6">{t("starting.intro")}</p>
         <ul className="space-y-3">
           {startingItems.map((item) => (
             <li

@@ -88,13 +88,13 @@ export default async function AboutPage() {
                 {t("story.title")}
               </h2>
               <div className="w-10 h-0.5 bg-tea-green mb-7" />
-              <p className="text-tea-text-muted leading-relaxed mb-5">
+              <p className="text-tea-text-muted text-body mb-5">
                 {t("story.p1")}
               </p>
-              <p className="text-tea-text-muted leading-relaxed mb-5">
+              <p className="text-tea-text-muted text-body mb-5">
                 {t("story.p2")}
               </p>
-              <p className="text-tea-text-muted leading-relaxed mb-8">
+              <p className="text-tea-text-muted text-body mb-8">
                 {t("story.p3")}
               </p>
               <Link
@@ -149,7 +149,7 @@ export default async function AboutPage() {
                 <h3 className="font-serif text-2xl font-semibold text-tea-text mb-4">
                   {t(`values.${key}.title`)}
                 </h3>
-                <p className="text-tea-text-muted leading-relaxed">
+                <p className="text-tea-text-muted text-body">
                   {t(`values.${key}.desc`)}
                 </p>
               </div>

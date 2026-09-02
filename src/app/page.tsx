@@ -225,7 +225,13 @@ export default async function HomePage() {
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-3 sm:mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-normal text-tea-cream-light mb-7 sm:mb-6 leading-none tracking-display">
+            {/* 字級 128px → 60px（`md:text-9xl` → `md:text-6xl`）。
+                實測 17 個高質感品牌，整頁最大字級的樣本上限是 Belmond 的 64px，
+                中位數約 28px（Aman 31／虎屋 28／Loro Piana 26／一保堂 21）。
+                128px 是樣本上限的兩倍，靠字級撐場面是賣場的做法——
+                這些品牌的視覺衝擊來自攝影，不是來自字。
+                手機維持 text-5xl(48px) 不動：小螢幕的品牌名本來就要夠大才立得住。 */}
+            <h1 className="font-serif text-5xl sm:text-6xl font-normal text-tea-cream-light mb-7 sm:mb-6 leading-none tracking-display">
               {t("hero.title")}
             </h1>
             <div className="hidden sm:block w-16 h-0.5 bg-tea-green-pale mb-7" />

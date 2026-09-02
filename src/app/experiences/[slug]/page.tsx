@@ -260,7 +260,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
             {/* 簡介 */}
             {content.tagline && (
-              <p className="text-tea-text-muted leading-relaxed">{(isEn && content.taglineEn) ? content.taglineEn : content.tagline}</p>
+              <p className="text-tea-text-muted text-body">{(isEn && content.taglineEn) ? content.taglineEn : content.tagline}</p>
             )}
 
             {/* 包含項目 */}
