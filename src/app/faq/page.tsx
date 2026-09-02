@@ -94,7 +94,7 @@ export default async function FaqPage() {
           <p className="text-tea-text-muted text-sm mb-5">{t("moreQuestionsDesc")}</p>
           <Link
             href={lp("/contact")}
-            className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-7 py-2.5 rounded-full text-sm font-medium transition-colors inline-block"
+            className="bg-tea-text hover:bg-tea-text-deep text-white px-7 py-2.5 rounded-full text-sm font-medium transition-colors inline-block"
           >
             {t("contactBtn")}
           </Link>

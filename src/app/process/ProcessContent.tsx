@@ -537,7 +537,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
               </div>
               <Link
                 href={lp("/products")}
-                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-7 py-3 rounded-full font-medium transition-colors motion-reduce:transition-none text-center shrink-0"
+                className="bg-tea-text hover:bg-tea-text-deep text-white px-7 py-3 rounded-full font-medium transition-colors motion-reduce:transition-none text-center shrink-0"
               >
                 {t("productCta.label")}
               </Link>
@@ -724,7 +724,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
             <div className="text-center mt-10">
               <Link
                 href={lp("/experiences")}
-                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-9 py-3.5 rounded-full font-medium transition-colors"
+                className="bg-tea-text hover:bg-tea-text-deep text-white px-9 py-3.5 rounded-full font-medium transition-colors"
               >
                 {t("experienceCta.viewAll")}
               </Link>
@@ -755,7 +755,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
           </div>
           <Link
             href={lp("/products")}
-            className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-9 py-3.5 rounded-full font-medium transition-colors"
+            className="bg-tea-text hover:bg-tea-text-deep text-white px-9 py-3.5 rounded-full font-medium transition-colors"
           >
             {t("shopCta")}
           </Link>

@@ -99,7 +99,7 @@ export default async function AboutPage() {
               </p>
               <Link
                 href={lp("/products")}
-                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-full font-medium transition-colors"
+                className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3.5 rounded-full font-medium transition-colors"
               >
                 {t("story.shopCta")}
               </Link>
@@ -233,7 +233,7 @@ export default async function AboutPage() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href={lp("/products")}
-              className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-full font-medium transition-colors"
+              className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3.5 rounded-full font-medium transition-colors"
             >
               {t("cta.shopBtn")}
             </Link>

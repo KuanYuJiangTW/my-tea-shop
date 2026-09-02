@@ -339,7 +339,7 @@ export default function ParticipantsPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-8 py-2.5 bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white rounded-full text-sm font-medium transition-colors"
+                  className="px-8 py-2.5 bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white rounded-full text-sm font-medium transition-colors"
                 >
                   {submitting ? "送出中…" : `儲存第 ${(info?.filled ?? 0) + 1} 位參加者`}
                 </button>

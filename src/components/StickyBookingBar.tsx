@@ -111,7 +111,7 @@ export default function StickyBookingBar({
           type="button"
           onClick={jump}
           tabIndex={visible ? undefined : -1}
-          className="text-label font-medium px-6 py-2.5 rounded-pill bg-tea-green-ink text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard shadow-resting"
+          className="text-label font-medium px-6 py-2.5 rounded-pill bg-cta-visit text-white hover:bg-cta-visit-dark transition-colors duration-base ease-standard shadow-resting"
         >
           {t("viewSessions")}
         </button>

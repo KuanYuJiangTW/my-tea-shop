@@ -109,7 +109,7 @@ export default async function WebDesignCasePage() {
         <div className="flex flex-wrap justify-center gap-3">
           <Link
             href={lp("/web-design")}
-            className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3 rounded-full text-sm font-medium transition-colors"
+            className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3 rounded-full text-sm font-medium transition-colors"
           >
             {t("cta.pricingButton")}
           </Link>

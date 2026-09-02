@@ -100,7 +100,7 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
               href={lineUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3 rounded-full text-sm font-medium transition-colors mb-4"
+              className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3 rounded-full text-sm font-medium transition-colors mb-4"
             >
               {t("lineButton")}
             </a>
@@ -289,7 +289,7 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="w-full bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white py-3.5 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white py-3.5 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2"
       >
         {status === "submitting" ? (
           <>

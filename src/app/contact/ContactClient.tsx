@@ -150,7 +150,7 @@ export default function ContactClient() {
               <p className="text-tea-text-muted text-body mb-8">{t("form.successDesc")}</p>
               <button
                 onClick={() => { setStatus("idle"); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3 rounded-pill text-label font-medium transition-colors duration-base ease-standard"
+                className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3 rounded-pill text-label font-medium transition-colors duration-base ease-standard"
               >
                 {t("form.sendAgain")}
               </button>
@@ -253,7 +253,7 @@ export default function ContactClient() {
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white py-3.5 rounded-control font-medium text-label transition-colors duration-base ease-standard flex items-center justify-center gap-2"
+                className="w-full bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white py-3.5 rounded-control font-medium text-label transition-colors duration-base ease-standard flex items-center justify-center gap-2"
               >
                 {status === "submitting" ? (
                   <>

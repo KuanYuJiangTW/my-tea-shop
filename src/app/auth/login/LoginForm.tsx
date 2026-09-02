@@ -175,7 +175,7 @@ export default function LoginForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
+                className="w-full py-3 bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
               >
                 {loading ? t("loggingIn") : t("loginBtn")}
               </button>
@@ -223,7 +223,7 @@ export default function LoginForm() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors"
+                  className="w-full py-3 bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors"
                 >
                   {loading ? t("sending") : t("sendLink")}
                 </button>

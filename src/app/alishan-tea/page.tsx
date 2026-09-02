@@ -197,7 +197,7 @@ export default async function AlishanTeaPage() {
         <div className="flex flex-wrap gap-4 justify-center mt-14">
           <Link
             href={lp("/products")}
-            className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-full font-medium transition-colors shadow-sm"
+            className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3.5 rounded-full font-medium transition-colors shadow-sm"
           >
             {c.ctaProducts}
           </Link>

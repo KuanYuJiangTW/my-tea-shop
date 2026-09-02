@@ -560,7 +560,7 @@ export default function CheckoutClient() {
               {" "}{t("codSuccess.noEmailSuffix")}
             </p>
           )}
-          <Link href={lp("/")} className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-pill font-medium transition-colors">
+          <Link href={lp("/")} className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3.5 rounded-pill font-medium transition-colors">
             {t("codSuccess.backHome")}
           </Link>
         </div>
@@ -1028,7 +1028,7 @@ export default function CheckoutClient() {
                         </button>
                       )}
                       <button type="button" onClick={handleApplyCoupon}
-                        className="px-3 py-2 bg-tea-green-dark hover:bg-tea-green-ink text-white text-caption rounded-inline transition-colors whitespace-nowrap">
+                        className="px-3 py-2 bg-tea-text hover:bg-tea-text-deep text-white text-caption rounded-inline transition-colors whitespace-nowrap">
                         {t("applyCoupon")}
                       </button>
                     </div>

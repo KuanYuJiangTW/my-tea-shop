@@ -248,7 +248,7 @@ export default async function HomePage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 href={lp("/products")}
-                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-6 py-3 text-label sm:px-8 sm:py-3.5 sm:text-base rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
+                className="bg-tea-text hover:bg-tea-text-deep text-white px-6 py-3 text-label sm:px-8 sm:py-3.5 sm:text-base rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
               >
                 {t("hero.exploreBtn")}
               </Link>
@@ -485,7 +485,7 @@ export default async function HomePage() {
               <div className="text-center mt-8">
                 <Link
                   href={lp("/experiences")}
-                  className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3 rounded-pill font-medium transition-colors inline-block"
+                  className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3 rounded-pill font-medium transition-colors inline-block"
                 >
                   {t("experiences.viewAllCount", { count: experiences.length })}
                 </Link>
@@ -554,7 +554,7 @@ export default async function HomePage() {
           </div>
           <Link
             href={lp("/process")}
-            className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-9 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
+            className="bg-tea-text hover:bg-tea-text-deep text-white px-9 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
           >
             {t("process.exploreBtn")}
           </Link>

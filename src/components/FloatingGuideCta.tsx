@@ -112,7 +112,7 @@ export default function FloatingGuideCta({
         <Link
           href={bookHref}
           tabIndex={visible ? undefined : -1}
-          className="flex-1 text-center text-label font-medium px-3 py-2.5 rounded-pill bg-tea-green-ink text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard shadow-resting"
+          className="flex-1 text-center text-label font-medium px-3 py-2.5 rounded-pill bg-cta-visit text-white hover:bg-cta-visit-dark transition-colors duration-base ease-standard shadow-resting"
         >
           {t("floatingBook")}
         </Link>

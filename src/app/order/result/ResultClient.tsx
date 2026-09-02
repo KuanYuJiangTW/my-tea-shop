@@ -164,7 +164,7 @@ function ResultContent() {
             {paypalOrderId && (
               <>
                 <button onClick={handlePaypalRetry} disabled={paypalRetrying || paypalCancelling}
-                  className="bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+                  className="bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                   {paypalRetrying ? t("paypalProcessing") : t("paypalRetry")}
                 </button>
                 <button onClick={handlePaypalCancelOrder} disabled={paypalRetrying || paypalCancelling}
@@ -198,7 +198,7 @@ function ResultContent() {
           <p className="text-red-400 text-label mb-6">{paypalError}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href={lp("/")}
-              className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+              className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
               {t("backHome")}
             </Link>
             <Link href={lp("/contact")}
@@ -311,7 +311,7 @@ function ResultContent() {
           {isBooking && isSuccess ? (
             <>
               <Link href={lp("/account?tab=bookings")}
-                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+                className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                 {t("viewBookings")}
               </Link>
               <Link href={lp("/experiences")}
@@ -322,7 +322,7 @@ function ResultContent() {
           ) : (
             <>
               <Link href={lp("/")}
-                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
+                className="bg-tea-text hover:bg-tea-text-deep text-white px-8 py-3.5 rounded-pill font-medium transition-colors duration-base ease-standard">
                 {t("backHome")}
               </Link>
               {!isSuccess && (

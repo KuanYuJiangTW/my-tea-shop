@@ -124,7 +124,7 @@ function RegisterForm() {
 
           <Link
             href={lp("/auth/login")}
-            className="inline-block px-8 py-3 bg-tea-green-dark hover:bg-tea-green-ink text-white rounded-full font-medium text-sm transition-colors"
+            className="inline-block px-8 py-3 bg-tea-text hover:bg-tea-text-deep text-white rounded-full font-medium text-sm transition-colors"
           >
             {t("success.goLogin")}
           </Link>
@@ -254,7 +254,7 @@ function RegisterForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
+              className="w-full py-3 bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white rounded-full font-medium text-sm transition-colors mt-2"
             >
               {loading ? t("registering") : t("registerBtn")}
             </button>

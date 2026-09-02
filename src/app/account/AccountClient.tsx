@@ -647,7 +647,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                         type="button"
                         onClick={handleBindEmail}
                         disabled={emailSaving}
-                        className="px-4 py-2 bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
+                        className="px-4 py-2 bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
                       >
                         {emailSaving ? t("profile.emailBinding") : t("profile.emailBind")}
                       </button>
@@ -703,7 +703,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-7 py-2.5 bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white rounded-full text-sm font-medium transition-colors"
+                  className="px-7 py-2.5 bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white rounded-full text-sm font-medium transition-colors"
                 >
                   {saving ? t("profile.saving") : t("profile.save")}
                 </button>
@@ -788,7 +788,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                           {isConfirmed && (
                             <Link
                               href={lp(`/account/bookings/${booking.id}/participants`)}
-                              className="px-4 py-2 bg-tea-green-dark hover:bg-tea-green-ink text-white text-sm font-medium rounded-full transition-colors text-center"
+                              className="px-4 py-2 bg-tea-text hover:bg-tea-text-deep text-white text-sm font-medium rounded-full transition-colors text-center"
                             >
                               {t("bookings.fillInfo")}
                             </Link>
@@ -797,7 +797,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                             <button
                               onClick={() => handleRetryPayment(booking.id)}
                               disabled={retryingId === booking.id}
-                              className="px-4 py-2 bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white text-sm font-medium rounded-full transition-colors"
+                              className="px-4 py-2 bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white text-sm font-medium rounded-full transition-colors"
                             >
                               {retryingId === booking.id ? t("bookings.retrying") : t("bookings.retryPayment")}
                             </button>
@@ -865,7 +865,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                       {w.status === "notified" && (
                         <a
                           href={lp(`/waitlist/${w.id}/confirm`)}
-                          className="px-4 py-2 bg-tea-green-dark hover:bg-tea-green-ink text-white text-sm font-medium rounded-full transition-colors"
+                          className="px-4 py-2 bg-tea-text hover:bg-tea-text-deep text-white text-sm font-medium rounded-full transition-colors"
                         >
                           {t("waitlist.confirm")}
                         </a>
@@ -1176,7 +1176,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                                 <button
                                   onClick={() => handleOrderRetry(order.id, order.payment_method)}
                                   disabled={orderRetryingId === order.id}
-                                  className="bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors"
+                                  className="bg-tea-text hover:bg-tea-text-deep disabled:opacity-60 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors"
                                 >
                                   {orderRetryingId === order.id ? t("orders.retrying") : t("orders.retryPayment")}
                                 </button>
@@ -1258,7 +1258,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                   )}
                   <button
                     onClick={() => { setCancelBookingId(null); setCancelBookingResult(null); }}
-                    className="w-full px-4 py-2.5 rounded-xl bg-tea-green-dark hover:bg-tea-green-ink text-white text-sm font-medium transition"
+                    className="w-full px-4 py-2.5 rounded-xl bg-tea-text hover:bg-tea-text-deep text-white text-sm font-medium transition"
                   >
                     {t("modal.confirm")}
                   </button>
@@ -1357,7 +1357,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
               <button
                 onClick={handleSubmitReview}
                 disabled={reviewSubmitting}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green-dark hover:bg-tea-green-ink text-white text-sm font-medium transition disabled:opacity-60"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-tea-text hover:bg-tea-text-deep text-white text-sm font-medium transition disabled:opacity-60"
               >
                 {reviewSubmitting ? t("modal.submitting") : t("modal.submitReview")}
               </button>
@@ -1410,7 +1410,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
                 <button
                   type="submit"
                   disabled={savingAddress}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-tea-green-dark hover:bg-tea-green-ink text-white text-sm font-medium transition disabled:opacity-60"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-tea-text hover:bg-tea-text-deep text-white text-sm font-medium transition disabled:opacity-60"
                 >
                   {savingAddress ? t("modal.editAddressSaving") : t("modal.editAddressSave")}
                 </button>
