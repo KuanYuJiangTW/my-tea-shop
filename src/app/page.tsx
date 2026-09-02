@@ -265,11 +265,16 @@ export default async function HomePage() {
 
       {/* 季節限定條帶 —— 只在季節中出現，見上方 seasonalExp 的說明 */}
       {seasonalExp && (
-        <section className="bg-tea-green-mist border-y border-tea-green-pale">
+        // 底色 2026-09-02 從 green-mist 改為紺淡底。這一塊是**體驗線**的入口，
+        // 右邊的預約鈕已經是紺色——整塊（底、邊框、eyebrow、外框鈕、徽章）收斂成
+        // 同一個紺家族之後，冷色才有理由：阿里山的雲海晨霧正好是這個體驗在賣的東西。
+        // 原本的 green-mist 與全站米底同明度（皆 L.957）、色相卻差 79°，
+        // 做不出層次只做出色塊，而且綠底配紺鈕是兩個不同家族的冷色擠在一起。
+        <section className="bg-cta-visit-soft border-y border-cta-visit-line">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
             <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
               <div className="flex-1 min-w-0">
-                <p className="text-tea-green-ink text-xs tracking-[0.25em] uppercase mb-3 font-medium">
+                <p className="text-cta-visit text-xs tracking-[0.25em] uppercase mb-3 font-medium">
                   {t("seasonal.label")}
                 </p>
                 {/* 名稱與倒數徽章並排：稀缺性要跟商品名一起被讀到才有作用 */}
@@ -295,7 +300,7 @@ export default async function HomePage() {
                 {seasonalGuide && (
                   <Link
                     href={lp(`/tea-guide/${seasonalGuide.slug}`)}
-                    className="border-2 border-tea-green-ink text-tea-green-ink hover:bg-tea-green-ink hover:text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard"
+                    className="border-2 border-cta-visit text-cta-visit hover:bg-cta-visit hover:text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard"
                   >
                     {t("seasonal.guideBtn")}
                   </Link>
