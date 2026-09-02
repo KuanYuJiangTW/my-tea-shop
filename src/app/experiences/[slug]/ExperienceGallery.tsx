@@ -39,7 +39,7 @@ export default function ExperienceGallery({
   return (
     <>
       <div>
-        <h2 className="font-serif text-xl font-bold text-tea-text mb-4">{t("gallery")}</h2>
+        <h2 className="font-serif text-xl font-normal text-tea-text mb-4">{t("gallery")}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {gallery.map((url, idx) => (
             <button

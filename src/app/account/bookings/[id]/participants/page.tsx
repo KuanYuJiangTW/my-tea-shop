@@ -188,7 +188,7 @@ export default function ParticipantsPage() {
           我的預約
         </Link>
 
-        <h1 className="font-serif text-2xl font-bold text-tea-text mb-1">補填參加者資料</h1>
+        <h1 className="font-serif text-2xl font-normal text-tea-text mb-1">補填參加者資料</h1>
         <p className="text-sm text-tea-text-muted mb-6">活動當天須核對身分，請確認資料正確無誤。</p>
 
         {/* Progress */}

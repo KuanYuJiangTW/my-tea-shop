@@ -45,7 +45,7 @@ export default function BundleCard({ bundle }: { bundle: Bundle }) {
         <p className="text-tea-green-ink font-medium tracking-[0.2em] text-caption uppercase mb-2">
           {t("eyebrow")}
         </p>
-        <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">
+        <h3 className="font-serif text-2xl font-semibold text-tea-text mb-2">
           {isEn ? bundle.nameEn || bundle.name : bundle.name}
         </h3>
         <p className="text-label text-tea-text-muted mb-4 flex-1">

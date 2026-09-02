@@ -190,7 +190,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
       {/* 場次摘要 */}
       <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm mb-6">
         <p className="text-tea-green-ink text-xs tracking-widest uppercase mb-1">{exp.nameEn}</p>
-        <h2 className="font-serif text-2xl font-bold text-tea-text mb-4">{exp.name}</h2>
+        <h2 className="font-serif text-2xl font-normal text-tea-text mb-4">{exp.name}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="flex items-start gap-2 text-tea-text-muted">
             <Calendar className="w-4 h-4 text-tea-green-ink mt-0.5 shrink-0" />
@@ -229,7 +229,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
             <AlertCircle className="w-4 h-4 shrink-0" />
             {t("waitlist.fullNotice")}
           </div>
-          <h3 className="font-serif text-lg font-bold text-tea-text mb-5">{t("waitlist.title")}</h3>
+          <h3 className="font-serif text-lg font-semibold text-tea-text mb-5">{t("waitlist.title")}</h3>
 
           {/* 候補人數 */}
           <div className="flex items-center gap-6 mb-5">
@@ -289,7 +289,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
       {isFull && waitlistDone && (
         <div className="bg-white rounded-2xl p-8 border border-tea-green-pale/50 shadow-sm text-center">
           <div className="text-4xl mb-4">🎋</div>
-          <h3 className="font-serif text-xl font-bold text-tea-text mb-2">{t("waitlist.successTitle")}</h3>
+          <h3 className="font-serif text-xl font-semibold text-tea-text mb-2">{t("waitlist.successTitle")}</h3>
           <p className="text-sm text-tea-text-muted mb-6">{t("waitlist.successDesc")}</p>
           <button onClick={() => router.push(lp("/account?tab=bookings"))} className="text-sm text-tea-green-ink hover:underline">{t("waitlist.viewWaitlist")}</button>
         </div>
@@ -298,7 +298,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
       {/* Step 1：選人數 */}
       {!isFull && step === 1 && (
         <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
-          <h3 className="font-serif text-lg font-bold text-tea-text mb-6">{t("selectParticipants")}</h3>
+          <h3 className="font-serif text-lg font-semibold text-tea-text mb-6">{t("selectParticipants")}</h3>
 
           {/* 人數選擇器 */}
           <div className="flex items-center gap-6 mb-6">
@@ -424,7 +424,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
           >
             {t("back")}
           </button>
-          <h3 className="font-serif text-lg font-bold text-tea-text mb-6">{t("bookerInfo")}</h3>
+          <h3 className="font-serif text-lg font-semibold text-tea-text mb-6">{t("bookerInfo")}</h3>
 
           <div className="space-y-4 mb-6">
             <div>

@@ -46,7 +46,7 @@ export default async function AboutPage() {
           <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
             {t("hero.sectionLabel")}
           </p>
-          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-tea-cream-light mb-6">
+          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-normal text-tea-cream-light mb-6">
             {t("hero.title")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
@@ -84,7 +84,7 @@ export default async function AboutPage() {
 
             {/* Text */}
             <div>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-6">
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-6">
                 {t("story.title")}
               </h2>
               <div className="w-10 h-0.5 bg-tea-green mb-7" />
@@ -115,7 +115,7 @@ export default async function AboutPage() {
             <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase font-medium mb-3">
               {t("gallery.sectionLabel")}
             </p>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-3">
+            <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3">
               {t("gallery.sectionLabel")}
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto mb-4" />
@@ -132,7 +132,7 @@ export default async function AboutPage() {
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">
+            <h2 className="font-serif text-4xl font-normal text-tea-text mb-3">
               {t("values.sectionLabel")}
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto" />
@@ -146,7 +146,7 @@ export default async function AboutPage() {
                 <div className="text-tea-green-ink font-bold text-sm tracking-widest mb-3">
                   {String(i + 1).padStart(2, "0")}
                 </div>
-                <h3 className="font-serif text-2xl font-bold text-tea-text mb-4">
+                <h3 className="font-serif text-2xl font-semibold text-tea-text mb-4">
                   {t(`values.${key}.title`)}
                 </h3>
                 <p className="text-tea-text-muted leading-relaxed">
@@ -162,7 +162,7 @@ export default async function AboutPage() {
       <section className="py-16 md:py-24 bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="font-serif text-4xl font-bold text-tea-text mb-3">
+            <h2 className="font-serif text-4xl font-normal text-tea-text mb-3">
               {t("teas.title")}
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
@@ -179,7 +179,7 @@ export default async function AboutPage() {
                 <span className="text-xs text-tea-green-ink bg-white/70 px-3 py-1 rounded-full font-medium">
                   {t(`teas.${key}.flavor`)}
                 </span>
-                <h3 className="font-serif text-lg font-bold text-tea-text mt-4 mb-3">
+                <h3 className="font-serif text-lg font-semibold text-tea-text mt-4 mb-3">
                   {t(`teas.${key}.name`)}
                 </h3>
                 <p className="text-tea-text-muted text-xs leading-relaxed">
@@ -194,13 +194,13 @@ export default async function AboutPage() {
       {/* Contact */}
       <section className="py-16 md:py-24 bg-tea-text">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-serif text-4xl font-bold text-tea-cream-light mb-6">
+          <h2 className="font-serif text-4xl font-normal text-tea-cream-light mb-6">
             {t("contact.sectionLabel")}
           </h2>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-10" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left mb-10">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-colors">
-              <h3 className="font-serif text-lg font-bold text-tea-cream-light mb-5">{t("contact.contactInfo")}</h3>
+              <h3 className="font-serif text-lg font-semibold text-tea-cream-light mb-5">{t("contact.contactInfo")}</h3>
               <div className="space-y-4 text-tea-green-pale text-sm">
                 <p>
                   <span className="text-tea-green-pale font-medium block mb-1">{t("contact.address.label")}</span>
@@ -217,7 +217,7 @@ export default async function AboutPage() {
               </div>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-colors">
-              <h3 className="font-serif text-lg font-bold text-tea-cream-light mb-5">{t("contact.social.label")}</h3>
+              <h3 className="font-serif text-lg font-semibold text-tea-cream-light mb-5">{t("contact.social.label")}</h3>
               <div className="space-y-4 text-tea-green-pale text-sm">
                 <p>
                   <span className="text-tea-green-pale font-medium block mb-1">{t("contact.social.searchLabel")}</span>

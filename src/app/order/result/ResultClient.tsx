@@ -29,7 +29,7 @@ function VerifyingPayment({ title, hint }: { title: string; hint: string }) {
             <circle cx="12" cy="12" r="10" strokeOpacity="0.25" /><path d="M12 2a10 10 0 0110 10" />
           </svg>
         </div>
-        <h2 className="font-serif text-2xl font-bold text-tea-text mb-3">{title}</h2>
+        <h2 className="font-serif text-2xl font-normal text-tea-text mb-3">{title}</h2>
         <p className="text-body text-tea-text-muted">{hint}</p>
       </div>
     </div>
@@ -156,7 +156,7 @@ function ResultContent() {
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
-          <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paypalCancelTitle")}</h2>
+          <h2 className="font-serif text-3xl font-normal text-tea-text mb-3">{t("paypalCancelTitle")}</h2>
           <p className="text-body text-tea-text-muted mb-2">{t("paypalCancelDesc")}</p>
           <p className="text-body text-amber-600 mb-8 bg-amber-50 rounded-control p-3">{t("paypalCancelPointsHint")}</p>
           {paypalError && <p className="text-red-400 text-label mb-3">{paypalError}</p>}
@@ -193,7 +193,7 @@ function ResultContent() {
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </div>
-          <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paypalCaptureFailed")}</h2>
+          <h2 className="font-serif text-3xl font-normal text-tea-text mb-3">{t("paypalCaptureFailed")}</h2>
           <p className="text-body text-tea-text-muted mb-2">{t("paypalCaptureFailedDesc")}</p>
           <p className="text-red-400 text-label mb-6">{paypalError}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -225,7 +225,7 @@ function ResultContent() {
 
             {isBooking ? (
               <>
-                <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("bookingSuccess")}</h2>
+                <h2 className="font-serif text-3xl font-normal text-tea-text mb-3">{t("bookingSuccess")}</h2>
                 <p className="text-body text-tea-text-muted mb-2">{t("bookingSuccessDesc")}</p>
                 {tradeNo && (
                   <p className="text-caption text-tea-text-muted mb-2">
@@ -262,7 +262,7 @@ function ResultContent() {
               </>
             ) : (
               <>
-                <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("orderSuccess")}</h2>
+                <h2 className="font-serif text-3xl font-normal text-tea-text mb-3">{t("orderSuccess")}</h2>
                 <p className="text-body text-tea-text-muted mb-2">{t("orderSuccessDesc")}</p>
                 {tradeNo && (
                   <p className="text-caption text-tea-text-muted mb-2">
@@ -302,7 +302,7 @@ function ResultContent() {
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </div>
-            <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("paymentFailed")}</h2>
+            <h2 className="font-serif text-3xl font-normal text-tea-text mb-3">{t("paymentFailed")}</h2>
             <p className="text-body text-tea-text-muted mb-10">{rtnMsg || t("paymentFailedDefault")}</p>
           </>
         )}

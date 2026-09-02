@@ -545,7 +545,7 @@ export default function CheckoutClient() {
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <h2 className="font-serif text-3xl font-bold text-tea-text mb-3">{t("codSuccess.title")}</h2>
+          <h2 className="font-serif text-3xl font-normal text-tea-text mb-3">{t("codSuccess.title")}</h2>
           <p className="text-tea-text-muted mb-2">{t("codSuccess.desc")}</p>
           <p className="text-tea-text-muted text-label mb-2">
             {t("codSuccess.deliveryLabel")}{delivery === "home" ? t("codSuccess.homeDelivery") : t("codSuccess.cvsDelivery", { name: cvsName })}
@@ -584,7 +584,7 @@ export default function CheckoutClient() {
   return (
     <div className="min-h-screen bg-tea-cream-light">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
-        <h1 className="font-serif text-3xl md:text-4xl font-bold text-tea-text mb-8 md:mb-10">{t("title")}</h1>
+        <h1 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-8 md:mb-10">{t("title")}</h1>
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -592,7 +592,7 @@ export default function CheckoutClient() {
 
               {/* Contact Info */}
               <div className="bg-white rounded-card p-7 shadow-resting">
-                <h2 className="font-serif text-xl font-bold text-tea-text mb-6">{t("contactInfo")}</h2>
+                <h2 className="font-serif text-xl font-normal text-tea-text mb-6">{t("contactInfo")}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-label font-medium text-tea-text mb-2">{t("name")} *</label>
@@ -624,7 +624,7 @@ export default function CheckoutClient() {
 
               {/* Payment Method */}
               <div className="bg-white rounded-card p-7 shadow-resting">
-                <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("paymentMethod")}</h2>
+                <h2 className="font-serif text-xl font-normal text-tea-text mb-5">{t("paymentMethod")}</h2>
                 {region === "international" && (
                   <p className="text-caption text-amber-600 mb-3">{t("intlPaypalOnly")}</p>
                 )}
@@ -657,7 +657,7 @@ export default function CheckoutClient() {
 
               {/* Delivery Method */}
               <div className="bg-white rounded-card p-7 shadow-resting">
-                <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("deliveryMethod")}</h2>
+                <h2 className="font-serif text-xl font-normal text-tea-text mb-5">{t("deliveryMethod")}</h2>
 
                 {/* Region Selector */}
                 <div className="mb-5">
@@ -990,7 +990,7 @@ export default function CheckoutClient() {
             {/* Order Summary */}
             <div>
               <div className="bg-white rounded-card p-6 shadow-resting sticky top-24">
-                <h2 className="font-serif text-xl font-bold text-tea-text mb-5">{t("orderSummary")}</h2>
+                <h2 className="font-serif text-xl font-normal text-tea-text mb-5">{t("orderSummary")}</h2>
                 <div className="space-y-3 mb-5">
                   {items.map(item => (
                     <div key={item.product.id} className="flex justify-between text-label">

@@ -224,7 +224,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
 
           {/* 茶名 */}
-          <h3 className={`font-serif text-xl font-bold mb-1 group-hover:text-tea-green-ink transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
+          <h3 className={`font-serif text-xl font-semibold mb-1 group-hover:text-tea-green-ink transition-colors leading-snug ${allSoldOut ? "text-tea-text/50" : "text-tea-text"}`}>
             {isEn ? product.nameEn : product.name}
           </h3>
           <p className="text-caption text-tea-text-muted italic mb-2">{isEn ? product.name : product.nameEn}</p>

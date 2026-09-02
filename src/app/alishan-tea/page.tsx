@@ -172,7 +172,7 @@ export default async function AlishanTeaPage() {
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-4">{c.label}</p>
-          <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">{c.title}</h1>
+          <h1 className="font-serif text-3xl md:text-5xl font-normal text-tea-text mb-4">{c.title}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
           <p className="text-tea-text-muted">{c.tagline}</p>
         </div>
@@ -183,7 +183,7 @@ export default async function AlishanTeaPage() {
         <div className="space-y-12">
           {c.sections.map(section => (
             <section key={section.heading}>
-              <h2 className="font-serif text-2xl font-bold text-tea-text mb-4">{section.heading}</h2>
+              <h2 className="font-serif text-2xl font-normal text-tea-text mb-4">{section.heading}</h2>
               <div className="space-y-4">
                 {section.paragraphs.map(p => (
                   <p key={p.slice(0, 20)} className="text-tea-text-muted leading-relaxed">{p}</p>

@@ -550,7 +550,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-serif text-3xl font-bold text-tea-text mb-1">{t("title")}</h1>
+          <h1 className="font-serif text-3xl font-normal text-tea-text mb-1">{t("title")}</h1>
           <p className="text-sm text-tea-text-muted">{user.email || t("profile.noEmail")}</p>
         </div>
 

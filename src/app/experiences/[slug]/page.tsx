@@ -222,7 +222,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 w-full">
             <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-2">{experience.nameEn}</p>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white">{isEn ? experience.nameEn : experience.name}</h1>
+            <h1 className="font-serif text-4xl md:text-5xl font-normal text-white">{isEn ? experience.nameEn : experience.name}</h1>
             <SeasonBadge windows={experience.windows} name={ldName} className="mt-3 shadow-sm" />
           </div>
         </div>
@@ -268,7 +268,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
               const items = (isEn && content.includesEn?.length) ? content.includesEn : content.includes;
               return (
                 <div>
-                  <h2 className="font-serif text-xl font-bold text-tea-text mb-4">{t("includes")}</h2>
+                  <h2 className="font-serif text-xl font-normal text-tea-text mb-4">{t("includes")}</h2>
                   <ul className="space-y-2.5">
                     {items.map(item => (
                       <li key={item} className="flex items-start gap-2.5 text-sm text-tea-text-muted">
@@ -286,7 +286,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
               const items = (isEn && content.notesEn?.length) ? content.notesEn : content.notes;
               return (
                 <div>
-                  <h2 className="font-serif text-xl font-bold text-tea-text mb-4">{t("notes")}</h2>
+                  <h2 className="font-serif text-xl font-normal text-tea-text mb-4">{t("notes")}</h2>
                   <ul className="space-y-2.5">
                     {items.map(note => (
                       <li key={note} className="flex items-start gap-2.5 text-sm text-tea-text-muted">
@@ -332,7 +332,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
             <BirdReport />
 
             <div id="booking" className="scroll-mt-20 bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
-              <h2 className="font-serif text-xl font-bold text-tea-text mb-6">{t("selectSession")}</h2>
+              <h2 className="font-serif text-xl font-normal text-tea-text mb-6">{t("selectSession")}</h2>
               <ExperienceCalendar experience={experience} />
             </div>
 

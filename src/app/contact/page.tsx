@@ -28,7 +28,7 @@ export default async function ContactPage() {
           <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase font-medium mb-3">
             {t("hero.sectionLabel")}
           </p>
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-tea-text mb-3">
+          <h1 className="font-serif text-4xl md:text-5xl font-normal text-tea-text mb-3">
             {t("hero.sectionLabel")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-4" />

@@ -45,7 +45,7 @@ export default async function ProductReviews({
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <h3 className="font-serif text-lg font-bold text-tea-text">{productName}</h3>
+        <h3 className="font-serif text-lg font-semibold text-tea-text">{productName}</h3>
         {showAverage && (
           <div className="flex items-center gap-1.5">
             <Stars rating={Math.round(average)} />

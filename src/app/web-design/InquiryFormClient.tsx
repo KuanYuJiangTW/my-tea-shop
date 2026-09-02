@@ -92,7 +92,7 @@ export default function InquiryFormClient({ lineUrl }: { lineUrl?: string }) {
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
-        <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">{t("successTitle")}</h3>
+        <h3 className="font-serif text-2xl font-semibold text-tea-text mb-2">{t("successTitle")}</h3>
         {lineUrl && (
           <>
             <p className="text-tea-text-muted text-sm mb-6">{t("successLine")}</p>

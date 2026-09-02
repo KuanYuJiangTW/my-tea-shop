@@ -66,7 +66,7 @@ export default function TeaBagCard({ product }: Props) {
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="text-xs text-tea-green-ink font-medium mb-0.5 tracking-wide">{product.origin}</p>
-              <h3 className="font-serif font-bold text-tea-text text-base leading-snug truncate">
+              <h3 className="font-serif font-semibold text-tea-text text-base leading-snug truncate">
                 {product.name}
               </h3>
               <p className="text-xs text-tea-text-muted italic truncate">{product.nameEn}</p>

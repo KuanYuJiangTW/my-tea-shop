@@ -72,7 +72,7 @@ export default async function ProductsPage() {
           <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-4">
             {t("sectionLabel")}
           </p>
-          <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">
+          <h1 className="font-serif text-3xl md:text-5xl font-normal text-tea-text mb-4">
             {t("pageTitle")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
@@ -91,7 +91,7 @@ export default async function ProductsPage() {
         <div className="bg-tea-cream border-t border-tea-green-pale/60">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
             <div className="text-center mb-10">
-              <h2 className="font-serif text-2xl md:text-3xl font-bold text-tea-text">
+              <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text">
                 {t("reviews.sectionTitle")}
               </h2>
               <div className="w-10 h-0.5 bg-tea-green mx-auto my-4" />

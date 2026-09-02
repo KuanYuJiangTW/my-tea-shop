@@ -110,7 +110,7 @@ export default function ContactClient() {
         {/* Left: Info */}
         <div className="lg:col-span-2 space-y-8">
           <div>
-            <h2 className="font-serif text-2xl font-bold text-tea-text mb-5">{t("info.title")}</h2>
+            <h2 className="font-serif text-2xl font-normal text-tea-text mb-5">{t("info.title")}</h2>
             <div className="space-y-5">
               {infoItems.map((item) => (
                 <div key={item.label} className="flex gap-4">
@@ -146,7 +146,7 @@ export default function ContactClient() {
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
-              <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">{t("form.successTitle")}</h3>
+              <h3 className="font-serif text-2xl font-semibold text-tea-text mb-2">{t("form.successTitle")}</h3>
               <p className="text-tea-text-muted text-body mb-8">{t("form.successDesc")}</p>
               <button
                 onClick={() => { setStatus("idle"); setForm({ name: "", email: "", subject: "", message: "" }); }}
@@ -160,7 +160,7 @@ export default function ContactClient() {
               onSubmit={handleSubmit}
               className="bg-white rounded-card shadow-resting border border-tea-green-pale/40 p-8 space-y-5"
             >
-              <h2 className="font-serif text-2xl font-bold text-tea-text mb-1">{t("form.sendTitle")}</h2>
+              <h2 className="font-serif text-2xl font-normal text-tea-text mb-1">{t("form.sendTitle")}</h2>
               <p className="text-tea-text-muted text-body mb-4">{t("form.sendSubtitle")}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

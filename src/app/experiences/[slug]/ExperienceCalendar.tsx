@@ -128,7 +128,7 @@ export default function ExperienceCalendar({ experience }: Props) {
         >
           <ChevronLeft className="w-5 h-5 text-tea-text" />
         </button>
-        <h3 className="font-serif text-lg font-bold text-tea-text">
+        <h3 className="font-serif text-lg font-semibold text-tea-text">
           {t("yearMonth", { year, month })}
         </h3>
         <button
