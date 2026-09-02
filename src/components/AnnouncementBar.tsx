@@ -79,7 +79,13 @@ export default function AnnouncementBar() {
   }
 
   return (
-    <div className="bg-tea-green-dark text-white">
+    // 底色 2026-09-02 從 bg-tea-green-dark(#5C7A67, C.045) 改為墨色(#3D4A42, C.021)。
+    // 這條全站每頁都在、滿版，面積是所有 CTA 加起來的好幾倍——染成重音色會讓
+    // 焙火紅從「點」變成「場」，商品頁那顆加入購物車就不再是唯一的紅。
+    // Blue Bottle 確實用滿彩度品牌藍當公告條，但**他們的按鈕是中性的**，
+    // 藍是全站唯一的彩色；我們已經把彩色給了 CTA，不能再給第二個大面積。
+    // 附帶：白字對比從 4.74 提到 9.31，且與深墨 Footer 呼應成「深色頭＋深色尾」。
+    <div className="bg-tea-text text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* min-h-9 = 36px，與 Footer／「查看全部」同一套觸控標準 */}
         <div className="relative flex items-center justify-center min-h-9 py-1.5 pr-9">
