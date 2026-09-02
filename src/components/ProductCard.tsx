@@ -356,7 +356,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 className={`flex items-center gap-1.5 text-label px-5 py-2.5 rounded-pill font-medium transition-all duration-base ease-standard shadow-resting ${
                   added
                     ? "bg-tea-green-pale text-tea-green-dark scale-95"
-                    : "bg-tea-green-dark hover:bg-tea-green-ink text-white hover:shadow-raised active:scale-95"
+                    : "bg-cta-tea hover:bg-cta-tea-dark text-white hover:shadow-raised active:scale-95"
                 }`}
               >
                 {added ? (

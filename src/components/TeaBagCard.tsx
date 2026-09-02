@@ -92,7 +92,7 @@ export default function TeaBagCard({ product }: Props) {
             className={`flex items-center gap-1.5 text-xs px-4 py-2 rounded-full font-medium transition-all duration-200 shadow-sm ${
               added
                 ? "bg-tea-green-pale text-tea-green-dark scale-95"
-                : "bg-tea-green-dark hover:bg-tea-green-ink text-white hover:shadow-md active:scale-95"
+                : "bg-cta-tea hover:bg-cta-tea-dark text-white hover:shadow-md active:scale-95"
             }`}
           >
             {added ? (

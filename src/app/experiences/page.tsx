@@ -109,7 +109,7 @@ export default async function ExperiencesPage() {
                         NT$ {exp.price.toLocaleString()}
                       </span>
                     </div>
-                    <span className="bg-tea-green-dark text-white text-sm px-5 py-2 rounded-full group-hover:bg-tea-green-dark transition-colors">
+                    <span className="bg-cta-visit text-white text-sm px-5 py-2 rounded-full group-hover:bg-cta-visit-dark transition-colors">
                       {t("viewSessions")}
                     </span>
                   </div>

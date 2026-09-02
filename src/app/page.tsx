@@ -302,7 +302,7 @@ export default async function HomePage() {
                 )}
                 <Link
                   href={lp(`/experiences/${seasonalExp.slug}`)}
-                  className="bg-tea-green-ink hover:bg-tea-green-dark text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
+                  className="bg-cta-visit hover:bg-cta-visit-dark text-white px-6 py-3 rounded-pill font-medium transition-colors duration-base ease-standard shadow-resting"
                 >
                   {t("seasonal.bookBtn")}
                 </Link>

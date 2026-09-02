@@ -407,7 +407,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
           <button
             onClick={() => setStep(2)}
             disabled={exp.requiresAdult && !adultConfirmed}
-            className="w-full bg-tea-green-dark hover:bg-tea-green-ink text-white py-3.5 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full bg-cta-visit hover:bg-cta-visit-dark text-white py-3.5 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {t("nextStep")}
             <ChevronRight className="w-4 h-4" />
@@ -552,7 +552,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-tea-green-dark hover:bg-tea-green-ink text-white py-3.5 rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-cta-visit hover:bg-cta-visit-dark text-white py-3.5 rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? t("processing") : t("payBtn", { amount: finalPrice.toLocaleString() })}
           </button>

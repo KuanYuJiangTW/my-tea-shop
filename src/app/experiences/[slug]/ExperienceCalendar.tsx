@@ -283,7 +283,7 @@ export default function ExperienceCalendar({ experience }: Props) {
                     onClick={() => router.push(lp(`/experiences/booking/${s.id}`))}
                     className={`text-label font-medium px-4 py-2 rounded-control transition-colors duration-base ease-standard ${
                       open
-                        ? "bg-tea-green-dark text-white hover:bg-tea-green-dark cursor-pointer"
+                        ? "bg-cta-visit text-white hover:bg-cta-visit-dark cursor-pointer"
                         : "bg-tea-text-light/10 text-tea-text-muted cursor-not-allowed"
                     }`}
                   >

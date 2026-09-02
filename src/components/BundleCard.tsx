@@ -89,7 +89,7 @@ export default function BundleCard({ bundle }: { bundle: Bundle }) {
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
                 : added
                 ? "bg-tea-green-pale text-tea-green-dark scale-95"
-                : "bg-tea-green-dark hover:bg-tea-green-ink text-white hover:shadow-raised active:scale-95"
+                : "bg-cta-tea hover:bg-cta-tea-dark text-white hover:shadow-raised active:scale-95"
             }`}
           >
             {soldOut ? t("soldOut") : added ? t("added") : t("addToCart")}

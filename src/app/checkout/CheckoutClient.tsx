@@ -1151,7 +1151,7 @@ export default function CheckoutClient() {
                 </div>
                 {error && <p className="text-red-400 text-label text-center mb-3">{error}</p>}
                 <button type="submit" disabled={submitting || (region === "international" && isOverweight)}
-                  className="w-full bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white py-3.5 rounded-pill font-medium transition-colors flex items-center justify-center gap-2">
+                  className="w-full bg-cta-tea hover:bg-cta-tea-dark disabled:opacity-60 text-white py-3.5 rounded-pill font-medium transition-colors flex items-center justify-center gap-2">
                   {submitting ? (
                     <>
                       <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

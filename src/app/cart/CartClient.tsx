@@ -315,14 +315,14 @@ export default function CartClient() {
               {user ? (
                 <Link
                   href={lp("/checkout")}
-                  className="block w-full bg-tea-green-dark hover:bg-tea-green-ink text-white text-center py-3.5 rounded-full font-medium transition-colors"
+                  className="block w-full bg-cta-tea hover:bg-cta-tea-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
                 >
                   {t("checkout")}
                 </Link>
               ) : (
                 <Link
                   href={lp("/auth/login?redirect=" + lp("/checkout"))}
-                  className="block w-full bg-tea-green-dark hover:bg-tea-green-ink text-white text-center py-3.5 rounded-full font-medium transition-colors"
+                  className="block w-full bg-cta-tea hover:bg-cta-tea-dark text-white text-center py-3.5 rounded-full font-medium transition-colors"
                 >
                   {t("loginToCheckout")}
                 </Link>

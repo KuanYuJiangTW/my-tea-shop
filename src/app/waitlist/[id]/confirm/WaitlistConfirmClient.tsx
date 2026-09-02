@@ -89,7 +89,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
             </div>
             <button
               onClick={() => router.push(lp("/account?tab=bookings"))}
-              className="w-full bg-tea-green-dark hover:bg-tea-green-ink text-white py-3 rounded-full font-medium transition-colors"
+              className="w-full bg-cta-visit hover:bg-cta-visit-dark text-white py-3 rounded-full font-medium transition-colors"
             >
               查看我的預約
             </button>
@@ -103,7 +103,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
             </div>
             <button
               onClick={() => router.push(lp("/experiences"))}
-              className="w-full bg-tea-green-dark hover:bg-tea-green-ink text-white py-3 rounded-full font-medium transition-colors"
+              className="w-full bg-cta-visit hover:bg-cta-visit-dark text-white py-3 rounded-full font-medium transition-colors"
             >
               瀏覽其他場次
             </button>
@@ -132,7 +132,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
             <button
               onClick={handleConfirm}
               disabled={loading}
-              className="w-full bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-50 text-white py-3.5 rounded-full font-medium transition-colors"
+              className="w-full bg-cta-visit hover:bg-cta-visit-dark disabled:opacity-50 text-white py-3.5 rounded-full font-medium transition-colors"
             >
               {loading ? "處理中…" : `確認參加並付款 NT$ ${totalPrice.toLocaleString()}`}
             </button>
