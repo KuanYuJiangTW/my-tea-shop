@@ -188,7 +188,7 @@ export default function ParticipantsPage() {
           我的預約
         </Link>
 
-        <h1 className="font-serif text-2xl font-normal text-tea-text mb-1">補填參加者資料</h1>
+        <h1 className="font-serif text-2xl font-normal text-tea-text mb-1 tracking-display">補填參加者資料</h1>
         <p className="text-sm text-tea-text-muted mb-6">活動當天須核對身分，請確認資料正確無誤。</p>
 
         {/* Progress */}
@@ -216,7 +216,7 @@ export default function ParticipantsPage() {
         {/* Already filled */}
         {info && info.participants.length > 0 && (
           <div className="bg-white rounded-2xl border border-tea-green-pale p-5 mb-6">
-            <h2 className="text-sm font-semibold text-tea-text mb-3">已填寫的參加者</h2>
+            <h2 className="text-sm font-semibold text-tea-text mb-3 tracking-display">已填寫的參加者</h2>
             <div className="space-y-3">
               {info.participants.map((p, i) => (
                 <div key={p.id} className="flex items-start gap-3 p-3 bg-tea-cream-light/60 rounded-xl">
@@ -254,7 +254,7 @@ export default function ParticipantsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-tea-green-pale p-6">
-            <h2 className="text-sm font-semibold text-tea-text mb-4">
+            <h2 className="text-sm font-semibold text-tea-text mb-4 tracking-display">
               填入第 {(info?.filled ?? 0) + 1} 位參加者資料
             </h2>
 

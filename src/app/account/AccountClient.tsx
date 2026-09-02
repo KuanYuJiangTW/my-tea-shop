@@ -550,7 +550,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-serif text-3xl font-normal text-tea-text mb-1">{t("title")}</h1>
+          <h1 className="font-serif text-3xl font-normal text-tea-text mb-1 tracking-display">{t("title")}</h1>
           <p className="text-sm text-tea-text-muted">{user.email || t("profile.noEmail")}</p>
         </div>
 
@@ -580,7 +580,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
         {tab === "profile" && (
           <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale">
             <div className="px-7 py-5 border-b border-tea-green-pale">
-              <h2 className="font-semibold text-tea-text">{t("profile.title")}</h2>
+              <h2 className="font-semibold text-tea-text tracking-display">{t("profile.title")}</h2>
               <p className="text-xs text-tea-text-muted mt-0.5">{t("profile.subtitle")}</p>
             </div>
 
@@ -884,7 +884,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
             {/* 會員等級 + 點數餘額 */}
             <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-7">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-tea-text">{t("rewards.pointsTitle")}</h2>
+                <h2 className="font-semibold text-tea-text tracking-display">{t("rewards.pointsTitle")}</h2>
                 <span className="text-xs font-medium px-3 py-1 rounded-full bg-tea-green-mist text-tea-green-ink">
                   {memberTierName} · {t("rewards.earnRate", { rate: Math.round(memberTier.points_rate * 100) })}
                 </span>
@@ -977,7 +977,7 @@ export default function AccountClient({ user, profile, orders: initialOrders, po
 
             {/* 折價券 */}
             <div className="bg-white rounded-2xl shadow-sm border border-tea-green-pale p-7">
-              <h2 className="font-semibold text-tea-text mb-1">{t("rewards.couponsTitle")}</h2>
+              <h2 className="font-semibold text-tea-text mb-1 tracking-display">{t("rewards.couponsTitle")}</h2>
               <p className="text-xs text-tea-text-muted mb-5">{t("rewards.couponsDesc")}</p>
               {coupons.length > 0 ? (
                 <div className="space-y-3">

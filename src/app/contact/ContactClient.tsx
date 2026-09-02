@@ -110,7 +110,7 @@ export default function ContactClient() {
         {/* Left: Info */}
         <div className="lg:col-span-2 space-y-8">
           <div>
-            <h2 className="font-serif text-2xl font-normal text-tea-text mb-5">{t("info.title")}</h2>
+            <h2 className="font-serif text-2xl font-normal text-tea-text mb-5 tracking-display">{t("info.title")}</h2>
             <div className="space-y-5">
               {infoItems.map((item) => (
                 <div key={item.label} className="flex gap-4">
@@ -160,7 +160,7 @@ export default function ContactClient() {
               onSubmit={handleSubmit}
               className="bg-white rounded-card shadow-resting border border-tea-green-pale/40 p-8 space-y-5"
             >
-              <h2 className="font-serif text-2xl font-normal text-tea-text mb-1">{t("form.sendTitle")}</h2>
+              <h2 className="font-serif text-2xl font-normal text-tea-text mb-1 tracking-display">{t("form.sendTitle")}</h2>
               <p className="text-tea-text-muted text-body mb-4">{t("form.sendSubtitle")}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

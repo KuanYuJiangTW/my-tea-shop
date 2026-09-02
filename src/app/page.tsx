@@ -225,7 +225,7 @@ export default async function HomePage() {
             <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-3 sm:mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
-            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-normal text-tea-cream-light mb-7 sm:mb-6 leading-none">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl font-normal text-tea-cream-light mb-7 sm:mb-6 leading-none tracking-display">
               {t("hero.title")}
             </h1>
             <div className="hidden sm:block w-16 h-0.5 bg-tea-green-pale mb-7" />
@@ -268,7 +268,7 @@ export default async function HomePage() {
                 </p>
                 {/* 名稱與倒數徽章並排：稀缺性要跟商品名一起被讀到才有作用 */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-2">
-                  <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text">
+                  <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text tracking-display">
                     {isEn ? seasonalExp.nameEn : seasonalExp.name}
                   </h2>
                   <SeasonBadge
@@ -320,7 +320,7 @@ export default async function HomePage() {
               <p className="text-tea-green-ink font-medium tracking-[0.3em] text-xs uppercase mb-4">
                 {t("philosophy.sectionLabel")}
               </p>
-              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3">
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3 tracking-display">
                 {t("philosophy.title")}
               </h2>
               <p className="text-tea-text-muted text-body-lg mb-10 max-w-md">
@@ -373,7 +373,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2">
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2 tracking-display">
                 {t("featured.title")}
               </h2>
               <p className="text-tea-text-muted text-body-lg">{t("featured.tagline")}</p>
@@ -403,7 +403,7 @@ export default async function HomePage() {
             <div className="flex items-end justify-between mb-12">
               <div>
                 <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-3">{t("experiences.sectionLabel")}</p>
-                <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2">{t("experiences.title")}</h2>
+                <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2 tracking-display">{t("experiences.title")}</h2>
                 <p className="text-tea-text-muted text-body-lg">{t("experiences.tagline")}</p>
               </div>
               <Link
@@ -497,7 +497,7 @@ export default async function HomePage() {
             <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
               {t("brandStory.sectionLabel")}
             </p>
-            <h2 className="font-serif text-3xl md:text-5xl font-normal text-tea-cream-light mb-7 leading-snug whitespace-pre-line">
+            <h2 className="font-serif text-3xl md:text-5xl font-normal text-tea-cream-light mb-7 leading-snug whitespace-pre-line tracking-display">
               {t("brandStory.title")}
             </h2>
             {/* 品牌故事是整站最重要的一段敘事——四十年、一家三口。
@@ -523,7 +523,7 @@ export default async function HomePage() {
       {/* Process Teaser */}
       <section className="py-section md:py-section-lg bg-tea-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3">
+          <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3 tracking-display">
             {t("process.title")}
           </h2>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />

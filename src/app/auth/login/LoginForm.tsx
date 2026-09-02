@@ -103,7 +103,7 @@ export default function LoginForm() {
             </svg>
             <span className="font-serif text-xl font-bold text-tea-text block">霧抉茶</span>
           </Link>
-          <h1 className="text-2xl font-normal text-tea-text mt-4 mb-1">{t("title")}</h1>
+          <h1 className="text-2xl font-normal text-tea-text mt-4 mb-1 tracking-display">{t("title")}</h1>
           <p className="text-sm text-tea-text-muted">{t("subtitle")}</p>
         </div>
 

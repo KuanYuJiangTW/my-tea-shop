@@ -46,7 +46,7 @@ export default async function AboutPage() {
           <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
             {t("hero.sectionLabel")}
           </p>
-          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-normal text-tea-cream-light mb-6">
+          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-normal text-tea-cream-light mb-6 tracking-display">
             {t("hero.title")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
@@ -84,7 +84,7 @@ export default async function AboutPage() {
 
             {/* Text */}
             <div>
-              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-6">
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-6 tracking-display">
                 {t("story.title")}
               </h2>
               <div className="w-10 h-0.5 bg-tea-green mb-7" />
@@ -115,7 +115,7 @@ export default async function AboutPage() {
             <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase font-medium mb-3">
               {t("gallery.sectionLabel")}
             </p>
-            <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3">
+            <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3 tracking-display">
               {t("gallery.sectionLabel")}
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto mb-4" />
@@ -132,7 +132,7 @@ export default async function AboutPage() {
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="font-serif text-4xl font-normal text-tea-text mb-3">
+            <h2 className="font-serif text-4xl font-normal text-tea-text mb-3 tracking-display">
               {t("values.sectionLabel")}
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto" />
@@ -162,7 +162,7 @@ export default async function AboutPage() {
       <section className="py-16 md:py-24 bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="font-serif text-4xl font-normal text-tea-text mb-3">
+            <h2 className="font-serif text-4xl font-normal text-tea-text mb-3 tracking-display">
               {t("teas.title")}
             </h2>
             <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
@@ -194,7 +194,7 @@ export default async function AboutPage() {
       {/* Contact */}
       <section className="py-16 md:py-24 bg-tea-text">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-serif text-4xl font-normal text-tea-cream-light mb-6">
+          <h2 className="font-serif text-4xl font-normal text-tea-cream-light mb-6 tracking-display">
             {t("contact.sectionLabel")}
           </h2>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-10" />

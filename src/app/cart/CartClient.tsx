@@ -120,7 +120,7 @@ export default function CartClient() {
           {/* 空車狀態原本最高只到 h2，整頁沒有 h1——標題階層斷掉，
               螢幕閱讀器與 SEO 都拿不到頁面主題。有商品時的分支本來就是 h1，
               這裡補齊，兩個分支的階層才一致。 */}
-          <h1 className="font-serif text-2xl font-normal text-tea-text mb-3">
+          <h1 className="font-serif text-2xl font-normal text-tea-text mb-3 tracking-display">
             {t("empty.title")}
           </h1>
           <p className="text-tea-text-muted mb-8">
@@ -140,7 +140,7 @@ export default function CartClient() {
   return (
     <div className="min-h-screen bg-tea-cream-light">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-14">
-        <h1 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-8 md:mb-10">
+        <h1 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-8 md:mb-10 tracking-display">
           {t("title")}
         </h1>
 
@@ -271,7 +271,7 @@ export default function CartClient() {
           {/* Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-24">
-              <h2 className="font-serif text-xl font-normal text-tea-text mb-6">
+              <h2 className="font-serif text-xl font-normal text-tea-text mb-6 tracking-display">
                 {t("orderSummary")}
               </h2>
               <div className="space-y-3 mb-6">

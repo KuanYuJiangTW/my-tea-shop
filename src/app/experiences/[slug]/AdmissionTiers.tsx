@@ -34,7 +34,7 @@ export default async function AdmissionTiers({ tiers, bookablePrice }: Props) {
 
   return (
     <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
-      <h2 className="font-serif text-xl font-normal text-tea-text mb-1">{t("title")}</h2>
+      <h2 className="font-serif text-xl font-normal text-tea-text mb-1 tracking-display">{t("title")}</h2>
       <p className="text-body text-tea-text-muted mb-5">{t("intro")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

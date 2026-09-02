@@ -105,7 +105,7 @@ function RegisterForm() {
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <h2 className="font-serif text-2xl font-normal text-tea-text mb-3">{t("success.title")}</h2>
+          <h2 className="font-serif text-2xl font-normal text-tea-text mb-3 tracking-display">{t("success.title")}</h2>
           <p className="text-tea-text-muted text-sm leading-relaxed mb-2">
             {t.rich("success.checkEmail", { email, strong: (chunks) => <strong className="text-tea-text">{chunks}</strong> })}
           </p>
@@ -147,7 +147,7 @@ function RegisterForm() {
             </svg>
             <span className="font-serif text-xl font-bold text-tea-text block">霧抉茶</span>
           </Link>
-          <h1 className="text-2xl font-normal text-tea-text mt-4 mb-1">{t("title")}</h1>
+          <h1 className="text-2xl font-normal text-tea-text mt-4 mb-1 tracking-display">{t("title")}</h1>
           <p className="text-sm text-tea-text-muted">{t("subtitle")}</p>
 
           {/* 券的誘因擺在表單「上方」而不是下方：這是決定要不要填這張表的當下，

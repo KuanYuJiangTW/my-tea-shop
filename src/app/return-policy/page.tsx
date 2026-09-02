@@ -35,7 +35,7 @@ export default async function ReturnPolicyPage() {
           <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
             {t("hero.label")}
           </p>
-          <h1 className="font-serif text-3xl md:text-5xl font-normal text-tea-cream-light mb-6">
+          <h1 className="font-serif text-3xl md:text-5xl font-normal text-tea-cream-light mb-6 tracking-display">
             {t("hero.title")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
@@ -55,7 +55,7 @@ export default async function ReturnPolicyPage() {
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-tea-text font-bold text-sm">1</span>
               </div>
-              <h2 className="font-serif text-lg font-normal text-tea-text">{t("section1.title")}</h2>
+              <h2 className="font-serif text-lg font-normal text-tea-text tracking-display">{t("section1.title")}</h2>
             </div>
             <p className="text-sm text-tea-text/70 leading-8">
               {t.rich("section1.content", {
@@ -73,7 +73,7 @@ export default async function ReturnPolicyPage() {
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-tea-text font-bold text-sm">2</span>
               </div>
-              <h2 className="font-serif text-lg font-normal text-tea-text">{t("section2.title")}</h2>
+              <h2 className="font-serif text-lg font-normal text-tea-text tracking-display">{t("section2.title")}</h2>
             </div>
             <ol className="space-y-5">
               {STEP_KEYS.map((key, i) => (
@@ -96,7 +96,7 @@ export default async function ReturnPolicyPage() {
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-tea-text font-bold text-sm">3</span>
               </div>
-              <h2 className="font-serif text-lg font-normal text-tea-text">{t("section3.title")}</h2>
+              <h2 className="font-serif text-lg font-normal text-tea-text tracking-display">{t("section3.title")}</h2>
             </div>
             <div className="space-y-4 text-sm text-tea-text/70 leading-8">
               {METHOD_KEYS.map((key) => (
@@ -117,7 +117,7 @@ export default async function ReturnPolicyPage() {
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-tea-text font-bold text-sm">4</span>
               </div>
-              <h2 className="font-serif text-lg font-normal text-tea-text">{t("section4.title")}</h2>
+              <h2 className="font-serif text-lg font-normal text-tea-text tracking-display">{t("section4.title")}</h2>
             </div>
             <p className="text-sm text-tea-text/65 leading-7 mb-5">
               {t("section4.intro")}

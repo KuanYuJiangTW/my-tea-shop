@@ -77,7 +77,7 @@ export default function RequestStatusClient({ token, locale }: { token: string; 
     <div className="space-y-4">
       <div className="bg-white rounded-2xl border border-tea-green-pale p-6">
         <p className="text-caption text-tea-green-ink font-medium">{t("label")}</p>
-        <h1 className="font-serif text-2xl font-normal text-tea-text mt-1">
+        <h1 className="font-serif text-2xl font-normal text-tea-text mt-1 tracking-display">
           {t("statusTitle", { status: t(`status.${data.status}`) })}
         </h1>
         <p className="text-caption text-tea-text-muted mt-1">{data.requestNo}</p>

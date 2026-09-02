@@ -154,6 +154,14 @@
     --text-body: 1rem;           --leading-body: 1.8;      /* 16px 一般內文 */
     --text-body-lg: 1.125rem;    --leading-body-lg: 1.85;  /* 18px 敘事段落、導言 */
 
+    /* 字距：CJK 大標用**正**字距。
+       負字距是拉丁文大字的做法——中文字身本來就是方框，收緊只會讓字擠在一起。
+       實測日系高質感品牌的 CJK 標題：一保堂 h2 +3.57px（約 +0.17em）、Aman +0.5px。
+       0.04em 是「看得出鬆開了、但還不到標語感」的落點；再大就進入 eyebrow 的語彙。
+       ⚠️ 我先前建議過大標用負字距，那是錯的，實測後更正。 */
+    --tracking-display: 0.04em;   /* h1／h2 等展示型標題 */
+    --tracking-eyebrow: 0.25em;   /* eyebrow 小標籤（全站原本散寫 [0.25em]／[0.3em]，此為收斂落點） */
+
     /* 間距節奏：對應 py-16 md:py-24（15 處，最主流）與 p-6/p-8 的卡片內距 */
     --space-gutter: 1rem;       /* 16px 版面左右安全邊 */
     --space-card: 1.5rem;       /* 24px 卡片內距 */

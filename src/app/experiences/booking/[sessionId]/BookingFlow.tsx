@@ -190,7 +190,7 @@ export default function BookingFlow({ session, userEmail }: Props) {
       {/* 場次摘要 */}
       <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm mb-6">
         <p className="text-tea-green-ink text-xs tracking-widest uppercase mb-1">{exp.nameEn}</p>
-        <h2 className="font-serif text-2xl font-normal text-tea-text mb-4">{exp.name}</h2>
+        <h2 className="font-serif text-2xl font-normal text-tea-text mb-4 tracking-display">{exp.name}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="flex items-start gap-2 text-tea-text-muted">
             <Calendar className="w-4 h-4 text-tea-green-ink mt-0.5 shrink-0" />

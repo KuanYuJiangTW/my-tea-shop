@@ -60,7 +60,7 @@ export default async function BookingPage({ params }: Props) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
           <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-2">Booking</p>
-          <h1 className="font-serif text-3xl md:text-4xl font-normal text-tea-text">預約體驗</h1>
+          <h1 className="font-serif text-3xl md:text-4xl font-normal text-tea-text tracking-display">預約體驗</h1>
         </div>
         <BookingFlow session={sessionData} userEmail={user.email ?? null} />
       </div>

@@ -93,6 +93,13 @@ const config: Config = {
         "body-lg": ["var(--text-body-lg)",  { lineHeight: "var(--leading-body-lg)" }],
       },
 
+      // 字距：CJK 大標用正字距，理由與實測數據見 globals.css 的 --tracking-display。
+      // 既有的 tracking-wide / tracking-widest 保留可用，這裡是語意版。
+      letterSpacing: {
+        display: "var(--tracking-display)",
+        eyebrow: "var(--tracking-eyebrow)",
+      },
+
       // ── 非顏色 token 的 utility 對照（值一律讀 CSS 變數，見 globals.css :root）──
       // 既有的 rounded-2xl / shadow-sm / duration-200 都保留可用，這裡是「語意版」，
       // 讓元件寫 rounded-card 而不是 rounded-2xl——語意名才帶得到 React Native。

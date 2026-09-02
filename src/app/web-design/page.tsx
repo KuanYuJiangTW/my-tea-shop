@@ -42,7 +42,7 @@ export default async function WebDesignPage() {
           <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase font-medium mb-4">
             {t("hero.eyebrow")}
           </p>
-          <h1 className="font-serif text-3xl md:text-5xl font-normal text-tea-text mb-5 leading-tight">
+          <h1 className="font-serif text-3xl md:text-5xl font-normal text-tea-text mb-5 leading-tight tracking-display">
             {t("hero.title")}
           </h1>
           <p className="text-tea-text-muted max-w-2xl mx-auto text-sm md:text-base leading-relaxed mb-6">
@@ -82,7 +82,7 @@ export default async function WebDesignPage() {
 
       {/* 痛點區塊 */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
-        <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text text-center mb-12">
+        <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text text-center mb-12 tracking-display">
           {t("painPoints.sectionTitle")}
         </h2>
         <div className="space-y-4 mb-10">
@@ -104,7 +104,7 @@ export default async function WebDesignPage() {
       {/* 成果區塊 */}
       <section className="bg-tea-green-mist/40 py-16 md:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text text-center mb-12">
+          <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text text-center mb-12 tracking-display">
             {t("outcomes.sectionTitle")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
@@ -141,7 +141,7 @@ export default async function WebDesignPage() {
 
       {/* 三階報價卡 */}
       <section id="tiers" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
-        <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text text-center mb-12">
+        <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text text-center mb-12 tracking-display">
           {t("tiers.sectionTitle")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-start">
@@ -201,7 +201,7 @@ export default async function WebDesignPage() {
       {/* 加購項目 */}
       <section className="bg-tea-green-mist/40 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl font-normal text-tea-text text-center mb-8">
+          <h2 className="font-serif text-2xl font-normal text-tea-text text-center mb-8 tracking-display">
             {t("addons.sectionTitle")}
           </h2>
           <div className="bg-white rounded-2xl border border-tea-green-pale/40 divide-y divide-tea-green-pale/30">
@@ -214,7 +214,7 @@ export default async function WebDesignPage() {
 
       {/* 維護方案 */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="font-serif text-2xl font-normal text-tea-text text-center mb-3">
+        <h2 className="font-serif text-2xl font-normal text-tea-text text-center mb-3 tracking-display">
           {t("maintenance.sectionTitle")}
         </h2>
         <p className="text-center text-tea-text-muted text-sm mb-8">{t("maintenance.intro")}</p>
@@ -231,7 +231,7 @@ export default async function WebDesignPage() {
       {/* 商業條款 */}
       <section className="bg-tea-green-mist/40 py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl font-normal text-tea-text text-center mb-8">
+          <h2 className="font-serif text-2xl font-normal text-tea-text text-center mb-8 tracking-display">
             {t("terms.sectionTitle")}
           </h2>
           <ul className="space-y-3">
@@ -247,7 +247,7 @@ export default async function WebDesignPage() {
 
       {/* FAQ */}
       <section id="faq" className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="font-serif text-2xl font-normal text-tea-text text-center mb-8">
+        <h2 className="font-serif text-2xl font-normal text-tea-text text-center mb-8 tracking-display">
           {t("faq.sectionTitle")}
         </h2>
         <div className="space-y-4">
@@ -263,7 +263,7 @@ export default async function WebDesignPage() {
       {/* 諮詢表單 */}
       <section id="inquiry" className="bg-tea-green-mist/40 py-16 md:py-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text text-center mb-2">
+          <h2 className="font-serif text-2xl md:text-3xl font-normal text-tea-text text-center mb-2 tracking-display">
             {t("form.sectionTitle")}
           </h2>
           <p className="text-center text-tea-text-muted text-sm mb-10">{t("form.subtitle")}</p>

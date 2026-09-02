@@ -84,7 +84,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
           <>
             <div className="text-center mb-6">
               <div className="text-3xl mb-3">✅</div>
-              <h2 className="font-serif text-xl font-normal text-tea-text mb-2">已完成確認</h2>
+              <h2 className="font-serif text-xl font-normal text-tea-text mb-2 tracking-display">已完成確認</h2>
               <p className="text-sm text-tea-text-muted">您的候補資格已確認，請至會員中心查看預約狀態。</p>
             </div>
             <button
@@ -98,7 +98,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
           <>
             <div className="text-center mb-6">
               <div className="text-3xl mb-3">⏰</div>
-              <h2 className="font-serif text-xl font-normal text-tea-text mb-2">確認時間已過</h2>
+              <h2 className="font-serif text-xl font-normal text-tea-text mb-2 tracking-display">確認時間已過</h2>
               <p className="text-sm text-tea-text-muted">此名額已釋出給下一位候補者。歡迎繼續關注後續場次。</p>
             </div>
             <button
@@ -112,7 +112,7 @@ export default function WaitlistConfirmClient({ entry }: { entry: Entry }) {
           <>
             <div className="mb-6">
               <p className="text-xs text-tea-green-ink font-semibold tracking-widest uppercase mb-1">{exp?.name ?? "茶藝體驗"}</p>
-              <h2 className="font-serif text-2xl font-normal text-tea-text mb-4">確認參加？</h2>
+              <h2 className="font-serif text-2xl font-normal text-tea-text mb-4 tracking-display">確認參加？</h2>
               <div className="space-y-2 text-sm text-tea-text-muted mb-4">
                 <div className="flex justify-between"><span>日期</span><span className="text-tea-text font-medium">{dateLabel}</span></div>
                 <div className="flex justify-between"><span>時間</span><span className="text-tea-text font-medium">{startTime.slice(0, 5)}</span></div>

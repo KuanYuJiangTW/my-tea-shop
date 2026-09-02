@@ -54,7 +54,7 @@ export default async function RelatedExperiences({ currentSlug, limit = 3 }: Pro
   return (
     <section className="mt-16 md:mt-20">
       <div className="bg-tea-cream rounded-2xl border border-tea-green-pale p-6 md:p-8">
-        <h2 className="font-serif text-xl md:text-2xl font-normal text-tea-text mb-2">
+        <h2 className="font-serif text-xl md:text-2xl font-normal text-tea-text mb-2 tracking-display">
           {t("title")}
         </h2>
         {/* text-body 而非 label：這是交易條件（折扣與怎麼取得），

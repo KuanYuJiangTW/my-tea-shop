@@ -42,7 +42,7 @@ export default async function ExperienceReviews({ experienceTypeId }: { experien
   return (
     <div className="mt-12">
       <div className="flex items-center gap-3 mb-6">
-        <h2 className="font-serif text-xl font-normal text-tea-text">{t("reviewsTitle")}</h2>
+        <h2 className="font-serif text-xl font-normal text-tea-text tracking-display">{t("reviewsTitle")}</h2>
         <div className="flex items-center gap-1.5">
           <Stars rating={Math.round(avg)} />
           <span className="text-sm font-medium text-tea-text">{avg.toFixed(1)}</span>

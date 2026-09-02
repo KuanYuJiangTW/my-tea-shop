@@ -244,7 +244,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-5">{t("tableTitle")}</p>
-          <h1 className="font-serif text-5xl md:text-6xl font-normal text-tea-text mb-5">{t("pageTitle")}</h1>
+          <h1 className="font-serif text-5xl md:text-6xl font-normal text-tea-text mb-5 tracking-display">{t("pageTitle")}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
           <p className="text-tea-text-muted text-lg max-w-xl mx-auto leading-relaxed">{t("pageTagline")}</p>
         </div>
@@ -253,7 +253,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
       {/* 核心洞察：共通前段 → 分歧段 → 共通後段 */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-serif text-3xl font-normal text-tea-text mb-3">{t("divergence.insightTitle")}</h2>
+          <h2 className="font-serif text-3xl font-normal text-tea-text mb-3 tracking-display">{t("divergence.insightTitle")}</h2>
           <p className="text-tea-text-muted leading-relaxed max-w-2xl mx-auto mb-10">
             {t("divergence.insightDesc")}
           </p>
@@ -514,7 +514,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
 
           {/* 工藝取捨 */}
           <div className="bg-tea-cream rounded-3xl p-7 md:p-9 mt-12">
-            <h2 className="font-serif text-2xl font-normal text-tea-text mb-3">{t("craftNote.title")}</h2>
+            <h2 className="font-serif text-2xl font-normal text-tea-text mb-3 tracking-display">{t("craftNote.title")}</h2>
             <p className="text-tea-text-muted leading-relaxed mb-6">{t(`craftNote.${activeTea}`)}</p>
             <div className="border-t border-tea-green-pale/60 pt-5">
               <h3 className="font-serif text-lg font-semibold text-tea-text mb-2">{t("craftNote.roastTitle")}</h3>
@@ -549,7 +549,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
       {/* 五茶對照表 */}
       <section className="py-16 bg-tea-green-mist">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-3xl font-normal text-tea-text mb-2 text-center">{t("matrix.title")}</h2>
+          <h2 className="font-serif text-3xl font-normal text-tea-text mb-2 text-center tracking-display">{t("matrix.title")}</h2>
           <p className="text-tea-text-muted text-center mb-10 max-w-xl mx-auto">{t("matrix.desc")}</p>
 
           <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
@@ -656,7 +656,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
                 <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-3">
                   {t("experienceCta.sectionLabel")}
                 </p>
-                <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2">
+                <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2 tracking-display">
                   {t("experienceCta.title")}
                 </h2>
                 <p className="text-tea-text-muted max-w-xl">{t("experienceCta.tagline")}</p>
@@ -736,7 +736,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
       {/* 商品導流（頁尾） */}
       <section className="py-16 bg-tea-text">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-serif text-3xl font-normal text-tea-cream-light mb-5">{t("productCta.hint")}</h2>
+          <h2 className="font-serif text-3xl font-normal text-tea-cream-light mb-5 tracking-display">{t("productCta.hint")}</h2>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-10">
             {teaProcesses.map((tea) => (
               <button
