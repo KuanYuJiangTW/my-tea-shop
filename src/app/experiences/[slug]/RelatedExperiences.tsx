@@ -59,7 +59,7 @@ export default async function RelatedExperiences({ currentSlug, limit = 3 }: Pro
         </h2>
         {/* text-body 而非 label：這是交易條件（折扣與怎麼取得），
             依設計原則 2「交易時刻，清晰壓倒氣氛」不能塞成附註級距 */}
-        <p className="text-body text-tea-text-light mb-6 max-w-2xl">
+        <p className="text-body text-tea-text-muted mb-6 max-w-2xl">
           {t("intro")}
         </p>
 
@@ -84,12 +84,12 @@ export default async function RelatedExperiences({ currentSlug, limit = 3 }: Pro
                   />
                 </div>
                 <div className="p-4">
-                  <h3 className="font-medium text-tea-text mb-1 group-hover:text-tea-green transition-colors">
+                  <h3 className="font-medium text-tea-text mb-1 group-hover:text-tea-green-ink transition-colors">
                     {name}
                   </h3>
-                  <div className="flex items-center gap-3 text-caption text-tea-text-light">
+                  <div className="flex items-center gap-3 text-caption text-tea-text-muted">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-tea-green" />
+                      <Clock className="w-3.5 h-3.5 text-tea-green-ink" />
                       {tc("duration", { hours: exp.durationHours })}
                     </span>
                     <span>NT$ {exp.price.toLocaleString()}</span>
@@ -105,7 +105,7 @@ export default async function RelatedExperiences({ currentSlug, limit = 3 }: Pro
             href={lineUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-6 text-label font-medium px-5 py-2.5 rounded-control bg-tea-green text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard"
+            className="inline-flex items-center gap-2 mt-6 text-label font-medium px-5 py-2.5 rounded-control bg-tea-green-dark text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard"
           >
             {t("askLine")}
           </a>

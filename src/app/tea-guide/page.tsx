@@ -52,10 +52,10 @@ export default async function TeaGuidePage() {
       {/* Hero */}
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-4">{t("label")}</p>
+          <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-4">{t("label")}</p>
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">{t("pageTitle")}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light text-body-lg max-w-lg mx-auto">{t("pageTagline")}</p>
+          <p className="text-tea-text-muted text-body-lg max-w-lg mx-auto">{t("pageTagline")}</p>
         </div>
       </div>
 

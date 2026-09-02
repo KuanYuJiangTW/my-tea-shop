@@ -114,11 +114,11 @@ export default function ContactClient() {
             <div className="space-y-5">
               {infoItems.map((item) => (
                 <div key={item.label} className="flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-tea-green-mist rounded-control flex items-center justify-center text-tea-green">
+                  <div className="flex-shrink-0 w-10 h-10 bg-tea-green-mist rounded-control flex items-center justify-center text-tea-green-ink">
                     {item.icon}
                   </div>
                   <div>
-                    <p className="text-caption text-tea-text-light mb-0.5">{item.label}</p>
+                    <p className="text-caption text-tea-text-muted mb-0.5">{item.label}</p>
                     <p className="text-tea-text text-label font-medium">{item.value}</p>
                   </div>
                 </div>
@@ -131,7 +131,7 @@ export default function ContactClient() {
           <div className="bg-tea-green-mist rounded-card p-6">
             <p className="font-serif text-tea-text font-semibold mb-2">{t("info.bulkTitle")}</p>
             {/* 大量採購說明是敘事型內容，升 body；行高由 token 帶（1.8），不另寫 leading */}
-            <p className="text-tea-text-light text-body">
+            <p className="text-tea-text-muted text-body">
               {t("info.bulkDesc")}
             </p>
           </div>
@@ -147,10 +147,10 @@ export default function ContactClient() {
                 </svg>
               </div>
               <h3 className="font-serif text-2xl font-bold text-tea-text mb-2">{t("form.successTitle")}</h3>
-              <p className="text-tea-text-light text-body mb-8">{t("form.successDesc")}</p>
+              <p className="text-tea-text-muted text-body mb-8">{t("form.successDesc")}</p>
               <button
                 onClick={() => { setStatus("idle"); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-pill text-label font-medium transition-colors duration-base ease-standard"
+                className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3 rounded-pill text-label font-medium transition-colors duration-base ease-standard"
               >
                 {t("form.sendAgain")}
               </button>
@@ -161,7 +161,7 @@ export default function ContactClient() {
               className="bg-white rounded-card shadow-resting border border-tea-green-pale/40 p-8 space-y-5"
             >
               <h2 className="font-serif text-2xl font-bold text-tea-text mb-1">{t("form.sendTitle")}</h2>
-              <p className="text-tea-text-light text-body mb-4">{t("form.sendSubtitle")}</p>
+              <p className="text-tea-text-muted text-body mb-4">{t("form.sendSubtitle")}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -202,10 +202,10 @@ export default function ContactClient() {
                   <button
                     type="button"
                     onClick={() => setSubjectOpen(!subjectOpen)}
-                    className={`${inputClass} flex items-center justify-between text-left ${!form.subject ? "text-tea-text-light/50" : "text-tea-text"}`}
+                    className={`${inputClass} flex items-center justify-between text-left ${!form.subject ? "text-tea-text-muted/50" : "text-tea-text"}`}
                   >
                     <span>{subjectOptions.find(o => o.value === form.subject)?.label ?? t("form.subjectDefault")}</span>
-                    <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-light transition-transform duration-base ease-standard ${subjectOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 flex-shrink-0 text-tea-text-muted transition-transform duration-base ease-standard ${subjectOpen ? "rotate-180" : ""}`} />
                   </button>
                   {subjectOpen && (
                     <div className="absolute z-20 w-full mt-1 bg-white border border-tea-green-pale rounded-control shadow-float overflow-hidden">
@@ -219,8 +219,8 @@ export default function ContactClient() {
                           }}
                           className={`w-full text-left px-4 py-2.5 text-label transition-colors duration-base ease-standard ${
                             form.subject === opt.value
-                              ? "bg-tea-green-mist text-tea-green font-medium"
-                              : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green"
+                              ? "bg-tea-green-mist text-tea-green-ink font-medium"
+                              : "text-tea-text hover:bg-tea-green-mist hover:text-tea-green-ink"
                           }`}
                         >
                           {opt.label}
@@ -253,7 +253,7 @@ export default function ContactClient() {
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full bg-tea-green hover:bg-tea-green-dark disabled:opacity-60 text-white py-3.5 rounded-control font-medium text-label transition-colors duration-base ease-standard flex items-center justify-center gap-2"
+                className="w-full bg-tea-green-dark hover:bg-tea-green-ink disabled:opacity-60 text-white py-3.5 rounded-control font-medium text-label transition-colors duration-base ease-standard flex items-center justify-center gap-2"
               >
                 {status === "submitting" ? (
                   <>
@@ -274,7 +274,7 @@ export default function ContactClient() {
                 )}
               </button>
 
-              <p className="text-center text-caption text-tea-text-light">
+              <p className="text-center text-caption text-tea-text-muted">
                 {t("form.privacyNote")}
               </p>
             </form>

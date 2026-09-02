@@ -69,14 +69,14 @@ export default async function ProductsPage() {
       {/* Hero */}
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-4">
+          <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-4">
             {t("sectionLabel")}
           </p>
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">
             {t("pageTitle")}
           </h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light text-body-lg max-w-md mx-auto">
+          <p className="text-tea-text-muted text-body-lg max-w-md mx-auto">
             {t("pageTagline")}
           </p>
         </div>
@@ -95,7 +95,7 @@ export default async function ProductsPage() {
                 {t("reviews.sectionTitle")}
               </h2>
               <div className="w-10 h-0.5 bg-tea-green mx-auto my-4" />
-              <p className="text-tea-text-light text-body">{t("reviews.sectionTagline")}</p>
+              <p className="text-tea-text-muted text-body">{t("reviews.sectionTagline")}</p>
             </div>
 
             <div className="space-y-10">

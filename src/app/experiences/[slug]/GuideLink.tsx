@@ -33,16 +33,16 @@ export default async function GuideLink({ slug }: { slug: string }) {
           href={lp(`/tea-guide/${a.slug}`)}
           className="group flex items-start gap-3 bg-tea-cream rounded-2xl border border-tea-green-pale p-5 hover:border-tea-green transition-colors duration-base ease-standard"
         >
-          <BookOpen className="w-5 h-5 text-tea-green mt-0.5 shrink-0" aria-hidden="true" />
+          <BookOpen className="w-5 h-5 text-tea-green-ink mt-0.5 shrink-0" aria-hidden="true" />
           <div className="min-w-0">
-            <p className="text-caption text-tea-green font-medium mb-1">{t("title")}</p>
-            <p className="text-body font-medium text-tea-text group-hover:text-tea-green transition-colors">
+            <p className="text-caption text-tea-green-ink font-medium mb-1">{t("title")}</p>
+            <p className="text-body font-medium text-tea-text group-hover:text-tea-green-ink transition-colors">
               {pick(a.title, a.titleEn, isEn)}
             </p>
-            <p className="text-caption text-tea-text-light mt-1 line-clamp-2">
+            <p className="text-caption text-tea-text-muted mt-1 line-clamp-2">
               {pick(a.excerpt, a.excerptEn, isEn)}
             </p>
-            <span className="inline-flex items-center gap-1 text-caption text-tea-green font-medium mt-2">
+            <span className="inline-flex items-center gap-1 text-caption text-tea-green-ink font-medium mt-2">
               {t("cta")}
               <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
             </span>

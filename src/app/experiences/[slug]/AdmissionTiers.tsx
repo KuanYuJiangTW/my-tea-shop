@@ -35,7 +35,7 @@ export default async function AdmissionTiers({ tiers, bookablePrice }: Props) {
   return (
     <div className="bg-white rounded-2xl p-6 border border-tea-green-pale/50 shadow-sm">
       <h2 className="font-serif text-xl font-bold text-tea-text mb-1">{t("title")}</h2>
-      <p className="text-body text-tea-text-light mb-5">{t("intro")}</p>
+      <p className="text-body text-tea-text-muted mb-5">{t("intro")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {tiers.map((tier, i) => {
@@ -52,7 +52,7 @@ export default async function AdmissionTiers({ tiers, bookablePrice }: Props) {
               }`}
             >
               {isBookable && (
-                <span className="absolute -top-2.5 right-3 bg-tea-green text-white text-caption font-medium px-2 py-0.5 rounded-pill">
+                <span className="absolute -top-2.5 right-3 bg-tea-green-dark text-white text-caption font-medium px-2 py-0.5 rounded-pill">
                   {t("recommended")}
                 </span>
               )}
@@ -60,17 +60,17 @@ export default async function AdmissionTiers({ tiers, bookablePrice }: Props) {
               <p className="text-xl font-bold text-tea-text mb-2">
                 {tier.price === 0 ? t("free") : `NT$ ${tier.price.toLocaleString()}`}
                 {tier.price > 0 && (
-                  <span className="text-caption font-normal text-tea-text-light ml-1">{t("perPerson")}</span>
+                  <span className="text-caption font-normal text-tea-text-muted ml-1">{t("perPerson")}</span>
                 )}
               </p>
               {desc && (
-                <p className="text-caption text-tea-text-light leading-relaxed flex items-start gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-tea-green mt-0.5 shrink-0" aria-hidden="true" />
+                <p className="text-caption text-tea-text-muted leading-relaxed flex items-start gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-tea-green-ink mt-0.5 shrink-0" aria-hidden="true" />
                   <span>{desc}</span>
                 </p>
               )}
               {isBookable && (
-                <p className="text-caption text-tea-green font-medium mt-2">{t("bookableOnline")}</p>
+                <p className="text-caption text-tea-green-ink font-medium mt-2">{t("bookableOnline")}</p>
               )}
             </div>
           );
@@ -78,7 +78,7 @@ export default async function AdmissionTiers({ tiers, bookablePrice }: Props) {
       </div>
 
       {/* 交易條件，依設計原則 2 用可讀的內文級距，不縮成附註 */}
-      <p className="text-body text-tea-text-light mt-4">{t("onSiteNote")}</p>
+      <p className="text-body text-tea-text-muted mt-4">{t("onSiteNote")}</p>
     </div>
   );
 }

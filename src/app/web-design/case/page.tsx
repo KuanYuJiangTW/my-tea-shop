@@ -35,10 +35,10 @@ export default async function WebDesignCasePage() {
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-5 leading-tight">
             {t("hero.title")}
           </h1>
-          <p className="text-tea-green font-medium text-sm md:text-base mb-6">
+          <p className="text-tea-green-ink font-medium text-sm md:text-base mb-6">
             {t("hero.subtitle")}
           </p>
-          <p className="text-tea-text-light max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+          <p className="text-tea-text-muted max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
             {t("hero.intro")}
           </p>
         </div>
@@ -49,14 +49,14 @@ export default async function WebDesignCasePage() {
         <h2 className="font-serif text-2xl md:text-3xl font-bold text-tea-text text-center mb-8">
           {t("starting.sectionTitle")}
         </h2>
-        <p className="text-tea-text-light leading-relaxed mb-6">{t("starting.intro")}</p>
+        <p className="text-tea-text-muted leading-relaxed mb-6">{t("starting.intro")}</p>
         <ul className="space-y-3">
           {startingItems.map((item) => (
             <li
               key={item}
               className="flex items-start gap-3 text-sm text-tea-text bg-white rounded-xl px-5 py-4 border border-tea-green-pale/30"
             >
-              <span className="text-tea-green mt-0.5">•</span>
+              <span className="text-tea-green-ink mt-0.5">•</span>
               <span>{item}</span>
             </li>
           ))}
@@ -76,7 +76,7 @@ export default async function WebDesignCasePage() {
                 className="bg-white rounded-2xl border border-tea-green-pale/40 p-6"
               >
                 <h3 className="font-serif font-bold text-tea-text mb-2">{item.title}</h3>
-                <p className="text-sm text-tea-text-light leading-relaxed">{item.desc}</p>
+                <p className="text-sm text-tea-text-muted leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -94,7 +94,7 @@ export default async function WebDesignCasePage() {
               key={item}
               className="flex items-start gap-3 text-sm text-tea-text bg-white rounded-xl px-5 py-4 border border-tea-green-pale/30"
             >
-              <span className="text-tea-green mt-0.5">•</span>
+              <span className="text-tea-green-ink mt-0.5">•</span>
               <span>{item}</span>
             </li>
           ))}
@@ -109,7 +109,7 @@ export default async function WebDesignCasePage() {
         <div className="flex flex-wrap justify-center gap-3">
           <Link
             href={lp("/web-design")}
-            className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3 rounded-full text-sm font-medium transition-colors"
+            className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3 rounded-full text-sm font-medium transition-colors"
           >
             {t("cta.pricingButton")}
           </Link>

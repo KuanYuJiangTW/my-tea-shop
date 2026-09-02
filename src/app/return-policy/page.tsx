@@ -32,7 +32,7 @@ export default async function ReturnPolicyPage() {
           <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-tea-green/8 rounded-full" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-5">
+          <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
             {t("hero.label")}
           </p>
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-cream-light mb-6">
@@ -53,7 +53,7 @@ export default async function ReturnPolicyPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-tea-cream-dark/30 p-8 md:p-10">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-tea-green font-bold text-sm">1</span>
+                <span className="text-tea-text font-bold text-sm">1</span>
               </div>
               <h2 className="font-serif text-lg font-bold text-tea-text">{t("section1.title")}</h2>
             </div>
@@ -71,7 +71,7 @@ export default async function ReturnPolicyPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-tea-cream-dark/30 p-8 md:p-10">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-tea-green font-bold text-sm">2</span>
+                <span className="text-tea-text font-bold text-sm">2</span>
               </div>
               <h2 className="font-serif text-lg font-bold text-tea-text">{t("section2.title")}</h2>
             </div>
@@ -79,7 +79,7 @@ export default async function ReturnPolicyPage() {
               {STEP_KEYS.map((key, i) => (
                 <li key={key} className="flex gap-4">
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-tea-green/15 flex items-center justify-center mt-0.5">
-                    <span className="text-xs font-bold text-tea-green">{i + 1}</span>
+                    <span className="text-xs font-bold text-tea-text">{i + 1}</span>
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-tea-text mb-1">{t(`section2.steps.${key}.step`)}</p>
@@ -94,14 +94,14 @@ export default async function ReturnPolicyPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-tea-cream-dark/30 p-8 md:p-10">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-tea-green font-bold text-sm">3</span>
+                <span className="text-tea-text font-bold text-sm">3</span>
               </div>
               <h2 className="font-serif text-lg font-bold text-tea-text">{t("section3.title")}</h2>
             </div>
             <div className="space-y-4 text-sm text-tea-text/70 leading-8">
               {METHOD_KEYS.map((key) => (
                 <div key={key} className="flex items-start gap-3 p-4 rounded-xl bg-tea-cream/60 border border-tea-cream-dark/20">
-                  <span className="text-tea-green font-bold flex-shrink-0 mt-0.5">●</span>
+                  <span className="text-tea-green-ink font-bold flex-shrink-0 mt-0.5">●</span>
                   <div>
                     <p className="font-semibold text-tea-text mb-1">{t(`section3.methods.${key}.label`)}</p>
                     <p>{t(`section3.methods.${key}.desc`)}</p>
@@ -115,7 +115,7 @@ export default async function ReturnPolicyPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-tea-cream-dark/30 p-8 md:p-10">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 rounded-full bg-tea-green/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-tea-green font-bold text-sm">4</span>
+                <span className="text-tea-text font-bold text-sm">4</span>
               </div>
               <h2 className="font-serif text-lg font-bold text-tea-text">{t("section4.title")}</h2>
             </div>
@@ -146,7 +146,7 @@ export default async function ReturnPolicyPage() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a
                 href="tel:0972619391"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-tea-green text-white rounded-full text-sm font-medium hover:bg-tea-green/90 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-tea-green-dark text-white rounded-full text-sm font-medium hover:bg-tea-green/90 transition-colors"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.37 9.5 19.79 19.79 0 01.38 4.46 2 2 0 012.37 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.41 9.84a16 16 0 006.75 6.75l1.2-1.21a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />

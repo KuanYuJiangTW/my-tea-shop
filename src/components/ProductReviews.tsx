@@ -52,7 +52,7 @@ export default async function ProductReviews({
             <span className="text-sm font-medium text-tea-text">{average.toFixed(1)}</span>
           </div>
         )}
-        <span className="text-sm text-tea-text-light">{t("count", { count })}</span>
+        <span className="text-sm text-tea-text-muted">{t("count", { count })}</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -60,19 +60,19 @@ export default async function ProductReviews({
           <div key={r.id} className="bg-white rounded-2xl p-5 border border-tea-green-pale/50 shadow-resting">
             <div className="flex items-center justify-between gap-3 mb-2">
               <Stars rating={r.rating} />
-              <span className="text-xs text-tea-text-light">
+              <span className="text-xs text-tea-text-muted">
                 {new Date(r.reviewedAt).toLocaleDateString(dateFmt)}
               </span>
             </div>
             {r.comment && (
-              <p className="text-sm text-tea-text-light leading-relaxed">{r.comment}</p>
+              <p className="text-sm text-tea-text-muted leading-relaxed">{r.comment}</p>
             )}
             <div className="flex flex-wrap items-center gap-2 mt-3">
               {r.displayName && (
                 <span className="text-xs text-tea-text">{r.displayName}</span>
               )}
               {r.source !== "site" && (
-                <span className="text-[11px] text-tea-green bg-tea-green-mist px-2 py-0.5 rounded-full">
+                <span className="text-[11px] text-tea-green-ink bg-tea-green-mist px-2 py-0.5 rounded-full">
                   {t(`source.${r.source}`)}
                 </span>
               )}

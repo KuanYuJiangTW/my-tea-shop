@@ -171,10 +171,10 @@ export default async function AlishanTeaPage() {
       {/* Hero */}
       <div className="bg-tea-green-mist py-12 md:py-20 border-b border-tea-green-pale">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-tea-green text-xs tracking-[0.3em] uppercase mb-4">{c.label}</p>
+          <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-4">{c.label}</p>
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-tea-text mb-4">{c.title}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-5" />
-          <p className="text-tea-text-light">{c.tagline}</p>
+          <p className="text-tea-text-muted">{c.tagline}</p>
         </div>
       </div>
 
@@ -186,7 +186,7 @@ export default async function AlishanTeaPage() {
               <h2 className="font-serif text-2xl font-bold text-tea-text mb-4">{section.heading}</h2>
               <div className="space-y-4">
                 {section.paragraphs.map(p => (
-                  <p key={p.slice(0, 20)} className="text-tea-text-light leading-relaxed">{p}</p>
+                  <p key={p.slice(0, 20)} className="text-tea-text-muted leading-relaxed">{p}</p>
                 ))}
               </div>
             </section>
@@ -197,13 +197,13 @@ export default async function AlishanTeaPage() {
         <div className="flex flex-wrap gap-4 justify-center mt-14">
           <Link
             href={lp("/products")}
-            className="bg-tea-green hover:bg-tea-green-dark text-white px-8 py-3.5 rounded-full font-medium transition-colors shadow-sm"
+            className="bg-tea-green-dark hover:bg-tea-green-ink text-white px-8 py-3.5 rounded-full font-medium transition-colors shadow-sm"
           >
             {c.ctaProducts}
           </Link>
           <Link
             href={lp("/experiences")}
-            className="border-2 border-tea-green text-tea-green hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-full font-medium transition-colors"
+            className="border-2 border-tea-green text-tea-green-ink hover:bg-tea-green hover:text-white px-8 py-3.5 rounded-full font-medium transition-colors"
           >
             {c.ctaExperiences}
           </Link>
