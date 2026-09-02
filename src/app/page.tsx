@@ -270,12 +270,15 @@ export default async function HomePage() {
         // eyebrow、季節徽章、外框鈕維持品牌綠——業主選的是「暖底＋綠配件＋紺主鈕」，
         // 我一度把配件也改成紺，那不是他要的版本，已改回。
         //
-        // ⚠️ **下一段「品茶哲學」也是 bg-tea-cream，兩者同色（ΔL 0.000）**，
-        // 而下邊框 cream-dark 對 cream 只有 1.08（2.1.2 明寫「邊框會直接消失」）——
-        // 所以這條的**下緣會融進下一段**。這是業主明確選的版本，不是疏漏；
-        // 若日後覺得條帶不夠獨立，最小修法是改 `bg-tea-cream-light`
-        // （與下一段有 ΔL +.020 的落差，次要字對比還從 4.52 升到 4.80）。
-        <section className="bg-tea-cream border-y border-tea-cream-dark">
+        // 底色取 cream-**light** 而非 cream：下一段「品茶哲學」就是 `bg-tea-cream`，
+        // 兩者若同值會變成 ΔL 0.000 完全同色，而下邊框 cream-dark 對 cream 只有 1.08
+        // （2.1.2 明寫「邊框會直接消失」）——條帶下緣會整個融進下一段。
+        // 改用 cream-light 之後有 ΔL +.020 的落差（與 2.1.1 三層序列的標準級距相同），
+        // 邊框可見度 1.08→1.14，而且次要字對比從 4.52 升到 4.80。
+        //
+        // 條帶比下一段**亮**是刻意的：它是滿版促銷條，不屬於 2.1.1 那條
+        // 「依序變亮」的敘事序列，亮一階讓它讀起來像浮在上面的條，而不是序列的一員。
+        <section className="bg-tea-cream-light border-y border-tea-cream-dark">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
             <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
               <div className="flex-1 min-w-0">
