@@ -174,27 +174,6 @@
 - 規則：**跑四件套前先確認 dev server 不在重編譯**（剛改完檔就等幾秒），或乾脆停掉 dev server 再跑。四件套本身也一律依序、不要併行。
 - 去處：暫存於此。與 JUDG-5「四件套不可省 tsc」同一節，補的是「怎麼跑」而不是「跑哪些」。
 
-## 2026-09-04 讀瀏覽器的外部狀態用 `useEffect` + `setState`，被 lint 擋了三次
-
-- 情境：`ArticleHeroVideo` 讀 `matchMedia`、`FloatingGuideCta` 讀 `sessionStorage`、後台 bird-report 頁 `useEffect(() => { void load(); })`——三次都想「進 effect 再 setState」。
-- 代價：`no-cascading-renders` 在本專案是 **error 不是 warning**（門檻 0 error），三次都是寫完才被 lint 打回來重寫。第三次 lint 甚至不追進 async 函式，只看到 effect 裡同步呼叫了含 setState 的函式，訊息不指向真正原因。
-- 規則：**讀外部狀態不要用 effect + setState。** 三種既有解法照抄：(a) 訂閱型（`matchMedia`）用 `useSyncExternalStore`，**訂閱函式必須放模組層級**，寫成行內箭頭每次算繪都會重新訂閱；(b) 一次性讀取（`sessionStorage`）用 `useState` 惰性初始化 + `typeof window === "undefined"` 擋 SSR；(c) 非同步取資料把「取」與「套用狀態」拆成兩個函式，effect 裡只放 promise chain（範本：`admin/(protected)/settings/page.tsx`）。
-- 去處：暫存於此。
-
-## 2026-09-04 `lib/` 檔直接 import supabase，單元測試就爆——第二次踩才想起專案早有 `-core.ts` 慣例
-
-- 情境：`bird-report.ts` 直接 import supabase client，測試一 import 就把連線拉進來而爆掉。上一次是 `egret-copy.test.ts` 想 import `@/lib/experiences`，當時的繞法是改讀原始碼文字。
-- 代價：兩次都花時間在「怎麼 mock」上，而本 repo **早就有現成切法**（`bundle-core.ts`／`product-review-core.ts`）。
-- 規則：`lib/` 裡只要**同時**有純邏輯與 I/O，純邏輯一律抽到 `<name>-core.ts` 再測。動手 mock supabase 之前，先 `ls src/lib/*-core.ts` 看有沒有可循的先例。文案類斷言則照 `tea-making-copy.test.ts`／`egret-copy.test.ts` 的慣例讀原始碼文字，不要 import 模組。
-- 去處：暫存於此。與 2026-08-23「手刻 Supabase chain mock」互補：那條講 mock 寫壞了，這條講**根本不該走到需要 mock**。
-
-## 2026-09-04 「原始 HTML 裡搜得到這串字」不等於「這個元素有算繪」——next-intl 騙了我兩次
-
-- 情境：驗公告條有沒有掛載、驗鳥況區塊有沒有出現，兩次都用 `curl | grep 關鍵字` 判斷，兩次都判反了。
-- 代價：next-intl 會把**整包訊息 JSON 序列化進 HTML** 供 client 端使用，所以「新朋友註冊即送」「最近的鳥況」這些字串**即使元素完全沒算繪也搜得到**。第一次據此以為公告條沒關掉，第二次以為鳥況區塊漏了靜默略過。
-- 規則：驗元素存在與否**不要 grep 原始 HTML 的文案字串**。改為：查該元素獨有的 class 或 `data-*`、用 `read_page` 看無障礙樹、或在頁面裡跑 `document.querySelector(...)`。要 grep 就 grep **只會出現在算繪結果**的東西（元素標籤 + class），不要 grep 訊息字典裡也有的文字。
-- 去處：暫存於此。
-
 ## 已歸檔（2026-08-06 精簡 18 條；2026-08-15 再精簡 2 條；2026-08-25 再精簡 17 條；2026-08-27 再精簡 15 條）
 
 > 過時、已升格為正式規則、或屬於一次性環境事實的條目壓成一行。原文見 git 歷史。
@@ -217,7 +196,7 @@
 - **Bash tool 會把 `git show "rev:path"` 的冒號吃掉** — Bash tool 會吃掉 `git show "rev:path"` 的冒號；改用 `git show rev -- path` 或先 `git cat-file`
 - **套件回傳型別改了，`if (!result)` 就成了永遠通過的假驗證** — **已升格為 JUDG-8**。`otplib` v13 的 `verify()` 回傳物件不是 boolean，`if (!result)` 成為永遠通過的假驗證，後台 2FA 形同虛設
 - **用 `npx tailwindcss` CLI 驗產物，三次 probe 全是無效測試** — **已升格為 JUDG-8**（對照組要有鑑別力）。該 CLI 讀不到本專案的 TS config，三次 probe 全是無效測試
-- **本機的 `python` 是 Windows Store 空殼，改檔靜默失敗還不報錯** — 通則**已升格為 JUDG-8**（沒報錯 ≠ 有做到）；**環境事實 2026-09-04 補進 `diagnosis.md` 事實表**。本機 `python` 是安裝引導殼、零輸出，改檔靜默失敗。改檔一律用 Edit 或 Node。**2026-09-04 又踩第四次**——因為升格成通則之後，「這台機器的 python 是假的」這個具體事實沒有留在任何人開工前會讀的地方。升格通則不等於保存事實，兩邊都要放
+- **本機的 `python` 是 Windows Store 空殼，改檔靜默失敗還不報錯** — **已升格為 JUDG-8**（沒報錯 ≠ 有做到）。本機 `python` 是安裝引導殼，exit 49、零輸出，三次改檔靜默失敗。改檔一律用 Node
 - **批次替換用正則，跳脫掉了變成字元類別，26 檔全毀** — **已升格為 JUDG-8**（先數再改）。正則跳脫掉了變成字元類別 `[#3D4A42]`，26 檔全毀；批次替換一律用 `split/join` 字面替換
 - **perl -pi 批次改檔後，dev server 500 且重啟無效——是 .next 的 Tailwind 快取** — 批次改檔後 dev server 報 ENOENT 但檔案存在 → 先 `rm -rf .next` 再重啟（`perl -i` 的 unlink 空窗毒化了 Tailwind 快取），不要懷疑檔案毀損
 
@@ -254,7 +233,7 @@
 - **驗證器讀錯目錄，回報「11 個 token 全部沒生成」** — **已併入 JUDG-8 第 1 點**（對照組要有鑑別力）。驗證腳本要先斷言「我讀的路徑存在且非空」
 - **`${x}` 落在普通字串裡不會報錯——用「把來源改名」反向驗證插值真的被解析** — **已併入 JUDG-8**。驗插值用「改來源、看產物跟著變」，不要只看有沒有報錯
 - **mock 回傳 select 沒要求的欄位，讓「忘了 select 主鍵」的 bug 綠燈上線** — **已併入 JUDG-8**。mock 只能回傳該次 select 真正要求的欄位，多給就是製造假綠燈
-- **反向驗證用 `git checkout --` 還原，把同一個檔案未 commit 的工作一起洗掉** — **已落地於 `.claude/skills/reverse-verify/SKILL.md` 的「壞的退回點」**（2026-09-04 補；此前這行寫「已併入 JUDG-2」是**假指標**，JUDG-2 只講 commit 前 `git status -sb`，規則從未真的落地，而且這行原本建議的 `git stash` 正好是該 skill 列為壞退回點的做法——兩處互相矛盾了七天）
+- **反向驗證用 `git checkout --` 還原，把同一個檔案未 commit 的工作一起洗掉** — **已併入 JUDG-2**（commit 前先 `git status -sb`）。反向驗證的突變與還原改用備份檔或 `git stash`，不要對有未提交變更的檔案下 `checkout --`
 - **`git add -A` 把前一個 session 遺留的未追蹤檔一起提交了** — **已升格為 JUDG-2**（commit 前先 `git status -sb`）。commit 一律列明確路徑
 - **供應商下架模型，聊天小幫手全站掛掉——而健康檢查一路回綠燈** — **已升格為 JUDG-8 第 4 判準**（監控本身也要能變紅）。Groq 下架 `llama-3.3-70b-versatile`，硬編的 model ID 打回 404 被 catch 吞成 503；健康檢查回的是硬編 `{ok:true}`，從沒真的碰過 Groq
 - **往 template literal 裡加字串，反引號把整個字串截斷，lint 全綠只有 tsc 會紅** — **已併入 JUDG-5**（四件套不可省 tsc）。在 template literal 內新增文字時內容不得含反引號，要標示程式符號改用「」或直接寫成文字
