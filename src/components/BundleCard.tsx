@@ -42,7 +42,7 @@ export default function BundleCard({ bundle }: { bundle: Bundle }) {
   return (
     <div className="bg-white rounded-card overflow-hidden shadow-resting hover:shadow-raised transition-shadow duration-base ease-standard border border-tea-green-pale/40 flex flex-col">
       <div className="p-card flex flex-col flex-1">
-        <p className="text-tea-green-ink font-medium tracking-[0.2em] text-caption uppercase mb-2">
+        <p className="text-tea-green-ink font-medium tracking-eyebrow text-caption uppercase mb-2">
           {t("eyebrow")}
         </p>
         <h3 className="font-serif text-2xl font-semibold text-tea-text mb-2">

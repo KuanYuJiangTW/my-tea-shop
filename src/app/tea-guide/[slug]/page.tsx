@@ -166,7 +166,7 @@ export default async function ArticlePage({ params }: Props) {
       )}
 
       <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-3">{t("label")}</p>
+        <p className="text-tea-green-ink text-xs tracking-eyebrow uppercase mb-3">{t("label")}</p>
         <h1 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-4 tracking-display">{title}</h1>
         {/* 內文一律用 tea-text-muted 而不是 tea-text-light：後者在米白上只有 3.43，
             低於 WCAG AA 的 4.5。這頁手機版 5,968px 高、常在山上戶外強光下讀，

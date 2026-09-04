@@ -39,7 +39,7 @@ export default async function WebDesignPage() {
       {/* Hero */}
       <section className="bg-tea-green-mist border-b border-tea-green-pale/50 py-16 md:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase font-medium mb-4">
+          <p className="text-tea-green-ink text-xs tracking-eyebrow uppercase font-medium mb-4">
             {t("hero.eyebrow")}
           </p>
           <h1 className="font-serif text-3xl md:text-5xl font-normal text-tea-text mb-5 leading-tight tracking-display">

@@ -43,7 +43,7 @@ export default async function AboutPage() {
           <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-tea-green/8 rounded-full" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
+          <p className="text-tea-green-pale text-xs tracking-eyebrow uppercase mb-5">
             {t("hero.sectionLabel")}
           </p>
           <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-normal text-tea-cream-light mb-6 tracking-display">
@@ -112,7 +112,7 @@ export default async function AboutPage() {
       <section className="py-16 md:py-24 bg-tea-cream-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase font-medium mb-3">
+            <p className="text-tea-green-ink text-xs tracking-eyebrow uppercase font-medium mb-3">
               {t("gallery.sectionLabel")}
             </p>
             <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3 tracking-display">

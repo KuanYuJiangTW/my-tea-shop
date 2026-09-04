@@ -221,7 +221,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
         <div className="absolute inset-0 bg-tea-text/45" />
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 w-full">
-            <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-2">{experience.nameEn}</p>
+            <p className="text-tea-green-pale text-xs tracking-eyebrow uppercase mb-2">{experience.nameEn}</p>
             <h1 className="font-serif text-4xl md:text-5xl font-normal text-white tracking-display">{isEn ? experience.nameEn : experience.name}</h1>
             <SeasonBadge windows={experience.windows} name={ldName} className="mt-3 shadow-sm" />
           </div>
