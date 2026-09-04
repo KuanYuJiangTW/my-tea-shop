@@ -1104,8 +1104,9 @@ vitest 85 檔 **1130** 測試全過（新增 34）、`tsc` 0 錯誤、`npm run l
   商品照要改 4:5 直式、敘事段落補實景照。**瓶頸是攝影不是程式**，需要業主出素材。
   這一階才是「更有質感」影響最大的一項。
 - 商品詳情頁仍不存在（所有商品擠在 `/products` 一頁，高單價茶葉沒有各自的著陸頁）。
-- ~~`cta-tea-soft`／`cta-visit-soft` 孤兒 token~~ → **2026-09-04 已刪**（見本節末「收尾」）。
-- ~~`tracking-eyebrow` 已定義未套用~~ → **2026-09-04 已套 22 處**（見本節末「收尾」）。
+- `cta-tea-soft`／`cta-visit-soft` 兩色已定義但**目前無人使用**（季節條帶試過後被否決）。
+  若一直沒用途，下次整理色盤應刪除，不要留孤兒 token。
+- `tracking-eyebrow` 已定義未套用；eyebrow 現況散寫 `[0.25em]`／`[0.3em]`。
 - **`.claude/WORKLOG.md` 已達 11 節，超過 MAINT-4 的 10 節上限**，需要壓縮。
   但最舊兩節裡，「紅茶製作 3 小時場」那節是**業主對製程的逐字原話**（文案的依據來源），
   我沒有自行壓掉——要壓請先決定那段原話搬去哪（建議搬進體驗內容文件而非刪除）。
@@ -1128,40 +1129,3 @@ vitest 85 檔 **1130** 測試全過（新增 34）、`tsc` 0 錯誤、`npm run l
   **判準：先看總測試數對不對**，少於 1142 就是中斷不是斷言失敗。
 - `sed` 的替換字串含 hex `#` 會與分隔符相撞而**靜默失敗**（`661e480` 補救）。
   改檔後要回頭 grep 確認真的改到。
-
-### 收尾（2026-09-04）——清掉這波留下的兩個尾巴
-
-刻意**不開新一節**：這兩項是本節「還沒做的」清單裡的項目，而 WORKLOG 已經超過
-MAINT-4 的 10 節上限，再開第 12 節只會讓待壓縮的問題更糟。
-
-**1. 刪 `cta-tea-soft`／`cta-visit-soft`（`#FBEFEA`／`#EEF2F9`）**
-定義後兩個月零使用。刪的理由不是省位元組，是**孤兒 token 會誤導**：色盤裡擺著一組
-產品線淡底，後來的人會以為「這裡本來就該有淡底可選」拿去用，於是被業主否決過的
-「冷色進底色」方案又從側門回來一次。要淡底就走 `tea-cream` 序列。
-`cta-*` 從此只有實心與 hover 兩階——它是重音不是場，一有淡底變體就會開始鋪面積。
-> 訂它們明度時學到的通則**保留**在 design-system 2.1.5：
-> **挑區塊底色要對照那個區塊裡最淡的文字色，不是最深的**（當初照墨字算，漏掉
-> `tea-text-muted` 只有 4.37）。token 刪了，這條通則對任何新淡底仍成立。
-
-**2. 套用 `tracking-eyebrow`，前台 22 處**
-原本散寫 `[0.3em]`(20 處)、`[0.25em]`(1)、`[0.2em]`(1，BundleCard 的 `t("eyebrow")`)。
-**收斂到 0.25em 而非佔多數的 0.3em**：0.3em 在 12px 上是 3.6px 字間，三字以上的中文
-eyebrow（「季節限定・現正登場」）會鬆到讀不成詞；0.25em 仍明顯是標籤語彙但不散架。
-
-兩個**刻意不改**的（不是漏改，下次不要「順手補齊」）：
-- `HeroBackground` 輪播計數器 `[0.15em]`——`tabular-nums` 的數字，不是 eyebrow。
-- `tracking-widest`(0.1em) 的**卡片內**小標，13 處（`exp.nameEn` 之類）。
-  同一個檔 `experiences/page.tsx` 裡區塊 eyebrow 用 0.3、卡片標籤用 0.1，是分層。
-  實測確認分層還在：`/experiences` 的 Experience 3px、六張卡片標籤 1.2px。
-
-順手：`backups/` 的 WORKLOG 備份到 6 份，依 MAINT-4 刪掉最舊一份（git `c0c354b` 留有歷史）。
-
-**驗證**：1142 測試全過（總數對得上，非中斷）、`tsc` 0、`lint` 0 error／36 warnings
-（與上次同數，未新增債務）、build 成功。產物實查 CSS：`.tracking-eyebrow{letter-spacing:
-var(--tracking-eyebrow)}` 有生成、變數 `.25em`；`cta` 只剩 `bg-cta-tea`／`bg-cta-visit`／
-`hover:bg-cta-*-dark`／`group-hover:bg-cta-visit-dark`，`FBEFEA`／`EEF2F9` 全站零殘留；
-舊的 letter-spacing 只剩 `.15em`（計數器）與 `.025/.05/.1em`（Tailwind 內建）。
-瀏覽器實測首頁 5 個 eyebrow 全部 computed 3px，無 console error。
-
-**未 push**：GitHub 帳號自 2026-09-04 起停權（`gh` 回 HTTP 403 suspended），
-commit 只能留在本機 `refactor/aa-contrast-redo`，PR #28 也還是動不了。
