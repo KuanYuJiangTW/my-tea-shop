@@ -971,10 +971,46 @@ tasks.md 所以結不了案。已依實際實作補寫 delta spec 與追溯 task
 最終：`openspec validate --all` **57/57 零失敗**、specs 52 份、archive 38 個。
 遷移後跑 `npx vitest run` 81 檔 / 1061 測試全過，確認無連帶損傷。
 
+### 平行稽核試跑（行動清單第 10 項）
+
+`agent team` 這個 build **沒有建立團隊的工具**（`SendMessage`／`TaskStop` 有 teammate 的
+基礎設施，但無從組隊）。改用**扇出三個平行 subagent**，各自獨立 context、全部唯讀、
+範圍不重疊：copy-guardian 掃對外文案、general-purpose 掃 RLS、general-purpose 掃 i18n。
+
+**交叉驗證真的發生了**：copy-guardian 與 i18n agent 互不通訊，卻對 `messages/` 的
+zh/en 結構得出同一結論（1344/1344 key 對齊、零缺漏）。那個數字現在可信。
+
+三項發現（都由主對話逐條查證過，非照抄 agent 回報）：
+
+1. **國際客人收到全中文訂單信**。`EmailOrderData`／`ShippingEmailData` 沒有 locale
+   欄位，而 `src/lib/paypal.ts:243` 呼叫 `sendOrderEmails(emailData)`——PayPal 是
+   國際訂單唯一付款方式。有意思的是 `email.ts` 裡**體驗申請信與接案諮詢信都有雙語**
+   （`locale` + `isEn` 分支），是最早的商品訂單信沒補。
+2. **結帳錯誤訊息讓英文 fallback 永遠失效**。`CheckoutClient.tsx` 四處寫
+   `json.error ?? t(...)`，而 `orders/route.ts` 有 18 個寫死中文的 error——
+   `json.error` 一定存在，`?? t(...)` 一次都不會執行。程式看起來有做雙語，那行是死的。
+3. **候補計數函式可被 anon 呼叫**。`sql/add_reviews_waitlist.sql`（2026-04-08）的
+   `increment/decrement_waitlist_count` 是 SECURITY DEFINER 沒收權限；2026-07-28 的
+   `rpc-grants-remediation.sql` 只涵蓋當時的四個函式。**但 2026-08-14 的
+   `add_product_bundles.sql` 有做對**——所以這是一個落單的舊檔，不是壞習慣。
+
+**共同根因：系統的真實狀態不在 repo 裡。** `orders`／`products`／`profiles` 從未進
+版控、`booking_participants`（存身分證字號）的 RLS 查不到、三階方案的三個價格全在
+Sanity。所以「本機四件套全綠」對這些東西沒有保證力。
+
 ### 還沒做的
 
-- **行動清單第 5 項**：裝 Supabase（唯讀）+ Vercel + Sanity MCP。使用者已同意三個都裝，
-  **等提供權杖**——金鑰一律由使用者自己貼進設定，我不經手。
+- **線上查證（最優先）**：`supabase/audit-2026-08-31-open-questions.sql` 有四段唯讀
+  查詢，對應上面的開放問題。**MCP 已授權、`claude mcp list` 顯示 Connected，
+  但工具集在 session 啟動時就固定了——要開新 session 才用得到**（`.mcp.json` 已進版控）。
+- **要查 Sanity 的三處**（copy-guardian 列的，repo 裡完全沒有文字可比對）：
+  1. `/faq` 的「下雨天照常舉辦嗎」答案，是否等於 `src/lib/experiences.ts:109` 的
+     「遇雨可免費改期一次，不退費」
+  2. `AdmissionTiers` 的 `admissionTiers` 欄位——**450／150／免費三個價格數字都在這裡**
+  3. 攻略文的「這件事是怎麼開始的」段落，歸屬是否已改成「與鄰居一起推起來」
+- **建議立案的 change**：i18n 那兩項（訂單信英文版＋結帳錯誤訊息）是真的在流失國際客人。
+- **Vercel MCP 仍未裝**（使用者同意過三個，但查證後判定它給全帳號權限、無唯讀模式，
+  投報比不划算而暫緩；Supabase 與 Sanity 已裝並授權）。
 - 剩下 5 個 change 的去向（都不是殭屍）：`tea-process-multi-tea` 等 checker 複驗（需使用者明示）、
   `ai-search-seo` 等 Cloudflare 儀表板數據、`experience-open-class-request` 等上線實跑、
   `coupon-shipping-touchpoints` 等 Vercel MCP 確認 `CRON_SECRET`、
