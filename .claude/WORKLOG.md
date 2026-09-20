@@ -343,7 +343,7 @@
    ChatWidget 自己讓位，**兩個元件不必互相知道對方存在**；IO 只做**單向**切換（雙向切會在頁尾又冒出來）。
    後續業主實機回報「太慢才出來」，改成以**螢幕高**為單位（1.5 螢幕）而非文章比例——
    文章變長時比例換算成絕對距離會漂移。
-8. **[08-31] 賞鳥文案盤點**（PR #18，**尚未合併**）— 抓到 `public/llms.txt` 把導覽價格寫成
+8. **[08-31] 賞鳥文案盤點**（PR #18，已合併）— 抓到 `public/llms.txt` 把導覽價格寫成
    **250 元（實際 450）**。那是專門餵 AI 檢索器的純文字檔，`tsc`／`lint`／`build` 一個都抓不到。
    站上其他每一處都是 450。新增 `egret-copy.test.ts`（8 條）釘住並已反向驗證。
    同批用 write token 改了 5 處 Sanity 內容（付款方式、兩地點條件分開講、功勞歸屬、tagline、`updatedAt`），
@@ -421,18 +421,9 @@ tasks.md 所以結不了案。已依實際實作補寫 delta spec 與追溯 task
 
 ### 還沒做的
 
-- **行動清單第 5 項**：裝 Supabase（唯讀）+ Vercel + Sanity MCP。使用者已同意三個都裝，
-  **等提供權杖**——金鑰一律由使用者自己貼進設定，我不經手。
-- 剩下 5 個 change 的去向（都不是殭屍）：`tea-process-multi-tea` 等 checker 複驗（需使用者明示）、
-  `ai-search-seo` 等 Cloudflare 儀表板數據、`experience-open-class-request` 等上線實跑、
-  `coupon-shipping-touchpoints` 等 Vercel MCP 確認 `CRON_SECRET`、
-  `experience-seasonal-ordering` 是真的還在寫（3.3／3.4／4.4）。
-- `openspec/BACKLOG.md` 裡兩個構想的開工訊號：想認真補 AI 搜尋收錄時先做 `product-detail-pages`。
-- **`llms.txt` 的「自家的茶居與停車場」**：等業主確認是否要改。
-- 本分支尚未開 PR、未合併。CI 因為只在 `pull_request` 與進 `main` 時觸發，
-  **到開 PR 前還沒有第一次實跑紀錄**。
-- 四份 agent 記憶目前是「種子」（我從既有 lessons／WORKLOG／測試檔整理進去並標明），
-  尚未經過實際使用累積。
+本節待辦已於 2026-09-20 清理，未結案者全部併入**本檔最後一節**的清單，此處不再維護。
+結案的有兩項：「本分支尚未開 PR」（PR #18 已合併）、
+「Supabase 唯讀與 Sanity MCP 等權杖」（已於 `88ad271` 裝好，只剩 Vercel MCP 未裝）。
 
 ## 2026-08-31（續）今日鳥況回報（bird-report）—— 已實作，等業主跑 SQL
 
@@ -491,12 +482,10 @@ vitest 85 檔 **1130** 測試全過（新增 34）、`tsc` 0 錯誤、`npm run l
 
 ### 還沒做的
 
-- **業主要在 Supabase SQL Editor 執行 `supabase/add_bird_report.sql`**，功能才會啟用。
-  合併前後站上都不會有任何行為改變。
-- **有資料時的顯示路徑只在單元測試層級驗過**，沒有端到端跑過——因為那需要在正式
-  Supabase 建表，那是業主的決定不是我的。建表後請送一則測試回報確認。
+本節兩項待辦（業主跑 `add_bird_report.sql`、顯示路徑只驗到單元測試層級）
+已完整併入**本檔最後一節**的清單，此處不再重複維護。
 
-## 2026-09-02 補完 AA 對比並依 12 站實測做視覺調校（PR #28，未合併）
+## 2026-09-02 補完 AA 對比並依 12 站實測做視覺調校（PR #28，已於 2026-09-20 合併）
 
 分支 `refactor/aa-contrast-redo`，21 個 commit、58 檔、+1024/−704。
 **只動前台外觀，沒動邏輯、資料流、金流；後台 `admin/` 0 檔。**
@@ -547,17 +536,9 @@ vitest 85 檔 **1130** 測試全過（新增 34）、`tsc` 0 錯誤、`npm run l
 
 ### 還沒做的
 
-- **push／PR 全部停擺**：GitHub 帳號 09-04 起停權（403 suspended）。卡住 PR #28、PR #18、分支 `chore/maturity-level4-5-upgrades`、`feat/bird-report`。**只能本機 commit，容器回收就沒了——目前最大風險。**
-- **⏰ 本季補拍黃頭鷺特寫**（賞鳥季到 **10/11**，過了等明年）。`public/images/gallery/` 一張鳥都沒有。同時卡住「第四階照片」：覆蓋率 36.9%→55–65%、商品照改 4:5 直式。**瓶頸是攝影不是程式。**
-- **寫信給攻略文作者**（不必等任何程式，回報最高的一項）：方格子／背包客棧／好好玩 FUNIT／承錠旅行日記的觀賞地點名單裡**信淳茶居一個都沒進**，AI 搜尋回答「萬鷺朝鳳在哪看」抓的就是那些頁。
-- **業主要在 Supabase SQL Editor 跑 `supabase/add_bird_report.sql`**，鳥況功能才會啟用（詳見 08-31（續）節；建表後請送一則測試回報，有資料的顯示路徑只在單元測試層級驗過）。
-- **兩項事實還沒問到業主**，見 `docs/owner-source-quotes.md` §4：紅茶運費含不含在 800 內、`llms.txt` 的「賞鳥起點就是**自家的**茶居與停車場」。**確認前不可以寫進文案。**
-- 商品詳情頁仍不存在（商品全擠在 `/products` 一頁，高單價茶葉沒有著陸頁）。在 `openspec/BACKLOG.md` 的 `product-detail-pages`，也是「認真補 AI 搜尋收錄」的前置。
-- 清測試資料：訂單 `R2608-E59D`、`R2608-RHCJ` 與綠界測試信用卡那筆（`is_test` 可篩，不混進營收數字，但後台列表看得到）。
-- 零碎：Sanity FAQ 可補三條（帶長輩／推車、下雨、幾點到最好）；ChatWidget 被浮動條頂上去沒在真手機看過；`lessons.md` 已達 30 條上限，下次開新條目前要先精簡。
-
-> 2026-09-04 起這裡是**全檔唯一的待辦清單**——壓縮舊節時把所有未結案項目併了進來，所以有些不屬於本節。
-> 按輕重排且**刻意一項一行**：hook 只顯示前 8 行，換行寫會讓後面的項目擠不進開場提示。
+**2026-09-20 起清單已整個搬到本檔最後一節**，這裡不再維護。
+搬遷原因：`session-start` hook 只讀**最後一節**的「還沒做的」，
+清單留在中間的節等於不會出現在開場提示（本節下方第 628 行自己寫過這條規則）。
 
 ### 驗證證據
 
@@ -612,8 +593,8 @@ var(--tracking-eyebrow)}` 有生成、變數 `.25em`；`cta` 只剩 `bg-cta-tea`
 舊的 letter-spacing 只剩 `.15em`（計數器）與 `.025/.05/.1em`（Tailwind 內建）。
 瀏覽器實測首頁 5 個 eyebrow 全部 computed 3px，無 console error。
 
-**未 push**：GitHub 帳號自 2026-09-04 起停權（`gh` 回 HTTP 403 suspended），
-commit 只能留在本機 `refactor/aa-contrast-redo`，PR #28 也還是動不了。
+**已 push（2026-09-20）**：帳號停權期間（09-04～09-20）這些 commit 只能留在本機，
+解封後推上 `refactor/aa-contrast-redo`，經 PR #29 squash 合併進 main（`800b2fd`）。
 
 ### 收尾（2026-09-04，續）——WORKLOG 依 MAINT-4 壓縮，11 節 → 3 節
 
@@ -636,8 +617,10 @@ commit 只能留在本機 `refactor/aa-contrast-redo`，PR #28 也還是動不�
 **這次「還沒做的」改成全檔唯一的待辦清單**。原本每節各有一份，壓縮時才發現有些跨節待辦
 從 08-25 一路被抄到 08-30 都沒人做（例如「寫信給攻略文作者」）。hook 只顯示前 8 行，
 所以按輕重排過，第一行是 GitHub 停權、第二行是有時效的賞鳥季補拍（10/11 截止）。
+（2026-09-20 追記：停權已解除，該項移除，現在第一行就是賞鳥季補拍。）
 
 順帶：`lessons.md` 加完三條後**正好 30 條，達 MAINT-4 上限**，下次要開新條目前得先精簡。
+（2026-09-20 追記：該次精簡已隨 PR #29 完成，目前 19 條。）
 `backups/` 四個檔各補一份備份並修剪到每檔 5 份。
 
 ### MAINT-3 步驟 4 的 read-back（2026-09-04 執行，含補做 08-27 欠的那次）
@@ -687,3 +670,67 @@ app-execution 假殼**——`command -v` 找得到、執行卻靜默結束、exi
 > 通則進 `judgment.md`，環境／工具的具體事實進 `diagnosis.md` 事實表，
 > 兩邊都要放。只留通則的話，下一個人會用一模一樣的方式再踩一次——
 > 這次的證據是同一個坑踩了四次，而它「已經被記錄」了三次。
+
+## 2026-09-20 GitHub 帳號停權解除，停權期間的工作全數推送
+
+帳號 `KuanYuJiangTW`（ID `135186052`）2026-09-04 遭停權，09-20 恢復，歷時 16 天。
+支援工單 #4726886。
+
+### 停權的原因
+
+GitHub 官方唯一的說法（始終沒指明是哪一條）：
+
+> Some activity on your account was flagged by our abuse-detection systems for
+> manual review, as it may conflict with our Terms of Service.
+
+接著只問了一句 "Could you please share a bit more about how you plan to use GitHub?"
+——那是用來分辨真人開發者與 bot 帳號的篩選題。說明用途後即恢復，未被要求改掉任何
+具體行為。
+
+> **「這是誤判」是我方判讀，不是官方認定。** GitHub 自始至終沒說明是哪一條，
+> 也沒表示標記有誤。下面的「觸發點」同理，全部是推論。
+
+**最可能的觸發點**（推論，未獲官方確認）：`gh` CLI ＋ AI 助理產生的突發性密集認證
+API 呼叫，對應 ToS Section H「Abuse or excessively frequent requests to GitHub via
+the API may result in the temporary or permanent suspension」。次要因素是整體活動
+速率：5.5 個月 813 個 commit、上百條分支。
+
+申訴時**已向 GitHub 承諾**把 API 使用維持在正常互動速率。那是真承諾，不是場面話——
+二次被標記通常不會再有第三次機會。
+
+### 解封後的推送
+
+| 分支 | 處置 |
+|---|---|
+| `refactor/aa-contrast-redo` | 7 個 commit 推送 → PR #29 → squash 合併進 main（`800b2fd`） |
+| `claude/gifted-bell-caace2` | 首次推送 → PR #30（Sanity 發布後前台快取沒清），**尚未合併** |
+| `backup/cvs-fix-20260801` | **不推**。內容已被 main 的 `923de30` 取代，是同一份工作的舊副本 |
+
+順帶查證到 **PR #18 與 #28 其實都在停權期間合併了**，本檔原本兩處都記成「未合併」，
+已一併更正。教訓：停權期間無法查 GitHub，本檔對遠端狀態的記載會整段失真，
+解封後要先對帳再相信自己的紀錄。
+
+### 往後的 GitHub 操作原則（避免再次被標記）
+
+- 能用本機 git 完成的就不要走 API：commit、開分支、查歷史一律用 git
+- `gh` 只在真正需要時用（開 PR、必要的狀態查詢），**絕不輪詢**
+- 不在短時間內連開多條分支或多個 PR
+- 查帳號狀態用單次 `gh api rate_limit` 即可
+
+### 還沒做的
+
+- **⏰ 本季補拍黃頭鷺特寫**（賞鳥季到 **10/11**，過了等明年）。`public/images/gallery/` 一張鳥都沒有。同時卡住「第四階照片」：覆蓋率 36.9%→55–65%、商品照改 4:5 直式。**瓶頸是攝影不是程式。**
+- **PR #30 待合併**（`claude/gifted-bell-caace2`，Sanity 發布後前台快取沒清）：CI 全綠、可乾淨合併，合併會觸發 Vercel 部署到正式站。
+- **寫信給攻略文作者**（不必等任何程式，回報最高的一項）：方格子／背包客棧／好好玩 FUNIT／承錠旅行日記的觀賞地點名單裡**信淳茶居一個都沒進**，AI 搜尋回答「萬鷺朝鳳在哪看」抓的就是那些頁。
+- **業主要在 Supabase SQL Editor 跑 `supabase/add_bird_report.sql`**，鳥況功能才會啟用（詳見 08-31（續）節；建表後請送一則測試回報，有資料的顯示路徑只在單元測試層級驗過）。
+- **兩項事實還沒問到業主**，見 `docs/owner-source-quotes.md` §4：紅茶運費含不含在 800 內、`llms.txt` 的「賞鳥起點就是**自家的**茶居與停車場」。**確認前不可以寫進文案。**
+- 商品詳情頁仍不存在（商品全擠在 `/products` 一頁，高單價茶葉沒有著陸頁）。在 `openspec/BACKLOG.md` 的 `product-detail-pages`，也是「認真補 AI 搜尋收錄」的前置。
+- 清測試資料：訂單 `R2608-E59D`、`R2608-RHCJ` 與綠界測試信用卡那筆（`is_test` 可篩，不混進營收數字，但後台列表看得到）。
+- 零碎：Sanity FAQ 可補三條（帶長輩／推車、下雨、幾點到最好）；ChatWidget 被浮動條頂上去沒在真手機看過。
+- 5 個 openspec change 的去向待確認（都不是殭屍）：`tea-process-multi-tea` 等 checker 複驗、`ai-search-seo` 等 Cloudflare 儀表板數據、`experience-open-class-request` 等上線實跑、`coupon-shipping-touchpoints` 等確認 `CRON_SECRET`、`experience-seasonal-ordering` 還在寫（3.3／3.4／4.4）。
+- 四份 agent 記憶仍是「種子」（從既有 lessons／WORKLOG／測試檔整理進去並標明），尚未經實際使用累積。
+- Vercel MCP 尚未安裝（Supabase 唯讀與 Sanity 已於 `88ad271` 裝好，等權杖那項已結案）。
+
+> 這裡是**全檔唯一的待辦清單**，2026-09-04 建立、2026-09-20 從該節搬來本節。
+> **一律維護在本檔最後一節**——hook 只讀最後一節，開新節時要把這份清單一併搬過去。
+> 按輕重排且**刻意一項一行**：hook 只顯示前 8 行，換行寫會讓後面的項目擠不進開場提示。
