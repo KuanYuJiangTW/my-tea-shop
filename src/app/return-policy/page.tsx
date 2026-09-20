@@ -32,7 +32,7 @@ export default async function ReturnPolicyPage() {
           <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-tea-green/8 rounded-full" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
+          <p className="text-tea-green-pale text-xs tracking-eyebrow uppercase mb-5">
             {t("hero.label")}
           </p>
           <h1 className="font-serif text-3xl md:text-5xl font-normal text-tea-cream-light mb-6 tracking-display">

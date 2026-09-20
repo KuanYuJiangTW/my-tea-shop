@@ -222,7 +222,7 @@ export default async function HomePage() {
                   tagline → 敘述    8px   同一段訊息的標題與內文
                   敘述 → CTA        32px  從「讀」切到「做」，最大的一刀
                 原本 24/24 讓前兩段一樣寬，分組資訊等於沒傳達出去。 */}
-            <p className="text-tea-green-pale font-medium tracking-[0.3em] text-xs mb-3 sm:mb-6 uppercase">
+            <p className="text-tea-green-pale font-medium tracking-eyebrow text-xs mb-3 sm:mb-6 uppercase">
               {t("hero.subtitle")}
             </p>
             {/* 字級 128px → 60px（`md:text-9xl` → `md:text-6xl`）。
@@ -282,7 +282,7 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
             <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
               <div className="flex-1 min-w-0">
-                <p className="text-tea-green-ink text-xs tracking-[0.25em] uppercase mb-3 font-medium">
+                <p className="text-tea-green-ink text-xs tracking-eyebrow uppercase mb-3 font-medium">
                   {t("seasonal.label")}
                 </p>
                 {/* 名稱與倒數徽章並排：稀缺性要跟商品名一起被讀到才有作用 */}
@@ -336,7 +336,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="flex flex-col justify-center">
-              <p className="text-tea-green-ink font-medium tracking-[0.3em] text-xs uppercase mb-4">
+              <p className="text-tea-green-ink font-medium tracking-eyebrow text-xs uppercase mb-4">
                 {t("philosophy.sectionLabel")}
               </p>
               <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-3 tracking-display">
@@ -421,7 +421,7 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-3">{t("experiences.sectionLabel")}</p>
+                <p className="text-tea-green-ink text-xs tracking-eyebrow uppercase mb-3">{t("experiences.sectionLabel")}</p>
                 <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2 tracking-display">{t("experiences.title")}</h2>
                 <p className="text-tea-text-muted text-body-lg">{t("experiences.tagline")}</p>
               </div>
@@ -513,7 +513,7 @@ export default async function HomePage() {
       <section className="py-section md:py-section-xl bg-tea-text">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mb-14">
-            <p className="text-tea-green-pale text-xs tracking-[0.3em] uppercase mb-5">
+            <p className="text-tea-green-pale text-xs tracking-eyebrow uppercase mb-5">
               {t("brandStory.sectionLabel")}
             </p>
             <h2 className="font-serif text-3xl md:text-5xl font-normal text-tea-cream-light mb-7 leading-snug whitespace-pre-line tracking-display">

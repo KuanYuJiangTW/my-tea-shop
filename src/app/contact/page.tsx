@@ -25,7 +25,7 @@ export default async function ContactPage() {
       {/* Page Header */}
       <section className="bg-tea-green-mist border-b border-tea-green-pale/50 py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase font-medium mb-3">
+          <p className="text-tea-green-ink text-xs tracking-eyebrow uppercase font-medium mb-3">
             {t("hero.sectionLabel")}
           </p>
           <h1 className="font-serif text-4xl md:text-5xl font-normal text-tea-text mb-3 tracking-display">

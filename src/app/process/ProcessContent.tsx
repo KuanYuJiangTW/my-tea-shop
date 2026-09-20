@@ -243,7 +243,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
           <div className="absolute -bottom-16 -right-16 w-64 h-64 bg-tea-cream/50 rounded-full" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-5">{t("tableTitle")}</p>
+          <p className="text-tea-green-ink text-xs tracking-eyebrow uppercase mb-5">{t("tableTitle")}</p>
           <h1 className="font-serif text-5xl md:text-6xl font-normal text-tea-text mb-5 tracking-display">{t("pageTitle")}</h1>
           <div className="w-10 h-0.5 bg-tea-green mx-auto mb-6" />
           <p className="text-tea-text-muted text-lg max-w-xl mx-auto leading-relaxed">{t("pageTagline")}</p>
@@ -653,7 +653,7 @@ export default function ProcessContent({ experiences, contents }: Props) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <p className="text-tea-green-ink text-xs tracking-[0.3em] uppercase mb-3">
+                <p className="text-tea-green-ink text-xs tracking-eyebrow uppercase mb-3">
                   {t("experienceCta.sectionLabel")}
                 </p>
                 <h2 className="font-serif text-3xl md:text-4xl font-normal text-tea-text mb-2 tracking-display">
