@@ -719,49 +719,18 @@ the API may result in the temporary or permanent suspension」。次要因素是
 
 ### 還沒做的
 
-已搬到 2026-09-23 節（全檔唯一的待辦清單一律維護在最後一節）。
-
----
-
-## 2026-09-23 萬鷺朝鳳：Google 自動完成 × GSC 對照，調整攻略文與 llms.txt
-
-- 目標：找出陌生人搜「萬鷺朝鳳／黃頭鷺」用的字，對照 GSC（3 個月 1,560 點擊／2.52 萬曝光／平均排名 4.4），補上沒接住的搜尋意圖
-- 分支：`feat/egret-search-intent`（從 `docs/worklog-post-suspension` 分出，含其 WORKLOG commit）。使用者沒要求開 PR，**尚未開**
-
-### 發現（決策依據）
-
-| 意圖 | GSC（前 10 查詢） | 判讀 |
-|---|---|---|
-| 時間（最佳時間2026 等 4 條） | 520 點擊、CTR 15.8%、排 2.1–4.5 | 贏家，守住 |
-| 地點（最佳地點、地點） | 103 點擊、CTR 7.1%、排 3.3–5.1 | 「地點」排 3.3 只有 4.1%，偏低 |
-| 導航（景觀平台停車場、賞鷺景觀平台、信淳茶居） | 86 點擊、1,754 曝光、排 **1.1–1.5**、CTR 4.9% | 點擊被 Google 地圖地標吃掉 |
-| 主詞「萬鷺朝鳳」 | 64 點擊、2,074 曝光、排 **7.6** | 最大缺口；前面幾乎都是新聞 |
-
-- Google 自動完成有、我們沒接住：**路線**（第 2 名）、行程／一日遊、住宿／民宿、露營、影片，以及整群「黃頭鷺遷徙／過境／是候鳥嗎／是白鷺鷥嗎」
-- 前 10 查詢只佔點擊 50%、曝光 34%——**長尾 262 條沒看到**，下次請業主從 GSC 匯出 CSV
-- SERP：唯一六組查詢全進前十的攻略文是 vocus／背包客棧（hhann，2025-09），列 7 個觀賞點＋住宿＋周邊，**沒有信淳茶居**
-- **「歸巢」無依據**：攻略文、體驗頁共 5 處，已記入 lessons 與 owner-source-quotes §2.7
-
-### 已完成
-
-- 程式碼（commit `cc033f7`，已 push）：llms.txt 新增「萬鷺朝鳳快速事實」；導航區塊標題「怎麼來：開車路線與導航」＋路況寫出「經太平 36 彎」；owner-source-quotes §2.7–2.9。證據：`npm run test` 86 檔／1142 條全綠、tsc 無錯、lint 0 error；本機預覽確認導航區塊文字已算繪
-- Sanity **草稿**（未發布）：攻略文標題改「2026 萬鷺朝鳳最佳時間與地點｜…」、新增「黃頭鷺是什麼鳥？」「一天怎麼排？要不要過夜？」兩段、去掉「歸巢」、無人機改寫成縣府禁航公告；體驗頁 seoDescription／介紹同步去「歸巢／中繼棲地／roost」、「一杯」→「一罐」冷泡茶。變更全文見 commit 內本節與 owner-source-quotes
-
-### 還沒做的
-
-- **Sanity 萬鷺朝鳳草稿待業主點頭後發布**（`drafts.article-cattle-egret-viewing-guide`、`drafts.41af4b37-91f6-43e3-9745-bacd89b10bd7`）。跨日發布要把 updatedAt 改成發布當天。
-- **⏰ 本季補拍黃頭鷺特寫**（賞鳥季到 **10/11**，過了等明年）。`public/images/gallery/` 一張鳥都沒有。同時卡住「第四階照片」。**瓶頸是攝影不是程式。**
-- **Google 地圖認領「梅山太興村賞黃頭鷺景觀平台停車場」，網站填攻略文網址**：導航型查詢排第 1 但點擊被地圖地標吃掉；信淳茶居商家檔案也補賞鳥照片與說明。只有業主能做。
-- **寫信給 vocus／背包客棧作者 hhann**（六組查詢全進前十、7 個觀賞點沒有信淳茶居），再來是方格子／好好玩 FUNIT／承錠旅行日記。不必等任何程式。
-- **攻略文「太興村還有哪些地方可以看」**：等業主決定列不列鄰居（建議列名稱、不列價格，名單由業主提供）。
-- **PR #30 待合併**（`claude/gifted-bell-caace2`，Sanity 發布後前台快取沒清）：CI 全綠、可乾淨合併，合併會觸發 Vercel 部署。
-- **2027 季前（約 7 月）換年**：攻略文標題、體驗 seoDescription、llms.txt 的「2026」與無人機公告日期；同時從 GSC 匯出全部查詢做長尾分析。業主規劃中的住宿開張時補住宿段（§2.9）。
-- **兩項事實還沒問到業主**，見 `docs/owner-source-quotes.md` §4：紅茶運費含不含在 800 內、llms.txt「賞鳥起點就是自家的茶居與停車場」。**確認前不可以寫進文案。**
-- 商品詳情頁仍不存在（`openspec/BACKLOG.md` 的 `product-detail-pages`，也是「認真補 AI 搜尋收錄」的前置）。
-- 清測試資料：訂單 `R2608-E59D`、`R2608-RHCJ` 與綠界測試信用卡那筆（`is_test` 可篩，但後台列表看得到）。
+- **⏰ 本季補拍黃頭鷺特寫**（賞鳥季到 **10/11**，過了等明年）。`public/images/gallery/` 一張鳥都沒有。同時卡住「第四階照片」：覆蓋率 36.9%→55–65%、商品照改 4:5 直式。**瓶頸是攝影不是程式。**
+- **PR #30 待合併**（`claude/gifted-bell-caace2`，Sanity 發布後前台快取沒清）：CI 全綠、可乾淨合併，合併會觸發 Vercel 部署到正式站。
+- **寫信給攻略文作者**（不必等任何程式，回報最高的一項）：方格子／背包客棧／好好玩 FUNIT／承錠旅行日記的觀賞地點名單裡**信淳茶居一個都沒進**，AI 搜尋回答「萬鷺朝鳳在哪看」抓的就是那些頁。
+- **業主要在 Supabase SQL Editor 跑 `supabase/add_bird_report.sql`**，鳥況功能才會啟用（詳見 08-31（續）節；建表後請送一則測試回報，有資料的顯示路徑只在單元測試層級驗過）。
+- **兩項事實還沒問到業主**，見 `docs/owner-source-quotes.md` §4：紅茶運費含不含在 800 內、`llms.txt` 的「賞鳥起點就是**自家的**茶居與停車場」。**確認前不可以寫進文案。**
+- 商品詳情頁仍不存在（商品全擠在 `/products` 一頁，高單價茶葉沒有著陸頁）。在 `openspec/BACKLOG.md` 的 `product-detail-pages`，也是「認真補 AI 搜尋收錄」的前置。
+- 清測試資料：訂單 `R2608-E59D`、`R2608-RHCJ` 與綠界測試信用卡那筆（`is_test` 可篩，不混進營收數字，但後台列表看得到）。
 - 零碎：Sanity FAQ 可補三條（帶長輩／推車、下雨、幾點到最好）；ChatWidget 被浮動條頂上去沒在真手機看過。
-- 5 個 openspec change 的去向待確認：`tea-process-multi-tea` 等 checker 複驗、`ai-search-seo` 等 Cloudflare 數據、`experience-open-class-request` 等上線實跑、`coupon-shipping-touchpoints` 等確認 `CRON_SECRET`、`experience-seasonal-ordering` 還在寫（3.3／3.4／4.4）。
-- 四份 agent 記憶仍是「種子」，尚未經實際使用累積；Vercel MCP 尚未安裝。
+- 5 個 openspec change 的去向待確認（都不是殭屍）：`tea-process-multi-tea` 等 checker 複驗、`ai-search-seo` 等 Cloudflare 儀表板數據、`experience-open-class-request` 等上線實跑、`coupon-shipping-touchpoints` 等確認 `CRON_SECRET`、`experience-seasonal-ordering` 還在寫（3.3／3.4／4.4）。
+- 四份 agent 記憶仍是「種子」（從既有 lessons／WORKLOG／測試檔整理進去並標明），尚未經實際使用累積。
+- Vercel MCP 尚未安裝（Supabase 唯讀與 Sanity 已於 `88ad271` 裝好，等權杖那項已結案）。
 
-> 已結案移除：「業主要跑 `supabase/add_bird_report.sql`」——2026-09-23 正式站攻略文已顯示 9/22 的鳥況回報，表已建立、功能在跑。
-> 這裡是**全檔唯一的待辦清單**。**一律維護在本檔最後一節**——hook 只讀最後一節，開新節時要把這份清單一併搬過去。按輕重排且**刻意一項一行**。
+> 這裡是**全檔唯一的待辦清單**，2026-09-04 建立、2026-09-20 從該節搬來本節。
+> **一律維護在本檔最後一節**——hook 只讀最後一節，開新節時要把這份清單一併搬過去。
+> 按輕重排且**刻意一項一行**：hook 只顯示前 8 行，換行寫會讓後面的項目擠不進開場提示。
