@@ -726,7 +726,7 @@ the API may result in the temporary or permanent suspension」。次要因素是
 ## 2026-09-23 萬鷺朝鳳：Google 自動完成 × GSC 對照，調整攻略文與 llms.txt
 
 - 目標：找出陌生人搜「萬鷺朝鳳／黃頭鷺」用的字，對照 GSC（3 個月 1,560 點擊／2.52 萬曝光／平均排名 4.4），補上沒接住的搜尋意圖
-- 分支：`feat/egret-search-intent`（從 `docs/worklog-post-suspension` 分出，含其 WORKLOG commit）。業主 2026-09-23 同意後開 PR（見下）
+- 分支：`feat/egret-search-intent`（從 `docs/worklog-post-suspension` 分出，含其 WORKLOG commit）。業主同意後開 PR #32，**2026-09-24 合併**（merge commit `9af88ef`，連帶把 #31 一起合進去）；部署約 90 秒上線，`deploy-check` 14 項全過（含 6 條本次改動的 `--expect`：llms.txt 交通與其他觀鷺點、導航區塊兩段步行時間、`#section-s3` 錨點、按鈕副標、導覽頁精簡版）
 
 ### 發現（決策依據）
 
@@ -764,7 +764,7 @@ the API may result in the temporary or permanent suspension」。次要因素是
 - **⏰ 本季補拍黃頭鷺特寫**（賞鳥季到 **10/11**，過了等明年）。`public/images/gallery/` 一張鳥都沒有。同時卡住「第四階照片」。**瓶頸是攝影不是程式。**
 - **景觀平台停車場的 Google 商家檔案（業主已在管理，§2.10）**：網站欄位填攻略文、說明寫明「沒有洗手間，洗手間與座位在信淳茶居」、每天貼鳥況、回覆評論；信淳茶居檔案同步。只有業主能做。
 - **寫信給 vocus／背包客棧作者 hhann**（六組查詢全進前十、7 個觀賞點沒有信淳茶居），再來是方格子／好好玩 FUNIT／承錠旅行日記。不必等任何程式。
-- **驗收（9/24 起）**：正式站已換成新版（2026-09-24 確認：新標題、茶居優先的「在哪裡看？」、黃頭鷺段、導覽頁新摘要都在，「歸巢」0 處）；**PR #32 合併後**再跑 `deploy-check` 看 llms.txt 與導航區塊；兩週後在 GSC 看導覽頁點閱率（基準 0.7%）與「萬鷺朝鳳」排名（基準 7.6）有沒有動。
+- **驗收（9/24 起）**：正式站已換成新版（2026-09-24 確認：新標題、茶居優先的「在哪裡看？」、黃頭鷺段、導覽頁新摘要都在，「歸巢」0 處）；PR #32 已合併、deploy-check 已過；**兩週後（約 10/8）**在 GSC 看導覽頁點閱率（基準 0.7%）與「萬鷺朝鳳」排名（基準 7.6）有沒有動。
 - **PR #30 待合併**（`claude/gifted-bell-caace2`，Sanity 發布後前台快取沒清）：CI 全綠、可乾淨合併，合併會觸發 Vercel 部署。
 - **2027 季前（約 7 月）換年**：攻略文標題、體驗 seoDescription、llms.txt 的「2026」與無人機公告日期；同時從 GSC 匯出全部查詢做長尾分析。業主規劃中的住宿開張時補住宿段（§2.9）。
 - **兩項事實還沒問到業主**，見 `docs/owner-source-quotes.md` §4：紅茶運費含不含在 800 內、llms.txt「賞鳥起點就是自家的茶居與停車場」。**確認前不可以寫進文案。**

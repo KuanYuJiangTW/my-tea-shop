@@ -70,10 +70,11 @@ const SECTION_MEDIA: Record<string, Record<string, ArticleImage>> = {
     },
     "想拍照的話": {
       src:   "/images/tea-guide/photographers.jpg",
-      alt:   "一整排遊客沿著矮牆望向山谷拍照，視野開闊沒有電線橫過",
-      altEn: "Visitors lined along the low wall photographing the valley, with no power lines in the view",
-      caption:   "這個角度沒有電線橫過，長焦取景不必閃。",
-      captionEn: "No power lines cross this view — nothing to dodge with a long lens.",
+      alt:   "一整排遊客沿著矮牆望向山谷拍照",
+      altEn: "Visitors lined along the low wall photographing the valley",
+      // 原本寫「這個角度沒有電線橫過」，業主 2026-09-24 更正：右側與下方有電線，只是拍鳥群時擋不到
+      caption:   "鳥群一般從左往右飛，長焦跟著拍，右側和下方的電線基本上擋不到。",
+      captionEn: "The flock usually crosses from left to right; the power lines to the right and below rarely get in the frame.",
     },
   },
 };
