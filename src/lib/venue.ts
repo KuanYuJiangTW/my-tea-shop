@@ -76,15 +76,23 @@ export const DRIVE_TIMES: DriveTime[] = [
   { from: "高鐵嘉義站",   fromEn: "THSR Chiayi Station",      minutes: 70 },
 ];
 
-/** 路況。山路焦慮是真的，這一句消掉的猶豫比任何文案都多 */
+/**
+ * 路況。山路焦慮是真的，這一句消掉的猶豫比任何文案都多。
+ *
+ * 「經太平 36 彎」是業主確認的路線（2026-09-23）。寫出路名是因為「萬鷺朝鳳路線」
+ * 是 Google 自動完成的第 2 名，全站原本沒有一個字回答它。
+ * 傍晚那句：看完鳥大約 6 點，秋天天暗得快，下山剛好就是彎道那一段
+ */
 export const ROAD_NOTE =
-  "全程柏油路，一般轎車就可以直接開到門口，不需要四輪傳動；會車也不困難。";
+  "從梅山交流道上山會經過太平的 36 彎。彎多，但全程柏油路，一般轎車就可以直接開到門口，不需要四輪傳動；會車也不困難。" +
+  "看完鳥大約傍晚 6 點，這個季節天暗得快，下山的彎道請慢慢開。";
 /** 精簡版用。體驗頁的讀者已經在看這款要不要訂，只需要一句「開得上去」 */
 export const ROAD_NOTE_SHORT    = "全程柏油路，轎車可到";
 export const ROAD_NOTE_SHORT_EN = "Sealed road all the way, fine for an ordinary car";
 
 export const ROAD_NOTE_EN =
-  "Sealed road the whole way. An ordinary car gets you to the door — no 4WD needed, and passing oncoming traffic is not a problem.";
+  "From Meishan Interchange the road climbs through the 36 bends at Taiping. Plenty of curves, but sealed the whole way: an ordinary car gets you to the door — no 4WD needed, and passing oncoming traffic is not a problem. " +
+  "The birds wind down around 6pm and it gets dark quickly in autumn, so take the bends slowly on the way down.";
 
 /**
  * Google 地圖的通用導航連結。

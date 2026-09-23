@@ -2039,7 +2039,7 @@
     "byline": "Reported by us, who live here. It disappears if we have not updated in two days."
   },
   "visit": {
-    "title": "Getting here",
+    "title": "Getting here: route and directions",
     "intro": "Both spots see the birds — navigate to whichever you are heading for.",
     "navigateTo": "Directions to {place}",
     "driveMinutes": "about {minutes} min"
