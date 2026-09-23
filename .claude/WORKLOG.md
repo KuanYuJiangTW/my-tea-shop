@@ -754,6 +754,8 @@ the API may result in the temporary or permanent suspension」。次要因素是
 - **第二、三輪 Sanity 已發布**（業主同意／指示，2026-09-23）：導覽頁搜尋摘要改成先答「3 點到 6 點最壯觀」再帶導覽；攻略文依 §2.11 改成**信淳茶居當主角**——摘要先講茶居、「在哪裡看？」段先推茶居，景觀平台停車場／太興飛瀑停車場／四家鄰居合成一段帶過並引回茶居，另加樟湖（雲林）消歧。copy-guardian 兩輪核對，最後一輪抓到 llms.txt 英文缺兩句已補
 - 程式碼同步：導航按鈕副標並列「有洗手間與座位」vs「免費・沒有洗手間與座位」、導航說明改成「導航設信淳茶居就對了」、llms.txt 茶居排第一並帶過其他觀鷺點
 - **沒開車的交通**（2026-09-24，業主原話 §2.12）：導航區塊加「搭公車梅山站→橫山站、上下山車次先查好、機車可直接騎到信淳茶居」，標題改「怎麼來：開車路線、公車與機車」，精簡版與 llms.txt 同步。測試釘住原話關鍵字，並禁止出現業主沒給的數字（反向驗證過：塞假的「7 路」會紅）
+- **電線更正（Sanity 3 處，2026-09-24）**：攻略文 `s3`、`s5b` 第 1 段與導覽頁 `notes[3]` 中英文照 §2.13 改寫，全站掃「沒有電線|無電線|no power lines」＝ 0。Sanity 連接器連不上，改用 `.env.local` 的 `SANITY_API_WRITE_TOKEN`：**原本那把已失效**（回 `SIO-401-AEX Session is expired`；網站程式沒用到它，正式站不受影響），業主當天在 sanity.io/manage 新建一把 Editor 權杖換上。另：Sanity 新版後台點專案會把 `/studio` 嵌進 iframe，被本站 `X-Frame-Options: SAMEORIGIN` 擋成「taiwantea.store refused to connect」——不是 Sanity 故障，要直接開 taiwantea.store/studio
+- **電線更正（PR #33，2026-09-24 合併上線）**：照片說明、方案引言、體驗備援注意事項、llms.txt 拿掉「視野沒有電線」，`egret-copy.test.ts` 釘住；deploy-check 11 項通過
 - 攻略文目錄錨點改用 Sanity `_key`（`#section-s2` 取代 `#section-2`）：GSC 匯出顯示 7 個錨點被 Google 當跳轉連結、各 7,000+ 曝光，用序號的話每插一段就全部位移
 
 - 程式碼（commit `cc033f7`，已 push）：llms.txt 新增「萬鷺朝鳳快速事實」；導航區塊標題「怎麼來：開車路線與導航」＋路況寫出「經太平 36 彎」；owner-source-quotes §2.7–2.9。證據：`npm run test` 86 檔／1142 條全綠、tsc 無錯、lint 0 error；本機預覽確認導航區塊文字已算繪
