@@ -13,6 +13,8 @@ import {
  */
 
 export interface ArticleSection {
+  /** Sanity 陣列項目的 key。當段落錨點用：插入新段落時不會讓其他段的錨點位移 */
+  _key?:         string;
   heading:       string;
   headingEn?:    string;
   paragraphs:    string[];

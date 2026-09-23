@@ -126,6 +126,10 @@ export default async function ArticlePage({ params }: Props) {
   }));
   const linked = new Set<string>();
   const renderedSections = localizedSections.map((s, i) => ({
+    // 錨點用 Sanity 的 _key 而不是第幾段：Google 會把目錄錨點當「跳轉連結」秀在搜尋結果
+    // （萬鷺朝鳳攻略每個錨點各有 7,000+ 曝光，GSC 2026-09-23），用序號的話中間插一段
+    // 後面的錨點全部指錯段。沒有 _key（備援資料）才退回序號
+    anchor:     `section-${article.sections[i]?._key ?? i}`,
     heading:    s.heading,
     // 查表用中文原文，不用翻譯後的小標——否則英文頁會查不到圖
     image:      sectionImageFor(slug, article.sections[i]?.heading ?? ""),
@@ -212,7 +216,7 @@ export default async function ArticlePage({ params }: Props) {
             <ol className="px-5 pb-4 pt-1 space-y-2">
               {renderedSections.map((s, i) => (
                 <li key={`toc-${i}`}>
-                  <a href={`#section-${i}`} className="text-body text-tea-green-ink hover:underline underline-offset-2">
+                  <a href={`#${s.anchor}`} className="text-body text-tea-green-ink hover:underline underline-offset-2">
                     {s.heading}
                   </a>
                 </li>
@@ -224,7 +228,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="space-y-10">
           {renderedSections.map((section, i) => (
             <section key={`${section.heading}-${i}`}>
-              <h2 id={`section-${i}`} className="font-serif text-xl md:text-2xl font-normal text-tea-text mb-4 scroll-mt-20 tracking-display">
+              <h2 id={section.anchor} className="font-serif text-xl md:text-2xl font-normal text-tea-text mb-4 scroll-mt-20 tracking-display">
                 {section.heading}
               </h2>
               <div className="space-y-4">
