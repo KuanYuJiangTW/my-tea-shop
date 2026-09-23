@@ -144,3 +144,35 @@ describe("三階方案的引言不得與免費卡片打架", () => {
     expect(admission("en").intro.toLowerCase()).toContain("tea house");
   });
 });
+
+// ── 電線（業主 2026-09-24 更正，owner-source-quotes §2.13）────────────────────
+//
+// 攻略文、體驗頁、llms.txt、照片說明曾寫「視野沒有電線橫過」。實際上視野右側與下方有電線，
+// 只是拍鳥群時基本上擋不到。客人帶長焦來一看就知道——這是 JUDG-11 (b) 那一類：
+// 到了現場會發現跟寫的不一樣。Sanity 的文案測試碰不到，這裡釘住 repo 裡的每一個來源。
+
+/** 去掉整行註解：改動紀錄的註解會引用舊說法，那不是對外文案 */
+const withoutComments = (src: string) =>
+  src.split(/\r?\n/).filter(l => !/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
+
+describe("不得宣稱視野沒有電線", () => {
+  const sources = [
+    "public/llms.txt",
+    "messages/zh.json",
+    "messages/en.json",
+    "src/lib/experiences.ts",
+    "src/lib/tea-guide-media.ts",
+    "src/lib/venue.ts",
+  ];
+
+  it.each(sources)("%s 沒有「沒有電線」這類宣稱", file => {
+    expect(withoutComments(read(file))).not.toMatch(/沒有電線|無電線|no power lines|nothing to dodge/i);
+  });
+
+  it("體驗頁備援的注意事項照業主原話講：電線在右側與下方，拍鳥群基本上擋不到", () => {
+    // egretBlock() 只切到 coverImage 之前（tagline），注意事項在後面，所以讀整檔（去註解）
+    const src = withoutComments(read("src/lib/experiences.ts"));
+    expect(src).toContain("電線在視野右側與下方");
+    expect(src).toContain("基本上擋不到");
+  });
+});
