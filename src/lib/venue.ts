@@ -89,8 +89,24 @@ export const ROAD_NOTE =
   "從梅山交流道上山會經過太平的 36 彎。彎多，但全程柏油路，一般轎車就可以直接開到門口，不需要四輪傳動；會車也不困難。" +
   "看完鳥大約傍晚 6 點，這個季節天暗得快，下山的彎道請慢慢開。";
 /** 精簡版用。體驗頁的讀者已經在看這款要不要訂，只需要一句「開得上去」 */
-export const ROAD_NOTE_SHORT    = "全程柏油路，轎車可到";
-export const ROAD_NOTE_SHORT_EN = "Sealed road all the way, fine for an ordinary car";
+export const ROAD_NOTE_SHORT    = "全程柏油路，汽機車都可到；沒開車可搭公車到橫山站";
+export const ROAD_NOTE_SHORT_EN = "Sealed road all the way, fine by car or scooter; no car? Bus to Hengshan stop";
+
+/**
+ * 沒有開車的人怎麼來。業主原話（2026-09-23，owner-source-quotes §2.12）：
+ * 搭公車梅山站到橫山站、步行到觀景平台、要看好上下山車次；機車比汽車好停、歡迎直接到茶居。
+ *
+ * 為什麼要寫：GSC 出現 Google AI 模式的追問「有接駁車」「騎機車」「大眾運輸」，攻略文原本沒答。
+ * 路線編號、班次數、步行時間都**沒有**寫——業主沒給，官方時刻表也沒查到，寫了就是猜的。
+ * 「傍晚」那句是給搭公車的人：鳥最好看的時段接近末班車，回程沒查好會被困在山上
+ */
+export const NO_CAR_NOTE =
+  "沒有開車也可以來：搭公車從梅山站坐到橫山站下車，再走到賞鳥的景觀平台停車場，信淳茶居就在旁邊（走路 3 到 5 分鐘）。" +
+  "鳥最壯觀是傍晚，上山和下山的車次都要先查好。騎機車更方便，比汽車好停，歡迎直接騎到信淳茶居。";
+
+export const NO_CAR_NOTE_EN =
+  "No car? Take the bus from Meishan station to Hengshan stop, then walk to the viewing platform car park — Xinchun Tea House is right next to it, a 3 to 5 minute walk. " +
+  "The birds are best towards dusk, so check the bus times both up and back down before you set out. A scooter is even easier: much simpler to park than a car, and you are welcome to ride straight to Xinchun Tea House.";
 
 export const ROAD_NOTE_EN =
   "From Meishan Interchange the road climbs through the 36 bends at Taiping. Plenty of curves, but sealed the whole way: an ordinary car gets you to the door — no 4WD needed, and passing oncoming traffic is not a problem. " +

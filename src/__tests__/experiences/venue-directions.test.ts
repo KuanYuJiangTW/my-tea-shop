@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 import {
-  DRIVE_TIMES, ROAD_NOTE, ROAD_NOTE_EN, STREET_ADDRESS,
+  DRIVE_TIMES, NO_CAR_NOTE, NO_CAR_NOTE_EN, ROAD_NOTE, ROAD_NOTE_EN, STREET_ADDRESS,
   TEA_HOUSE, VIEWING_PLATFORM, directionsUrl,
 } from "@/lib/venue";
 import { showsDirectionsAfter } from "@/lib/tea-guide-media";
@@ -111,6 +111,20 @@ describe("車程與路況", () => {
   it("路況要講明轎車可以——山路焦慮是勸退主因，不能只說「開車可到」", () => {
     expect(ROAD_NOTE).toContain("轎車");
     expect(ROAD_NOTE_EN.toLowerCase()).toContain("ordinary car");
+  });
+
+  it("沒開車的交通照業主原話：梅山站搭到橫山站、上下山車次要查好、機車可以直接到茶居（§2.12）", () => {
+    for (const word of ["梅山站", "橫山站", "車次", "機車", "信淳茶居"]) {
+      expect(NO_CAR_NOTE).toContain(word);
+    }
+    expect(NO_CAR_NOTE_EN).toContain("Hengshan");
+    expect(NO_CAR_NOTE_EN.toLowerCase()).toContain("scooter");
+  });
+
+  it("沒開車那段不寫業主沒給的數字——路線編號、班次、步行分鐘數都是猜的", () => {
+    // 唯一允許的數字是「走路 3 到 5 分鐘」：那是停車場到茶居的距離，業主給過（§2.4）
+    const digits = NO_CAR_NOTE.replace("走路 3 到 5 分鐘", "").match(/\d+/g) ?? [];
+    expect(digits).toEqual([]);
   });
 
   it("地址與 email 樣板用的是同一個", () => {
