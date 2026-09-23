@@ -2039,8 +2039,8 @@
     "byline": "Reported by us, who live here. It disappears if we have not updated in two days."
   },
   "visit": {
-    "title": "Getting here",
-    "intro": "Both spots see the birds — navigate to whichever you are heading for.",
+    "title": "Getting here: driving route, bus and scooter",
+    "intro": "Navigate to Xinchun Tea House: the seats, toilets, tea and the tour meeting point are all here. If its spaces are full, the viewing platform car park next door works too.",
     "navigateTo": "Directions to {place}",
     "driveMinutes": "about {minutes} min"
   },

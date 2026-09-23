@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 import {
-  DRIVE_TIMES, ROAD_NOTE, ROAD_NOTE_EN, STREET_ADDRESS,
+  DRIVE_TIMES, NO_CAR_NOTE, NO_CAR_NOTE_EN, ROAD_NOTE, ROAD_NOTE_EN, STREET_ADDRESS,
   TEA_HOUSE, VIEWING_PLATFORM, directionsUrl,
 } from "@/lib/venue";
 import { showsDirectionsAfter } from "@/lib/tea-guide-media";
@@ -111,6 +111,30 @@ describe("車程與路況", () => {
   it("路況要講明轎車可以——山路焦慮是勸退主因，不能只說「開車可到」", () => {
     expect(ROAD_NOTE).toContain("轎車");
     expect(ROAD_NOTE_EN.toLowerCase()).toContain("ordinary car");
+  });
+
+  it("沒開車的交通照業主原話：梅山站搭到橫山站、上下山車次要查好、機車可以直接到茶居（§2.12）", () => {
+    for (const word of ["梅山站", "橫山站", "車次", "機車", "信淳茶居"]) {
+      expect(NO_CAR_NOTE).toContain(word);
+    }
+    expect(NO_CAR_NOTE_EN).toContain("Hengshan");
+    expect(NO_CAR_NOTE_EN.toLowerCase()).toContain("scooter");
+  });
+
+  it("兩段步行各自寫出起訖點：橫山站→停車場 20 到 24 分鐘、停車場→茶居 3 到 5 分鐘（業主 2026-09-24 糾正）", () => {
+    // 第一版只寫「走到停車場，茶居就在旁邊（走路 3 到 5 分鐘）」，讀起來像下車走 3 到 5 分鐘就到
+    expect(NO_CAR_NOTE).toMatch(/從橫山站走到[^。]*停車場大約 20 到 24 分鐘/);
+    expect(NO_CAR_NOTE).toMatch(/再走 3 到 5 分鐘就到信淳茶居/);
+    expect(NO_CAR_NOTE_EN).toContain("20 to 24 minute walk");
+  });
+
+  it("沒開車那段不寫業主沒給的數字——路線編號、班次都是猜的", () => {
+    // 允許的數字只有業主給過的兩段步行時間（§2.4、§2.12）與回程提醒的「20 多分鐘」
+    const rest = NO_CAR_NOTE
+      .replace("20 到 24 分鐘", "")
+      .replace("3 到 5 分鐘", "")
+      .replace("20 多分鐘", "");
+    expect(rest.match(/\d+/g) ?? []).toEqual([]);
   });
 
   it("地址與 email 樣板用的是同一個", () => {
