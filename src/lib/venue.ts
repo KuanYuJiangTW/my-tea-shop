@@ -36,21 +36,23 @@ export const TEA_HOUSE: VenueDestination = {
   nameEn:      "Xinchun Tea House",
   shortName:   "信淳茶居",
   shortNameEn: "Xinchun Tea House",
-  forWho:   "看鳥茶位・導覽集合點",
-  forWhoEn: "Tea seat & tour meeting point",
+  // 兩顆按鈕並排時，差別要一眼看得出來：停車場那邊沒有的，就是這邊有的（業主 2026-09-23：
+  // 要把停在免費停車場的客人也吸引到茶居）。只寫設施事實，不寫評價
+  forWho:   "有洗手間與座位・導覽集合點",
+  forWhoEn: "Toilets and seating · tour meeting point",
   lat:      23.5537537,
   lng:      120.6324229,
   placeUrl: "https://maps.app.goo.gl/CcCb82auLo4VK3J88",
 };
 
-/** 免費賞鳥；也是茶居 7 個車位停滿時的備案 */
+/** 免費賞鳥、沒有洗手間與座位；茶居 7 個車位停滿時停這裡（攻略文與導航說明都只帶過它，§2.11） */
 export const VIEWING_PLATFORM: VenueDestination = {
   name:        "梅山太興村賞黃頭鷺景觀平台停車場",
   nameEn:      "Cattle Egret Viewing Platform Car Park",
   shortName:   "景觀平台停車場",
   shortNameEn: "Viewing platform car park",
-  forWho:   "免費賞鳥・茶居車位停滿時的備案",
-  forWhoEn: "Free viewing, and the overflow when the tea house is full",
+  forWho:   "免費・沒有洗手間與座位",
+  forWhoEn: "Free · no toilets or seating",
   lat:      23.553223,
   lng:      120.632091,
   placeUrl: "https://maps.app.goo.gl/hEcSc69WydcHouLD9",
