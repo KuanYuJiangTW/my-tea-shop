@@ -16,3 +16,6 @@
 ## 驗證招式
 
 - 2026-08-31（種子）新增要進版控的 `.claude/` 子項後，用 `git check-ignore -v <路徑>` 實查——該目錄的 `.gitignore` 是 `.claude/*` 加白名單制，漏加白名單會靜默被忽略。
+- 2026-09-24 驗「不含以下字串」條件用 `grep -n -E '字串1|字串2|...'` 對目標檔一次掃完，比逐字串搜快；但要當「逐字比對」處理，不管上下文語意——即使字串出現在無關語境（如「賞鳥五不」通用範本裡的「不損毀棲地」，跟黃頭鷺棲地宣稱無關），只要條件寫的是「不含字串」就照字面判 FAIL，不要自行判讀語意替它開脫。
+- 2026-09-24 驗大量出處網址用 `curl -s -o /dev/null -L -A "Mozilla/5.0" -w "%{http_code}"` 批次跑，但 news.ltn.com.tw 這類站台常見第一次 timeout（`000`）、重跑 1-2 次就變 200（CloudFront 瞬斷），要重試排除誤判；若重試多次仍 `000` 且 `Could not resolve host`（DNS NXDOMAIN），才是真的失效，才列為 FAIL。
+  - 更正（主對話，同日）：`Could not resolve host` 也可能是**驗收環境自己的 DNS** 出問題。當天 `rhps.cyc.edu.tw` 在 checker 解析失敗，主對話 `nslookup` 解析得到、`curl` 連 3 次皆 200。判 FAIL 前先 `nslookup <host>`；解析不到就回報「不確定：本環境 DNS 解析失敗」，不要直接判網址失效。
