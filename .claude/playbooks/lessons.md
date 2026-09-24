@@ -107,6 +107,18 @@
 - 規則：驗元素存在與否**不要 grep 原始 HTML 的文案字串**。改為：查該元素獨有的 class 或 `data-*`、用 `read_page` 看無障礙樹、或在頁面裡跑 `document.querySelector(...)`。要 grep 就 grep **只會出現在算繪結果**的東西（元素標籤 + class），不要 grep 訊息字典裡也有的文字。
 - 去處：暫存於此。
 
+## 2026-09-05 webhook 的 filter 沒涵蓋某個型別時，是「零次投遞」而不是「失敗的投遞」
+- 情境：Sanity 發文章後前台六分鐘不換。查到 webhook 存在、Sanity 後台的投遞紀錄全是 200，於是先往「secret 漂了」猜（本機 `.env.local` 自己簽章打正式站確實回 401）。真正的原因是 hook 的 `rule.filter` 只有 `_type == "experience"`，文章發布從來沒產生過任何一次投遞——最後一筆紀錄停在六天前。
+- 代價：從 401 這條假線索出發查了三邊 secret，其實 Sanity↔Vercel 一直是對的，漂掉的是與正式環境無關的本機 `.env.local`。
+- 規則：查「webhook 沒生效」時，**第一件事是看最近一次投遞的時間戳**，不是看它的狀態碼。時間戳停在事發之前＝根本沒觸發，要去查 filter／trigger；只有時間戳是新的、狀態碼才有意義。查法：`GET https://api.sanity.io/v2025-08-04/hooks/projects/<pid>/<hookId>/attempts`（本 repo 已包成 `npm run check:sanity-hook`）。
+- 去處：暫存於此。檢查已自動化為 `scripts/check-sanity-hook.mjs`。
+
+## 2026-09-05 動態渲染的頁面沒有 route cache，`revalidatePath` 清不到它裡面的 fetch
+- 情境：同上。以為 `revalidatePath("/tea-guide/[slug]", "page")` 已經涵蓋文章頁。本站因 middleware 的 nonce CSP 幾乎每頁都是動態渲染（`npm run build` 的路由表 `ƒ` 就是），卡住的是 fetch data cache。
+- 代價：差點只改 filter 就收工，留下第二個一樣無聲的洞——`ALL_ARTICLES_QUERY` 由 `/tea-guide` 列表頁或 `sitemap.ts` 先寫進快取時，清 `/tea-guide/[slug]` 也清不到它。
+- 規則：fetch data cache 的鍵只由請求本身決定，Next 掛上去的隱含 tag 是**第一個寫入它的路由**的路徑（`next/dist/server/lib/implicit-tags.js`）。所以共用查詢一律在 fetch 上下**顯式 `next.tags`**，用 `revalidateTag` 清；`revalidatePath` 只當 route cache 那一層的補充。Next 16 的 `revalidateTag` 第二參數必填，立即過期寫 `{ expire: 0 }`。
+- 去處：暫存於此。已落實在 `src/sanity/client.ts` 的 `SANITY_CACHE_TAG`。
+
 ## 2026-09-23 攻略文替鳥的行為編了一個原因（「歸巢」），上線一個月沒人發現
 
 - 情境：做萬鷺朝鳳的 SEO 時派研究員查黃頭鷺事實，才發現攻略文、體驗頁、英文版共 5 處寫「3 點到 6 點最壯觀——那是牠們歸巢的時間」（英文 return to roost／head home）。
@@ -217,15 +229,3 @@
 - **供應商下架模型，聊天小幫手全站掛掉——而健康檢查一路回綠燈** — **已升格為 JUDG-8 第 4 判準**（監控本身也要能變紅）。Groq 下架 `llama-3.3-70b-versatile`，硬編的 model ID 打回 404 被 catch 吞成 503；健康檢查回的是硬編 `{ok:true}`，從沒真的碰過 Groq
 - **往 template literal 裡加字串，反引號把整個字串截斷，lint 全綠只有 tsc 會紅** — **已併入 JUDG-5**（四件套不可省 tsc）。在 template literal 內新增文字時內容不得含反引號，要標示程式符號改用「」或直接寫成文字
 - **hook 擋掉整條複合命令，前半段的 `git checkout -b` 也沒跑，commit 落到 main** — **已升格為 JUDG-2**（commit 前先 `git status -sb`）。中斷的複合命令是「全部沒做」不是「做到一半」；切分支與提交不要串在同一條命令裡
-
-## 2026-09-05 webhook 的 filter 沒涵蓋某個型別時，是「零次投遞」而不是「失敗的投遞」
-- 情境：Sanity 發文章後前台六分鐘不換。查到 webhook 存在、Sanity 後台的投遞紀錄全是 200，於是先往「secret 漂了」猜（本機 `.env.local` 自己簽章打正式站確實回 401）。真正的原因是 hook 的 `rule.filter` 只有 `_type == "experience"`，文章發布從來沒產生過任何一次投遞——最後一筆紀錄停在六天前。
-- 代價：從 401 這條假線索出發查了三邊 secret，其實 Sanity↔Vercel 一直是對的，漂掉的是與正式環境無關的本機 `.env.local`。
-- 規則：查「webhook 沒生效」時，**第一件事是看最近一次投遞的時間戳**，不是看它的狀態碼。時間戳停在事發之前＝根本沒觸發，要去查 filter／trigger；只有時間戳是新的、狀態碼才有意義。查法：`GET https://api.sanity.io/v2025-08-04/hooks/projects/<pid>/<hookId>/attempts`（本 repo 已包成 `npm run check:sanity-hook`）。
-- 去處：暫存於此。檢查已自動化為 `scripts/check-sanity-hook.mjs`。
-
-## 2026-09-05 動態渲染的頁面沒有 route cache，`revalidatePath` 清不到它裡面的 fetch
-- 情境：同上。以為 `revalidatePath("/tea-guide/[slug]", "page")` 已經涵蓋文章頁。本站因 middleware 的 nonce CSP 幾乎每頁都是動態渲染（`npm run build` 的路由表 `ƒ` 就是），卡住的是 fetch data cache。
-- 代價：差點只改 filter 就收工，留下第二個一樣無聲的洞——`ALL_ARTICLES_QUERY` 由 `/tea-guide` 列表頁或 `sitemap.ts` 先寫進快取時，清 `/tea-guide/[slug]` 也清不到它。
-- 規則：fetch data cache 的鍵只由請求本身決定，Next 掛上去的隱含 tag 是**第一個寫入它的路由**的路徑（`next/dist/server/lib/implicit-tags.js`）。所以共用查詢一律在 fetch 上下**顯式 `next.tags`**，用 `revalidateTag` 清；`revalidatePath` 只當 route cache 那一層的補充。Next 16 的 `revalidateTag` 第二參數必填，立即過期寫 `{ expire: 0 }`。
-- 去處：暫存於此。已落實在 `src/sanity/client.ts` 的 `SANITY_CACHE_TAG`。
