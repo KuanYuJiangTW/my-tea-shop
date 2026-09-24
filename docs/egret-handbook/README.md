@@ -14,7 +14,7 @@
 | `qr-guide.svg` | 封底 QR code，連到攻略文 `/tea-guide/cattle-egret-viewing-guide`（有「最近的鳥況」） | 要換連結就重新產生，見下方 |
 | `build.mjs` | 產生 PDF 與文字稿，順便檢查有沒有內容超出版心 | — |
 
-照片直接引用 `public/images/tea-guide/` 的兩張（`egret-flock-poster.jpg`、`egret-band.jpg`），沒有另外複製一份。
+照片直接引用 `public/images/tea-guide/` 的三張（`egret-flock-poster.jpg`、`egret-band.jpg`、`photographers.jpg`），都是網站上已在用的，沒有另外複製一份。
 
 ## 怎麼輸出
 
@@ -67,7 +67,7 @@ node -e "require('qrcode').toString('新的網址',{type:'svg',errorCorrectionLe
 | 12 | 視野與電線、拍攝技巧 | §2.13（A 版）；曝光建議屬一般攝影常識 |
 | 13 | 賞鳥五不、無人機公告、下雨、36 彎 | 出處 16、17；§2.6、§2.8 |
 | 14 | 美洲與澳洲的擴散史 | 出處 18 |
-| 15 | 推廣是大家一起的、最早報導、赤腹鷹、鳥況回報 | §2.2、§2.5；出處 1、19、20 |
+| 15 | 推廣是大家一起的、最早報導、赤腹鷹、鳥況回報；遊客望向溪谷的照片（圖說不寫地點） | §2.2、§2.5；出處 1、19、20 |
 | 16 | 出處、電話、地址、QR | 全站統一的電話與地址 |
 
 ### 刻意不寫的事
