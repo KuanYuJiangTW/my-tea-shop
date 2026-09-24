@@ -4,7 +4,7 @@
 //
 // handbook.html 是唯一的原稿。content.md（純文字稿）、handbook.pdf（A5 閱讀順序）、
 // handbook-print-A4.pdf（拼好版、給影印店的印刷檔）都從它產生，
-// 不要手改那兩個檔——改了下次重跑就會被蓋掉，而且會跟印出來的版本對不上。
+// 不要手改這三個產物——改了下次重跑就會被蓋掉，而且會跟印出來的版本對不上。
 //
 // 需要本機的 Edge 或 Chrome（用 headless 模式排版、輸出 PDF）。找不到時可設環境變數 BROWSER 指定路徑。
 import { execFileSync } from "node:child_process";
