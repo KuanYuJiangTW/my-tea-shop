@@ -1,8 +1,9 @@
-// 萬鷺朝鳳生態解說手冊：由 handbook.html 產生 handbook.pdf 與 content.md
+// 萬鷺朝鳳生態解說手冊：由 handbook.html 產生 handbook.pdf、handbook-print-A4.pdf 與 content.md
 //
 //   node docs/egret-handbook/build.mjs
 //
-// handbook.html 是唯一的原稿。content.md（純文字稿）與 handbook.pdf（印刷檔）都從它產生，
+// handbook.html 是唯一的原稿。content.md（純文字稿）、handbook.pdf（A5 閱讀順序）、
+// handbook-print-A4.pdf（拼好版、給影印店的印刷檔）都從它產生，
 // 不要手改那兩個檔——改了下次重跑就會被蓋掉，而且會跟印出來的版本對不上。
 //
 // 需要本機的 Edge 或 Chrome（用 headless 模式排版、輸出 PDF）。找不到時可設環境變數 BROWSER 指定路徑。
@@ -49,6 +50,58 @@ const pages = (pdfText.match(/\/Type\s*\/Page[^s]/g) || []).length;
 const box = pdfText.match(/MediaBox\s*\[\s*0 0 ([\d.]+) ([\d.]+)\s*\]/);
 console.log(`handbook.pdf：${pages} 頁，${box ? `${(box[1] / 72 * 25.4).toFixed(0)}×${(box[2] / 72 * 25.4).toFixed(0)}mm` : "尺寸不明"}`);
 if (pages % 4 !== 0) console.warn(`⚠ 頁數 ${pages} 不是 4 的倍數，騎馬釘會多出空白頁`);
+
+// ── 1b. 拼好版的 A4 印刷檔（給影印店或家用印表機直接雙面印、對折、騎馬釘）──
+// 每張 A4 橫放＝兩個 A5 並排。騎馬釘的頁序：第 1 張正面 16｜1、背面 2｜15，往內依序類推。
+// 版面的左右頁（頁碼在外側）原本靠 :nth-of-type 判斷，搬進 .sheet 之後會算錯，所以先把位置寫死再搬。
+const imposer = `<style>
+@page { size: 297mm 210mm; margin: 0; }
+.sheet { width: 297mm; height: 210mm; display: flex; break-after: page; overflow: hidden; }
+.sheet:last-of-type { break-after: auto; }
+.sheet > .page { break-after: auto; margin: 0 !important; box-shadow: none !important; flex: none; }
+@media screen { body { padding: 0; } .sheet { margin: 0 auto 8mm; box-shadow: 0 2px 12px rgb(61 74 66 / .18); } }
+</style>
+<script>
+(() => {
+  const pages = [...document.querySelectorAll("section.page")];
+  const n = pages.length;
+  pages.forEach((p, i) => {
+    const f = p.querySelector(".folio");
+    if (f) { f.style.left = i % 2 ? "13mm" : "auto"; f.style.right = i % 2 ? "auto" : "13mm"; }
+  });
+  const sides = [];
+  for (let k = 0; k < n / 2; k++) {
+    // 正面（k 為偶數）：左＝後段頁、右＝前段頁；背面相反
+    const lo = k + 1, hi = n - k;
+    sides.push(k % 2 === 0 ? [hi, lo] : [lo, hi]);
+  }
+  const frag = document.createDocumentFragment();
+  sides.forEach(([l, r]) => {
+    const s = document.createElement("div");
+    s.className = "sheet";
+    s.dataset.pages = l + "|" + r;
+    s.append(pages[l - 1], pages[r - 1]);
+    frag.append(s);
+  });
+  document.body.append(frag);
+})();
+</script>`;
+const impDir = mkdtempSync(join(tmpdir(), "egret-impose-"));
+const printPdf = join(DIR, "handbook-print-A4.pdf");
+try {
+  const impHtml = join(impDir, "impose.html");
+  writeFileSync(impHtml, readFileSync(SRC, "utf8")
+    .replace("<head>", `<head><base href="${pathToFileURL(DIR).href}/">`)
+    .replace("</body>", `${imposer}</body>`));
+  run(["--no-pdf-header-footer", "--run-all-compositor-stages-before-draw", `--print-to-pdf=${printPdf}`, pathToFileURL(impHtml).href]);
+} finally {
+  rmSync(impDir, { recursive: true, force: true });
+}
+const printText = readFileSync(printPdf).toString("latin1");
+const sheetsSides = (printText.match(/\/Type\s*\/Page[^s]/g) || []).length;
+const box2 = printText.match(/MediaBox\s*\[\s*0 0 ([\d.]+) ([\d.]+)\s*\]/);
+console.log(`handbook-print-A4.pdf：${sheetsSides} 面（${sheetsSides / 2} 張 A4 雙面），${box2 ? `${(box2[1] / 72 * 25.4).toFixed(0)}×${(box2[2] / 72 * 25.4).toFixed(0)}mm` : "尺寸不明"}`);
+if (sheetsSides * 2 !== pages) { console.error(`⚠ 拼版面數 ${sheetsSides} 對不上 A5 頁數 ${pages}`); process.exitCode = 1; }
 
 // ── 2. 溢出檢查＋純文字稿（在瀏覽器裡從排好的版面抽出來）─────────
 const extractor = `<script>
