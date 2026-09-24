@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
 import {
-  DRIVE_TIMES, ROAD_NOTE, ROAD_NOTE_EN, ROAD_NOTE_SHORT, ROAD_NOTE_SHORT_EN,
+  DRIVE_TIMES, NO_CAR_NOTE, NO_CAR_NOTE_EN, ROAD_NOTE, ROAD_NOTE_EN, ROAD_NOTE_SHORT, ROAD_NOTE_SHORT_EN,
   STREET_ADDRESS, STREET_ADDRESS_EN,
   TEA_HOUSE, VIEWING_PLATFORM, directionsUrl, type VenueDestination,
 } from "@/lib/venue";
@@ -73,7 +73,7 @@ export default async function VisitDirections({ compact = false }: { compact?: b
 
   return (
     <section className="rounded-2xl border border-tea-green-pale bg-tea-cream/60 p-5 md:p-6">
-      <h3 className="font-serif text-body-lg font-bold text-tea-text mb-1.5">{t("title")}</h3>
+      <h3 className="font-serif text-body-lg font-semibold text-tea-text mb-1.5">{t("title")}</h3>
       {!compact && <p className="text-body text-tea-text-muted mb-4">{t("intro")}</p>}
 
       {/* 茶居排前面：它是集合點，也是三種方式裡有兩種要去的地方 */}
@@ -105,6 +105,7 @@ export default async function VisitDirections({ compact = false }: { compact?: b
           </dl>
 
           <p className="text-body text-tea-text-muted mt-4">{isEn ? ROAD_NOTE_EN : ROAD_NOTE}</p>
+          <p className="text-body text-tea-text-muted mt-3">{isEn ? NO_CAR_NOTE_EN : NO_CAR_NOTE}</p>
           <p className="text-caption text-tea-text-muted mt-2">{isEn ? STREET_ADDRESS_EN : STREET_ADDRESS}</p>
         </>
       )}

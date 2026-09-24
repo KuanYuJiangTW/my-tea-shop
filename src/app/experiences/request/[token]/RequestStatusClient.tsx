@@ -54,7 +54,7 @@ export default function RequestStatusClient({ token, locale }: { token: string; 
     fetchRequest(token).then(d => { setData(d); setLoading(false); });
   }
 
-  if (loading) return <p className="text-tea-text-light">{t("loading")}</p>;
+  if (loading) return <p className="text-tea-text-muted">{t("loading")}</p>;
 
   if (!data) {
     return (
@@ -62,7 +62,7 @@ export default function RequestStatusClient({ token, locale }: { token: string; 
         <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" aria-hidden="true" />
         <div>
           <p className="text-body font-medium text-tea-text">{t("invalidTitle")}</p>
-          <p className="text-caption text-tea-text-light mt-1">{t("invalidNote")}</p>
+          <p className="text-caption text-tea-text-muted mt-1">{t("invalidNote")}</p>
         </div>
       </div>
     );
@@ -76,13 +76,13 @@ export default function RequestStatusClient({ token, locale }: { token: string; 
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-2xl border border-tea-green-pale p-6">
-        <p className="text-caption text-tea-green font-medium">{t("label")}</p>
-        <h1 className="font-serif text-2xl font-bold text-tea-text mt-1">
+        <p className="text-caption text-tea-green-ink font-medium">{t("label")}</p>
+        <h1 className="font-serif text-2xl font-normal text-tea-text mt-1 tracking-display">
           {t("statusTitle", { status: t(`status.${data.status}`) })}
         </h1>
-        <p className="text-caption text-tea-text-light mt-1">{data.requestNo}</p>
+        <p className="text-caption text-tea-text-muted mt-1">{data.requestNo}</p>
 
-        <dl className="mt-5 space-y-2 text-body text-tea-text-light">
+        <dl className="mt-5 space-y-2 text-body text-tea-text-muted">
           <div className="flex gap-3">
             <dt className="w-24 shrink-0 text-tea-text">{t("experience")}</dt>
             <dd>{isEn ? (data.experience?.nameEn || data.experience?.name) : data.experience?.name}</dd>
@@ -103,17 +103,17 @@ export default function RequestStatusClient({ token, locale }: { token: string; 
           )}
         </dl>
 
-        {msg && <p className="text-caption text-tea-green mt-4">{msg}</p>}
+        {msg && <p className="text-caption text-tea-green-ink mt-4">{msg}</p>}
 
         {canPay && (
           <div className="mt-5 bg-tea-green-mist rounded-control p-4">
             <p className="text-body text-tea-text flex items-start gap-2">
-              <CalendarCheck className="w-5 h-5 text-tea-green mt-0.5 shrink-0" aria-hidden="true" />
+              <CalendarCheck className="w-5 h-5 text-tea-green-ink mt-0.5 shrink-0" aria-hidden="true" />
               <span>{t("approvedNote", { expires: data.tokenExpiresAt?.slice(0, 16).replace("T", " ") ?? "" })}</span>
             </p>
             <Link
               href={lp(`/experiences/booking/${data.sessionId}`)}
-              className="inline-block mt-3 text-label font-medium px-5 py-2.5 rounded-control bg-tea-green text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard"
+              className="inline-block mt-3 text-label font-medium px-5 py-2.5 rounded-control bg-tea-green-dark text-white hover:bg-tea-green-dark transition-colors duration-base ease-standard"
             >{t("payCta")}</Link>
           </div>
         )}
@@ -122,14 +122,14 @@ export default function RequestStatusClient({ token, locale }: { token: string; 
           <button
             onClick={withdraw}
             disabled={busy}
-            className="mt-5 text-caption text-tea-text-light underline hover:text-tea-text disabled:opacity-50"
+            className="mt-5 text-caption text-tea-text-muted underline hover:text-tea-text disabled:opacity-50"
           >{t("withdraw")}</button>
         )}
       </div>
 
-      <p className="text-caption text-tea-text-light">
+      <p className="text-caption text-tea-text-muted">
         {t("help")}{" "}
-        <Link href={lp("/contact")} className="text-tea-green underline">{t("contact")}</Link>
+        <Link href={lp("/contact")} className="text-tea-green-ink underline">{t("contact")}</Link>
       </p>
     </div>
   );

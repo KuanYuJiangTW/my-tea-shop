@@ -45,7 +45,7 @@ export default async function SeasonBadge({ windows, name, className = "" }: Pro
           ? { label: t("lastDay"), tone: "bg-amber-500 text-white" }
           : {
               label: t("inSeason", { endsOn: fmt(state.endsOn), daysLeft: state.daysLeft }),
-              tone:  "bg-tea-green text-white",
+              tone:  "bg-tea-green-dark text-white",
             };
       case "upcoming":
         return {
@@ -53,7 +53,7 @@ export default async function SeasonBadge({ windows, name, className = "" }: Pro
           tone:  "bg-tea-cream text-tea-text border border-tea-green-pale",
         };
       case "ended":
-        return { label: t("ended"), tone: "bg-tea-text-light/15 text-tea-text-light" };
+        return { label: t("ended"), tone: "bg-tea-text-light/15 text-tea-text-muted" };
     }
   })();
 

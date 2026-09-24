@@ -28,7 +28,11 @@ export default async function TrustRow({ locale }: { locale: string }) {
   const returnPolicyHref = locale === "en" ? "/en/return-policy" : "/return-policy";
 
   return (
-    <div className="mt-12 rounded-card bg-tea-green-mist p-card md:p-card-lg">
+    // 底色 2026-09-02 從 bg-tea-green-mist(#EBF3EE) 改為 bg-tea-cream(#F5F0E8)。
+    // 兩者**明度完全相同**（都是 L.957），只有色相差 79°（H159 冷綠 vs H80 暖米）——
+    // 同明度做不出層次，只做出色塊，而且它是整頁唯一的冷色。
+    // 換成暖的之後與父層 cream-light 的落差不變（ΔL −.020），信任資訊照樣安靜地退在後面。
+    <div className="mt-12 rounded-card bg-tea-cream p-card md:p-card-lg">
       <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <li className="flex items-start gap-3">
           <ClockIcon />

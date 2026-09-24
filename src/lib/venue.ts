@@ -36,21 +36,23 @@ export const TEA_HOUSE: VenueDestination = {
   nameEn:      "Xinchun Tea House",
   shortName:   "信淳茶居",
   shortNameEn: "Xinchun Tea House",
-  forWho:   "看鳥茶位・導覽集合點",
-  forWhoEn: "Tea seat & tour meeting point",
+  // 兩顆按鈕並排時，差別要一眼看得出來：停車場那邊沒有的，就是這邊有的（業主 2026-09-23：
+  // 要把停在免費停車場的客人也吸引到茶居）。只寫設施事實，不寫評價
+  forWho:   "有洗手間與座位・導覽集合點",
+  forWhoEn: "Toilets and seating · tour meeting point",
   lat:      23.5537537,
   lng:      120.6324229,
   placeUrl: "https://maps.app.goo.gl/CcCb82auLo4VK3J88",
 };
 
-/** 免費賞鳥；也是茶居 7 個車位停滿時的備案 */
+/** 免費賞鳥、沒有洗手間與座位；茶居 7 個車位停滿時停這裡（攻略文與導航說明都只帶過它，§2.11） */
 export const VIEWING_PLATFORM: VenueDestination = {
   name:        "梅山太興村賞黃頭鷺景觀平台停車場",
   nameEn:      "Cattle Egret Viewing Platform Car Park",
   shortName:   "景觀平台停車場",
   shortNameEn: "Viewing platform car park",
-  forWho:   "免費賞鳥・茶居車位停滿時的備案",
-  forWhoEn: "Free viewing, and the overflow when the tea house is full",
+  forWho:   "免費・沒有洗手間與座位",
+  forWhoEn: "Free · no toilets or seating",
   lat:      23.553223,
   lng:      120.632091,
   placeUrl: "https://maps.app.goo.gl/hEcSc69WydcHouLD9",
@@ -76,15 +78,42 @@ export const DRIVE_TIMES: DriveTime[] = [
   { from: "高鐵嘉義站",   fromEn: "THSR Chiayi Station",      minutes: 70 },
 ];
 
-/** 路況。山路焦慮是真的，這一句消掉的猶豫比任何文案都多 */
+/**
+ * 路況。山路焦慮是真的，這一句消掉的猶豫比任何文案都多。
+ *
+ * 「經太平 36 彎」是業主確認的路線（2026-09-23）。寫出路名是因為「萬鷺朝鳳路線」
+ * 是 Google 自動完成的第 2 名，全站原本沒有一個字回答它。
+ * 傍晚那句：看完鳥大約 6 點，秋天天暗得快，下山剛好就是彎道那一段
+ */
 export const ROAD_NOTE =
-  "全程柏油路，一般轎車就可以直接開到門口，不需要四輪傳動；會車也不困難。";
+  "從梅山交流道上山會經過太平的 36 彎。彎多，但全程柏油路，一般轎車就可以直接開到門口，不需要四輪傳動；會車也不困難。" +
+  "看完鳥大約傍晚 6 點，這個季節天暗得快，下山的彎道請慢慢開。";
 /** 精簡版用。體驗頁的讀者已經在看這款要不要訂，只需要一句「開得上去」 */
-export const ROAD_NOTE_SHORT    = "全程柏油路，轎車可到";
-export const ROAD_NOTE_SHORT_EN = "Sealed road all the way, fine for an ordinary car";
+export const ROAD_NOTE_SHORT    = "全程柏油路，汽機車都可到；沒開車可搭公車到橫山站，再步行約 20–24 分鐘";
+export const ROAD_NOTE_SHORT_EN = "Sealed road all the way, fine by car or scooter; no car? Bus to Hengshan stop, then about a 20–24 minute walk";
+
+/**
+ * 沒有開車的人怎麼來。業主原話（2026-09-23／24，owner-source-quotes §2.12）：
+ * 搭公車梅山站到橫山站、步行 20~24 分鐘到觀景平台、要看好上下山車次；機車比汽車好停、歡迎直接到茶居。
+ *
+ * 為什麼要寫：GSC 出現 Google AI 模式的追問「有接駁車」「騎機車」「大眾運輸」，攻略文原本沒答。
+ * 路線編號與班次數**沒有**寫——業主沒給，官方時刻表也沒查到，寫了就是猜的。
+ *
+ * **兩段路要各自寫出起訖點與時間**（2026-09-24 業主糾正）：第一版只寫「走到停車場，茶居就在旁邊
+ * （走路 3 到 5 分鐘）」，讀起來像下車走 3 到 5 分鐘就到——實際上橫山站到停車場要 20~24 分鐘，
+ * 3 到 5 分鐘是停車場到茶居。回程也一樣要走 20 多分鐘，所以「查車次」要把走回去的時間算進去
+ */
+export const NO_CAR_NOTE =
+  "沒有開車也可以來：搭公車從梅山站坐到橫山站下車，從橫山站走到賞鳥的景觀平台停車場大約 20 到 24 分鐘，再走 3 到 5 分鐘就到信淳茶居。" +
+  "鳥最壯觀是傍晚，上山和下山的車次都要先查好，回程記得把走回橫山站的 20 多分鐘算進去。騎機車更方便，比汽車好停，歡迎直接騎到信淳茶居。";
+
+export const NO_CAR_NOTE_EN =
+  "No car? Take the bus from Meishan station to Hengshan stop. From Hengshan it is about a 20 to 24 minute walk to the viewing platform car park, and Xinchun Tea House is another 3 to 5 minutes on. " +
+  "The birds are best towards dusk, so check the bus times both up and back down before you set out, and allow 20-odd minutes to walk back to Hengshan stop. A scooter is even easier: much simpler to park than a car, and you are welcome to ride straight to Xinchun Tea House.";
 
 export const ROAD_NOTE_EN =
-  "Sealed road the whole way. An ordinary car gets you to the door — no 4WD needed, and passing oncoming traffic is not a problem.";
+  "From Meishan Interchange the road climbs through the 36 bends at Taiping. Plenty of curves, but sealed the whole way: an ordinary car gets you to the door — no 4WD needed, and passing oncoming traffic is not a problem. " +
+  "The birds wind down around 6pm and it gets dark quickly in autumn, so take the bends slowly on the way down.";
 
 /**
  * Google 地圖的通用導航連結。

@@ -86,6 +86,7 @@ export const ARTICLE_BY_SLUG_QUERY = `
     keywords,
     keywordsEn,
     sections[]{
+      _key,
       heading,
       headingEn,
       paragraphs,

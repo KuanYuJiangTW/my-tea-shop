@@ -65,7 +65,7 @@ describe("faqPageJsonLd", () => {
     const jsonLd = faqPageJsonLd(
       [
         { heading: "這件事是怎麼開始的", paragraphs: ["很久以前。"] },
-        { heading: "想拍照的話", paragraphs: ["視野沒有電線。"] },
+        { heading: "想拍照的話", paragraphs: ["下午四點以後光線最好。"] },
       ],
       PAGE_URL,
     );

@@ -305,7 +305,7 @@
     },
     "admission": {
       "title": "Watching costs nothing",
-      "intro": "The choice is whether you want a seat and whether you want someone to explain it. You can see the birds from the car park — which is also ours, and parking there is free, but there is no seating and there are no toilets. Seats, toilets and the clear view with no power lines are all at the tea house, three to five minutes' walk away.",
+      "intro": "The choice is whether you want a seat and whether you want someone to explain it. You can see the birds from the car park — which is also ours, and parking there is free, but there is no seating and there are no toilets. Seats and toilets are at the tea house, three to five minutes' walk away.",
       "free": "Free",
       "perPerson": " / person",
       "bookableOnline": "Bookable online",
@@ -2039,8 +2039,8 @@
     "byline": "Reported by us, who live here. It disappears if we have not updated in two days."
   },
   "visit": {
-    "title": "Getting here",
-    "intro": "Both spots see the birds — navigate to whichever you are heading for.",
+    "title": "Getting here: driving route, bus and scooter",
+    "intro": "Navigate to Xinchun Tea House: the seats, toilets, tea and the tour meeting point are all here. If its spaces are full, the viewing platform car park next door works too.",
     "navigateTo": "Directions to {place}",
     "driveMinutes": "about {minutes} min"
   },
