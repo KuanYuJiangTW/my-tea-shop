@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>萬鷺朝鳳生態解說手冊</title>
+<meta name="description" content="萬鷺朝鳳・茶山導覽隨行的生態解說手冊，A5 十六頁，2026 秋季版。">
+<!--
+  印刷版原稿，也是唯一的原稿：handbook.pdf 與 content.md 都由 build.mjs 從這裡產生。
+  改文字前先讀同資料夾的 README.md——每一句的依據、刻意不寫的事、每年要換的東西都在那裡。
+  版面是 A5（148×210mm）直式、16 頁，可騎馬釘。
+  刻意不做滿版出血：底色一律白、照片留白框，家用印表機與影印店都印得出來。
+-->
+<style>
+@page { size: 148mm 210mm; margin: 0; }
+
+:root {
+  --ink: #3D4A42;
+  --ink-deep: #2E3833;
+  --muted: #637169;
+  --green: #7D9B84;
+  --green-ink: #58745F;
+  --green-pale: #C8DDD0;
+  --cream: #F5F0E8;
+  --cream-dark: #EDE8DC;
+  /* 整本唯一的暖色：黃頭鷺繁殖羽的橙黃。只用在「牠身上本來就是這個顏色」的地方 */
+  --buff: #CF9552;
+  --bill: #E3B04B;
+  --legs-breeding: #B8704E;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: 8.8pt;
+  line-height: 1.75;
+  color: var(--ink);
+  background: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ── 頁面 ───────────────────────────── */
+.page {
+  width: 148mm;
+  height: 210mm;
+  padding: 14mm 13mm 16mm;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  break-after: page;
+  display: flex;
+  flex-direction: column;
+}
+.page:last-of-type { break-after: auto; }
+.folio {
+  position: absolute;
+  bottom: 8mm;
+  font-size: 6.4pt;
+  letter-spacing: .12em;
+  color: var(--muted);
+}
+/* 用 of-type：body 第一個子元素是共用圖形的 <svg>，nth-child 會把奇偶數算反 */
+.page:nth-of-type(odd) .folio  { right: 13mm; }
+.page:nth-of-type(even) .folio { left: 13mm; }
+.folio b { font-weight: 600; color: var(--ink); margin: 0 .6em; }
+
+@media screen {
+  body { background: #D8D5CE; padding: 8mm 0; }
+  .page { margin: 0 auto 8mm; box-shadow: 0 2px 12px rgb(61 74 66 / .18); }
+}
+
+/* ── 字 ─────────────────────────────── */
+h1, h2, h3 { font-family: "Noto Serif TC", serif; font-weight: 400; margin: 0; }
+h2 { font-size: 15.5pt; line-height: 1.4; letter-spacing: .04em; margin: 1.2mm 0 4mm; }
+h3 { font-size: 9.6pt; font-weight: 600; line-height: 1.5; margin: 0 0 1.4mm; }
+.eyebrow {
+  font-size: 6.6pt;
+  letter-spacing: .25em;
+  color: var(--green-ink);
+  font-weight: 500;
+}
+p { margin: 0 0 2.4mm; text-align: justify; }
+.lead { font-size: 9.6pt; line-height: 1.85; }
+.note { font-size: 7.2pt; line-height: 1.65; color: var(--muted); }
+.note p { margin-bottom: 1.4mm; }
+sup.ref { font-size: 5.6pt; color: var(--green-ink); margin-left: .5px; vertical-align: 3.2pt; line-height: 0; }
+.en { font-family: "Noto Serif TC", serif; font-style: italic; letter-spacing: .02em; }
+.num { font-feature-settings: "tnum"; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+/* ── 元件 ─────────────────────────────── */
+.panel { background: var(--cream); border-radius: 3mm; padding: 3.6mm 4.2mm; }
+.panel + .panel { margin-top: 3mm; }
+.rule { border-top: .3mm solid var(--cream-dark); margin: 3.2mm 0; }
+.spacer { flex: 1; }
+figure { margin: 0; }
+figure img { width: 100%; display: block; border-radius: 1.2mm; }
+figcaption { font-size: 7pt; line-height: 1.6; color: var(--muted); margin-top: 1.6mm; }
+svg text { font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
+
+.facts { display: grid; grid-template-columns: auto 1fr; column-gap: 4mm; row-gap: 1.6mm; font-size: 8.2pt; line-height: 1.6; }
+.facts dt { color: var(--muted); white-space: nowrap; }
+.facts dd { margin: 0; }
+
+.bullets li { position: relative; padding-left: 3.6mm; margin-bottom: 1.6mm; }
+.bullets li::before { content: ""; position: absolute; left: .4mm; top: 2.2mm; width: 1.4mm; height: 1.4mm; border-radius: 50%; background: var(--green); }
+
+.steps { counter-reset: s; }
+.steps li { counter-increment: s; position: relative; padding-left: 7mm; margin-bottom: 2mm; }
+.steps li::before {
+  content: counter(s);
+  position: absolute; left: 0; top: .3mm;
+  width: 4.6mm; height: 4.6mm; border-radius: 50%;
+  border: .3mm solid var(--green-ink); color: var(--green-ink);
+  font-size: 6.8pt; line-height: 4.1mm; text-align: center; font-weight: 600;
+}
+
+/* 時間軸 */
+.timeline { display: grid; grid-template-columns: 19mm 1fr; row-gap: 2.6mm; }
+.timeline .t { font-family: "Noto Serif TC", serif; font-size: 9.4pt; color: var(--ink-deep); font-feature-settings: "tnum"; }
+.timeline .d { font-size: 8.2pt; line-height: 1.6; }
+.timeline .d b { font-weight: 600; }
+
+/* 路線 */
+.route { display: flex; flex-direction: column; gap: 0; margin: 1mm 0 3mm; }
+.route .stop { display: grid; grid-template-columns: 6mm 1fr; align-items: start; }
+.route .dot { width: 3mm; height: 3mm; border-radius: 50%; border: .35mm solid var(--green-ink); background: #fff; margin: 1.1mm 0 0 .8mm; position: relative; z-index: 1; }
+.route .stop.here .dot { background: var(--buff); border-color: var(--buff); }
+.route .line { border-left: .35mm dotted var(--green); margin-left: 2.25mm; height: 3.2mm; }
+.route .name { font-size: 8.6pt; font-weight: 600; line-height: 1.6; }
+.route .sub { font-size: 7.2pt; color: var(--muted); line-height: 1.5; }
+
+/* 紀錄表 */
+.log { font-size: 8.4pt; }
+.log .row { display: grid; grid-template-columns: 26mm 1fr; align-items: end; min-height: 8.2mm; border-bottom: .25mm dotted var(--green); padding-bottom: 1mm; }
+.log .row span.l { color: var(--muted); }
+.log .choices { display: flex; gap: 3.4mm; flex-wrap: wrap; }
+.log .choices i { font-style: normal; }
+.log .choices i::before { content: "○ "; color: var(--green); }
+.sketch { border: .3mm dashed var(--green); border-radius: 2mm; height: 34mm; margin-top: 3mm; position: relative; }
+.sketch span { position: absolute; left: 3mm; top: 2mm; font-size: 7pt; color: var(--muted); }
+
+/* 封面 */
+.cover { padding: 16mm 13mm 13mm; }
+.cover .eyebrow { margin-bottom: 7mm; }
+.cover h1 { font-size: 36pt; letter-spacing: .16em; line-height: 1.15; color: var(--ink-deep); }
+.cover .subtitle { font-family: "Noto Serif TC", serif; font-size: 12.5pt; letter-spacing: .3em; margin-top: 3mm; }
+.cover .en { font-size: 8.4pt; color: var(--muted); margin-top: 2mm; }
+.cover figure { margin-top: 9mm; }
+.cover figure img { border-radius: 0; aspect-ratio: 4 / 3.1; object-fit: cover; }
+.cover .foot { display: flex; justify-content: space-between; align-items: flex-end; font-size: 7.2pt; color: var(--muted); }
+.cover .foot b { font-family: "Noto Serif TC", serif; font-weight: 600; font-size: 9.6pt; color: var(--ink); letter-spacing: .12em; display: block; margin-bottom: .6mm; }
+
+/* 封底 */
+.refs { font-size: 6.2pt; line-height: 1.5; color: var(--muted); counter-reset: r; }
+.refs li { counter-increment: r; position: relative; padding-left: 4.4mm; margin-bottom: .9mm; word-break: break-all; }
+.refs li::before { content: counter(r); position: absolute; left: 0; color: var(--green-ink); font-weight: 600; }
+.refs li b { color: var(--ink); font-weight: 500; word-break: normal; }
+.year { display: grid; grid-template-columns: 15mm repeat(12, 1fr); gap: .8mm; align-items: center; margin-top: 3mm; font-size: 7pt; }
+.year .mn { text-align: center; color: var(--muted); font-size: 6.4pt; }
+.year .lbl { color: var(--ink); font-size: 7.2pt; white-space: nowrap; }
+.year .m { height: 3.6mm; border-radius: .8mm; background: var(--cream); }
+.year .m.buff { background: var(--buff); }
+.year .m.green { background: var(--green); }
+.chain { display: flex; flex-wrap: wrap; align-items: center; gap: 1.4mm 1.2mm; margin-top: 2mm; font-size: 7.6pt; }
+.chain span { background: #fff; border: .25mm solid var(--green-pale); border-radius: 9999px; padding: .5mm 2.4mm; white-space: nowrap; }
+.chain span.here { background: var(--buff); border-color: var(--buff); color: #fff; font-weight: 600; }
+.chain i { font-style: normal; color: var(--green-ink); font-size: 7pt; }
+.five { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; margin: 1mm 0 4mm; }
+.five div { background: var(--cream); border-radius: 2.4mm; padding: 3mm 1.6mm 2.6mm; text-align: center; }
+.five b { display: block; font-family: "Noto Serif TC", serif; font-weight: 400; font-size: 18pt; line-height: 1.1; color: var(--ink-deep); }
+.five span { display: block; font-size: 7pt; font-weight: 600; margin-top: 1.2mm; }
+.five small { display: block; font-size: 6.6pt; line-height: 1.5; color: var(--muted); margin-top: .8mm; }
+.nb { white-space: nowrap; }
+.contact { display: grid; grid-template-columns: 1fr 24mm; gap: 4mm; align-items: center; }
+.contact img { width: 24mm; height: 24mm; display: block; }
+.contact .tel { font-family: "Noto Serif TC", serif; font-size: 13pt; letter-spacing: .06em; color: var(--ink-deep); }
+</style>
+</head>
+<body>
+
+<!-- 共用圖形：黃頭鷺側面輪廓（面向右）。第 4、5、6 頁都用它，改一處全部跟著變 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="ce-outline" d="M30 110 C44 98 66 88 96 84 C110 82 118 78 122 70 C126 62 126 52 132 44 C136 38 146 35 153 38 C156 39 159 41 160 44 L160 52 C156 56 150 58 148 64 C146 70 147 76 150 84 C154 94 150 106 138 114 C124 122 100 124 80 121 C64 119 46 118 34 116 Z"/>
+    <clipPath id="ce-clip"><use href="#ce-outline"/></clipPath>
+    <g id="ce-legs">
+      <path d="M104 118 L101 148 L105 180"/><path d="M114 117 L119 148 L116 180"/>
+      <path d="M105 180 L94 183 M105 180 L114 184 M105 180 L102 175"/>
+      <path d="M116 180 L106 183 M116 180 L126 183 M116 180 L113 175"/>
+    </g>
+    <g id="ce-head-details">
+      <path d="M158 43 L184 49.5 L158 53 Z" fill="#E3B04B" stroke="#3D4A42" stroke-width="1" stroke-linejoin="round"/>
+      <circle cx="151.5" cy="44" r="1.8" fill="#2E3833"/>
+    </g>
+  </defs>
+</svg>
+
+<!-- ════════ 1 封面 ════════ -->
+<section class="page cover">
+  <div class="eyebrow">嘉義梅山・太興村　2026 秋季版</div>
+  <h1>萬鷺朝鳳</h1>
+  <div class="subtitle">生態解說手冊</div>
+  <div class="en">Ten Thousand Egrets — a field companion</div>
+  <figure>
+    <img src="../../public/images/tea-guide/egret-flock-poster.jpg" alt="成群黃頭鷺聚成一片白色鳥群，飛越太興村溪谷的山壁">
+    <figcaption>從信淳茶居的座位看出去的溪谷。</figcaption>
+  </figure>
+  <div class="spacer"></div>
+  <div class="foot">
+    <div><b>霧抉茶・信淳茶居</b>萬鷺朝鳳・茶山導覽　隨行手冊</div>
+    <div class="num">taiwantea.store</div>
+  </div>
+</section>
+
+<!-- ════════ 2 寫在前面 ════════ -->
+<section class="page">
+  <div class="eyebrow">寫在前面</div>
+  <h2>你今天看到的，<br>是一段旅程的中間</h2>
+  <p class="lead">每年秋天，成群的黃頭鷺往南遷徙，途中經過太興村生毛樹溪的溪谷。牠們在溪谷上空盤旋、變換隊形，然後成群翻過山頭，繼續往南。你今天坐在這裡看到的，是牠們長途旅程裡的一小段。</p>
+  <p>我們一家在太興村種了四十年茶，鳥每年來，我們每年都在。這本手冊把官方機關與研究者查得到的資料，和我們自己在這裡看到的，分開寫清楚；還沒有人知道答案的事，也老實寫出來。內文裡的小數字是出處編號，列在封底。</p>
+
+  <div class="panel" style="margin-top:3mm">
+    <h3>一個下午的節奏</h3>
+    <div class="timeline" style="margin-top:2.4mm">
+      <div class="t">14:00 前後</div><div class="d">第一批鳥陸續出現。導覽在這個時間出發。</div>
+      <div class="t">15:00–18:00</div><div class="d"><b>最壯觀的三個小時。</b>鳥群一波接一波進到溪谷，盤旋、變換隊形。</div>
+      <div class="t">18:00 前後</div><div class="d">最後一波翻過山頭。這個季節天黑得快，山上也開始涼。</div>
+    </div>
+    <p class="note" style="margin:2.6mm 0 0">每一年、每一天的鳥況都不一樣，會受天氣影響。這是多數日子的樣子，不是保證。</p>
+  </div>
+
+  <div class="spacer"></div>
+  <h3>這本手冊怎麼用</h3>
+  <ul class="bullets" style="font-size:8.4pt">
+    <li>等鳥的時候，讀前半本：黃頭鷺是什麼鳥、為什麼在這裡（第 3–9 頁）。</li>
+    <li>鳥來了，翻到後半本：怎麼數、怎麼記、怎麼拍（第 10–13 頁）。</li>
+    <li>回家以後：出處、鳥況查詢與聯絡方式都在封底。</li>
+  </ul>
+  <div class="folio">萬鷺朝鳳<b>2</b></div>
+</section>
+
+<!-- ════════ 3 萬鷺朝鳳 ════════ -->
+<section class="page">
+  <div class="eyebrow">01　萬鷺朝鳳</div>
+  <h2>一件會自己發生的事</h2>
+  <p class="lead">每年 8 月到 10 月，成群的黃頭鷺在午後飛越梅山鄉太興村的茶山；依阿里山國家風景區管理處的說法，從白露到雙十節前後最集<span class="nb">中<sup class="ref">1</sup>。</span>它不是一個蓋好的景點——來對時段看得到，來錯了就是一片安靜的茶山。</p>
+  <p>名字從哪裡來？當地人把生毛樹溪這一段山谷叫做「鳳凰穴」，有報導形容這裡的山谷地形像鳳凰展翅。每年黃頭鷺成群飛越鳳凰穴，便被稱為「萬鷺朝鳳<span class="nb">」<sup class="ref">2</sup>。</span></p>
+  <figure style="margin:1.5mm 0 3.2mm">
+    <img src="../../public/images/tea-guide/egret-band.jpg" alt="黃頭鷺群拉成一條長帶，橫越溪谷對面的山壁">
+    <figcaption>鳥群拉成一條長帶，橫越溪谷對面的山壁。</figcaption>
+  </figure>
+  <dl class="facts">
+    <dt>這條溪</dt><dd>生毛樹溪是清水溪的支流，清水溪再匯入濁水<span class="nb">溪<sup class="ref">3</sup>。</span></dd>
+    <dt>這個村</dt><dd>太興村在梅山鄉東南方，介於太平村與瑞里村之間；茶區海拔約 600–1,000 公<span class="nb">尺<sup class="ref">3</sup>。</span></dd>
+    <dt>有多久了</dt><dd>太興村村長 2018 年受訪時說，黃頭鷺過境這裡已經六、七十<span class="nb">年<sup class="ref">4</sup>。</span></dd>
+    <dt>有多少隻</dt><dd>沒有正式普查。嘉義的生態觀察者蘇家弘長年記錄這群鳥，媒體報導過他單日記到三十二群、逾三萬<span class="nb">隻<sup class="ref">5</sup>。</span>這是個人的現場計數，不是官方統計。</dd>
+  </dl>
+  <div class="folio">萬鷺朝鳳<b>3</b></div>
+</section>
+
+<!-- ════════ 4 黃頭鷺 ════════ -->
+<section class="page" id="p-id">
+  <div class="eyebrow">02　主角</div>
+  <h2>認識黃頭鷺</h2>
+  <p class="lead">萬鷺朝鳳的主角是黃頭鷺。在台灣常見的幾種白鷺裡，牠個子最小、身形最粗短：脖子短、頭圓，嘴短而<span class="nb">黃<sup class="ref">12</sup>。</span></p>
+  <div style="display:grid;grid-template-columns:44mm 1fr;gap:4.5mm;align-items:center;margin:1mm 0 3.6mm">
+    <svg viewBox="14 24 180 170" width="100%" role="img" aria-label="黃頭鷺側面線稿（非繁殖羽）">
+      <rect x="14" y="24" width="180" height="170" rx="10" fill="#F5F0E8"/>
+      <use href="#ce-legs" stroke="#3D4A42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <use href="#ce-outline" fill="#fff"/>
+      <path d="M118 86 C100 97 72 105 40 111" fill="none" stroke="#3D4A42" stroke-width=".8" opacity=".45"/>
+      <use href="#ce-outline" fill="none" stroke="#3D4A42" stroke-width="1.4" stroke-linejoin="round"/>
+      <use href="#ce-head-details"/>
+    </svg>
+    <dl class="facts" style="font-size:7.9pt;row-gap:1.3mm">
+      <dt>中文名</dt><dd>黃頭鷺（別名牛背鷺<span class="nb">）<sup class="ref">6</sup></span></dd>
+      <dt>英文名</dt><dd>Eastern Cattle Egret</dd>
+      <dt>學名</dt><dd><i>Ardea coromanda</i><sup class="ref">6,7</sup></dd>
+      <dt>體長</dt><dd>約 46–56 公分</dd>
+      <dt>翼展</dt><dd>約 88–96 公分</dd>
+      <dt>體重</dt><dd>約 270–512 公<span class="nb">克<sup class="ref">8</sup></span></dd>
+      <dt>紅皮書</dt><dd>臺灣鳥類紅皮書：暫無危<span class="nb">機<sup class="ref">6</sup></span></dd>
+    </dl>
+  </div>
+  <h3>在台灣，牠有四種身分</h3>
+  <p>2026 年的臺灣鳥類名錄，把黃頭鷺同時列為留鳥（不普遍），以及夏候鳥、冬候鳥、過境鳥（都很普遍<span class="nb">）<sup class="ref">7</sup>：</span>有些一年到頭都在，有些夏天來繁殖，有些來過冬，還有一大群只是路過——你今天看到的，就是路過的這一群。</p>
+  <div class="year" aria-label="黃頭鷺在台灣的一年：繁殖季約 3 到 7 月；萬鷺朝鳳約 8 到 10 月">
+    <div class="lbl"></div><div class="mn num">1</div><div class="mn num">2</div><div class="mn num">3</div><div class="mn num">4</div><div class="mn num">5</div><div class="mn num">6</div><div class="mn num">7</div><div class="mn num">8</div><div class="mn num">9</div><div class="mn num">10</div><div class="mn num">11</div><div class="mn num">12</div>
+    <div class="lbl">繁殖<span class="nb">季<sup class="ref">10</sup></span></div><div class="m "></div><div class="m "></div><div class="m on buff"></div><div class="m on buff"></div><div class="m on buff"></div><div class="m on buff"></div><div class="m on buff"></div><div class="m "></div><div class="m "></div><div class="m "></div><div class="m "></div><div class="m "></div>
+    <div class="lbl">萬鷺朝<span class="nb">鳳<sup class="ref">1</sup></span></div><div class="m "></div><div class="m "></div><div class="m "></div><div class="m "></div><div class="m "></div><div class="m "></div><div class="m "></div><div class="m on green"></div><div class="m on green"></div><div class="m on green"></div><div class="m "></div><div class="m "></div>
+  </div>
+  <p class="note" style="margin:1.4mm 0 0">月份條是大略的季節，不是精確起訖；每年會隨天氣前後移動。</p>
+  <div class="spacer"></div>
+  <div class="panel">
+    <h3>2026 年，牠換了學名</h3>
+    <p style="font-size:8pt;margin:0">黃頭鷺原本被當成牛背鷺 <i>Bubulcus ibis</i> 底下的一個亞種。2023 年起，國際主要的鳥類分類系統把牛背鷺拆成東、西兩種，並把牠們併入大白鷺所在的 <i>Ardea</i> <span class="nb">屬<sup class="ref">11</sup>；</span>臺灣物種名錄在 2026 年 8 月跟進，改列為獨立的一種 <i>Ardea coromanda</i><sup class="ref">6</sup>。舊圖鑑寫 <i>Bubulcus ibis coromandus</i>，不是寫錯，是當時的分類。拆成兩種的主要依據是繁殖羽與體型量度的差異；目前還沒有同時比較兩者的遺傳研<span class="nb">究<sup class="ref">11</sup>。</span></p>
+  </div>
+  <div class="folio">萬鷺朝鳳<b>4</b></div>
+</section>
+
+<!-- ════════ 5 繁殖羽 ════════ -->
+<section class="page" id="p-plumage">
+  <div class="eyebrow">03　黃色的頭</div>
+  <h2>「黃頭」只在春夏</h2>
+  <p class="lead">秋天飛過太興的鳥群，遠看幾乎是一片白。名字裡的「黃頭」，要看季節。</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:3.5mm;margin:1mm 0 3.4mm">
+    <figure>
+      <svg viewBox="14 24 180 170" width="100%" role="img" aria-label="非繁殖羽的黃頭鷺：全身白色，嘴黃">
+        <rect x="14" y="24" width="180" height="170" rx="10" fill="#F5F0E8"/>
+        <use href="#ce-legs" stroke="#3D4A42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <use href="#ce-outline" fill="#fff" stroke="#3D4A42" stroke-width="1.4" stroke-linejoin="round"/>
+        <use href="#ce-head-details"/>
+      </svg>
+      <figcaption><b style="color:var(--ink)">非繁殖羽</b>　全身白，嘴黃。秋天看到的多半是這個樣子。</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="14 24 180 170" width="100%" role="img" aria-label="繁殖羽的黃頭鷺：頭、頸、喉、上胸與背上的飾羽轉為橙黃色">
+        <rect x="14" y="24" width="180" height="170" rx="10" fill="#F5F0E8"/>
+        <use href="#ce-legs" stroke="#3D4A42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <use href="#ce-outline" fill="#fff"/>
+        <g clip-path="url(#ce-clip)">
+          <path d="M114 20 L175 20 L175 100 C166 108 152 112 140 110 C132 100 124 90 114 86 Z" fill="#CF9552"/>
+          <path d="M52 101 C76 85 106 81 124 85 C112 95 88 104 40 114 Z" fill="#CF9552" opacity=".72"/>
+        </g>
+        <use href="#ce-outline" fill="none" stroke="#3D4A42" stroke-width="1.4" stroke-linejoin="round"/>
+        <use href="#ce-head-details"/>
+        <path d="M153 44.5 L162 45.2 L162 51.6 L156 49 Z" fill="#C0533E"/>
+      </svg>
+      <figcaption><b style="color:var(--ink)">繁殖羽</b>　頭、頸、喉、上胸與背上的飾羽轉成橙黃；部分個體嘴基到眼先轉紅。</figcaption>
+    </figure>
+  </div>
+  <p>繁殖季（在台灣大約是 3 到 7 月<span class="nb">）<sup class="ref">10</sup>，</span>黃頭鷺頭、頸、喉與上胸的飾羽，還有背上的簑羽，會轉成橙黃色，其餘仍是白色；這段期間，部分個體的嘴基到眼先也會轉<span class="nb">紅<sup class="ref">9</sup>。</span>繁殖季以外，則是全身白、嘴<span class="nb">黃<sup class="ref">9</sup>。</span></p>
+  <p>東方的黃頭鷺，橙黃色一路延伸到臉頰與喉部，色澤更偏金黃；牠西方的親戚橙黃色範圍較小，體型也較嬌小，嘴、脖子、腳都短一<span class="nb">些<sup class="ref">9,11</sup>。</span></p>
+  <div class="spacer"></div>
+  <div class="panel">
+    <h3>在台灣，牠們在哪裡築巢？</h3>
+    <p style="font-size:8pt;margin:0">繁殖季的黃頭鷺，常和小白鷺、夜鷺混在同一片樹林裡築巢，就是鄉間常見的「鷺鷥林<span class="nb">」<sup class="ref">10</sup>。</span></p>
+  </div>
+  <div class="folio">萬鷺朝鳳<b>5</b></div>
+</section>
+
+<!-- ════════ 6 辨識 ════════ -->
+<section class="page" id="p-compare">
+  <div class="eyebrow">04　白鷺鷥家族</div>
+  <h2>白色的鷺，不只一種</h2>
+  <p class="lead">白色的鷺常被統稱「白鷺鷥」，其實台灣常見的至少有四<span class="nb">種<sup class="ref">7</sup>。</span>看三個地方就分得出來：個子、嘴的顏色、<span class="nb">腳<sup class="ref">12</sup>。</span></p>
+  <figure style="margin:1mm 0 3.2mm">
+    <svg viewBox="0 0 440 224" width="100%" role="img" aria-label="大白鷺、中白鷺、小白鷺、黃頭鷺的側面剪影，由大到小排列">
+      <rect x="0" y="0" width="440" height="224" rx="10" fill="#F5F0E8"/>
+      <line x1="14" y1="186" x2="426" y2="186" stroke="#C8DDD0" stroke-width="1.5"/>
+      <!-- 大白鷺 -->
+      <g transform="translate(12,2)">
+        <g stroke="#2E3833" stroke-width="2" fill="none" stroke-linecap="round"><path d="M58 128 L56 156 L58 184 L49 186 M58 184 L67 186"/><path d="M70 128 L74 156 L72 184 L63 186 M72 184 L81 186"/></g>
+        <path d="M16 112 C28 100 62 96 88 102 C104 106 106 118 96 126 C84 134 54 136 34 130 C24 127 17 121 16 112 Z" fill="#fff" stroke="#3D4A42" stroke-width="1.3"/>
+        <path d="M92 104 C110 88 90 70 96 46 C100 30 112 24 122 26" fill="none" stroke="#3D4A42" stroke-width="8.4" stroke-linecap="round"/>
+        <path d="M92 104 C110 88 90 70 96 46 C100 30 112 24 122 26" fill="none" stroke="#fff" stroke-width="5.8" stroke-linecap="round"/>
+        <ellipse cx="124" cy="26" rx="8.6" ry="6.2" fill="#fff" stroke="#3D4A42" stroke-width="1.3"/>
+        <path d="M128 22.6 L166 28 L128 30 Z" fill="#E3B04B" stroke="#3D4A42" stroke-width=".9" stroke-linejoin="round"/>
+        <path d="M121 27.6 L132 27.6" stroke="#3D4A42" stroke-width="1"/>
+        <circle cx="125" cy="24.4" r="1.5" fill="#2E3833"/>
+        <text x="64" y="206" text-anchor="middle" font-size="12" font-weight="600" fill="#2E3833">大白鷺</text>
+      </g>
+      <!-- 中白鷺 -->
+      <g transform="translate(142,30)">
+        <g stroke="#2E3833" stroke-width="1.9" fill="none" stroke-linecap="round"><path d="M50 108 L48 132 L50 156 L42 158 M50 156 L58 158"/><path d="M61 108 L64 132 L62 156 L54 158 M62 156 L70 158"/></g>
+        <path d="M14 94 C24 84 52 80 74 85 C88 89 90 100 81 107 C70 114 45 116 29 111 C20 108 14 102 14 94 Z" fill="#fff" stroke="#3D4A42" stroke-width="1.3"/>
+        <path d="M78 88 C92 76 78 62 84 46 C87 38 94 34 101 36" fill="none" stroke="#3D4A42" stroke-width="8.2" stroke-linecap="round"/>
+        <path d="M78 88 C92 76 78 62 84 46 C87 38 94 34 101 36" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round"/>
+        <ellipse cx="103" cy="36" rx="8" ry="6.2" fill="#fff" stroke="#3D4A42" stroke-width="1.3"/>
+        <path d="M107 32.8 L130 37 L107 39.2 Z" fill="#E3B04B" stroke="#3D4A42" stroke-width=".9" stroke-linejoin="round"/>
+        <circle cx="104" cy="34.6" r="1.5" fill="#2E3833"/>
+        <text x="56" y="178" text-anchor="middle" font-size="12" font-weight="600" fill="#2E3833">中白鷺</text>
+      </g>
+      <!-- 小白鷺 -->
+      <g transform="translate(252,48)">
+        <g stroke="#2E3833" stroke-width="1.8" fill="none" stroke-linecap="round"><path d="M46 96 L44 117 L46 138"/><path d="M56 96 L59 117 L57 138"/></g>
+        <g stroke="#E3B04B" stroke-width="2.4" fill="none" stroke-linecap="round"><path d="M46 138 L38 140 M46 138 L54 140"/><path d="M57 138 L49 140 M57 138 L65 140"/></g>
+        <path d="M14 84 C22 75 48 72 66 76 C79 79 81 89 73 95 C64 102 41 104 27 99 C19 96 14 91 14 84 Z" fill="#fff" stroke="#3D4A42" stroke-width="1.3"/>
+        <path d="M70 79 C83 68 70 56 76 43 C79 36 85 32 91 34" fill="none" stroke="#3D4A42" stroke-width="7.6" stroke-linecap="round"/>
+        <path d="M70 79 C83 68 70 56 76 43 C79 36 85 32 91 34" fill="none" stroke="#fff" stroke-width="5.1" stroke-linecap="round"/>
+        <ellipse cx="93" cy="34" rx="7.2" ry="5.8" fill="#fff" stroke="#3D4A42" stroke-width="1.3"/>
+        <path d="M97 31 L121 35 L97 37 Z" fill="#2E3833"/>
+        <circle cx="94" cy="32.6" r="1.4" fill="#2E3833"/>
+        <text x="52" y="160" text-anchor="middle" font-size="12" font-weight="600" fill="#2E3833">小白鷺</text>
+      </g>
+      <!-- 黃頭鷺 -->
+      <g transform="translate(336,93) scale(.52)">
+        <use href="#ce-legs" stroke="#2E3833" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <use href="#ce-outline" fill="#fff" stroke="#3D4A42" stroke-width="2.4" stroke-linejoin="round"/>
+        <use href="#ce-head-details"/>
+        <text x="104" y="218" text-anchor="middle" font-size="23" font-weight="600" fill="#2E3833">黃頭鷺</text>
+      </g>
+    </svg>
+    <figcaption>剪影只示意大小順序與身形，不是實際比例；畫的是非繁殖期（秋冬）的樣子。</figcaption>
+  </figure>
+  <dl class="facts" style="grid-template-columns:13mm 1fr;row-gap:2mm;font-size:8pt">
+    <dt style="color:var(--ink);font-weight:600">大白鷺</dt><dd>四種裡最大，脖子最長、彎折明顯。嘴黃（繁殖期轉黑），嘴角線一路延伸到眼睛後方。腳黑。</dd>
+    <dt style="color:var(--ink);font-weight:600">中白鷺</dt><dd>介於大、小白鷺之間。嘴黃、較短，嘴角線大約只到眼睛後緣。腳黑。</dd>
+    <dt style="color:var(--ink);font-weight:600">小白鷺</dt><dd>嘴黑、腳黑，腳趾卻是黃的，像穿了一雙黃靴子。</dd>
+    <dt style="color:var(--ink);font-weight:600">黃頭鷺</dt><dd>最小、最粗短，脖子短、頭圓，嘴短而黃。多在草地與農田活動，不太下水。</dd>
+  </dl>
+  <div class="spacer"></div>
+  <div class="panel">
+    <h3>下次在田裡看到白鷺</h3>
+    <p style="font-size:8pt;margin:0">在草地、農田、牧場裡跟著牛或機器走的，多半是黃頭鷺；站在溪邊、水裡的，多半是其他白<span class="nb">鷺<sup class="ref">12</sup>。</span></p>
+  </div>
+  <div class="folio">萬鷺朝鳳<b>6</b></div>
+</section>
+
+<!-- ════════ 7 食性 ════════ -->
+<section class="page" id="p-food">
+  <div class="eyebrow">05　吃什麼</div>
+  <h2>跟著牛吃飯的鳥</h2>
+  <p class="lead">黃頭鷺的別名是「牛背鷺<span class="nb">」<sup class="ref">6</sup>，</span>英文叫 Cattle Egret，字面上就是「牛的白鷺」。名字跟牠吃飯的方法有關。</p>
+  <figure style="margin:1mm 0 3.4mm">
+    <svg viewBox="0 0 440 190" width="100%" role="img" aria-label="示意：黃頭鷺站在牛腳邊，等牛走動時驚起的蟲">
+      <rect x="0" y="0" width="440" height="190" rx="10" fill="#F5F0E8"/>
+      <line x1="14" y1="160" x2="426" y2="160" stroke="#C8DDD0" stroke-width="1.5"/>
+      <g stroke="#7D9B84" stroke-width="1.1" stroke-linecap="round">
+        <path d="M40 160 l-2 -8 M44 160 l1 -9 M150 160 l-2 -7 M156 160 l2 -8 M300 160 l-2 -8 M306 160 l1 -9 M372 160 l-1 -8 M392 160 l2 -7"/>
+      </g>
+      <!-- 牛（面向左） -->
+      <g stroke="#3D4A42" stroke-width="1.3" stroke-linejoin="round" fill="#E6E0D4">
+        <path d="M222 150 L222 112 M236 150 L236 116 M322 150 L322 114 M336 150 L336 112" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <path d="M214 74 C214 62 226 56 244 56 L318 56 C340 56 352 66 352 84 L352 108 C352 122 342 128 326 128 L232 128 C220 128 214 120 214 108 Z"/>
+        <path d="M352 70 C364 78 366 96 362 116" fill="none"/>
+        <path d="M218 64 L186 70 C176 72 172 80 174 90 L178 104 C180 110 186 112 192 110 L206 104 C214 100 220 92 220 82 Z"/>
+        <path d="M200 66 C200 58 206 54 212 56 M190 68 C186 60 180 58 176 62" fill="none"/>
+        <circle cx="194" cy="80" r="1.8" fill="#2E3833" stroke="none"/>
+      </g>
+      <!-- 驚起的蟲 -->
+      <g fill="#3D4A42">
+        <circle cx="174" cy="138" r="1.6"/><circle cx="186" cy="128" r="1.6"/><circle cx="166" cy="124" r="1.6"/><circle cx="200" cy="140" r="1.6"/>
+      </g>
+      <g stroke="#3D4A42" stroke-width=".8" fill="none" opacity=".6">
+        <path d="M176 142 l-3 4 M188 132 l-2 4 M168 128 l-3 3 M202 144 l-2 4"/>
+      </g>
+      <!-- 黃頭鷺（面向右，看著蟲） -->
+      <g transform="translate(58,62) scale(.52)">
+        <use href="#ce-legs" stroke="#2E3833" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <use href="#ce-outline" fill="#fff" stroke="#3D4A42" stroke-width="2.4" stroke-linejoin="round"/>
+        <use href="#ce-head-details"/>
+      </g>
+      <text x="198" y="182" font-size="10.5" fill="#637169" text-anchor="middle">牛一走動，草裡的蟲就跳起來</text>
+    </svg>
+    <figcaption>示意圖。</figcaption>
+  </figure>
+  <p>牠們常站在牛的腳邊、甚至牛背上，或跟在翻土的耕耘機後面，等牛走動、機器翻土時被驚起的蟲，一口啄下。主食是昆蟲，尤其蝗蟲、蟋蟀、蒼蠅與蛾，也吃蜘蛛、青蛙和蚯<span class="nb">蚓<sup class="ref">13</sup>。</span></p>
+  <p>鳥吃到了蟲，牛大致沒有得失——生物學上有個名字形容這種關係。</p>
+  <div class="spacer"></div>
+  <div class="panel">
+    <h3>片利共生</h3>
+    <p style="font-size:8pt;margin:0">一方得到好處，另一方大致沒有得失的關<span class="nb">係<sup class="ref">13</sup>。</span>早在 1965 年，就有研究者專門寫論文探討黃頭鷺跟著牛覓食這件<span class="nb">事<sup class="ref">13</sup>。</span></p>
+  </div>
+  <div class="folio">萬鷺朝鳳<b>7</b></div>
+</section>
+
+<!-- ════════ 8 遷徙 ════════ -->
+<section class="page">
+  <div class="eyebrow">06　遷徙</div>
+  <h2>從北方來，往南方去</h2>
+  <p>黃頭鷺在台灣有留鳥、夏候鳥、冬候鳥，也有過境鳥（見第 4 頁<span class="nb">）<sup class="ref">7</sup>。</span>每年秋天經過太興村的這一大群，屬於最後一種：往南遷徙、路過這裡的鳥。</p>
+  <p>依阿里山國家風景區管理處的說明，白露時節前後，大批黃頭鷺從北方陸續遷往溫暖的東南亞等地過冬，途中沿著雲林縣古坑鄉樟湖村，進入太興村生毛樹溪的山<span class="nb">谷<sup class="ref">1</sup>。</span></p>
+  <div class="route">
+    <div class="stop"><div class="dot"></div><div><div class="name">北方</div><div class="sub">確切從哪裡出發，目前沒有追蹤研究證實</div></div></div>
+    <div class="line"></div>
+    <div class="stop"><div class="dot"></div><div><div class="name">雲林縣古坑鄉・樟湖</div><div class="sub">地圖上的「樟湖黃頭鷺觀景台」在這裡，跟太興是兩個地點</div></div></div>
+    <div class="line"></div>
+    <div class="stop here"><div class="dot"></div><div><div class="name">嘉義縣梅山鄉太興村・生毛樹溪</div><div class="sub">你在這裡：鳥群在溪谷上空盤旋、變換隊形</div></div></div>
+    <div class="line"></div>
+    <div class="stop"><div class="dot"></div><div><div class="name">翻過山頭，繼續往南</div></div></div>
+    <div class="line"></div>
+    <div class="stop"><div class="dot"></div><div><div class="name">東南亞等地過冬</div></div></div>
+  </div>
+  <p>路線不只一條。北部的桃園石門水庫，秋天也看得到成群黃頭鷺飛越；有報導把大漢溪、石門水庫、竹山清水溪、樟湖到太興串成同一條南遷路<span class="nb">線<sup class="ref">14</sup>。</span>這是觀察者多年目擊拼出來的樣貌，我們還沒有查到繫放或衛星追蹤研究證實。</p>
+  <div class="spacer"></div>
+  <div class="panel">
+    <h3>有報導這樣串起來</h3>
+    <div class="chain"><span class="">大漢溪</span><i>→</i><span class="">石門水庫</span><i>→</i><span class="">新竹金城湖</span><i>→</i><span class="">竹山清水溪・桶頭</span><i>→</i><span class="">雲林樟湖</span><i>→</i><span class="">生毛樹溪</span><i>→</i><span class="here">梅山太興</span></div>
+    <p class="note" style="margin:2mm 0 0">自由時報整理的北部路<span class="nb">線<sup class="ref">14</sup>。</span>其中「清水溪→生毛樹溪」與溪流的上下游關係一<span class="nb">致<sup class="ref">3</sup>；</span>但這是多年目擊拼出來的樣貌，不是追蹤研究的結果。</p>
+  </div>
+  <div class="folio">萬鷺朝鳳<b>8</b></div>
+</section>
+
+<!-- ════════ 9 溪谷與氣流 ════════ -->
+<section class="page">
+  <div class="eyebrow">07　溪谷與風</div>
+  <h2>為什麼在這裡盤旋？</h2>
+  <p class="lead">阿里山國家風景區管理處的說明是：鳥群會利用山谷的氣流飛翔、變換隊形，最後成群飛越山峰，繼續南<span class="nb">下<sup class="ref">1</sup>。</span></p>
+  <figure style="margin:1mm 0 3mm">
+    <svg viewBox="0 0 440 236" width="100%" role="img" aria-label="溪谷剖面示意：鳥群在溪谷上空盤旋，再翻過山頭往南">
+      <defs><marker id="arr-v" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#3D4A42"/></marker></defs>
+      <rect x="0" y="0" width="440" height="236" rx="10" fill="#F5F0E8"/>
+      <path d="M0 236 L0 128 C40 106 70 76 110 66 C140 60 160 116 190 186 C200 208 210 216 220 217 C232 216 244 204 258 176 C290 106 320 70 360 60 C390 54 420 76 440 90 L440 236 Z" fill="#DCE7DF"/>
+      <path d="M0 128 C40 106 70 76 110 66 C140 60 160 116 190 186 C200 208 210 216 220 217 C232 216 244 204 258 176 C290 106 320 70 360 60 C390 54 420 76 440 90" fill="none" stroke="#58745F" stroke-width="1.3"/>
+      <path d="M207 214 C215 219 226 219 233 214" stroke="#8FB0BE" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <text x="220" y="232" text-anchor="middle" font-size="10.5" fill="#3D4A42">生毛樹溪</text>
+      <g stroke="#58745F" stroke-width="1.1" fill="none" stroke-dasharray="3 3" stroke-linecap="round">
+        <path d="M176 176 C168 146 174 116 194 96"/>
+        <path d="M264 172 C274 142 268 114 248 96"/>
+      </g>
+      <text x="120" y="160" font-size="10" fill="#58745F">山谷的氣流</text>
+      <path d="M220 136 C252 134 258 108 232 102 C204 96 188 120 206 132 C220 142 246 130 242 114" fill="none" stroke="#B7AB95" stroke-width="1" stroke-dasharray="1.5 3"/>
+      <g fill="none" stroke="#2E3833" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M212 134 l3.2 -2.4 l3.2 2.4"/><path d="M234 130 l3.2 -2.4 l3.2 2.4"/><path d="M247 114 l3.2 -2.4 l3.2 2.4"/>
+        <path d="M236 102 l3.2 -2.4 l3.2 2.4"/><path d="M212 102 l3.2 -2.4 l3.2 2.4"/><path d="M198 118 l3.2 -2.4 l3.2 2.4"/>
+        <path d="M225 119 l3.2 -2.4 l3.2 2.4"/>
+      </g>
+      <text x="186" y="86" font-size="10.5" fill="#3D4A42">盤旋、變換隊形</text>
+      <path d="M254 100 C290 64 330 42 396 36" fill="none" stroke="#3D4A42" stroke-width="1.3" marker-end="url(#arr-v)"/>
+      <text x="292" y="28" font-size="10.5" fill="#3D4A42">成群翻過山頭，繼續往南</text>
+    </svg>
+    <figcaption>示意圖，依阿里山國家風景區管理處的文字說明繪製；比例與方位不代表實際地形。</figcaption>
+  </figure>
+  <p>我們在這裡看了幾十年：鳥群多半直接翻過山頭就走，但會在太興這一段溪谷上空盤旋比較久——這也是這裡好拍、出名的原因。</p>
+  <div class="panel">
+    <h3>還沒有答案的問題</h3>
+    <ul class="bullets" style="font-size:8.2pt;margin-top:1.6mm">
+      <li>為什麼總是在午後？</li>
+      <li>同一群鳥在溪谷裡繞圈，我們會不會重複數到？</li>
+      <li>牠們今天從哪裡起飛？翻過山頭之後，今晚會停在哪裡？</li>
+    </ul>
+    <p class="note" style="margin:1.4mm 0 0">我們查過，目前沒有找到研究給出答案。你看到什麼，歡迎告訴我們。</p>
+  </div>
+  <div class="folio">萬鷺朝鳳<b>9</b></div>
+</section>
+
+<!-- ════════ 10 怎麼數鳥 ════════ -->
+<section class="page">
+  <div class="eyebrow">08　看鳥的方法</div>
+  <h2>一大群鳥，怎麼數？</h2>
+  <p class="lead">鳥群飛得快，又一直變換隊形，一隻一隻數不完。賞鳥的人常用「分塊估算<span class="nb">」<sup class="ref">15</sup>：</span></p>
+  <ol class="steps">
+    <li>先盯住鳥群的一小角，數出 10 隻，記住 10 隻「看起來有多大一塊」。</li>
+    <li>用這個大小，把整群切成一塊一塊，數一數有幾塊。</li>
+    <li>塊數 × 10，就是估計值。熟練以後，可以改用 50 隻、100 隻當一塊。</li>
+  </ol>
+  <figure style="margin:1mm 0 3mm">
+    <svg viewBox="0 0 440 150" width="100%" role="img" aria-label="分塊估算示意：圈出 10 隻當一塊，再數整群有幾塊">
+      <rect x="0" y="0" width="440" height="150" rx="10" fill="#F5F0E8"/>
+      <g fill="none" stroke="#2E3833" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" id="flock">
+        <path d="M48.0 73.8 l3 -2.3 l3 2.3"/><path d="M60.7 53.9 l3 -2.3 l3 2.3"/><path d="M80.1 62.9 l3 -2.3 l3 2.3"/><path d="M62.5 69.1 l3 -2.3 l3 2.3"/><path d="M81.2 63.2 l3 -2.3 l3 2.3"/><path d="M78.1 65.8 l3 -2.3 l3 2.3"/><path d="M83.9 54.8 l3 -2.3 l3 2.3"/><path d="M64.5 67.8 l3 -2.3 l3 2.3"/><path d="M78.7 49.5 l3 -2.3 l3 2.3"/><path d="M78.1 61.1 l3 -2.3 l3 2.3"/><path d="M156.6 62.6 l3 -2.3 l3 2.3"/><path d="M121.4 54.4 l3 -2.3 l3 2.3"/><path d="M156.6 59.3 l3 -2.3 l3 2.3"/><path d="M144.3 56.2 l3 -2.3 l3 2.3"/><path d="M156.1 65.4 l3 -2.3 l3 2.3"/><path d="M132.4 49.4 l3 -2.3 l3 2.3"/><path d="M152.8 49.3 l3 -2.3 l3 2.3"/><path d="M122.7 48.3 l3 -2.3 l3 2.3"/><path d="M134.9 48.3 l3 -2.3 l3 2.3"/><path d="M157.2 55.6 l3 -2.3 l3 2.3"/><path d="M216.1 76.6 l3 -2.3 l3 2.3"/><path d="M186.6 59.7 l3 -2.3 l3 2.3"/><path d="M208.7 66.2 l3 -2.3 l3 2.3"/><path d="M202.5 57.4 l3 -2.3 l3 2.3"/><path d="M224.0 53.5 l3 -2.3 l3 2.3"/><path d="M200.1 61.6 l3 -2.3 l3 2.3"/><path d="M213.2 77.9 l3 -2.3 l3 2.3"/><path d="M206.7 56.6 l3 -2.3 l3 2.3"/><path d="M201.8 59.9 l3 -2.3 l3 2.3"/><path d="M200.0 63.9 l3 -2.3 l3 2.3"/><path d="M266.6 60.9 l3 -2.3 l3 2.3"/><path d="M279.0 52.5 l3 -2.3 l3 2.3"/><path d="M291.9 58.8 l3 -2.3 l3 2.3"/><path d="M290.0 63.8 l3 -2.3 l3 2.3"/><path d="M279.9 60.5 l3 -2.3 l3 2.3"/><path d="M274.2 65.3 l3 -2.3 l3 2.3"/><path d="M293.3 57.1 l3 -2.3 l3 2.3"/><path d="M283.2 53.0 l3 -2.3 l3 2.3"/><path d="M277.8 55.8 l3 -2.3 l3 2.3"/><path d="M266.5 57.0 l3 -2.3 l3 2.3"/><path d="M355.0 82.6 l3 -2.3 l3 2.3"/><path d="M324.9 80.9 l3 -2.3 l3 2.3"/><path d="M323.4 69.4 l3 -2.3 l3 2.3"/><path d="M326.8 60.2 l3 -2.3 l3 2.3"/><path d="M363.8 64.2 l3 -2.3 l3 2.3"/><path d="M347.8 62.0 l3 -2.3 l3 2.3"/><path d="M340.1 74.6 l3 -2.3 l3 2.3"/><path d="M326.1 83.8 l3 -2.3 l3 2.3"/><path d="M358.9 82.9 l3 -2.3 l3 2.3"/><path d="M358.9 83.4 l3 -2.3 l3 2.3"/>
+      </g>
+      <rect x="40" y="38" width="62" height="44" rx="8" fill="none" stroke="#CF9552" stroke-width="1.6"/>
+      <text x="71" y="100" text-anchor="middle" font-size="11" fill="#9A6A33" font-weight="600">10 隻</text>
+      <g fill="none" stroke="#7D9B84" stroke-width="1" stroke-dasharray="3 3">
+        <rect x="108" y="30" width="62" height="44" rx="8"/><rect x="176" y="42" width="62" height="44" rx="8"/>
+        <rect x="244" y="36" width="62" height="44" rx="8"/><rect x="312" y="48" width="62" height="44" rx="8"/>
+      </g>
+      <text x="220" y="136" text-anchor="middle" font-size="11" fill="#3D4A42">5 塊 × 10 隻 ≈ 50 隻</text>
+    </svg>
+  </figure>
+  <p>訣竅：先把整群掃過一遍再估。鳥群有的地方密、有的地方疏，只看最密的那一角，會估得太<span class="nb">多<sup class="ref">15</sup>。</span></p>
+  <div class="rule"></div>
+  <h3>也看看這些</h3>
+  <ul class="bullets" style="font-size:8.4pt">
+    <li><b>隊形</b>：拉成一條長帶？聚成一團？在同一處打轉？同一群鳥幾分鐘內就會換好幾種。</li>
+    <li><b>方向</b>：從茶居的座位看出去，鳥群一般從左往右飛。</li>
+    <li><b>一波與一波之間</b>：隔多久來下一群？記下時間，你會看出今天的節奏。</li>
+  </ul>
+  <div class="folio">萬鷺朝鳳<b>10</b></div>
+</section>
+
+<!-- ════════ 11 觀察紀錄 ════════ -->
+<section class="page">
+  <div class="eyebrow">09　我的觀察紀錄</div>
+  <h2>今天的鳥</h2>
+  <div class="log">
+    <div class="row"><span class="l">日期</span><span>　　　年　　　月　　　日</span></div>
+    <div class="row"><span class="l">天氣</span><span class="choices"><i>晴</i><i>多雲</i><i>陰</i><i>小雨</i><i>起霧</i></span></div>
+    <div class="row"><span class="l">第一群出現</span><span>　　　：　　　</span></div>
+    <div class="row"><span class="l">最後一群離開</span><span>　　　：　　　</span></div>
+    <div class="row"><span class="l">一共看到</span><span>　　　　群</span></div>
+    <div class="row"><span class="l">最大的一群</span><span>約　　　　　隻（　　：　　）</span></div>
+    <div class="row"><span class="l">隊形</span><span class="choices"><i>長帶</i><i>一團</i><i>打轉</i><i>其他</i></span></div>
+    <div class="row"><span class="l">一起來的人</span><span></span></div>
+  </div>
+  <div class="sketch"><span>把最喜歡的那一刻畫下來</span></div>
+  <div class="spacer"></div>
+  <p class="note" style="margin:0">寫事實，不寫評價。「16:40 一群約 300 隻，從左往右」比「很壯觀」有用——明年再翻開，還看得懂。</p>
+  <div class="folio">萬鷺朝鳳<b>11</b></div>
+</section>
+
+<!-- ════════ 12 拍照 ════════ -->
+<section class="page">
+  <div class="eyebrow">10　拍照與錄影</div>
+  <h2>想把它帶回家的話</h2>
+  <p class="lead">從茶居的座位看出去，就是鳥群每天通過的那段溪谷，視野絕佳；建築旁的電線在畫面的右側和下方，拍照、錄影基本上擋不到，只有鳥飛到很偏的位置，取景才需要稍微避一下。</p>
+  <figure style="margin:1mm 0 3.4mm">
+    <svg viewBox="0 0 440 214" width="100%" role="img" aria-label="取景示意：鳥群由左往右橫越畫面，電線在畫面右側與下方">
+      <defs><marker id="arr-f" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#3D4A42"/></marker></defs>
+      <rect x="0" y="0" width="440" height="214" rx="10" fill="#F5F0E8"/>
+      <rect x="22" y="18" width="396" height="160" rx="8" fill="#fff" stroke="#3D4A42" stroke-width="1.1"/>
+      <path d="M22 132 C80 96 130 84 190 98 C250 112 300 80 418 90 L418 170 C418 174 414 178 410 178 L30 178 C26 178 22 174 22 170 Z" fill="#DCE7DF"/>
+      <g fill="none" stroke="#2E3833" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M62 70 l2.8 -2.2 l2.8 2.2"/><path d="M76 78 l2.8 -2.2 l2.8 2.2"/><path d="M88 66 l2.8 -2.2 l2.8 2.2"/>
+        <path d="M100 74 l2.8 -2.2 l2.8 2.2"/><path d="M114 68 l2.8 -2.2 l2.8 2.2"/><path d="M126 78 l2.8 -2.2 l2.8 2.2"/>
+        <path d="M138 70 l2.8 -2.2 l2.8 2.2"/><path d="M84 84 l2.8 -2.2 l2.8 2.2"/><path d="M108 86 l2.8 -2.2 l2.8 2.2"/>
+        <path d="M150 76 l2.8 -2.2 l2.8 2.2"/>
+      </g>
+      <path d="M172 74 L286 74" stroke="#3D4A42" stroke-width="1.3" marker-end="url(#arr-f)"/>
+      <text x="176" y="64" font-size="11" fill="#3D4A42">鳥群一般從左往右飛</text>
+      <g stroke="#7B817D" stroke-width="1" fill="none">
+        <path d="M22 158 C130 168 260 168 418 150"/>
+        <path d="M22 166 C130 176 260 176 418 158"/>
+        <path d="M392 18 C386 70 386 124 396 178"/>
+      </g>
+      <text x="220" y="200" text-anchor="middle" font-size="10.5" fill="#637169">電線在畫面的右側與下方：拍鳥群時基本上擋不到</text>
+    </svg>
+    <figcaption>示意圖，依我們在茶居座位的觀察繪製，不是照片。</figcaption>
+  </figure>
+  <ul class="bullets" style="font-size:8.4pt">
+    <li><b>先等在左邊</b>：鏡頭先對著畫面左側，鳥群進來再跟著往右帶，錄影會很順。</li>
+    <li><b>白鳥別拍成一片白</b>：白色的鳥在深綠的山壁前很容易過曝。相機把曝光補償調低 0.7 到 1 格；手機點一下鳥群，再把亮度往下拉一點。</li>
+    <li><b>用長焦</b>：鳥群離座位有一段距離，手機請切到望遠鏡頭，或架個穩一點的支撐。</li>
+    <li><b>不能飛空拍機</b>：縣府公告禁飛，見下一頁。</li>
+  </ul>
+  <div class="folio">萬鷺朝鳳<b>12</b></div>
+</section>
+
+<!-- ════════ 13 禮儀與安全 ════════ -->
+<section class="page" id="p-ethics">
+  <div class="eyebrow">11　一起看鳥的約定</div>
+  <h2>讓明年的鳥還會再來</h2>
+  <p class="lead">林業及自然保育署與中華民國野鳥學會推廣「賞鳥五不<span class="nb">」<sup class="ref">16</sup>。</span>在這裡看鳥，也照這五條：</p>
+  <div class="five">
+    <div><b>驚</b><span>不驚嚇</span><small>保持距離與安靜</small></div>
+    <div><b>誘</b><span>不引誘</span><small>不用食物、鳥音</small></div>
+    <div><b>追</b><span>不追逐</span><small>不跟隨、不驅趕</small></div>
+    <div><b>破</b><span>不破壞</span><small>不損毀棲地</small></div>
+    <div><b>捕</b><span>不捕捉</span><small>不捕捉野鳥</small></div>
+  </div>
+  <div class="panel">
+    <h3>賞鳥季禁飛無人機</h3>
+    <p style="font-size:8.2pt;margin:0">嘉義縣政府公告：2026 年 9 月 11 日至 10 月 31 日，梅山鄉太興村生毛樹溪溪谷地區、距地表 400 呎以下，禁止遙控無人機飛航；違者處新臺幣 3 萬元以上、15 萬元以下罰<span class="nb">鍰<sup class="ref">17</sup>。</span>公告的目的，就是避免無人機驚擾遷徙中的鳥群。</p>
+  </div>
+  <div class="panel">
+    <h3>天氣與山路</h3>
+    <ul class="bullets" style="font-size:8.2pt;margin-top:1.4mm">
+      <li><b>下雨不代表看不到。</b>季節到了鳥基本上每天都會飛，除非雨下得太大；一般的雨，只要前幾天鳥有飛，那天多半還是會飛經過。</li>
+      <li><b>帶一件外套。</b>山上傍晚會涼，而最好看的時段剛好就是傍晚。</li>
+      <li><b>下山慢慢開。</b>看完鳥大約傍晚 6 點，這個季節天暗得快，太平的 36 彎請放慢。</li>
+    </ul>
+  </div>
+  <div class="folio">萬鷺朝鳳<b>13</b></div>
+</section>
+
+<!-- ════════ 14 搬家冠軍 ════════ -->
+<section class="page" id="p-world">
+  <div class="eyebrow">12　世界上的黃頭鷺</div>
+  <h2>飛向新大陸的鷺</h2>
+  <p class="lead">黃頭鷺這一家很會開拓新地方。兩個有年份可考的故事：</p>
+  <div class="panel" style="display:grid;grid-template-columns:22mm 1fr;gap:3.4mm;align-items:start">
+    <div style="font-family:'Noto Serif TC',serif;font-size:22pt;line-height:1;color:var(--ink-deep)" class="num">1877</div>
+    <div>
+      <h3>西方的親戚，飛過大西洋</h3>
+      <p style="font-size:8pt;margin:0">南美洲蓋亞那與蘇利南交界，第一次記錄到西方黃頭鷺。一般認為牠們是自己從非洲飛越大西洋過來的，沒有人為引入的紀錄。1930 年代在當地站穩之後，一路往北擴散到美國佛羅里達，往南到巴塔哥尼<span class="nb">亞<sup class="ref">18</sup>。</span></p>
+    </div>
+  </div>
+  <div class="panel" style="display:grid;grid-template-columns:22mm 1fr;gap:3.4mm;align-items:start">
+    <div style="font-family:'Noto Serif TC',serif;font-size:22pt;line-height:1;color:var(--ink-deep)" class="num">1948</div>
+    <div>
+      <h3>東方黃頭鷺，自己飛到澳洲</h3>
+      <p style="font-size:8pt;margin:0">1933 年，有人從印度引進一批黃頭鷺到西澳野放，很快就消失了。1948 年，澳洲北領地出現數以百計的黃頭鷺——一般認為是牠們自己經由東南亞的島嶼飛過去的，跟那次引進無<span class="nb">關<sup class="ref">18</sup>。</span></p>
+    </div>
+  </div>
+  <figure style="margin:4mm 0 0">
+    <svg viewBox="0 0 440 150" width="100%" role="img" aria-label="示意：西方黃頭鷺從非洲飛越大西洋到南美洲；東方黃頭鷺經東南亞島嶼到澳洲北部">
+      <defs><marker id="arr-w" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#58745F"/></marker></defs>
+      <g font-size="10.5" fill="#3D4A42">
+        <circle cx="40" cy="58" r="4" fill="#fff" stroke="#58745F" stroke-width="1.4"/>
+        <text x="40" y="80" text-anchor="middle">非洲</text>
+        <path d="M48 52 C90 12 150 12 190 50" fill="none" stroke="#58745F" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arr-w)"/>
+        <text x="119" y="18" text-anchor="middle" fill="#637169" font-size="9.5">大西洋</text>
+        <circle cx="198" cy="58" r="4" fill="#CF9552"/>
+        <text x="198" y="80" text-anchor="middle">南美洲</text>
+        <text x="198" y="96" text-anchor="middle" font-size="9.5" fill="#637169">1877 首筆紀錄</text>
+
+        <circle cx="262" cy="58" r="4" fill="#fff" stroke="#58745F" stroke-width="1.4"/>
+        <text x="262" y="80" text-anchor="middle">東南亞島嶼</text>
+        <path d="M270 52 C310 16 360 16 398 50" fill="none" stroke="#58745F" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arr-w)"/>
+        <circle cx="406" cy="58" r="4" fill="#CF9552"/>
+        <text x="406" y="80" text-anchor="middle">澳洲北部</text>
+        <text x="406" y="96" text-anchor="middle" font-size="9.5" fill="#637169">1948 數百隻</text>
+      </g>
+      <line x1="14" y1="120" x2="426" y2="120" stroke="#EDE8DC"/>
+      <text x="220" y="140" text-anchor="middle" font-size="9.5" fill="#637169">示意圖，不是地圖；距離與方位不按比例</text>
+    </svg>
+  </figure>
+  <div class="spacer"></div>
+  <p class="lead" style="margin:0">而在台灣，你今天看到的是另一種移動：年年重複、沿著同一段山谷的秋季南遷。牠們飛了多遠、今晚停在哪裡，我們還沒有查到研究給出答案。</p>
+  <div class="folio">萬鷺朝鳳<b>14</b></div>
+</section>
+
+<!-- ════════ 15 人與鳥 ════════ -->
+<section class="page">
+  <div class="eyebrow">13　人與鳥</div>
+  <h2>大家一起看的鳥</h2>
+  <p class="lead">萬鷺朝鳳會被大家知道，是從「梅山太興村賞黃頭鷺景觀平台停車場」和附近幾戶鄰居的觀景平台一起推廣起來的，不是哪一家的功勞。</p>
+  <p>後來政府單位與媒體陸續報導——我們查得到最早的新聞在 2016 <span class="nb">年<sup class="ref">19</sup></span>——加上來過的人自己在網路上分享，才慢慢有名起來。阿里山國家風景區管理處也曾把古坑樟湖與梅山太興並列為同一條路線上的賞鷺點，辦過兩地串聯的活<span class="nb">動<sup class="ref">1</sup>。</span></p>
+  <p>我們一家在太興村種了四十年茶。鳥每年來，我們每年都在——這也是為什麼我們講得出哪一天鳥況好、哪個時段別白跑。</p>
+  <div class="panel" style="margin-top:2mm">
+    <h3>抬頭多看兩眼：意外的同行者</h3>
+    <p style="font-size:8.2pt;margin:0">2026 年 9 月 17 日上午 7 點半左右，生態觀察者在太興村記錄到 700 多隻赤腹鷹飛越，與黃頭鷺伴<span class="nb">飛<sup class="ref">20</sup>。</span>這是一次觀察紀錄，還不知道是不是年年都有。</p>
+  </div>
+  <div class="spacer"></div>
+  <div class="panel" style="background:#fff;border:.3mm solid var(--green-pale)">
+    <h3>出發前、回家後，都可以問我們鳥況</h3>
+    <p style="font-size:8.2pt;margin:0">我們每天都在這裡，網站上的「最近的鳥況」由住在這裡的我們回報，超過兩天沒更新就不會顯示。好的、不好的，都照實寫。</p>
+  </div>
+  <div class="folio">萬鷺朝鳳<b>15</b></div>
+</section>
+
+<!-- ════════ 16 封底 ════════ -->
+<section class="page" id="p-back">
+  <div class="eyebrow">出處</div>
+  <ol class="refs" style="margin-top:2.4mm">
+    <li><b>阿里山國家風景區管理處，萬鷺朝鳳相關新聞與活動說明</b>　ali-nsa.net/zh-tw/event/news/2737、news/3157、news/2936、calendardetail/3148</li>
+    <li><b>鳳凰穴的說法：大紀元（2019/9/18）；自由時報</b>　epochtimes.com/b5/19/9/18/n11529883.htm　news.ltn.com.tw/news/life/breakingnews/3689819</li>
+    <li><b>維基百科〈清水溪 (濁水溪)〉；國家文化記憶庫〈太興茶區〉</b>　zh.wikipedia.org　tcmb.culture.tw</li>
+    <li><b>自由時報（2018/9/22），太興村村長受訪</b>　news.ltn.com.tw/news/lifeweekly/paper/1233951</li>
+    <li><b>自由時報（2026/9/7）</b>　news.ltn.com.tw/news/life/paper/1769719</li>
+    <li><b>臺灣物種名錄 TaiCOL〈黃頭鷺〉：學名變遷、別名、2024 臺灣鳥類紅皮書等級</b>　taicol.tw/zh-hant/taxon/t0029968</li>
+    <li><b>中華民國野鳥學會《2026 年臺灣鳥類名錄》</b>　bird.org.tw/basicpage/87</li>
+    <li><b>Wikipedia, Eastern cattle egret（體型量度）</b>　en.wikipedia.org/wiki/Eastern_cattle_egret</li>
+    <li><b>臺灣生命大百科 TaiEOL；Cornell Lab, Birds of the World：Cattle Egret；農業部農業知識入口網〈黃頭鷺〉</b>　taieol.tw/pages/74148　birdsoftheworld.org　kmweb.moa.gov.tw</li>
+    <li><b>繁殖季與鷺鷥林：台灣環境資訊協會〈黃頭鷺〉；中研院生命科學圖書館〈中研院草坪的黃頭鷺群〉</b>　teia.tw/archives/natural_valley_star/2023-02-01　lsl.sinica.edu.tw/Blog/2022/03/21-2/</li>
+    <li><b>eBird 2023 Taxonomy Update；South American Classification Committee, Proposal 994</b>　ebird.org/news/2023-taxonomy-update　museum.lsu.edu/~Remsen/SACCprop994.htm</li>
+    <li><b>Cornell Lab, All About Birds；Wikipedia, Medium egret、Little egret</b>　allaboutbirds.org　en.wikipedia.org</li>
+    <li><b>環境資訊中心；Heatwole, H. (1965). Some aspects of the association of Cattle Egrets with cattle. Animal Behaviour 13: 79–83</b>　e-info.org.tw/node/236674</li>
+    <li><b>自由時報桃園版，石門水庫的黃頭鷺</b>　news.ltn.com.tw/news/Taoyuan/paper/1768771　news.ltn.com.tw/news/Taoyuan/breakingnews/5557496</li>
+    <li><b>eBird Help Center, How to Count Birds；eBird, Bird Counting 101</b>　support.ebird.org　ebird.org/news/counting-101</li>
+    <li><b>台灣野灣野生動物保育協會，轉述林業及自然保育署與中華民國野鳥學會推廣的「賞鳥五不」</b>　wildonetaiwan.org/news/869</li>
+    <li><b>嘉義縣政府公告（民用航空法第 99 條之 13）；自由時報</b>　rhps.cyc.edu.tw/modules/tadnews/index.php?nsn=2592　news.ltn.com.tw/news/life/breakingnews/5567704</li>
+    <li><b>Wikipedia, Western cattle egret；BirdLife Australia；New Zealand Birds Online；Birds of the World</b>　en.wikipedia.org/wiki/Western_cattle_egret　birdlife.org.au　nzbirdsonline.org.nz</li>
+    <li><b>自由時報（2016/8/30）</b>　news.ltn.com.tw/news/life/breakingnews/1811124</li>
+    <li><b>聯合新聞網（2026/9/17）</b>　udn.com/news/story/7470/9759854</li>
+  </ol>
+  <div class="spacer"></div>
+  <div class="rule"></div>
+  <div class="contact">
+    <div>
+      <div class="eyebrow" style="margin-bottom:1.4mm">鳥況、交通、下一次再來</div>
+      <div class="tel num">0972-619-391</div>
+      <div style="font-size:7.6pt;color:var(--muted)">每日 08:00–22:00，接電話的就是我們</div>
+      <div style="font-size:7.6pt;margin-top:1.6mm">信淳茶居　嘉義縣梅山鄉太興村 8 鄰溪頭 19 號之 2</div>
+      <div style="font-size:7.6pt">霧抉茶　taiwantea.store</div>
+    </div>
+    <figure>
+      <img src="qr-guide.svg" alt="QR code：萬鷺朝鳳攻略與最近的鳥況">
+      <figcaption style="text-align:center;margin-top:1mm">攻略與最近的鳥況</figcaption>
+    </figure>
+  </div>
+  <p class="note" style="margin:3mm 0 0">2026 年 9 月初版。自然知識的出處查證於 2026 年 9 月；無人機公告等有期限的規定，請以主管機關最新公告為準。</p>
+</section>
+
+</body>
+</html>
