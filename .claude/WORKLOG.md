@@ -754,6 +754,7 @@ the API may result in the temporary or permanent suspension」。次要因素是
 - **第二、三輪 Sanity 已發布**（業主同意／指示，2026-09-23）：導覽頁搜尋摘要改成先答「3 點到 6 點最壯觀」再帶導覽；攻略文依 §2.11 改成**信淳茶居當主角**——摘要先講茶居、「在哪裡看？」段先推茶居，景觀平台停車場／太興飛瀑停車場／四家鄰居合成一段帶過並引回茶居，另加樟湖（雲林）消歧。copy-guardian 兩輪核對，最後一輪抓到 llms.txt 英文缺兩句已補
 - 程式碼同步：導航按鈕副標並列「有洗手間與座位」vs「免費・沒有洗手間與座位」、導航說明改成「導航設信淳茶居就對了」、llms.txt 茶居排第一並帶過其他觀鷺點
 - **沒開車的交通**（2026-09-24，業主原話 §2.12）：導航區塊加「搭公車梅山站→橫山站、上下山車次先查好、機車可直接騎到信淳茶居」，標題改「怎麼來：開車路線、公車與機車」，精簡版與 llms.txt 同步。測試釘住原話關鍵字，並禁止出現業主沒給的數字（反向驗證過：塞假的「7 路」會紅）
+- **PR #30 合併（2026-09-24，`a889732`）**：Sanity 發布後前台快取改用顯式 cache tag 清除。合併前先把 main 併進分支重跑 CI（4 項過、本機 87 檔／1158 條、build 過），並把它的兩條 09-05 教訓從 lessons 歸檔區搬回現行區；deploy-check 8 項過
 - **視野文案統一成 A 版（2026-09-25，業主選定）**：「座位看出去就是鳥群通過的溪谷、視野絕佳；建築旁的電線在右側與下方，拍照錄影基本上擋不到」。Sanity 3 處（攻略文「在哪裡看？」「想拍照的話」、導覽頁注意事項，中英）已發布並讀回比對一致；repo：照片說明、體驗備援注意事項、llms.txt。規則見 owner-source-quotes §2.13：寫「視野絕佳」一定要交代電線，`egret-copy.test.ts` 釘住
 - **電線更正（Sanity 3 處，2026-09-24）**：攻略文 `s3`、`s5b` 第 1 段與導覽頁 `notes[3]` 中英文照 §2.13 改寫，全站掃「沒有電線|無電線|no power lines」＝ 0。Sanity 連接器連不上，改用 `.env.local` 的 `SANITY_API_WRITE_TOKEN`：**原本那把已失效**（回 `SIO-401-AEX Session is expired`；網站程式沒用到它，正式站不受影響），業主當天在 sanity.io/manage 新建一把 Editor 權杖換上。另：Sanity 新版後台點專案會把 `/studio` 嵌進 iframe，被本站 `X-Frame-Options: SAMEORIGIN` 擋成「taiwantea.store refused to connect」——不是 Sanity 故障，要直接開 taiwantea.store/studio
 - **電線更正（PR #33，2026-09-24 合併上線）**：照片說明、方案引言、體驗備援注意事項、llms.txt 拿掉「視野沒有電線」，`egret-copy.test.ts` 釘住；deploy-check 11 項通過
@@ -768,7 +769,7 @@ the API may result in the temporary or permanent suspension」。次要因素是
 - **景觀平台停車場的 Google 商家檔案（業主已在管理，§2.10）**：網站欄位填攻略文、說明寫明「沒有洗手間，洗手間與座位在信淳茶居」、每天貼鳥況、回覆評論；信淳茶居檔案同步。只有業主能做。
 - **寫信給 vocus／背包客棧作者 hhann**（六組查詢全進前十、7 個觀賞點沒有信淳茶居），再來是方格子／好好玩 FUNIT／承錠旅行日記。不必等任何程式。
 - **驗收（9/24 起）**：正式站已換成新版（2026-09-24 確認：新標題、茶居優先的「在哪裡看？」、黃頭鷺段、導覽頁新摘要都在，「歸巢」0 處）；PR #32 已合併、deploy-check 已過；**兩週後（約 10/8）**在 GSC 看導覽頁點閱率（基準 0.7%）與「萬鷺朝鳳」排名（基準 7.6）有沒有動。
-- **PR #30 待合併**（`claude/gifted-bell-caace2`，Sanity 發布後前台快取沒清）：CI 全綠、可乾淨合併，合併會觸發 Vercel 部署。
+- **確認 Sanity webhook 設定（PR #30 已合併，2026-09-24）**：程式碼改用 `SANITY_CACHE_TAG` 清快取，但 Sanity 端 hook 的 filter 要涵蓋 `article`／`experience`／`faq`、trigger 要含 create／update／delete，否則攻略文發布照樣要等 1 小時。檢查：`npm run check:sanity-hook`（需管理員權杖；Editor 權杖讀 hooks 會 401），或業主到 sanity.io/manage → API → Webhooks 看。
 - **2027 季前（約 7 月）換年**：攻略文標題、體驗 seoDescription、llms.txt 的「2026」與無人機公告日期；同時從 GSC 匯出全部查詢做長尾分析。業主規劃中的住宿開張時補住宿段（§2.9）。
 - **兩項事實還沒問到業主**，見 `docs/owner-source-quotes.md` §4：紅茶運費含不含在 800 內、llms.txt「賞鳥起點就是自家的茶居與停車場」。**確認前不可以寫進文案。**
 - 商品詳情頁仍不存在（`openspec/BACKLOG.md` 的 `product-detail-pages`，也是「認真補 AI 搜尋收錄」的前置）。
