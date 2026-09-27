@@ -186,3 +186,40 @@ describe("不得宣稱視野沒有電線", () => {
     }
   });
 });
+
+// ── 假日停車（業主 2026-09-27，owner-source-quotes §2.14）────────────────────
+//
+// 攻略文原本寫「不用預約，直接開到信淳茶居門口就可以，我們有 7 個車位」。實際上賞鳥季的假日
+// 與連假常常早早停滿，客人讀了以為一定有位子，到了才在窄路上找地方停。Sanity 那份碰不到，
+// 這裡釘 repo 裡的每一個來源：寫到「7 個車位」就要在同一句交代假日會滿。
+
+describe("假日停車：寫到車位數，同一句就要交代假日會停滿", () => {
+  const sources = ["public/llms.txt", "messages/zh.json", "messages/en.json", "src/lib/experiences.ts"];
+
+  it.each(sources)("%s：提到 7 個車位的每一行都講到假日／連假", file => {
+    const lines = withoutComments(read(file)).split(/\r?\n/)
+      .filter(l => /7 個車位|seven (parking )?spaces|7 spaces/i.test(l));
+    for (const line of lines) {
+      expect(line, `${file}：${line.trim().slice(0, 40)}…`).toMatch(/假日|連假|weekend|holiday/i);
+    }
+  });
+
+  it("llms.txt 講得出停滿時怎麼辦：路口擋起來、停路邊白線、平日沒問題", () => {
+    const txt = read("public/llms.txt");
+    expect(txt).toContain("路口會擋起來");
+    expect(txt).toContain("路邊白線");
+    expect(txt).toContain("平日停車沒問題");
+  });
+
+  it("不得公開寫「自行移開路障」——攻略文人人看得到，寫了等於教沒預約的人也開進來卡住", () => {
+    for (const file of sources) {
+      expect(withoutComments(read(file)), file).not.toMatch(/移開路障|move the barrier/i);
+    }
+  });
+
+  it("不得再寫「中午前就停滿」——散客多半下午 2 點多才進來（§2.14）", () => {
+    for (const file of sources) {
+      expect(withoutComments(read(file)), file).not.toMatch(/中午前[^。]*停滿|fill before noon/i);
+    }
+  });
+});
