@@ -763,8 +763,27 @@ the API may result in the temporary or permanent suspension」。次要因素是
 - 程式碼（commit `cc033f7`，已 push）：llms.txt 新增「萬鷺朝鳳快速事實」；導航區塊標題「怎麼來：開車路線與導航」＋路況寫出「經太平 36 彎」；owner-source-quotes §2.7–2.9。證據：`npm run test` 86 檔／1142 條全綠、tsc 無錯、lint 0 error；本機預覽確認導航區塊文字已算繪
 - Sanity 第一輪（2026-09-23 已發布）：攻略文標題改「2026 萬鷺朝鳳最佳時間與地點｜…」、新增「黃頭鷺是什麼鳥？」「一天怎麼排？要不要過夜？」兩段、去掉「歸巢」、無人機改寫成縣府禁航公告；體驗頁 seoDescription／介紹同步去「歸巢／中繼棲地／roost」、「一杯」→「一罐」冷泡茶。變更全文見 commit 內本節與 owner-source-quotes
 
+## 2026-09-27 萬鷺朝鳳：假日連假停車文案
+
+分支 `fix/egret-holiday-parking`（PR 等業主開口）。業主原話與決策依據見 `docs/owner-source-quotes.md` §2.14。
+
+### 決策
+- 口徑：「平日停車沒問題；假日和連假，請先有停路邊的準備」。**不寫「沒有車位」**——平日與 2 點前到的人停得到，寫死會把他們也勸退
+- 預約導覽的客人保留車位，預約後來電告知台數；停滿時路口擋起來；長輩小孩在路口下車，走進來 1~2 分鐘
+- 「預約的車自行移開路障、進來後放回」**只在電話裡講，不公開寫**——攻略文人人看得到（`egret-copy.test.ts` 釘住）
+- 業主問明年要不要乾脆「茶居沒車位、全部停路邊」：建議改成「假日車位只給預約的人」——對散客效果相同（假日就是停路邊），但保住平日客與預約誘因，且假日一早放路障、不必盯什麼時候滿；全部停路邊會把 7 台車的量推到窄路上。本季剩餘假日先記數據再決定（見待辦）
+
+### 已完成
+- owner-source-quotes §2.14（`8a374d9`）
+- repo：llms.txt 中英加「假日停車」、`messages/zh.json` 導航引言、體驗備援的包含項目／注意事項、`egret-copy.test.ts` 加 4 條停車不變量（反向驗證：放回「7 個車位」舊寫法會紅）。全測 87 檔／1165 條綠、tsc 0、lint 0 error
+- Sanity 寫入腳本 `scripts/sanity-egret-holiday-parking.mjs`（業主逐字核准的定稿；空跑 10 處舊文逐字相符）。**尚未寫入**，見待辦第一項
+
 ### 還沒做的
 
+- **⏰ Sanity 停車文案寫入（雙十連假 10/9 前）**：`node scripts/sanity-egret-holiday-parking.mjs --apply`。業主已逐字核准；auto mode 分類器以 Production Deploy 擋下寫入（lessons 09-27），待業主自己跑或放行。寫入後：讀回比對、正式站看新文（webhook 沒涵蓋 article 的話要等 1 小時快取）、刪腳本
+- **`messages/en.json` 導航引言（visit.intro）未同步**：修改同樣被分類器擋下，zh 已改。擬用句：「…are all here. Weekdays are no problem for parking, but it has only seven spaces and they often fill at weekends and on public holidays; once full, the entrance is blocked off, so park at the viewing platform car park next door or on the white-lined roadside nearby and walk over.」
+- **通用 FAQ（Sanity `f061ab4c`）寫「現場停車方便」「搭公車至梅山，再轉乘當地接駁」**：與 §2.12（公車到橫山站再步行）、§2.14 牴觸，待業主決定
+- **2027 停車方案**：本季剩餘假日（10/3–4、10/9–11）請業主記：幾點滿／擋路口、擋下後大約多少車、路邊白線停到多遠；能的話拍一張「路邊白線可停位置」照片放攻略文。據此在「全部停路邊」與「假日車位只給預約者」之間決定
 - **⏰ 本季補拍黃頭鷺特寫**（賞鳥季到 **10/11**，過了等明年）。`public/images/gallery/` 一張鳥都沒有。同時卡住「第四階照片」。**瓶頸是攝影不是程式。**
 - **景觀平台停車場的 Google 商家檔案（業主已在管理，§2.10）**：網站欄位填攻略文、說明寫明「沒有洗手間，洗手間與座位在信淳茶居」、每天貼鳥況、回覆評論；信淳茶居檔案同步。只有業主能做。
 - **寫信給 vocus／背包客棧作者 hhann**（六組查詢全進前十、7 個觀賞點沒有信淳茶居），再來是方格子／好好玩 FUNIT／承錠旅行日記。不必等任何程式。
