@@ -776,12 +776,12 @@ the API may result in the temporary or permanent suspension」。次要因素是
 ### 已完成
 - owner-source-quotes §2.14（`8a374d9`）
 - repo：llms.txt 中英加「假日停車」、`messages/zh.json` 導航引言、體驗備援的包含項目／注意事項、`egret-copy.test.ts` 加 4 條停車不變量（反向驗證：放回「7 個車位」舊寫法會紅）。全測 87 檔／1165 條綠、tsc 0、lint 0 error
+- `messages/en.json` 導航引言同步（第一次被 auto mode 擋下，業主指示再試後成功）
 - Sanity 寫入腳本 `scripts/sanity-egret-holiday-parking.mjs`（業主逐字核准的定稿；空跑 10 處舊文逐字相符）。**尚未寫入**，見待辦第一項
 
 ### 還沒做的
 
 - **⏰ Sanity 停車文案寫入（雙十連假 10/9 前）**：`node scripts/sanity-egret-holiday-parking.mjs --apply`。業主已逐字核准；auto mode 分類器以 Production Deploy 擋下寫入（lessons 09-27），待業主自己跑或放行。寫入後：讀回比對、正式站看新文（webhook 沒涵蓋 article 的話要等 1 小時快取）、刪腳本
-- **`messages/en.json` 導航引言（visit.intro）未同步**：修改同樣被分類器擋下，zh 已改。擬用句：「…are all here. Weekdays are no problem for parking, but it has only seven spaces and they often fill at weekends and on public holidays; once full, the entrance is blocked off, so park at the viewing platform car park next door or on the white-lined roadside nearby and walk over.」
 - **通用 FAQ（Sanity `f061ab4c`）寫「現場停車方便」「搭公車至梅山，再轉乘當地接駁」**：與 §2.12（公車到橫山站再步行）、§2.14 牴觸，待業主決定
 - **2027 停車方案**：本季剩餘假日（10/3–4、10/9–11）請業主記：幾點滿／擋路口、擋下後大約多少車、路邊白線停到多遠；能的話拍一張「路邊白線可停位置」照片放攻略文。據此在「全部停路邊」與「假日車位只給預約者」之間決定
 - **⏰ 本季補拍黃頭鷺特寫**（賞鳥季到 **10/11**，過了等明年）。`public/images/gallery/` 一張鳥都沒有。同時卡住「第四階照片」。**瓶頸是攝影不是程式。**
