@@ -2040,7 +2040,7 @@
   },
   "visit": {
     "title": "Getting here: driving route, bus and scooter",
-    "intro": "Navigate to Xinchun Tea House: the seats, toilets, tea and the tour meeting point are all here. If its spaces are full, the viewing platform car park next door works too.",
+    "intro": "Navigate to Xinchun Tea House: the seats, toilets, tea and the tour meeting point are all here. Weekdays are no problem for parking, but it has only seven spaces and they often fill at weekends and on public holidays; once full, the entrance is blocked off, so park at the viewing platform car park next door or on the white-lined roadside nearby and walk over.",
     "navigateTo": "Directions to {place}",
     "driveMinutes": "about {minutes} min"
   },

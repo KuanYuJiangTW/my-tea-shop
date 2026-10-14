@@ -113,6 +113,19 @@ describe("車程與路況", () => {
     expect(ROAD_NOTE_EN.toLowerCase()).toContain("ordinary car");
   });
 
+  it("會車照業主原話：進太興村路窄要注意，不得寫「會車不困難」（2026-09-27 更正）", () => {
+    expect(ROAD_NOTE).toContain("注意會車");
+    expect(ROAD_NOTE).not.toMatch(/會車也?不困難/);
+    expect(ROAD_NOTE_EN.toLowerCase()).toContain("oncoming traffic");
+    expect(ROAD_NOTE_EN).not.toContain("not a problem");
+  });
+
+  it("兩條上山路線都寫到：梅山交流道與竹崎交流道（業主 2026-09-27）", () => {
+    expect(ROAD_NOTE).toContain("梅山交流道");
+    expect(ROAD_NOTE).toContain("竹崎交流道");
+    expect(ROAD_NOTE_EN).toContain("Zhuqi");
+  });
+
   it("沒開車的交通照業主原話：梅山站搭到橫山站、上下山車次要查好、機車可以直接到茶居（§2.12）", () => {
     for (const word of ["梅山站", "橫山站", "車次", "機車", "信淳茶居"]) {
       expect(NO_CAR_NOTE).toContain(word);

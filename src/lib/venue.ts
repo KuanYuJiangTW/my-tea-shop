@@ -83,11 +83,14 @@ export const DRIVE_TIMES: DriveTime[] = [
  *
  * 「經太平 36 彎」是業主確認的路線（2026-09-23）。寫出路名是因為「萬鷺朝鳳路線」
  * 是 Google 自動完成的第 2 名，全站原本沒有一個字回答它。
+ * 竹崎交流道也上得來（業主 2026-09-27），但經過哪裡、開多久業主沒說，所以只寫「也可以」。
+ * 會車：原本寫「會車也不困難」沒有依據，業主 2026-09-27 更正——進到太興村路比較窄，要注意會車。
+ * 「開到門口」也拿掉了：假日停滿時路口會擋起來（owner-source-quotes §2.14）。
  * 傍晚那句：看完鳥大約 6 點，秋天天暗得快，下山剛好就是彎道那一段
  */
 export const ROAD_NOTE =
-  "從梅山交流道上山會經過太平的 36 彎。彎多，但全程柏油路，一般轎車就可以直接開到門口，不需要四輪傳動；會車也不困難。" +
-  "看完鳥大約傍晚 6 點，這個季節天暗得快，下山的彎道請慢慢開。";
+  "梅山交流道或竹崎交流道下都可以上山。從梅山交流道上來會經過太平的 36 彎，彎多，但全程柏油路，一般轎車就開得上來，不需要四輪傳動。" +
+  "進到太興村之後路比較窄，要注意會車。看完鳥大約傍晚 6 點，這個季節天暗得快，下山的彎道請慢慢開。";
 /** 精簡版用。體驗頁的讀者已經在看這款要不要訂，只需要一句「開得上去」 */
 export const ROAD_NOTE_SHORT    = "全程柏油路，汽機車都可到；沒開車可搭公車到橫山站，再步行約 20–24 分鐘";
 export const ROAD_NOTE_SHORT_EN = "Sealed road all the way, fine by car or scooter; no car? Bus to Hengshan stop, then about a 20–24 minute walk";
@@ -112,7 +115,8 @@ export const NO_CAR_NOTE_EN =
   "The birds are best towards dusk, so check the bus times both up and back down before you set out, and allow 20-odd minutes to walk back to Hengshan stop. A scooter is even easier: much simpler to park than a car, and you are welcome to ride straight to Xinchun Tea House.";
 
 export const ROAD_NOTE_EN =
-  "From Meishan Interchange the road climbs through the 36 bends at Taiping. Plenty of curves, but sealed the whole way: an ordinary car gets you to the door — no 4WD needed, and passing oncoming traffic is not a problem. " +
+  "You can come up from either Meishan Interchange or Zhuqi Interchange. From Meishan the road climbs through the 36 bends at Taiping: plenty of curves, but sealed the whole way, so an ordinary car is fine and no 4WD is needed. " +
+  "Once you reach Taixing Village the road narrows, so watch for oncoming traffic. " +
   "The birds wind down around 6pm and it gets dark quickly in autumn, so take the bends slowly on the way down.";
 
 /**
