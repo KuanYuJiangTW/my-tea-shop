@@ -780,6 +780,16 @@ the API may result in the temporary or permanent suspension」。次要因素是
 - **Sanity 已寫入**（2026-09-27 12:43，業主指示「你來跑」；第一次由業主按 Run 未實際執行）：攻略文 s3／s6／s7 與導覽頁 notes[1]／includes[5] 中英 14 處讀回逐字相符、舊文殘留 0、`updatedAt` 改 09-27。PR #37 已開
 - Sanity 寫入腳本 `scripts/sanity-egret-holiday-parking.mjs`（業主逐字核准的定稿；空跑 10 處舊文逐字相符）。**尚未寫入**，見待辦第一項
 
+### 2026-10-14 SEO／AI SEO 成效檢查（GSC 於業主 Chrome 讀取；資源是網址前置 `https://taiwantea.store/`，不是網域資源）
+
+- 3 個月（7/12–10/11）：3,080 點擊／4.43 萬曝光／CTR 7%／排名 4.5；台灣佔 99%
+- 改版前後各 14 天（9/10–23 vs 9/25–10/8）：點擊 1,020→1,110、曝光 1.67 萬→1.4 萬、CTR 6.2%→8.0%。「萬鷺朝鳳」排 8.1→6.6（CTR 4.3→5.6%）；「最佳地點」3.8→1.7（CTR 12→23.5%）；停車場查詢 CTR 8→17%
+- 導覽頁 CTR 0.9%→7% **但不是變好**：曝光 7,269→502、查詢 121→28 條——Google 改把導航型查詢（景觀平台、停車場）全給攻略文，點擊 68→35。攻略文成了唯一入口
+- **Google 生成式 AI 功能報表**（GSC 成效頁的「開啟報表」，`/performance/search-analytics/ai`）：3 個月 1.19 萬曝光；14 天 4,000→4,760，佔總曝光 24%→34%；幾乎全是攻略文
+- 茶本業幾乎沒有搜尋能見度：含「茶」查詢 58 點擊有 55 個是「信淳茶居」；`/alishan-tea` 3 個月 AI 曝光 37、一般點擊個位數；「採茶」70 曝光排 11.4
+- 預約（非測試）：賞鳥導覽 9/10–23 完成 2 筆／8 人，9/24 之後 0 筆；量太小，無法歸因
+- 未取得：Bing AI Performance、Cloudflare AI 爬蟲流量（兩個都沒登入）、Perplexity 實測（被機器人驗證擋）。robots.txt 沒被 Cloudflare 改回（無 `ai-train=no`）、llms.txt 200、5 種 AI 爬蟲 UA 都 200、sitemap 40 網址
+
 ### 還沒做的
 
 - **正式站已換上新版（13:46）**：攻略文與導覽頁中英 4 頁新文都在、舊文 0 處。從寫入（12:43）到出現**花了 57 分鐘**＝等的是 1 小時快取過期，不是 webhook 即時清——佐證下方「確認 Sanity webhook 設定」那項確實沒涵蓋 article／experience
@@ -791,7 +801,7 @@ the API may result in the temporary or permanent suspension」。次要因素是
 - **⏰ 本季補拍黃頭鷺特寫**（賞鳥季到 **10/11**，過了等明年）。`public/images/gallery/` 一張鳥都沒有。同時卡住「第四階照片」。**瓶頸是攝影不是程式。**
 - **景觀平台停車場的 Google 商家檔案（業主已在管理，§2.10）**：網站欄位填攻略文、說明寫明「沒有洗手間，洗手間與座位在信淳茶居」、每天貼鳥況、回覆評論；信淳茶居檔案同步。只有業主能做。
 - **寫信給 vocus／背包客棧作者 hhann**（六組查詢全進前十、7 個觀賞點沒有信淳茶居），再來是方格子／好好玩 FUNIT／承錠旅行日記。不必等任何程式。
-- **驗收（9/24 起）**：正式站已換成新版（2026-09-24 確認：新標題、茶居優先的「在哪裡看？」、黃頭鷺段、導覽頁新摘要都在，「歸巢」0 處）；PR #32 已合併、deploy-check 已過；**兩週後（約 10/8）**在 GSC 看導覽頁點閱率（基準 0.7%）與「萬鷺朝鳳」排名（基準 7.6）有沒有動。
+- **驗收 10/14 已看**（見上方成效檢查）：「萬鷺朝鳳」8.1→6.6、導覽頁曝光被攻略文吸走。還缺 Bing AI Performance 與 Cloudflare AI 爬蟲數據，要業主登入後才能看。
 - **確認 Sanity webhook 設定（PR #30 已合併，2026-09-24）**：程式碼改用 `SANITY_CACHE_TAG` 清快取，但 Sanity 端 hook 的 filter 要涵蓋 `article`／`experience`／`faq`、trigger 要含 create／update／delete，否則攻略文發布照樣要等 1 小時。檢查：`npm run check:sanity-hook`（需管理員權杖；Editor 權杖讀 hooks 會 401），或業主到 sanity.io/manage → API → Webhooks 看。
 - **2027 季前（約 7 月）換年**：攻略文標題、體驗 seoDescription、llms.txt 的「2026」與無人機公告日期；同時從 GSC 匯出全部查詢做長尾分析。業主規劃中的住宿開張時補住宿段（§2.9）。
 - **兩項事實還沒問到業主**，見 `docs/owner-source-quotes.md` §4：紅茶運費含不含在 800 內、llms.txt「賞鳥起點就是自家的茶居與停車場」。**確認前不可以寫進文案。**
