@@ -27,6 +27,7 @@
   - 業主選擇整頁一起修：灰底改成 `tea-cream`／`tea-cream-dark`，15 處 `text-tea-text-light` 改成 `text-tea-text-muted`
   - 未處理（不屬於本頁的淡色字）：側欄群組小標 3.05、季節標籤「白字＋`tea-green`」3.05，兩者都是共用樣式
   - 深色模式不適用（design-system 2.4：深色模式目前沒有啟用）
+  - 修正後重量（在已登入的預覽頁套用同樣的 class 替換）：111 個文字節點中，下架列最低 4.52、白底 5.13；剩下 4 個不合格都是既有的「季節中」綠色標籤（3.05），不在本次範圍
 
 ## 4. 驗證與收尾
 
@@ -39,4 +40,6 @@
 - [ ] 4.2b 後台畫面實測（需要管理員登入，我無法代為輸入密碼）：「排序與季節」頁的開關與灰階列有正確顯示、確認視窗的場次／預約數字正確（藉此驗證 `loadImpact` 的 PostgREST 查詢語法在真實資料庫可用），然後按「取消」；「場次管理」選單出現「萬鷺朝鳳半日・等鳥茶席（未上架）」
 - [x] 4.3 派 checker 依 specs 的每個 Scenario 驗收，附 file:line 與測試輸出
 - [x] 4.4 `openspec/BACKLOG.md` 新增兩項：`llms.txt` 改成依資料庫產生；`experience-ordering` 既有 PATCH 沒有稽核紀錄的缺口
+  - 2026-11-07 已驗證一部分：`GET /api/admin/experience-ordering` 在真實資料庫回傳的場次與預約數，和直接查 SQL 的結果一致（茶藝體驗 1 個開放場次，其餘 0；有效預約全部為 0）。`loadImpact` 的 PostgREST 語法可用。開關與確認視窗由業主操作確認
 - [ ] 4.5 部署後在正式站實測一次「下架 → 1 分鐘內中英文列表都消失 → 上架」，結果記進 WORKLOG
+  - 2026-11-07 已驗證下架這一半：業主在預覽站刻意下架 `cattle-egret-tour`（預覽站連的是正式資料庫）。`admin_audit_logs` 寫入了 `update_experience_active`／`resource_id = "6"`，約 1 分鐘後正式站 `/experiences` 與 `/en/experiences` 都不再出現它，詳細頁回 404。依業主決定維持下架。還沒驗證「上架」這一半
