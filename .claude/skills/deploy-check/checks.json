@@ -7,7 +7,7 @@
     { "path": "/", "why": "首頁掛掉就沒有生意了" },
     { "path": "/en", "why": "英文站是獨立的 middleware rewrite，曾有三處 pathname 判斷同時被繞過（lessons.md 2026-08-17）" },
     { "path": "/products", "why": "商品列表" },
-    { "path": "/experiences/cattle-egret-tour", "why": "季節限定體驗，8 月下旬至 10 月中是旺季" },
+    { "path": "/experiences", "why": "體驗列表。不檢查單一體驗頁：後台可以下架體驗，下架後詳細頁回 404 是正常的（2026-11-07 起）" },
     { "path": "/sitemap.xml", "why": "GSC 與 Bing 都吃這支" },
 
     {

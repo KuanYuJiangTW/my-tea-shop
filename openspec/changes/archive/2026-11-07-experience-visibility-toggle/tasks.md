@@ -37,9 +37,12 @@
   - `?error=unavailable` 中英文提示都有出現，沒帶參數時不出現
   - `POST /api/experience-interest` 對 id 7 與 9999 都回 400，資料庫查證沒有寫入
   - 後台兩支 API 未登入都回 401
-- [ ] 4.2b 後台畫面實測（需要管理員登入，我無法代為輸入密碼）：「排序與季節」頁的開關與灰階列有正確顯示、確認視窗的場次／預約數字正確（藉此驗證 `loadImpact` 的 PostgREST 查詢語法在真實資料庫可用），然後按「取消」；「場次管理」選單出現「萬鷺朝鳳半日・等鳥茶席（未上架）」
+- [x] 4.2b 後台畫面實測（需要管理員登入，我無法代為輸入密碼）：「排序與季節」頁的開關與灰階列有正確顯示、確認視窗的場次／預約數字正確（藉此驗證 `loadImpact` 的 PostgREST 查詢語法在真實資料庫可用），然後按「取消」；「場次管理」選單出現「萬鷺朝鳳半日・等鳥茶席（未上架）」
 - [x] 4.3 派 checker 依 specs 的每個 Scenario 驗收，附 file:line 與測試輸出
 - [x] 4.4 `openspec/BACKLOG.md` 新增兩項：`llms.txt` 改成依資料庫產生；`experience-ordering` 既有 PATCH 沒有稽核紀錄的缺口
-  - 2026-11-07 已驗證一部分：`GET /api/admin/experience-ordering` 在真實資料庫回傳的場次與預約數，和直接查 SQL 的結果一致（茶藝體驗 1 個開放場次，其餘 0；有效預約全部為 0）。`loadImpact` 的 PostgREST 語法可用。開關與確認視窗由業主操作確認
-- [ ] 4.5 部署後在正式站實測一次「下架 → 1 分鐘內中英文列表都消失 → 上架」，結果記進 WORKLOG
-  - 2026-11-07 已驗證下架這一半：業主在預覽站刻意下架 `cattle-egret-tour`（預覽站連的是正式資料庫）。`admin_audit_logs` 寫入了 `update_experience_active`／`resource_id = "6"`，約 1 分鐘後正式站 `/experiences` 與 `/en/experiences` 都不再出現它，詳細頁回 404。依業主決定維持下架。還沒驗證「上架」這一半
+  - 2026-11-07 已驗證一部分：`GET /api/admin/experience-ordering` 在真實資料庫回傳的場次與預約數，和直接查 SQL 的結果一致（茶藝體驗 1 個開放場次，其餘 0；有效預約全部為 0）。`loadImpact` 的 PostgREST 語法可用。開關與確認視窗由業主操作確認。正式站「場次管理」選單：上架的 5 款在前，「萬鷺朝鳳・茶山導覽（未上架）」「萬鷺朝鳳半日・等鳥茶席（未上架）」在後
+- [x] 4.5 部署後在正式站實測一次「下架 → 1 分鐘內中英文列表都消失 → 上架」，結果記進 WORKLOG
+  - 2026-11-07 已驗證下架這一半：業主在預覽站刻意下架 `cattle-egret-tour`（預覽站連的是正式資料庫）。`admin_audit_logs` 寫入了 `update_experience_active`／`resource_id = "6"`，約 1 分鐘後正式站 `/experiences` 與 `/en/experiences` 都不再出現它，詳細頁回 404。依業主決定維持下架
+  - 19:12 茶山導覽被切回上架（同一個 IP，來源不明），合併部署後正式站列表看得到它
+  - 19:29 依業主指示在正式站後台再次下架：20 秒內 `/`、`/en`、`/experiences`、`/en/experiences` 都不再出現它，詳細頁回 404。**但 sitemap.xml 還在**（`Age: 548`、`x-vercel-cache: HIT`），見 4.6
+- [x] 4.6 （上線後補）sitemap 不會跟著上下架更新：`revalidatePath("/", "layout")` 清不到 metadata route。上架 API 加清 `/sitemap.xml`，`sitemap.ts` 加 `revalidate = 3600` 當保底；測試改成檢查兩次 revalidate。**合併後要在正式站確認 sitemap 不再出現 `cattle-egret-tour`**（記在 WORKLOG）

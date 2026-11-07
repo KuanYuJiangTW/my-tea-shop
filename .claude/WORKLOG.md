@@ -790,10 +790,25 @@ the API may result in the temporary or permanent suspension」。次要因素是
 - 預約（非測試）：賞鳥導覽 9/10–23 完成 2 筆／8 人，9/24 之後 0 筆；量太小，無法歸因
 - 未取得：Bing AI Performance、Cloudflare AI 爬蟲流量（兩個都沒登入）、Perplexity 實測（被機器人驗證擋）。robots.txt 沒被 Cloudflare 改回（無 `ai-train=no`）、llms.txt 200、5 種 AI 爬蟲 UA 都 200、sitemap 40 網址
 
-### 還沒做的
+### 上線結果
 
 - **正式站已換上新版（13:46）**：攻略文與導覽頁中英 4 頁新文都在、舊文 0 處。從寫入（12:43）到出現**花了 57 分鐘**＝等的是 1 小時快取過期，不是 webhook 即時清——佐證下方「確認 Sanity webhook 設定」那項確實沒涵蓋 article／experience
 - 攻略文「停車怎麼停？」第 1 段改成「平日車子直接開到門口……（假日怎麼停，請看下面）」（業主同意，2026-09-27 13:16 寫入，讀回中英相符）；路況句改照業主原話（兩條路、進太興村路窄注意會車，PR #37）
+
+## 2026-11-07 茶山體驗上架／下架開關（PR #38，已合併）
+
+- 目標：後台「排序與季節」每款體驗一個開關，關掉就不出現在網站上，也不再接新預約
+- 決策：開關放在既有的排序頁、沿用 `experience_types.is_active`；下架只擋新入口（預約、候補、想來登記、預約頁），已成立的預約、付款、退款、提醒照舊（design D4／D5）
+- 證據：`/verify` 四項全綠；預約與想來登記的擋法都做過反向驗證；checker PASS；openspec 已歸檔為 `2026-11-07-experience-visibility-toggle`
+- 正式站實測：下架後 20 秒內首頁、列表中英文都消失、詳細頁 404，稽核寫入 `update_experience_active`。**sitemap 沒跟著更新**，已另開 PR 修（`fix/sitemap-revalidate-on-visibility`）
+- 業主操作：茶山導覽（`cattle-egret-tour`）18:53 下架 → 19:12 被切回上架（同一個 IP，來源不明）→ 19:29 依業主指示再次下架。**目前兩款萬鷺朝鳳都是下架狀態**
+- 後台排序頁對比：淡色字改用 `tea-text-muted`、下架列底色改成 `tea-cream`，最低 4.52
+
+### 還沒做的
+
+- **sitemap 修正 PR 合併後**，在正式站確認 `/sitemap.xml` 已經沒有 `cattle-egret-tour`（`curl -s https://taiwantea.store/sitemap.xml | grep -c cattle-egret-tour` 應為 0）
+- **`llms.txt` 還在介紹茶山導覽「可線上預約」**，但導覽已經下架。BACKLOG #3（`llms-txt-from-db`）的開工訊號「業主第一次真的下架」已經到了：要嘛改成依資料庫產生，要嘛先手動把那句拿掉（`deploy-check` 會比對 llms.txt，要一起改）
+- 後台既有的「季節中」綠色標籤，白字放在 `tea-green` 上對比只有 3.05，沒有修
 - **通用 FAQ「體驗地點在哪裡？如何前往？」改寫待業主核准**：定稿與腳本 `scripts/sanity-faq-transport.mjs`（空跑中英舊文相符）。改掉「轉乘當地接駁」（業主：沒有接駁）、「台162甲線」（縣道，改寫梅山／竹崎兩條路）、「現場停車方便」、「導航資訊」（確認信只有地址）
 - 竹崎交流道那條路**經過哪裡、開多久**沒問到；站上 `DRIVE_TIMES`／`ROAD_NOTE` 目前只寫梅山交流道
 - 建議（待業主決定）：萬鷺朝鳳導覽的**預約確認信**加停車提醒（來電告知台數、停滿擋路口），很多人預約時不看注意事項
