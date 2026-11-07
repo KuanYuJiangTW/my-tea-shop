@@ -22,7 +22,11 @@
 - [x] 3.2 確認視窗：下架時顯示未來場次數、有效預約數，以及「這些不會被取消」；上架時顯示「客人會立刻看得到並可以預約」（design D7）
 - [x] 3.3 開關旁加一行提醒：「`llms.txt` 不會自動更新，下架後請告訴工程師」
 - [x] 3.4 `sessions/page.tsx`：體驗選單改列全部體驗，下架的附「（未上架）」（design D6）
-- [ ] 3.5 對照 `docs/design-system.md` 檢查開關與灰階列的對比；用 `contrast-audit` 量測灰階列文字是否符合 AA
+- [x] 3.5 對照 `docs/design-system.md` 檢查開關與灰階列的對比；用 `contrast-audit` 量測灰階列文字是否符合 AA
+  - 2026-11-07 在 PR 預覽站實測：原本的灰底 `#F1EEE8` 上 `tea-text-light` 只有 3.36，而且整頁淡色字本來在白底上就只有 3.9（既有問題）
+  - 業主選擇整頁一起修：灰底改成 `tea-cream`／`tea-cream-dark`，15 處 `text-tea-text-light` 改成 `text-tea-text-muted`
+  - 未處理（不屬於本頁的淡色字）：側欄群組小標 3.05、季節標籤「白字＋`tea-green`」3.05，兩者都是共用樣式
+  - 深色模式不適用（design-system 2.4：深色模式目前沒有啟用）
 
 ## 4. 驗證與收尾
 

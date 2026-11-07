@@ -228,7 +228,7 @@ export default function OrderingClient() {
     refresh();
   }
 
-  if (loading) return <p className="text-tea-text-light">載入中…</p>;
+  if (loading) return <p className="text-tea-text-muted">載入中…</p>;
 
   // 下架的不在客人看到的順序裡——前台 getExperienceTypes 只取上架中的
   const effective = sortExperiences(rows.filter(r => r.isActive), today) as Row[];
@@ -250,7 +250,7 @@ export default function OrderingClient() {
           否則會誤以為箭頭調的就是客人看到的順序 */}
       <div className="bg-white rounded-xl border border-tea-green-pale/60 p-4">
         <h2 className="text-sm font-medium text-tea-text mb-2">客人實際看到的順序</h2>
-        <ol className="text-sm text-tea-text-light space-y-1">
+        <ol className="text-sm text-tea-text-muted space-y-1">
           {effective.map((r, i) => {
             const s = inSeason(r, today);
             const p = !!r.pinnedUntil && r.pinnedUntil >= today;
@@ -264,7 +264,7 @@ export default function OrderingClient() {
             );
           })}
         </ol>
-        <p className="text-xs text-tea-text-light mt-3">
+        <p className="text-xs text-tea-text-muted mt-3">
           今天（台灣時間）{today}　·　順序：釘選中 → 季節中 → 下方的手動順序 → 建立順序
           　·　已下架的不列在這裡
         </p>
@@ -272,7 +272,7 @@ export default function OrderingClient() {
 
       <div>
         <h2 className="text-sm font-medium text-tea-text mb-1">手動順序</h2>
-        <p className="text-xs text-tea-text-light mb-3">
+        <p className="text-xs text-tea-text-muted mb-3">
           箭頭調的是這一份順序。季節中與釘選中的體驗在前台會排到它之上，
           所以這裡的第一名不一定是客人看到的第一張。
         </p>
@@ -285,7 +285,7 @@ export default function OrderingClient() {
           <div
             key={r.id}
             className={`rounded-xl border p-4 ${
-              r.isActive ? "bg-white border-tea-green-pale/60" : "bg-[#F1EEE8] border-[#D9D9D9]"
+              r.isActive ? "bg-white border-tea-green-pale/60" : "bg-tea-cream border-tea-cream-dark"
             }`}
           >
             <div className="flex items-start gap-3">
@@ -306,9 +306,9 @@ export default function OrderingClient() {
 
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-tea-text-light tabular-nums">#{i + 1}</span>
+                  <span className="text-xs text-tea-text-muted tabular-nums">#{i + 1}</span>
                   <span className="font-medium text-tea-text">{r.name}</span>
-                  <span className="text-xs text-tea-text-light">NT$ {r.price}</span>
+                  <span className="text-xs text-tea-text-muted">NT$ {r.price}</span>
                   {!r.isActive && (
                     <span className="text-xs bg-tea-text text-white px-2 py-0.5 rounded-full">
                       已下架・前台不顯示
@@ -333,12 +333,12 @@ export default function OrderingClient() {
 
                 <div className="mt-3 space-y-1.5">
                   {r.windows.length === 0 && (
-                    <p className="text-xs text-tea-text-light">未設定季節區間——這一款不受季節限制</p>
+                    <p className="text-xs text-tea-text-muted">未設定季節區間——這一款不受季節限制</p>
                   )}
                   {[...r.windows]
                     .sort((a, b) => a.startDate.localeCompare(b.startDate))
                     .map(w => (
-                      <div key={w.id} className="flex items-center gap-2 text-sm text-tea-text-light">
+                      <div key={w.id} className="flex items-center gap-2 text-sm text-tea-text-muted">
                         <span className="tabular-nums">{w.startDate} → {w.endDate}</span>
                         {w.note && <span className="text-xs">（{w.note}）</span>}
                         <button
@@ -353,7 +353,7 @@ export default function OrderingClient() {
 
                 {/* 開課請求的可申請性參數。accepts_requests 是總開關——
                     關著的時候前台連入口都不會出現，逐款開啟就是上線節奏 */}
-                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-tea-text-light border-t border-tea-green-pale/50 pt-3">
+                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-tea-text-muted border-t border-tea-green-pale/50 pt-3">
                   <label className="inline-flex items-center gap-1.5">
                     <input
                       type="checkbox"
@@ -431,7 +431,7 @@ export default function OrderingClient() {
                       className="text-xs px-3 py-1.5 rounded-lg border border-tea-green-pale hover:bg-tea-cream"
                     >取消釘選</button>
                   ) : (
-                    <label className="inline-flex items-center gap-2 text-xs text-tea-text-light">
+                    <label className="inline-flex items-center gap-2 text-xs text-tea-text-muted">
                       釘選到
                       <input
                         type="date"
@@ -446,7 +446,7 @@ export default function OrderingClient() {
 
                 {openForm === r.id && (
                   <div className="mt-3 flex flex-wrap items-end gap-2 bg-tea-cream-light rounded-lg p-3">
-                    <label className="text-xs text-tea-text-light">
+                    <label className="text-xs text-tea-text-muted">
                       開始
                       <input
                         type="date"
@@ -455,7 +455,7 @@ export default function OrderingClient() {
                         className="block border border-tea-green-pale rounded-lg px-2 py-1 mt-1"
                       />
                     </label>
-                    <label className="text-xs text-tea-text-light">
+                    <label className="text-xs text-tea-text-muted">
                       結束
                       <input
                         type="date"
@@ -465,7 +465,7 @@ export default function OrderingClient() {
                         className="block border border-tea-green-pale rounded-lg px-2 py-1 mt-1"
                       />
                     </label>
-                    <label className="text-xs text-tea-text-light flex-1 min-w-[10rem]">
+                    <label className="text-xs text-tea-text-muted flex-1 min-w-[10rem]">
                       說明（選填）
                       <input
                         type="text"
@@ -505,14 +505,14 @@ export default function OrderingClient() {
                     }`}
                   />
                 </button>
-                <span className="text-xs text-tea-text-light">{r.isActive ? "上架中" : "已下架"}</span>
+                <span className="text-xs text-tea-text-muted">{r.isActive ? "上架中" : "已下架"}</span>
               </div>
             </div>
           </div>
         );
       })}
 
-      <p className="text-xs text-tea-text-light">
+      <p className="text-xs text-tea-text-muted">
         上架／下架會在幾秒內反映到全站（中英文）。下架只擋新的預約，已成立的預約照常進行。
         給 AI 搜尋看的 llms.txt 不會自動更新，下架後請告訴工程師。
       </p>
