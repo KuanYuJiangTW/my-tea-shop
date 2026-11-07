@@ -15,4 +15,6 @@
 
 ## 驗證招式
 
+- 2026-11-07 驗 openspec 文件：文中引用的路徑／路由逐個確認存在，見 [spec-ghost-paths](feedback_spec_ghost_paths.md)。
+
 - 2026-08-31（種子）新增要進版控的 `.claude/` 子項後，用 `git check-ignore -v <路徑>` 實查——該目錄的 `.gitignore` 是 `.claude/*` 加白名單制，漏加白名單會靜默被忽略。
