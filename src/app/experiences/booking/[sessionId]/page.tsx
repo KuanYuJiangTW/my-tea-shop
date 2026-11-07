@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { supabase } from "@/lib/supabase";
 import BookingFlow from "./BookingFlow";
@@ -24,6 +25,14 @@ export default async function BookingPage({ params }: Props) {
     .single();
 
   if (error || !session) notFound();
+
+  // 已下架的體驗：不顯示預約表單（openspec experience-visibility-toggle）。
+  // 不導回詳細頁——那頁對已下架體驗是 404。列表頁看到 ?error=unavailable 會顯示說明。
+  // 真正的防線在 POST /api/bookings；這裡只是不讓客人填完表單才被拒絕
+  if (!session.experienceType?.is_active) {
+    const locale = await getLocale();
+    redirect(`${locale === "en" ? "/en" : ""}/experiences?error=unavailable`);
+  }
 
   if (session.status === "cancelled") {
     redirect(`/experiences/${session.experienceType.slug}?error=unavailable`);

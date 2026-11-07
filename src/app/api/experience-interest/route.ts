@@ -79,6 +79,19 @@ export async function POST(req: NextRequest) {
   const safeSource = VALID_SOURCES.includes(source) ? source : "no-date";
   const safeLocale = VALID_LOCALES.includes(locale) ? locale : "zh";
 
+  // 已下架或不存在的體驗不收登記（openspec experience-visibility-toggle）。
+  // 「季節外」（off-season）是上架中但不在季節內，照收——那正是這支 API 的用途。
+  // 查到的名字順便給下面的通知信用，不用再查一次
+  const { data: expType } = await supabase
+    .from("experience_types")
+    .select("name, is_active")
+    .eq("id", experienceTypeId)
+    .single();
+
+  if (!expType?.is_active) {
+    return NextResponse.json({ error: "此體驗目前未開放" }, { status: 400 });
+  }
+
   const { error } = await supabase.from("experience_interest").insert({
     experience_type_id: experienceTypeId,
     contact_email:      email || null,
@@ -102,14 +115,8 @@ export async function POST(req: NextRequest) {
 
   // best-effort 通知業主：寄信失敗不影響已落庫的成功回應
   try {
-    const { data: expType } = await supabase
-      .from("experience_types")
-      .select("name")
-      .eq("id", experienceTypeId)
-      .single();
-
     await sendExperienceInterestEmail({
-      experienceName: expType?.name ?? `#${experienceTypeId}`,
+      experienceName: expType.name ?? `#${experienceTypeId}`,
       contactEmail:   email || undefined,
       contactLine:    line  || undefined,
       preferredDate:  preferredDate || undefined,

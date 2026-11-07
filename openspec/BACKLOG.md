@@ -55,6 +55,28 @@ Sanity 的 product schema（slug、介紹、相簿）早就設計好但從未使
 **開工訊號**：`product-detail-pages` 做完之後。做成後是台灣第一個提供 MCP 介面的茶園電商，
 配合萬鷺朝鳳季有公關話題價值。
 
+### 3. `llms-txt-from-db` — `llms.txt` 的體驗清單改成依資料庫產生
+
+**來源**：`experience-visibility-toggle`（2026-11-07）。尚無提案。
+
+後台已經可以上下架體驗，但 `public/llms.txt` 是寫死的檔案，6 款體驗全列在裡面。
+下架後 AI 搜尋還是會介紹那一款，甚至給出會 404 的網址。目前的對策是後台開關旁的提醒文字（「請告訴工程師」），靠人記得。
+
+**做法方向**：改成 `src/app/llms.txt/route.ts`，體驗段落從 `getExperienceTypes()` 產生，其餘段落維持手寫。
+注意 `deploy-check` skill 會驗 llms.txt 的價格與設施文案，改完要一起調整。
+
+**開工訊號**：業主第一次真的下架一款體驗時。
+
+### 4. `experience-ordering` 的寫入沒有稽核紀錄
+
+**來源**：`experience-visibility-toggle` 盤點時發現（2026-11-07）。這是既有缺口，不是本次造成的。
+
+`src/app/api/admin/experience-ordering/route.ts` 的 PATCH／POST／DELETE（重排、釘選、季節區間、開課請求參數）
+都用單參數的 `withAdminAuth(handler)`，**沒有帶 action**，所以完全不寫 `admin_audit_logs`。
+這和 `admin-audit-log` 規格「所有後台 POST、PATCH、DELETE 都要記錄」不符。
+
+**難處**：這支沒有 `[id]` 路段，`withAdminAuth` 取不到 resource_id；要嘛拆路由，要嘛讓 guard 接受由 handler 回報的 resource_id。
+
 ---
 
 ## 已從 backlog 畢業

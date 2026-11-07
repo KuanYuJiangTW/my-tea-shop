@@ -127,3 +127,23 @@ describe("SQL 還沒執行時的提示", () => {
     expect((await res.json()).error).toContain("add_experience_ordering.sql");
   });
 });
+
+/**
+ * 上下架確認視窗用的影響範圍（experience-visibility-toggle D7）。
+ * 這個 mock 的 chain 沒有 gte／in，影響範圍查詢會丟例外——正好用來釘住
+ * 「附屬資訊查不到不能拖垮整頁」：GET 仍要 200，數字回 null（不是 0）
+ */
+describe("GET：影響範圍查不到時", () => {
+  it("仍回 200，upcoming_open_sessions／active_bookings 為 null", async () => {
+    nextResult = { data: [{ id: 3, slug: "tea-picking", is_active: true, experience_availability_windows: [] }], error: null };
+    const { GET } = await import("@/app/api/admin/experience-ordering/route");
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const res = await GET(new NextRequest(URL_BASE) as any);
+    errSpy.mockRestore();
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.types[0]).toMatchObject({ id: 3, upcoming_open_sessions: null, active_bookings: null });
+  });
+});

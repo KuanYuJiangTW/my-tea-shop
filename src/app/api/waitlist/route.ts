@@ -32,12 +32,19 @@ export async function POST(req: NextRequest) {
   // 確認場次存在且為 full（額滿才允許候補）
   const { data: session } = await supabase
     .from("experience_sessions")
-    .select("id, status")
+    .select("id, status, experience_types(is_active)")
     .eq("id", sessionId)
     .single();
 
   if (!session) {
     return NextResponse.json({ error: "找不到此場次" }, { status: 404 });
+  }
+  // 加入候補是「新的」入口，跟 /api/bookings 同一條規則：已下架的體驗不收
+  // （openspec experience-visibility-toggle D4）。已經在排的候補被通知後的確認
+  // 不在這裡，見 /api/waitlist/[id]/confirm，那條刻意不擋（D5）
+  const expType = session.experience_types as unknown as { is_active?: boolean } | null;
+  if (!expType?.is_active) {
+    return NextResponse.json({ error: "此體驗目前未開放預約" }, { status: 409 });
   }
   if (session.status !== "full") {
     return NextResponse.json({ error: "此場次仍有名額，請直接預約" }, { status: 409 });
