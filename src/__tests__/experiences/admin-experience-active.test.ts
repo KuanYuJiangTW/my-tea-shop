@@ -61,7 +61,8 @@ describe("PATCH /api/admin/experience-types/[id]", () => {
 
     expect(res.status).toBe(200);
     expect(updates).toEqual([{ is_active: false }]);
-    expect(revalidated).toEqual([["/", "layout"]]);
+    // sitemap 要單獨清：它不在 layout 樹裡，只清 "/" layout 時正式站的 sitemap 停在部署當下
+    expect(revalidated).toEqual([["/", "layout"], ["/sitemap.xml"]]);
   });
 
   it("上架 → 200", async () => {

@@ -4,6 +4,11 @@ import { getExperienceTypes } from "@/lib/experiences";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://taiwantea.store";
 
+// 沒有這行時 sitemap 是建置時產生的靜態檔，直到下次部署才會更新：
+// 後台下架的體驗、Sanity 新增的文章都會一直停在舊版本。
+// 後台上下架會另外主動清（api/admin/experience-types/[id]），這裡是保底
+export const revalidate = 3600;
+
 type ChangeFrequency = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
 
 const STATIC_PAGES: Array<{ path: string; changeFrequency: ChangeFrequency; priority: number }> = [

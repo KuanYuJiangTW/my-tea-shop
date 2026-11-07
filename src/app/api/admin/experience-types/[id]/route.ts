@@ -48,6 +48,9 @@ export const PATCH = withAdminAuth(async (req: NextRequest, ctx?: unknown) => {
   // sitemap 都會顯示體驗，中英文都有（/en 是 proxy rewrite）。逐一列路徑很容易漏，
   // 漏掉的那頁會繼續顯示已下架的體驗一小時；上下架一年才幾次，清全站換「保證不漏」
   revalidatePath("/", "layout");
+  // sitemap.xml 是 metadata route，不在 layout 樹裡，上面那行清不到它。
+  // 2026-11-07 正式站實測：下架後頁面 1 分鐘內就更新了，sitemap 卻還是部署當下的版本
+  revalidatePath("/sitemap.xml");
 
   return NextResponse.json({ ok: true, type: data[0] });
 }, "update_experience_active");
