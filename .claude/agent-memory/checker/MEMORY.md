@@ -18,3 +18,6 @@
 - 2026-11-07 驗 openspec 文件：文中引用的路徑／路由逐個確認存在，見 [spec-ghost-paths](feedback_spec_ghost_paths.md)。
 
 - 2026-08-31（種子）新增要進版控的 `.claude/` 子項後，用 `git check-ignore -v <路徑>` 實查——該目錄的 `.gitignore` 是 `.claude/*` 加白名單制，漏加白名單會靜默被忽略。
+
+- 2026-11-07 後台 API 測試常把 `withAdminAuth` mock 成 identity（如 `admin-experience-active.test.ts`）→ 那份測試**證明不了** 401 與 audit action 字串；401 只能靠 `route-auth-coverage.test.ts`（靜態掃描有包 guard），audit 的 action 值無自動測試，驗 spec 的「401／稽核」Scenario 要標「僅靜態涵蓋」。
+- 2026-11-07 `npx tsc --noEmit | tail` 的 `$?` 是 tail 的 exit code，不是 tsc 的；看輸出是否為空才準。
