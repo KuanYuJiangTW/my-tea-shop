@@ -61,6 +61,14 @@ export async function POST(req: NextRequest) {
 
   const expType = session.experience_types;
 
+  // 已下架的體驗不接受新預約（openspec experience-visibility-toggle D4）。
+  // 下架只把卡片藏起來是不夠的：客人手上的舊場次連結還能一路訂到付款。
+  // 要放在名額檢查之前——join 為 null 時原本在 expType.max_participants 就會丟 500，
+  // 這裡一併當成「不可預約」。已成立預約的付款與候補確認刻意不擋（D5）
+  if (!expType?.is_active) {
+    return NextResponse.json({ error: "此體驗目前未開放預約" }, { status: 409 });
+  }
+
   // 檢查剩餘名額
   const available = expType.max_participants - session.current_participants;
   if (participantCount > available) {

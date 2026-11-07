@@ -24,6 +24,10 @@ interface Row extends Sortable {
   requestMinSlots: number | null;
   requestLeadDays: number | null;
   requestStartTimes: string[];
+  isActive: boolean;
+  /** null＝影響範圍沒查到，確認視窗要說「無法取得」而不是當成 0 */
+  upcomingOpenSessions: number | null;
+  activeBookings: number | null;
 }
 
 interface ApiWindow { id: string; start_date: string; end_date: string; note: string | null }
@@ -34,6 +38,9 @@ interface ApiRow {
   request_min_slots?: number | null;
   request_lead_days?: number | null;
   request_start_times?: string[];
+  is_active: boolean;
+  upcoming_open_sessions?: number | null;
+  active_bookings?: number | null;
   experience_availability_windows: ApiWindow[];
 }
 type ApiResult = { today: string; types: ApiRow[] } | { error: string };
@@ -52,6 +59,9 @@ function toRow(t: ApiRow): Row {
     requestMinSlots: t.request_min_slots ?? null,
     requestLeadDays: t.request_lead_days ?? null,
     requestStartTimes: t.request_start_times ?? [],
+    isActive: t.is_active,
+    upcomingOpenSessions: t.upcoming_open_sessions ?? null,
+    activeBookings: t.active_bookings ?? null,
     windows: t.experience_availability_windows.map(w => ({
       id: w.id, startDate: w.start_date, endDate: w.end_date, note: w.note ?? undefined,
     })),
@@ -71,6 +81,25 @@ function needsRenewal(r: Row, today: string) {
     (Date.parse(`${last}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000,
   );
   return days < 30;
+}
+
+/**
+ * 上下架確認視窗的文字（openspec experience-visibility-toggle D7）。
+ * 下架要讓業主看到「還有多少場次與預約」——下架不會取消它們，客人仍會收到提醒信。
+ * 上架要講清楚「立刻公開」：egret-half-day 是因為訂價問題刻意下架的，一按就會上架。
+ */
+export function toggleConfirmText(r: Pick<Row, "name" | "isActive" | "upcomingOpenSessions" | "activeBookings">) {
+  if (!r.isActive) {
+    return `上架「${r.name}」？\n\n客人會立刻在網站上看到這款體驗，並且可以預約。`;
+  }
+  const impact =
+    r.upcomingOpenSessions === null || r.activeBookings === null
+      ? "目前無法取得這款體驗的未來場次與預約數，請先到「場次管理」確認。"
+      : `目前還有 ${r.upcomingOpenSessions} 個未來的開放場次、${r.activeBookings} 筆有效預約。`;
+  return (
+    `下架「${r.name}」？\n\n前台會立刻看不到這款體驗，也不能再預約、加入候補或登記想來。\n` +
+    `${impact}\n已成立的預約不會被取消，客人仍會收到提醒信；不辦的場次請到「場次管理」自行取消。`
+  );
 }
 
 export default function OrderingClient() {
@@ -153,6 +182,31 @@ export default function OrderingClient() {
     refresh();
   }
 
+  /** 上架／下架。走獨立的 /api/admin/experience-types/[id]，稽核紀錄才記得到是哪一款 */
+  async function toggleActive(r: Row) {
+    if (!window.confirm(toggleConfirmText(r))) return;
+    setBusy(true);
+    setMsg(null);
+    const res = await fetch(`/api/admin/experience-types/${r.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_active: !r.isActive }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) {
+      setMsg({ type: "err", text: data.error ?? "上下架失敗" });
+    } else {
+      setMsg({
+        type: "ok",
+        text: r.isActive
+          ? `已下架「${r.name}」，前台已看不到。提醒：llms.txt（給 AI 搜尋看的介紹）不會自動更新，請告訴工程師`
+          : `已上架「${r.name}」，客人現在看得到了`,
+      });
+    }
+    refresh();
+  }
+
   async function addWindow(typeId: number) {
     const ok = await send("POST", {
       experienceTypeId: typeId,
@@ -176,7 +230,8 @@ export default function OrderingClient() {
 
   if (loading) return <p className="text-tea-text-light">載入中…</p>;
 
-  const effective = sortExperiences(rows, today) as Row[];
+  // 下架的不在客人看到的順序裡——前台 getExperienceTypes 只取上架中的
+  const effective = sortExperiences(rows.filter(r => r.isActive), today) as Row[];
 
   return (
     <div className="space-y-4">
@@ -211,6 +266,7 @@ export default function OrderingClient() {
         </ol>
         <p className="text-xs text-tea-text-light mt-3">
           今天（台灣時間）{today}　·　順序：釘選中 → 季節中 → 下方的手動順序 → 建立順序
+          　·　已下架的不列在這裡
         </p>
       </div>
 
@@ -226,7 +282,12 @@ export default function OrderingClient() {
         const season = inSeason(r, today);
         const pinned = !!r.pinnedUntil && r.pinnedUntil >= today;
         return (
-          <div key={r.id} className="bg-white rounded-xl border border-tea-green-pale/60 p-4">
+          <div
+            key={r.id}
+            className={`rounded-xl border p-4 ${
+              r.isActive ? "bg-white border-tea-green-pale/60" : "bg-[#F1EEE8] border-[#D9D9D9]"
+            }`}
+          >
             <div className="flex items-start gap-3">
               <div className="flex flex-col gap-1 pt-0.5">
                 <button
@@ -248,6 +309,11 @@ export default function OrderingClient() {
                   <span className="text-xs text-tea-text-light tabular-nums">#{i + 1}</span>
                   <span className="font-medium text-tea-text">{r.name}</span>
                   <span className="text-xs text-tea-text-light">NT$ {r.price}</span>
+                  {!r.isActive && (
+                    <span className="text-xs bg-tea-text text-white px-2 py-0.5 rounded-full">
+                      已下架・前台不顯示
+                    </span>
+                  )}
                   {pinned && (
                     <span className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
                       <Pin className="w-3 h-3" />釘選到 {r.pinnedUntil}
@@ -418,10 +484,38 @@ export default function OrderingClient() {
                   </div>
                 )}
               </div>
+
+              {/* 上架／下架開關：外觀沿用商品與組合商品（BundlesClient）的綠色滑動開關 */}
+              <div className="flex flex-col items-center gap-1 shrink-0 pt-0.5">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={r.isActive}
+                  aria-label={`${r.name}：${r.isActive ? "上架中，點擊下架" : "已下架，點擊上架"}`}
+                  title={r.isActive ? "點擊下架" : "點擊上架"}
+                  onClick={() => toggleActive(r)}
+                  disabled={busy}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0 disabled:opacity-60 ${
+                    r.isActive ? "bg-tea-green" : "bg-[#D9D9D9]"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
+                      r.isActive ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+                <span className="text-xs text-tea-text-light">{r.isActive ? "上架中" : "已下架"}</span>
+              </div>
             </div>
           </div>
         );
       })}
+
+      <p className="text-xs text-tea-text-light">
+        上架／下架會在幾秒內反映到全站（中英文）。下架只擋新的預約，已成立的預約照常進行。
+        給 AI 搜尋看的 llms.txt 不會自動更新，下架後請告訴工程師。
+      </p>
     </div>
   );
 }

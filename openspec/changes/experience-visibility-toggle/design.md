@@ -43,6 +43,7 @@
 | 列表、詳細頁、sitemap、AI 客服 | 已經會過濾，不用改（詳細頁變 404） |
 | `POST /api/bookings` | 回 409 `{ error: "此體驗目前未開放預約" }`，在名額檢查之前就擋下 |
 | `/experiences/booking/[sessionId]` | `redirect("/experiences?error=unavailable")`（不導回詳細頁，因為那頁已經 404） |
+| `POST /api/waitlist`（加入候補） | 回 409 `{ error: "此體驗目前未開放預約" }`（實作時才發現的入口，提案初版漏列） |
 | `POST /api/experience-interest` | 回 400 `{ error: "此體驗目前未開放" }` |
 | `POST /api/experience-requests` | 已經會過濾，不用改 |
 | 已成立的預約（pending／confirmed）的付款、取消、提醒信 | **照舊**。客人已經付錢或正在付，不能因為業主下架就卡住付款或退款 |
@@ -78,5 +79,5 @@
 
 ## Open Questions
 
-- D7 的場次與預約數字，要由 ordering 的 GET 帶回來，還是新 API 提供？（實作時決定，不影響規格）
+- ~~D7 的場次與預約數字，要由 ordering 的 GET 帶回來，還是新 API 提供？~~ **已決定（2026-11-07）**：由 `GET /api/admin/experience-ordering` 一併帶回 `upcoming_open_sessions`／`active_bookings`。查詢失敗時回 null，不讓整頁壞掉；確認視窗會說「無法取得」，不會顯示成 0。
 - 「體驗管理」月曆要不要把下架體驗的場次標成「已下架」？目前不做；等真的遇到「下架了但還有場次」的情況再說。

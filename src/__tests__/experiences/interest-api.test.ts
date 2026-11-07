@@ -16,6 +16,8 @@ const inserted: Record<string, unknown>[] = [];
 let insertError: { code?: string; message: string } | null = null;
 let rateLimitOk = true;
 const emailsSent: unknown[] = [];
+/** experience_types 查回來的那一筆；null＝體驗不存在 */
+let expTypeRow: { name: string; is_active: boolean } | null = { name: "萬鷺朝鳳・茶山導覽", is_active: true };
 
 vi.mock("@/lib/rate-limit", () => ({
   getClientIp: () => "1.2.3.4",
@@ -34,7 +36,7 @@ vi.mock("@/lib/supabase", () => ({
         return Promise.resolve({ error: insertError });
       },
       select: () => ({
-        eq: () => ({ single: () => Promise.resolve({ data: { name: "萬鷺朝鳳・茶山導覽" }, error: null }) }),
+        eq: () => ({ single: () => Promise.resolve({ data: expTypeRow, error: null }) }),
       }),
     }),
   },
@@ -55,6 +57,39 @@ beforeEach(() => {
   emailsSent.length = 0;
   insertError = null;
   rateLimitOk = true;
+  expTypeRow = { name: "萬鷺朝鳳・茶山導覽", is_active: true };
+});
+
+/**
+ * 已下架的體驗不收登記（openspec experience-visibility-toggle）。
+ * 業主下架一款體驗後，還收得到「想來」登記與通知信，就等於下架沒關乾淨
+ */
+describe("已下架的體驗", () => {
+  it("已下架 → 400「此體驗目前未開放」，不寫庫、不寄信", async () => {
+    expTypeRow = { name: "萬鷺朝鳳半日・等鳥茶席", is_active: false };
+    const { POST } = await import("@/app/api/experience-interest/route");
+    const res = await POST(post(ok));
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toBe("此體驗目前未開放");
+    expect(inserted).toHaveLength(0);
+    expect(emailsSent).toHaveLength(0);
+  });
+
+  it("體驗不存在 → 400，不寫庫", async () => {
+    expTypeRow = null;
+    const { POST } = await import("@/app/api/experience-interest/route");
+    const res = await POST(post({ ...ok, experienceTypeId: 999 }));
+    expect(res.status).toBe(400);
+    expect(inserted).toHaveLength(0);
+  });
+
+  it("上架中 → 照常寫入，通知信帶的是體驗名稱", async () => {
+    const { POST } = await import("@/app/api/experience-interest/route");
+    const res = await POST(post(ok));
+    expect(res.status).toBe(200);
+    expect(inserted).toHaveLength(1);
+    expect((emailsSent[0] as { experienceName: string }).experienceName).toBe("萬鷺朝鳳・茶山導覽");
+  });
 });
 
 describe("防濫用", () => {

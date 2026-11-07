@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Clock, Users } from "lucide-react";
 import { getExperienceTypes, getExperienceContents } from "@/lib/experiences";
 import SeasonBadge from "@/components/SeasonBadge";
+import UnavailableNotice from "./UnavailableNotice";
 import { getTranslations, getLocale } from "next-intl/server";
 import { langAlternates, openGraphFor } from "@/lib/seo";
 
@@ -50,6 +52,10 @@ export default async function ExperiencesPage() {
 
       {/* 體驗卡片列表 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        {/* useSearchParams 需要 Suspense 邊界，否則 build 會要求整頁動態渲染 */}
+        <Suspense fallback={null}>
+          <UnavailableNotice />
+        </Suspense>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
           {experiences.map((exp) => {
             const content = contentMap[exp.slug];

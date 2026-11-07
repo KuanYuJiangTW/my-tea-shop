@@ -50,6 +50,9 @@ const SESSION_ROW = {
     max_participants: 8,
     min_participants: 2,
     requires_adult: false,
+    // 預約與加入候補都會擋已下架的體驗（experience-visibility-toggle），
+    // 這裡要是上架中，測試才會走到 email 之後的流程
+    is_active: true,
   },
 };
 

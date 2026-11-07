@@ -39,8 +39,66 @@ export const GET = withAdminAuth(async () => {
   if (error) return isNotMigrated(error.code) ? NOT_MIGRATED
     : NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json({ today: taipeiToday(), types: data });
+  const today = taipeiToday();
+  const impact = await loadImpact(today);
+
+  return NextResponse.json({
+    today,
+    types: (data as unknown as { id: number }[]).map(t => ({
+      ...t,
+      // null＝這次沒查到（不是 0）。上下架確認視窗會說「無法取得」，不會假裝沒有影響
+      upcoming_open_sessions: impact ? (impact.sessions.get(t.id) ?? 0) : null,
+      active_bookings:        impact ? (impact.bookings.get(t.id) ?? 0) : null,
+    })),
+  });
 });
+
+/**
+ * 下架確認視窗要顯示的影響範圍（openspec experience-visibility-toggle D7）：
+ * 每款體驗今天以後的 open 場次數、以及今天以後場次上的有效預約數
+ * （pending_payment／confirmed）。下架不會取消這些，業主要先知道有多少。
+ *
+ * 查失敗回 null 而不是讓整頁壞掉——排序與季節的維護不該被這個附屬資訊拖垮。
+ */
+async function loadImpact(today: string) {
+  try {
+    return await queryImpact(today);
+  } catch (err) {
+    console.error("[experience-ordering] 影響範圍查詢例外:", err);
+    return null;
+  }
+}
+
+async function queryImpact(today: string) {
+  const [sessions, bookings] = await Promise.all([
+    supabase
+      .from("experience_sessions")
+      .select("experience_type_id")
+      .eq("status", "open")
+      .gte("session_date", today),
+    supabase
+      .from("experience_bookings")
+      .select("session:experience_sessions!inner(experience_type_id, session_date)")
+      .in("status", ["pending_payment", "confirmed"])
+      .gte("session.session_date", today),
+  ]);
+  if (sessions.error || bookings.error) {
+    console.error("[experience-ordering] 影響範圍查詢失敗:",
+      sessions.error?.message ?? bookings.error?.message);
+    return null;
+  }
+
+  const count = (ids: number[]) => {
+    const m = new Map<number, number>();
+    for (const id of ids) m.set(id, (m.get(id) ?? 0) + 1);
+    return m;
+  };
+  return {
+    sessions: count((sessions.data ?? []).map(s => s.experience_type_id as number)),
+    bookings: count((bookings.data ?? []).map(b =>
+      (b.session as unknown as { experience_type_id: number }).experience_type_id)),
+  };
+}
 
 // ─── PATCH：重排順序，或設定／清除釘選 ───────────────────────────────────
 export const PATCH = withAdminAuth(async (req: NextRequest) => {

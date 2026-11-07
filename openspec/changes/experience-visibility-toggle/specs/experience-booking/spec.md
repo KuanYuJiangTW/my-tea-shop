@@ -11,6 +11,10 @@
 - **WHEN** `POST /api/bookings` 查到的場次其 `experience_types` join 結果為 null
 - **THEN** 系統回傳 HTTP 409 `{ error: "此體驗目前未開放預約" }`，而不是 HTTP 500
 
+#### Scenario: 對已下架體驗的額滿場次加入候補
+- **WHEN** 已登入使用者對某個 `status = "full"` 的場次呼叫 `POST /api/waitlist`，但該場次所屬體驗為 `is_active = false`
+- **THEN** 系統回傳 HTTP 409 `{ error: "此體驗目前未開放預約" }`，不寫入候補紀錄、不增加候補人數
+
 #### Scenario: 上架中體驗照常預約
 - **WHEN** 使用者對上架中體驗、名額足夠的 `open` 場次呼叫 `POST /api/bookings`
 - **THEN** 預約照原流程建立，行為與本需求加入前相同
